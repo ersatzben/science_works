@@ -111,6 +111,77 @@
             animation-play-state: paused;
         }
 
+        .coming-soon-container {
+            position: absolute;
+            left: calc(50% - 115px + 8px);
+            top: calc(50% + 218px);
+            height: 30px;
+            width: auto;
+            opacity: 0;
+            animation: fadeIn 0.4s ease-out 1.75s forwards;
+            animation-play-state: paused;
+        }
+
+        .coming-soon-container img {
+            height: 35px;
+            width: auto;
+        }
+
+        body.loaded .coming-soon-container {
+            animation-play-state: running;
+        }
+
+        .learn-more-container {
+            position: absolute;
+            left: calc(50% - 115px + 3px + 5px - 200px + 60px - 20px);
+            top: calc(50% + 220px);
+            height: 30px;
+            width: auto;
+            opacity: 0;
+            animation: fadeIn 0.6s ease-out 2.25s forwards;
+            animation-play-state: paused;
+        }
+
+        .learn-more-container img {
+            height: 30px;
+            width: auto;
+        }
+
+        body.loaded .learn-more-container {
+            animation-play-state: running;
+        }
+
+        .learn-more-toggle {
+            position: absolute;
+            left: calc(50% - 115px + 4px - 200px + 60px - 20px);
+            top: calc(50% + 235px);
+            transform: translateY(-50%) rotate(90deg);
+            margin-left: 130px;
+            width: 20px;
+            height: 20px;
+            background-color: #1c2c40;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #f4f3ef;
+            font-size: 12px;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+            opacity: 0;
+            animation: fadeIn 0.4s ease-out 2.25s forwards;
+            animation-play-state: paused;
+        }
+
+        .learn-more-toggle.expanded {
+            transform: translateY(-50%) rotate(-90deg);
+        }
+
+        body.loaded .learn-more-toggle {
+            animation-play-state: running;
+        }
+
         body.loaded .divider {
             animation-play-state: running;
         }
@@ -127,6 +198,13 @@
         <img src="logo.png" alt="Science Works Logo" id="logo">
     </div>
     <div class="divider"></div>
+    <div class="learn-more-container">
+        <img src="learnmore.png" alt="Learn More">
+    </div>
+    <div class="learn-more-toggle">></div>
+    <div class="coming-soon-container">
+        <img src="comingsoon.png" alt="Coming Soon">
+    </div>
     <div class="names" id="names">
         <img src="names/1.png" alt="Name 1">
         <img src="names/2.png" alt="Name 2">
@@ -164,6 +242,13 @@
 
         window.addEventListener('DOMContentLoaded', arm);
         window.addEventListener('resize', positionNames);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggle = document.querySelector('.learn-more-toggle');
+            toggle.addEventListener('click', () => {
+                toggle.classList.toggle('expanded');
+            });
+        });
     </script>
 </body>
 </html>
