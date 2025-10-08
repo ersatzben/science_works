@@ -442,7 +442,7 @@
                                             if (pIndex >= blurb.length) return;
                                             const para = blurb[pIndex];
                                             if (cIndex < para.length) {
-                                                const chunk = para.slice(cIndex, cIndex + 4);
+                                                const chunk = para.slice(cIndex, cIndex + 6);
                                                 currentP.textContent += chunk;
                                                 cIndex += chunk.length;
                                                 setTimeout(typeNext, delay);
