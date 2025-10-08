@@ -49,7 +49,7 @@
             width: 100%;
             height: auto;
             display: block;
-            transform: scale(0.9);
+            transform: scale(0.8);
             opacity: 0.5;
         }
 
@@ -70,6 +70,8 @@
             flex-direction: column;
             align-items: flex-end;
             gap: 4px;
+            left: calc(50% - 320px);
+            top: calc(50% - 13px);
         }
 
         .names img {
@@ -78,12 +80,12 @@
             opacity: 0;
         }
 
-        body.loaded .names img:nth-child(1) { animation: fadeIn 0.4s ease-out 0.75s forwards; }
-        body.loaded .names img:nth-child(2) { animation: fadeIn 0.4s ease-out 0.90s forwards; }
-        body.loaded .names img:nth-child(3) { animation: fadeIn 0.4s ease-out 1.05s forwards; }
-        body.loaded .names img:nth-child(4) { animation: fadeIn 0.4s ease-out 1.20s forwards; }
-        body.loaded .names img:nth-child(5) { animation: fadeIn 0.4s ease-out 1.35s forwards; }
-        body.loaded .names img:nth-child(6) { animation: fadeIn 0.4s ease-out 1.50s forwards; }
+        body.loaded .names img:nth-child(1) { animation: fadeIn 0.4s ease-out 0.45s forwards; }
+        body.loaded .names img:nth-child(2) { animation: fadeIn 0.4s ease-out 0.525s forwards; }
+        body.loaded .names img:nth-child(3) { animation: fadeIn 0.4s ease-out 0.60s forwards; }
+        body.loaded .names img:nth-child(4) { animation: fadeIn 0.4s ease-out 0.675s forwards; }
+        body.loaded .names img:nth-child(5) { animation: fadeIn 0.4s ease-out 0.75s forwards; }
+        body.loaded .names img:nth-child(6) { animation: fadeIn 0.4s ease-out 0.825s forwards; }
 
         @keyframes fadeIn {
             to {
@@ -117,7 +119,7 @@
         }
 
         body.loaded .coming-soon-container {
-            animation: fadeIn 0.4s ease-out 1.75s forwards;
+            animation: fadeIn 0.4s ease-out 1.0s forwards;
         }
 
         .learn-more-container {
@@ -135,7 +137,7 @@
         }
 
         body.loaded .learn-more-container {
-            animation: fadeIn 0.6s ease-out 2.25s forwards;
+            animation: fadeIn 0.6s ease-out 1.25s forwards;
         }
 
         .learn-more-toggle {
@@ -163,12 +165,20 @@
             transform: translateY(-50%) rotate(-90deg);
         }
 
+        body.loaded .divider {
+            transition: transform 0.2s ease-out;
+        }
+
+        body.loaded .divider.shrunk {
+            transform: scaleY(0.012) translateY(8958.33%);
+        }
+
         body.loaded .learn-more-toggle {
-            animation: fadeIn 0.4s ease-out 2.25s forwards;
+            animation: fadeIn 0.4s ease-out 1.25s forwards;
         }
 
         body.loaded .divider {
-            animation: growLine 1.5s cubic-bezier(0.33, 1, 0.68, 1) 0.5s forwards;
+            animation: growLine 0.5s cubic-bezier(0.33, 1, 0.68, 1) 0.3s forwards;
         }
 
         @keyframes growLine {
@@ -206,31 +216,27 @@
             return onLoad.then(() => img.decode?.().catch(() => {}));
         }
 
-        function positionNames(){
-            const logo  = document.getElementById('logo');
-            const names = document.getElementById('names');
-            const r = logo.getBoundingClientRect();
-            const w = r.width;
-            const offsetX = w * -0.55 - 40;
-            const offsetY = w * 0.10 - 30;
-            names.style.left = (r.left + r.width/2 + offsetX) + 'px';
-            names.style.top  = (r.top  + r.height/2 + offsetY) + 'px';
-        }
-
         async function arm(){
             const imgs = Array.from(document.images);
             await Promise.all(imgs.map(whenImgReady));           // wait for decode
-            positionNames();                                     // lock positions
             requestAnimationFrame(() => document.body.classList.add('loaded')); // now run
         }
 
         window.addEventListener('DOMContentLoaded', arm);
-        window.addEventListener('resize', positionNames);
 
         document.addEventListener('DOMContentLoaded', () => {
             const toggle = document.querySelector('.learn-more-toggle');
+            const divider = document.querySelector('.divider');
+
+            // Remove animation after it completes so transitions can work
+            divider.addEventListener('animationend', () => {
+                divider.style.animation = 'none';
+                divider.style.transform = 'scaleY(1)';
+            }, { once: true });
+
             toggle.addEventListener('click', () => {
                 toggle.classList.toggle('expanded');
+                divider.classList.toggle('shrunk');
             });
         });
     </script>
