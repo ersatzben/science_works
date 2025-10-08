@@ -51,12 +51,10 @@
             display: block;
             transform: scale(0.9);
             opacity: 0.5;
-            animation: scaleIn 0.6s ease-out forwards;
-            animation-play-state: paused;
         }
 
         body.loaded .logo-container img {
-            animation-play-state: running;
+            animation: scaleIn 0.6s ease-out forwards;
         }
 
         @keyframes scaleIn {
@@ -78,19 +76,14 @@
             max-height: 25px;
             width: auto;
             opacity: 0;
-            animation-play-state: paused;
         }
 
-        .names img:nth-child(1) { animation: fadeIn 0.4s ease-out 0.75s forwards; }
-        .names img:nth-child(2) { animation: fadeIn 0.4s ease-out 0.95s forwards; }
-        .names img:nth-child(3) { animation: fadeIn 0.4s ease-out 1.15s forwards; }
-        .names img:nth-child(4) { animation: fadeIn 0.4s ease-out 1.35s forwards; }
-        .names img:nth-child(5) { animation: fadeIn 0.4s ease-out 1.55s forwards; }
-        .names img:nth-child(6) { animation: fadeIn 0.4s ease-out 1.75s forwards; }
-
-        body.loaded .names img {
-            animation-play-state: running;
-        }
+        body.loaded .names img:nth-child(1) { animation: fadeIn 0.4s ease-out 0.75s forwards; }
+        body.loaded .names img:nth-child(2) { animation: fadeIn 0.4s ease-out 0.90s forwards; }
+        body.loaded .names img:nth-child(3) { animation: fadeIn 0.4s ease-out 1.05s forwards; }
+        body.loaded .names img:nth-child(4) { animation: fadeIn 0.4s ease-out 1.20s forwards; }
+        body.loaded .names img:nth-child(5) { animation: fadeIn 0.4s ease-out 1.35s forwards; }
+        body.loaded .names img:nth-child(6) { animation: fadeIn 0.4s ease-out 1.50s forwards; }
 
         @keyframes fadeIn {
             to {
@@ -107,8 +100,6 @@
             top: calc(50% - 5px);
             transform-origin: top;
             transform: scaleY(0);
-            animation: growLine 1.5s cubic-bezier(0.33, 1, 0.68, 1) 0.5s forwards;
-            animation-play-state: paused;
         }
 
         .coming-soon-container {
@@ -118,8 +109,6 @@
             height: 30px;
             width: auto;
             opacity: 0;
-            animation: fadeIn 0.4s ease-out 1.75s forwards;
-            animation-play-state: paused;
         }
 
         .coming-soon-container img {
@@ -128,7 +117,7 @@
         }
 
         body.loaded .coming-soon-container {
-            animation-play-state: running;
+            animation: fadeIn 0.4s ease-out 1.75s forwards;
         }
 
         .learn-more-container {
@@ -138,8 +127,6 @@
             height: 30px;
             width: auto;
             opacity: 0;
-            animation: fadeIn 0.6s ease-out 2.25s forwards;
-            animation-play-state: paused;
         }
 
         .learn-more-container img {
@@ -148,7 +135,7 @@
         }
 
         body.loaded .learn-more-container {
-            animation-play-state: running;
+            animation: fadeIn 0.6s ease-out 2.25s forwards;
         }
 
         .learn-more-toggle {
@@ -170,8 +157,6 @@
             font-weight: bold;
             transition: transform 0.3s ease;
             opacity: 0;
-            animation: fadeIn 0.4s ease-out 2.25s forwards;
-            animation-play-state: paused;
         }
 
         .learn-more-toggle.expanded {
@@ -179,11 +164,11 @@
         }
 
         body.loaded .learn-more-toggle {
-            animation-play-state: running;
+            animation: fadeIn 0.4s ease-out 2.25s forwards;
         }
 
         body.loaded .divider {
-            animation-play-state: running;
+            animation: growLine 1.5s cubic-bezier(0.33, 1, 0.68, 1) 0.5s forwards;
         }
 
         @keyframes growLine {
@@ -236,7 +221,6 @@
             const imgs = Array.from(document.images);
             await Promise.all(imgs.map(whenImgReady));           // wait for decode
             positionNames();                                     // lock positions
-            document.body.classList.add('armed');                // animations still paused
             requestAnimationFrame(() => document.body.classList.add('loaded')); // now run
         }
 
