@@ -318,7 +318,7 @@
             :root {
                 /* Narrower frame: total width 330px (keep R-L = 200px) */
                 --hline-left-length: 65px;
-                --hline-right-length: 265px;
+                --hline-right-length: 272px;
             }
 
             /* Move only the logo up by 130px */
@@ -348,7 +348,7 @@
 
             /* Slightly taller frame on mobile (add 70px total height) */
             .frame.framed {
-                height: calc(200px * 2 + 220px);
+                height: calc(200px * 2 + 210px);
             }
 
             /* Slightly smaller body text inside the frame on mobile */
@@ -400,6 +400,7 @@
             const divider = document.querySelector('.divider');
             const frame = document.querySelector('.frame');
             const frameContent = document.querySelector('.frame-content');
+            let interactionsEnabled = false;
 
             // After grow animation completes, mark as expanded without inline transform
             divider.addEventListener('animationend', () => {
@@ -407,7 +408,16 @@
                 divider.style.animation = 'none';
             }, { once: true });
 
+            // Enable interactions once the toggle appears; if no animation (reduced motion), enable immediately
+            const toggleStyles = window.getComputedStyle(toggle);
+            if (toggleStyles.animationName && toggleStyles.animationName !== 'none') {
+                toggle.addEventListener('animationend', () => { interactionsEnabled = true; }, { once: true });
+            } else {
+                interactionsEnabled = true;
+            }
+
             toggle.addEventListener('click', () => {
+                if (!interactionsEnabled) return;
                 const willShrink = !divider.classList.contains('shrunk');
                 toggle.classList.toggle('expanded');
                 divider.classList.toggle('shrunk');
@@ -479,6 +489,7 @@
 
             // Click/tap outside the frame toggles the same as the learn-more toggle
             document.addEventListener('click', (ev) => {
+                if (!interactionsEnabled) return;
                 const target = ev.target;
                 if (!frame.contains(target) && !toggle.contains(target)) {
                     toggle.click();
