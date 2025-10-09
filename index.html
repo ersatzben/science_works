@@ -151,6 +151,7 @@
             height: 30px;
             width: auto;
             opacity: 0;
+            transition: opacity var(--motion-duration-xshort) var(--motion-ease-out);
         }
 
         .coming-soon-container img {
@@ -162,6 +163,19 @@
             animation: fadeIn var(--motion-duration-short) var(--motion-ease-out) 1.0s forwards;
         }
 
+        .coming-soon-container.revealed {
+            opacity: 1;
+        }
+
+        .coming-soon-container.hidden {
+            opacity: 0;
+        }
+
+        /* Ensure hidden wins under reduced-motion styles as well */
+        body.loaded .coming-soon-container.hidden {
+            opacity: 0;
+        }
+
         .learn-more-container {
             position: absolute;
             left: calc(50% - 355px + 8px + 80px);
@@ -169,6 +183,7 @@
             height: 30px;
             width: auto;
             opacity: 0;
+            transition: opacity var(--motion-duration-xshort) var(--motion-ease-out);
         }
 
         .learn-more-container img {
@@ -179,6 +194,10 @@
         body.loaded .learn-more-container {
             animation: fadeIn var(--motion-duration-medium) var(--motion-ease-out) 1.25s forwards;
         }
+
+        .learn-more-container.revealed { opacity: 1; }
+        .learn-more-container.hidden { opacity: 0; }
+        body.loaded .learn-more-container.hidden { opacity: 0; }
 
         .learn-more-toggle {
             position: absolute;
@@ -400,12 +419,26 @@
             const divider = document.querySelector('.divider');
             const frame = document.querySelector('.frame');
             const frameContent = document.querySelector('.frame-content');
+            const comingSoon = document.querySelector('.coming-soon-container');
             let interactionsEnabled = false;
 
             // After grow animation completes, mark as expanded without inline transform
             divider.addEventListener('animationend', () => {
                 divider.classList.add('expanded');
                 divider.style.animation = 'none';
+            }, { once: true });
+
+            // After coming-soon fade-in completes, switch to class-driven state (no inline opacity)
+            comingSoon.addEventListener('animationend', () => {
+                comingSoon.style.animation = 'none';
+                comingSoon.classList.add('revealed');
+            }, { once: true });
+
+            // After learn-more fade-in completes, switch to class-driven state
+            const learnMore = document.querySelector('.learn-more-container');
+            learnMore.addEventListener('animationend', () => {
+                learnMore.style.animation = 'none';
+                learnMore.classList.add('revealed');
             }, { once: true });
 
             // Enable interactions once the toggle appears; if no animation (reduced motion), enable immediately
@@ -421,6 +454,15 @@
                 const willShrink = !divider.classList.contains('shrunk');
                 toggle.classList.toggle('expanded');
                 divider.classList.toggle('shrunk');
+                const comingSoon = document.querySelector('.coming-soon-container');
+                const learnMore = document.querySelector('.learn-more-container');
+                if (willShrink) {
+                    comingSoon.classList.add('hidden');
+                    learnMore.classList.add('hidden');
+                } else {
+                    comingSoon.classList.remove('hidden');
+                    learnMore.classList.remove('hidden');
+                }
 
                 if (willShrink) {
                     const onDividerEnd = (ev) => {
