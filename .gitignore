@@ -24,3 +24,9 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# Project-specific ignores
+/BLURB.md
+/THEME.md
+/optimized/
+/large_images_IGNORE/
