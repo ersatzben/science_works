@@ -1,4 +1,0 @@
-The systems that generate, govern and deploy knowledge were built for different challenges in a different era. The result is a double failure: at the frontier, discovery itself is underpowered,  safe and wasteful. Downstream, even when breakthroughs emerge, deployment stumbles because research, regulation and application operate as disconnected worlds.
-Climate goals won't be met without breakthrough energy deployed at scale. Healthcare won't be transformed without new approaches to both discovery and delivery. Economic competitiveness won't last without institutions that can generate frontier science and move at the speed of technological change.
-These are scientific, technological, regulatory and geopolitical issues all at once. They require institutions designed for learning, not just control; for building, not just commentary.
-**We are betting that progress is possible. But only if we rebuild the systems – at the frontier and beyond – that make it real.**
