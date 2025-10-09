@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Science Works</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@100;300;400&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
     <link rel="preload" as="image" href="logo.png">
     <link rel="preload" as="image" href="names/1.png">
@@ -33,7 +33,6 @@
             --delay-base: 0.45s;
             --stagger: 0.075s;
             /* Divider tokens */
-            --divider-min-scale: 0.012; /* 3px of 250px height */
             --divider-half-width: 1.5px;
             /* Horizontal lines tokens */
             --hline-height: 3px;
@@ -146,7 +145,7 @@
 
         .coming-soon-container {
             position: absolute;
-            left: calc(50% - 115px + 8px);
+            left: calc(50% - 107px);
             top: calc(50% + 218px);
             height: 30px;
             width: auto;
@@ -178,7 +177,7 @@
 
         .learn-more-container {
             position: absolute;
-            left: calc(50% - 355px + 8px + 80px);
+            left: calc(50% - 267px);
             top: calc(50% + 220px);
             height: 30px;
             width: auto;
@@ -201,7 +200,7 @@
 
         .learn-more-toggle {
             position: absolute;
-            left: calc(50% - 115px + 4px - 200px + 60px - 20px);
+            left: calc(50% - 271px);
             top: calc(50% + 235px);
             transform: translateY(-50%) rotate(90deg);
             margin-left: 130px;
@@ -269,7 +268,7 @@
 
         /* After horizontal growth completes, expand to rectangle outline */
         .frame.framed {
-            height: calc(200px * 2);
+            height: 400px;
             border: var(--hline-height) solid #1c2c40;
         }
 
@@ -335,7 +334,7 @@
 
         @media (max-width: 600px) {
             :root {
-                /* Narrower frame: total width 330px (keep R-L = 200px) */
+                /* Narrower frame: total width 337px (R-L = 207px) */
                 --hline-left-length: 65px;
                 --hline-right-length: 272px;
             }
@@ -365,9 +364,9 @@
                 margin-left: 10px;
             }
 
-            /* Slightly taller frame on mobile (add 70px total height) */
+            /* Slightly taller frame on mobile (add 210px total height) */
             .frame.framed {
-                height: calc(200px * 2 + 210px);
+                height: 610px;
             }
 
             /* Slightly smaller body text inside the frame on mobile */
