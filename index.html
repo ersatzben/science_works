@@ -4,17 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Science Works</title>
-    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="assets/brand/favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="preload" as="image" href="logo.png">
-    <link rel="preload" as="image" href="names/1.png">
-    <link rel="preload" as="image" href="names/2.png">
-    <link rel="preload" as="image" href="names/3.png">
-    <link rel="preload" as="image" href="names/4.png">
-    <link rel="preload" as="image" href="names/5.png">
-    <link rel="preload" as="image" href="names/6.png">
     <style>
         * {
             margin: 0;
@@ -56,6 +49,47 @@
             padding-bottom: 70px;
         }
 
+        .loading-indicator {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(244, 243, 239, 0.94);
+            color: #1c2c40;
+            font-family: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            z-index: 1000;
+            transition: opacity var(--motion-duration-short) var(--motion-ease-out), visibility 0s linear var(--motion-duration-short);
+        }
+
+        .loading-indicator__content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .loading-indicator__spinner {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 3px solid rgba(28, 44, 64, 0.2);
+            border-top-color: #1c2c40;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .loading-indicator__text {
+            font-size: 12px;
+        }
+
+        body.loaded .loading-indicator {
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden;
+        }
+
         body:not(.loaded) .logo-container,
         body:not(.loaded) .names,
         body:not(.loaded) .divider,
@@ -88,6 +122,12 @@
             to {
                 transform: scale(1);
                 opacity: 1;
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
             }
         }
 
@@ -330,6 +370,10 @@
             .learn-more-toggle {
                 transition: none !important;
             }
+
+            .loading-indicator__spinner {
+                animation: none !important;
+            }
         }
 
         @media (max-width: 600px) {
@@ -377,25 +421,44 @@
     </style>
 </head>
 <body>
+    <div class="loading-indicator" role="status" aria-live="polite">
+        <div class="loading-indicator__content">
+            <span class="loading-indicator__spinner" aria-hidden="true"></span>
+            <span class="loading-indicator__text">Loading...</span>
+        </div>
+    </div>
     <div class="logo-container">
-        <img src="logo.png" alt="Science Works Logo" id="logo">
+        <picture>
+            <source
+                media="(min-width: 601px)"
+                srcset="assets/brand/logo.webp">
+            <img src="assets/brand/logo-1x.webp"
+                 srcset="assets/brand/logo-1x.webp 570w, assets/brand/logo-mobile-2x.webp 760w"
+                 sizes="(max-width: 600px) 90vw, 570px"
+                 alt="Science Works Logo"
+                 id="logo">
+        </picture>
     </div>
     <div class="divider-wrap"><div class="divider"></div></div>
     <div class="frame"><div class="frame-content" aria-live="polite" aria-atomic="true"></div></div>
     <div class="learn-more-container">
-        <img src="learnmore.png" alt="Learn More">
+        <img src="assets/brand/learnmore-1x.webp"
+             srcset="assets/brand/learnmore-1x.webp 1x, assets/brand/learnmore.webp 2x"
+             alt="Learn More">
     </div>
     <div class="learn-more-toggle">></div>
     <div class="coming-soon-container">
-        <img src="comingsoon.png" alt="Coming Soon">
+        <img src="assets/brand/comingsoon-1x.webp"
+             srcset="assets/brand/comingsoon-1x.webp 1x, assets/brand/comingsoon.webp 2x"
+             alt="Coming Soon">
     </div>
     <div class="names" id="names">
-        <img src="names/1.png" alt="Name 1">
-        <img src="names/2.png" alt="Name 2">
-        <img src="names/3.png" alt="Name 3">
-        <img src="names/4.png" alt="Name 4">
-        <img src="names/5.png" alt="Name 5">
-        <img src="names/6.png" alt="Name 6">
+        <img src="assets/names/1-1x.webp" srcset="assets/names/1-1x.webp 1x, assets/names/1.webp 2x" alt="Name 1">
+        <img src="assets/names/2-1x.webp" srcset="assets/names/2-1x.webp 1x, assets/names/2.webp 2x" alt="Name 2">
+        <img src="assets/names/3-1x.webp" srcset="assets/names/3-1x.webp 1x, assets/names/3.webp 2x" alt="Name 3">
+        <img src="assets/names/4-1x.webp" srcset="assets/names/4-1x.webp 1x, assets/names/4.webp 2x" alt="Name 4">
+        <img src="assets/names/5-1x.webp" srcset="assets/names/5-1x.webp 1x, assets/names/5.webp 2x" alt="Name 5">
+        <img src="assets/names/6-1x.webp" srcset="assets/names/6-1x.webp 1x, assets/names/6.webp 2x" alt="Name 6">
     </div>
     <script>
         function whenImgReady(img){
@@ -408,7 +471,13 @@
         async function arm(){
             const imgs = Array.from(document.images);
             await Promise.all(imgs.map(whenImgReady));           // wait for decode
-            requestAnimationFrame(() => document.body.classList.add('loaded')); // now run
+            const loadingIndicator = document.querySelector('.loading-indicator');
+            requestAnimationFrame(() => {
+                document.body.classList.add('loaded'); // now run
+                if (loadingIndicator) {
+                    loadingIndicator.setAttribute('aria-hidden', 'true');
+                }
+            });
         }
 
         window.addEventListener('DOMContentLoaded', arm);
