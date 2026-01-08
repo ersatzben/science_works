@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Science Works</title>
+    <link rel="icon" href="assets/brand/favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Motion tokens */
+            --motion-duration-xshort: 0.2s;
+            --motion-duration-short: 0.4s;
+            --motion-duration-medium: 0.6s;
+            --motion-duration-grow: 0.5s;
+            --motion-ease-out: ease-out;
+            --motion-ease-emph: cubic-bezier(0.33, 1, 0.68, 1);
+            --delay-base: 0.45s;
+            --stagger: 0.075s;
+            /* Divider tokens */
+            --divider-half-width: 1.5px;
+            /* Horizontal lines tokens */
+            --hline-height: 3px;
+            --hline-left-length: 220px;
+            --hline-right-length: 420px;
+            --hline-offset-y: 1px; /* center the 3px stroke */
+            --hline-duration: 0.15s;
+            /* Glass tokens */
+            --glass-bg: rgba(244, 243, 239, 0.35);
+            --glass-blur: 16px;
+            --glass-saturate: 140%;
+        }
+
+        body {
+            background-color: #f4f3ef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: Futura, sans-serif;
+            padding-bottom: 70px;
+        }
+
+        .loading-indicator {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(244, 243, 239, 0.94);
+            color: #1c2c40;
+            font-family: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            z-index: 1000;
+            transition: opacity var(--motion-duration-short) var(--motion-ease-out), visibility 0s linear var(--motion-duration-short);
+        }
+
+        .loading-indicator__content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .loading-indicator__spinner {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 3px solid rgba(28, 44, 64, 0.2);
+            border-top-color: #1c2c40;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .loading-indicator__text {
+            font-size: 12px;
+        }
+
+        body.loaded .loading-indicator {
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden;
+        }
+
+        body:not(.loaded) .logo-container,
+        body:not(.loaded) .names,
+        body:not(.loaded) .divider,
+        body:not(.loaded) .frame {
+            visibility: hidden;
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            max-width: 570px;
+            width: 90%;
+        }
+
+        .logo-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transform: scale(0.8);
+            opacity: 0.5;
+            will-change: transform, opacity;
+        }
+
+        body.loaded .logo-container img {
+            animation: scaleIn var(--motion-duration-medium) var(--motion-ease-out) forwards;
+        }
+
+        @keyframes scaleIn {
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .names {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            left: calc(50% - 320px);
+            top: calc(50% - 13px);
+        }
+
+        .names img {
+            max-height: 25px;
+            width: auto;
+            opacity: 0;
+            will-change: opacity;
+        }
+
+        body.loaded .names img:nth-child(1) { animation: fadeIn var(--motion-duration-short) var(--motion-ease-out) var(--delay-base) forwards; }
+        body.loaded .names img:nth-child(2) { animation: fadeIn var(--motion-duration-short) var(--motion-ease-out) calc(var(--delay-base) + var(--stagger) * 1) forwards; }
+        body.loaded .names img:nth-child(3) { animation: fadeIn var(--motion-duration-short) var(--motion-ease-out) calc(var(--delay-base) + var(--stagger) * 2) forwards; }
+        body.loaded .names img:nth-child(4) { animation: fadeIn var(--motion-duration-short) var(--motion-ease-out) calc(var(--delay-base) + var(--stagger) * 3) forwards; }
+        body.loaded .names img:nth-child(5) { animation: fadeIn var(--motion-duration-short) var(--motion-ease-out) calc(var(--delay-base) + var(--stagger) * 4) forwards; }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .divider-wrap {
+            position: absolute;
+            width: 3px;
+            height: 250px;
+            left: calc(50% - 115px);
+            top: calc(50% - 5px);
+            overflow: hidden;
+        }
+
+        .divider {
+            width: 100%;
+            height: 100%;
+            background-color: #1c2c40;
+            transform-origin: top;
+            transform: scaleY(0);
+            will-change: transform;
+        }
+
+        .divider.expanded {
+            transform: scaleY(1);
+        }
+
+        .coming-soon-container {
+            position: absolute;
+            left: calc(50% - 107px);
+            top: calc(50% + 218px);
+            height: 30px;
+            width: auto;
+            opacity: 0;
+            transition: opacity var(--motion-duration-xshort) var(--motion-ease-out);
+        }
+
+        .coming-soon-container img {
+            height: 35px;
+            width: auto;
+        }
+
+        body.loaded .coming-soon-container {
+            animation: fadeIn var(--motion-duration-short) var(--motion-ease-out) 1.0s forwards;
+        }
+
+        .coming-soon-container.revealed {
+            opacity: 1;
+        }
+
+        .coming-soon-container.hidden {
+            opacity: 0;
+        }
+
+        /* Ensure hidden wins under reduced-motion styles as well */
+        body.loaded .coming-soon-container.hidden {
+            opacity: 0;
+        }
+
+        .learn-more-container {
+            position: absolute;
+            left: calc(50% - 267px);
+            top: calc(50% + 220px);
+            height: 30px;
+            width: auto;
+            opacity: 0;
+            transition: opacity var(--motion-duration-xshort) var(--motion-ease-out);
+        }
+
+        .learn-more-container img {
+            height: 30px;
+            width: auto;
+        }
+
+        body.loaded .learn-more-container {
+            animation: fadeIn var(--motion-duration-medium) var(--motion-ease-out) 1.25s forwards;
+        }
+
+        .learn-more-container.revealed { opacity: 1; }
+        .learn-more-container.hidden { opacity: 0; }
+        body.loaded .learn-more-container.hidden { opacity: 0; }
+
+        .learn-more-toggle {
+            position: absolute;
+            left: calc(50% - 271px);
+            top: calc(50% + 235px);
+            transform: translateY(-50%) rotate(90deg);
+            margin-left: 130px;
+            width: 20px;
+            height: 20px;
+            background-color: #1c2c40;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #f4f3ef;
+            font-size: 12px;
+            font-weight: bold;
+            transition: transform 0.3s var(--motion-ease-out);
+            opacity: 0;
+            will-change: transform, opacity;
+        }
+
+        .learn-more-toggle.expanded {
+            transform: translateY(-50%) rotate(-90deg);
+        }
+
+        body.loaded .divider {
+            transition: transform var(--motion-duration-xshort) var(--motion-ease-out);
+        }
+
+        body.loaded .divider.shrunk {
+            transform: scaleY(0);
+        }
+
+        body.loaded .learn-more-toggle {
+            animation: fadeIn var(--motion-duration-short) var(--motion-ease-out) 1.25s forwards;
+        }
+
+        body.loaded .divider {
+            animation: growLine var(--motion-duration-grow) var(--motion-ease-emph) 0.3s forwards;
+        }
+
+        @keyframes growLine {
+            to {
+                transform: scaleY(1);
+            }
+        }
+
+        /* Frame drawn from divider point (single element) */
+        .frame {
+            position: absolute;
+            height: var(--hline-height);
+            background-color: transparent;
+            left: calc(50% - 115px + var(--divider-half-width) - var(--hline-left-length));
+            top: calc(50% - 5px + var(--hline-offset-y));
+            width: calc(var(--hline-left-length) + var(--hline-right-length));
+            transform-origin: var(--hline-left-length) 50%;
+            transform: translateY(-50%) scaleX(0);
+            transition: transform var(--hline-duration) var(--motion-ease-out), height var(--motion-duration-short) var(--motion-ease-out), background-color var(--motion-duration-short) var(--motion-ease-out);
+            z-index: 2;
+            box-sizing: border-box;
+            border-top: var(--hline-height) solid #1c2c40;
+        }
+
+        .frame.active {
+            transform: translateY(-50%) scaleX(1);
+        }
+
+        /* After horizontal growth completes, expand to rectangle outline */
+        .frame.framed {
+            height: 400px;
+            border: var(--hline-height) solid #1c2c40;
+        }
+
+        .frame.glass {
+            background-color: var(--glass-bg);
+            -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+            backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+        }
+
+        .frame-content {
+            position: absolute;
+            inset: calc(var(--hline-height) + 12px) calc(var(--hline-height) + 16px);
+            color: #1c2c40;
+            font-family: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            opacity: 0;
+            transition: opacity var(--motion-duration-short) var(--motion-ease-out);
+            white-space: pre-wrap;
+        }
+
+        .frame-content.visible {
+            opacity: 1;
+        }
+
+        .frame-content p {
+            margin: 0;
+        }
+
+        .frame-content p + p {
+            margin-top: 14px;
+        }
+
+        .frame-content p.emphasis {
+            font-weight: 600;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            body.loaded .logo-container img {
+                animation: none !important;
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            body.loaded .names img,
+            body.loaded .coming-soon-container,
+            body.loaded .learn-more-container,
+            body.loaded .learn-more-toggle {
+                animation: none !important;
+                opacity: 1;
+            }
+
+            body.loaded .divider {
+                animation: none !important;
+                transition: none !important;
+                transform: scaleY(1);
+            }
+
+            .learn-more-toggle {
+                transition: none !important;
+            }
+
+            .loading-indicator__spinner {
+                animation: none !important;
+            }
+        }
+
+        @media (max-width: 600px) {
+            :root {
+                /* Narrower frame: total width 337px (R-L = 207px) */
+                --hline-left-length: 65px;
+                --hline-right-length: 272px;
+            }
+
+            /* Move only the logo up by 130px */
+            .logo-container {
+                transform: translateY(-130px);
+            }
+
+            /* Shift all other key elements 130px to the right without breaking their transforms */
+            .divider-wrap,
+            .frame,
+            .learn-more-container,
+            .learn-more-toggle,
+            .coming-soon-container,
+            .names {
+                margin-left: 130px;
+            }
+
+            /* And move the toggle an additional 130px to the right */
+            .learn-more-toggle {
+                margin-left: 260px;
+            }
+
+            /* Move the frame 120px left relative to others */
+            .frame {
+                margin-left: 10px;
+            }
+
+            /* Slightly taller frame on mobile (add 210px total height) */
+            .frame.framed {
+                height: 610px;
+            }
+
+            /* Slightly smaller body text inside the frame on mobile */
+            .frame-content {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-indicator" role="status" aria-live="polite">
+        <div class="loading-indicator__content">
+            <span class="loading-indicator__spinner" aria-hidden="true"></span>
+            <span class="loading-indicator__text">Loading...</span>
+        </div>
+    </div>
+    <div class="logo-container">
+        <picture>
+            <source
+                media="(min-width: 601px)"
+                srcset="assets/brand/logo.webp">
+            <img src="assets/brand/logo-1x.webp"
+                 srcset="assets/brand/logo-1x.webp 570w, assets/brand/logo-mobile-2x.webp 760w"
+                 sizes="(max-width: 600px) 90vw, 570px"
+                 alt="Science Works Logo"
+                 id="logo">
+        </picture>
+    </div>
+    <div class="divider-wrap"><div class="divider"></div></div>
+    <div class="frame"><div class="frame-content" aria-live="polite" aria-atomic="true"></div></div>
+    <div class="learn-more-container">
+        <img src="assets/brand/learnmore-1x.webp"
+             srcset="assets/brand/learnmore-1x.webp 1x, assets/brand/learnmore.webp 2x"
+             alt="Learn More">
+    </div>
+    <div class="learn-more-toggle">></div>
+    <div class="coming-soon-container">
+        <img src="assets/brand/comingsoon-1x.webp"
+             srcset="assets/brand/comingsoon-1x.webp 1x, assets/brand/comingsoon.webp 2x"
+             alt="Coming Soon">
+    </div>
+    <div class="names" id="names">
+        <img src="assets/names/1-1x.webp" srcset="assets/names/1-1x.webp 1x, assets/names/1.webp 2x" alt="Name 1">
+        <img src="assets/names/2-1x.webp" srcset="assets/names/2-1x.webp 1x, assets/names/2.webp 2x" alt="Name 2">
+        <img src="assets/names/3-1x.webp" srcset="assets/names/3-1x.webp 1x, assets/names/3.webp 2x" alt="Name 3">
+        <img src="assets/names/5-1x.webp" srcset="assets/names/5-1x.webp 1x, assets/names/5.webp 2x" alt="Name 5">
+        <img src="assets/names/6-1x.webp" srcset="assets/names/6-1x.webp 1x, assets/names/6.webp 2x" alt="Name 6">
+    </div>
+    <script>
+        function whenImgReady(img){
+            const onLoad = img.complete
+                ? Promise.resolve()
+                : new Promise(res => img.addEventListener('load', res, {once:true}));
+            return onLoad.then(() => img.decode?.().catch(() => {}));
+        }
+
+        async function arm(){
+            const imgs = Array.from(document.images);
+            await Promise.all(imgs.map(whenImgReady));           // wait for decode
+            const loadingIndicator = document.querySelector('.loading-indicator');
+            requestAnimationFrame(() => {
+                document.body.classList.add('loaded'); // now run
+                if (loadingIndicator) {
+                    loadingIndicator.setAttribute('aria-hidden', 'true');
+                }
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', arm);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggle = document.querySelector('.learn-more-toggle');
+            const divider = document.querySelector('.divider');
+            const frame = document.querySelector('.frame');
+            const frameContent = document.querySelector('.frame-content');
+            const comingSoon = document.querySelector('.coming-soon-container');
+            let interactionsEnabled = false;
+
+            // After grow animation completes, mark as expanded without inline transform
+            divider.addEventListener('animationend', () => {
+                divider.classList.add('expanded');
+                divider.style.animation = 'none';
+            }, { once: true });
+
+            // After coming-soon fade-in completes, switch to class-driven state (no inline opacity)
+            comingSoon.addEventListener('animationend', () => {
+                comingSoon.style.animation = 'none';
+                comingSoon.classList.add('revealed');
+            }, { once: true });
+
+            // After learn-more fade-in completes, switch to class-driven state
+            const learnMore = document.querySelector('.learn-more-container');
+            learnMore.addEventListener('animationend', () => {
+                learnMore.style.animation = 'none';
+                learnMore.classList.add('revealed');
+            }, { once: true });
+
+            // Enable interactions once the toggle appears; if no animation (reduced motion), enable immediately
+            const toggleStyles = window.getComputedStyle(toggle);
+            if (toggleStyles.animationName && toggleStyles.animationName !== 'none') {
+                toggle.addEventListener('animationend', () => { interactionsEnabled = true; }, { once: true });
+            } else {
+                interactionsEnabled = true;
+            }
+
+            toggle.addEventListener('click', () => {
+                if (!interactionsEnabled) return;
+                const willShrink = !divider.classList.contains('shrunk');
+                toggle.classList.toggle('expanded');
+                divider.classList.toggle('shrunk');
+                const comingSoon = document.querySelector('.coming-soon-container');
+                const learnMore = document.querySelector('.learn-more-container');
+                if (willShrink) {
+                    comingSoon.classList.add('hidden');
+                    learnMore.classList.add('hidden');
+                } else {
+                    comingSoon.classList.remove('hidden');
+                    learnMore.classList.remove('hidden');
+                }
+
+                if (willShrink) {
+                    const onDividerEnd = (ev) => {
+                        if (ev.propertyName === 'transform' && divider.classList.contains('shrunk')) {
+                            frame.classList.add('active');
+                            divider.removeEventListener('transitionend', onDividerEnd);
+                            const onFrameGrowEnd = (fev) => {
+                                if (fev.propertyName === 'transform' && frame.classList.contains('active')) {
+                                    // Begin vertical expansion and show glass immediately
+                                    frame.classList.add('framed');
+                                    frame.classList.add('glass');
+                                    // Start typewriter shortly after expansion begins
+                                    const startTyping = () => {
+                                        const blurb = [
+                                            "The systems that generate, govern and deploy knowledge were built for different challenges in a different era. The result is a double failure: at the frontier, discovery itself is underpowered, cautious and wasteful. Downstream, even when breakthroughs emerge, deployment stumbles because research, regulation and application operate as disconnected worlds.",
+                                            "Climate goals won't be met without breakthrough energy deployed at scale. Healthcare won't be transformed without new approaches to both discovery and delivery. Economic competitiveness won't last without institutions that can generate frontier science and move at the speed of technological change.",
+                                            "These are scientific, technological, regulatory and geopolitical issues all at once. They require institutions designed for learning, not just control; for building, not just commentary.",
+                                            "We are betting that progress is possible. But only if we rebuild the systems – at the frontier and beyond – that make it real."
+                                        ];
+                                        frameContent.textContent = '';
+                                        frameContent.classList.add('visible');
+                                        const delay = 2; // ms per character
+                                        let pIndex = 0;
+                                        let cIndex = 0;
+                                        let currentP = document.createElement('p');
+                                        frameContent.appendChild(currentP);
+
+                                        const typeNext = () => {
+                                            if (pIndex >= blurb.length) return;
+                                            const para = blurb[pIndex];
+                                            if (cIndex < para.length) {
+                                                const chunk = para.slice(cIndex, cIndex + 20);
+                                                currentP.textContent += chunk;
+                                                cIndex += chunk.length;
+                                                setTimeout(typeNext, delay);
+                                            } else {
+                                                // Move to next paragraph
+                                                pIndex += 1;
+                                                cIndex = 0;
+                                                if (pIndex < blurb.length) {
+                                                    currentP = document.createElement('p');
+                                                    if (pIndex === blurb.length - 1) currentP.classList.add('emphasis');
+                                                    frameContent.appendChild(currentP);
+                                                    setTimeout(typeNext, delay * 12); // slight pause between paragraphs
+                                                }
+                                            }
+                                        };
+                                        typeNext();
+                                    };
+                                    setTimeout(startTyping, 120); // slight delay after frame begins expanding
+                                    frame.removeEventListener('transitionend', onFrameGrowEnd);
+                                }
+                            };
+                            frame.addEventListener('transitionend', onFrameGrowEnd);
+                        }
+                    };
+                    divider.addEventListener('transitionend', onDividerEnd);
+                } else {
+                    frame.classList.remove('glass');
+                    frame.classList.remove('framed');
+                    frame.classList.remove('active');
+                    frameContent.classList.remove('visible');
+                    frameContent.textContent = '';
+                }
+            });
+
+            // Click/tap outside the frame toggles the same as the learn-more toggle
+            document.addEventListener('click', (ev) => {
+                if (!interactionsEnabled) return;
+                const target = ev.target;
+                if (!frame.contains(target) && !toggle.contains(target)) {
+                    toggle.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
