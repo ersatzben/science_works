@@ -36,6 +36,7 @@
       height: calc(600px * var(--scale));
       position: relative;
       overflow: visible;
+      transform: translateX(-40px);
     }
     #container {
       position: absolute;
@@ -60,6 +61,8 @@
       z-index: 2;
     }
     #canvas-particles {
+      width: 405px;
+      height: 369px;
       pointer-events: none;
       z-index: 3;
     }
@@ -76,7 +79,7 @@
     .text-overlay {
       position: absolute;
       top: 50%;
-      left: calc(50% + 210px);
+      left: calc(50% + 270px);
       transform: translate(-50%, -50%);
       pointer-events: none;
       display: flex;
@@ -96,7 +99,7 @@
       transform: none;
       justify-content: center;
       /* Offset text content 210px right of container center */
-      padding-left: 420px;
+      padding-left: 540px;
       padding-right: 0;
     }
     .text-overlay span {
@@ -121,6 +124,13 @@
     }
     .text-overlay .line2 {
       font-size: 213.54px;
+    }
+
+    /* Phone layout */
+    @media (max-width: 480px) {
+      :root {
+        --scale: 0.20;
+      }
     }
   </style>
 </head>
@@ -422,9 +432,11 @@
         this.canvas.height = height * dpr;
         this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
 
-        // Particle canvas
-        this.particleCanvas.width = width * dpr;
-        this.particleCanvas.height = height * dpr;
+        // Particle canvas (5% buffer on each side = 90% of main canvas)
+        const particleWidth = 405;
+        const particleHeight = 369;
+        this.particleCanvas.width = particleWidth * dpr;
+        this.particleCanvas.height = particleHeight * dpr;
         this.particleCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
       }
 
