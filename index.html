@@ -8,6 +8,9 @@
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <title>Science Works</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400&display=swap" rel="stylesheet">
   <style>
     @font-face {
       font-family: 'Antique Olive';
@@ -27,9 +30,55 @@
       overflow: hidden;
       background: #fdfcfb;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+      margin-top: -50px;
+    }
+    #signup {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: 'Roboto', sans-serif;
+    }
+    #signup h3 {
+      font-size: 16px;
+      font-weight: 400;
+      color: #e83525;
+      margin-bottom: 8px;
+      letter-spacing: 0.02em;
+    }
+    #signup form {
+      display: flex;
+    }
+    #signup input[type="email"] {
+      font-family: 'Roboto', sans-serif;
+      font-size: 13px;
+      padding: 8px 12px;
+      border: 1.5px solid #e83525;
+      border-right: none;
+      border-radius: 0;
+      outline: none;
+      background: transparent;
+      color: #333;
+      width: 200px;
+    }
+    #signup input[type="email"]::placeholder {
+      color: #ccc;
+    }
+    #signup button {
+      font-size: 16px;
+      padding: 8px 12px;
+      border: 1.5px solid #e83525;
+      border-radius: 0;
+      background: #e83525;
+      color: #fdfcfb;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      line-height: 1;
     }
     #scale-wrapper {
       width: calc(900px * var(--scale));
@@ -126,6 +175,16 @@
       font-size: 213.54px;
     }
 
+    #privacy-link {
+      position: fixed;
+      bottom: 10px;
+      right: 14px;
+      font-family: 'Roboto', sans-serif;
+      font-size: 10px;
+      color: #ddd;
+      text-decoration: none;
+    }
+
     /* Phone layout */
     @media (max-width: 480px) {
       :root {
@@ -161,6 +220,16 @@
     </div>
   </div>
   </div>
+
+  <div id="signup">
+    <h3>Want to stay in the loop?</h3>
+    <form action="https://buttondown.com/api/emails/embed-subscribe/scienceworks" method="post" target="popupwindow">
+      <input type="email" name="email" placeholder="Email address" required />
+      <button type="submit">&#x2192;</button>
+    </form>
+  </div>
+
+  <a id="privacy-link" href="privacy.html">Privacy</a>
 
   <script id="vertex-shader" type="x-shader/x-vertex">
     attribute vec2 a_position;
