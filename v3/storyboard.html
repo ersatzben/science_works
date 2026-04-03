@@ -32,8 +32,8 @@
     --rule: rgba(155, 6, 46, 0.12);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { overflow-x: hidden; scroll-behavior: smooth; }
-  body { background: var(--off-white); color: var(--burgundy); font-family: 'DM Sans', sans-serif; overflow-x: hidden; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--off-white); color: var(--burgundy); font-family: 'DM Sans', sans-serif; overflow-x: clip; }
 
   /* ── Navigation ── */
   nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 20px 28px; display: flex; justify-content: space-between; align-items: center; transition: background 0.5s, backdrop-filter 0.4s, padding-right 0.4s; }
@@ -45,7 +45,7 @@
   .nav-links a:hover { color: var(--orange); }
 
   /* ── Scroll Track & Stage ── */
-  .scroll-track { height: 500vh; position: relative; }
+  .scroll-track { height: 300vh; position: relative; }
   .scroll-anchor { position: absolute; pointer-events: none; }
   .stage { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 10; overflow: hidden; background: var(--off-white); }
 
@@ -127,21 +127,50 @@
   #graph-explorer #filter-date .date-btn.active { color: #9b062e; border-color: #9b062e; }
 
   /* ── Scene 4: Programmes ── */
-  .programmes { position: relative; z-index: 20; padding: 0 0 120px; background: var(--off-white); }
-  .programmes-header { padding: 80px 48px 64px; max-width: 680px; margin-left: auto; margin-right: auto; text-align: center; }
+  .programmes { position: relative; z-index: 20; background: var(--off-white); }
+  .programmes-header {
+    position: sticky; top: 70px; z-index: 5;
+    padding: 20px 48px 16px; max-width: 680px; margin-left: auto; margin-right: auto; text-align: center;
+    background: var(--off-white);
+  }
   .programmes-header .section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--orange); margin-bottom: 20px; }
   .programmes-header h2 { font-family: 'Instrument Serif', serif; font-size: clamp(32px, 3.5vw, 48px); line-height: 1.15; letter-spacing: -0.02em; color: var(--burgundy); }
-  .programme-list { max-width: 1100px; margin: 0 auto; padding: 0 48px; }
-  .programme-item { display: flex; align-items: baseline; padding: 40px 0; border-top: 1px solid var(--rule); gap: 32px; opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; cursor: pointer; }
-  .programme-item.visible { opacity: 1; transform: translateY(0); }
-  .programme-item:last-child { border-bottom: 1px solid var(--rule); }
-  .programme-number { font-family: 'Instrument Serif', serif; font-size: 14px; color: var(--orange); min-width: 28px; padding-top: 2px; }
-  .programme-content { flex: 1; }
-  .programme-title { font-family: 'Instrument Serif', serif; font-size: clamp(24px, 2.5vw, 34px); letter-spacing: -0.015em; color: var(--burgundy); margin-bottom: 10px; transition: color 0.25s; }
-  .programme-item:hover .programme-title { color: var(--orange); }
-  .programme-desc { font-size: 15px; line-height: 1.6; color: var(--burgundy); max-width: 560px; }
-  .programme-arrow { font-size: 20px; color: var(--rule); transition: color 0.25s, transform 0.25s; align-self: center; }
-  .programme-item:hover .programme-arrow { color: var(--orange); transform: translateX(6px); }
+
+  /* Card stage */
+  .programme-scroll-spacer { height: 600vh; position: relative; } /* scroll distance for card animations */
+  .programme-stage {
+    position: sticky; top: 160px; /* below header */
+    height: calc(100vh - 180px);
+    perspective: 5000px;
+    perspective-origin: 50% 50%;
+    overflow: visible;
+    margin: 0 48px;
+  }
+
+  /* 3D Cards */
+  .programme-card {
+    position: absolute;
+    width: 840px;
+    height: 400px;
+    padding: 28px 24px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+    cursor: pointer;
+    transition: box-shadow 0.3s;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    opacity: 0; /* JS controls visibility */
+  }
+  .programme-card:hover {
+    box-shadow: 0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
+  }
+  .programme-card .card-number { font-family: 'Instrument Serif', serif; font-size: 14px; color: var(--orange); margin-bottom: 12px; }
+  .programme-card .card-title { font-family: 'Instrument Serif', serif; font-size: 22px; letter-spacing: -0.015em; color: var(--burgundy); margin-bottom: 10px; }
+  .programme-card .card-desc { font-size: 14px; line-height: 1.55; color: var(--burgundy); opacity: 0.7; }
+
+  /* ── Debug ── */
+  .scroll-debug { position: fixed; bottom: 20px; left: 20px; z-index: 999; font-size: 12px; font-family: monospace; color: rgba(27,58,92,0.4); pointer-events: none; background: rgba(255,255,255,0.8); padding: 4px 8px; border-radius: 4px; }
 
   /* ── Footer ── */
   footer { padding: 48px; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; align-items: center; max-width: 1100px; margin: 0 auto; background: var(--off-white); position: relative; z-index: 20; }
@@ -284,14 +313,36 @@
 <section class="programmes" id="programmes">
   <div class="programmes-header">
     <div class="section-label">Five programmes</div>
-    <h2>Building what the research system is missing</h2>
+    <h2>Tackling high-leverage problems in UK science</h2>
   </div>
-  <div class="programme-list">
-    <div class="programme-item" data-delay="0"><span class="programme-number">01</span><div class="programme-content"><div class="programme-title">Institutional Dynamism</div><p class="programme-desc">New research institutions, the Lovelace Founding Unit, an Institutions Lab, and convenings that connect institutional designers with the capital and policy access they need.</p></div><span class="programme-arrow">&rarr;</span></div>
-    <div class="programme-item" data-delay="80"><span class="programme-number">02</span><div class="programme-content"><div class="programme-title">AI for Science</div><p class="programme-desc">Dark data recovery, lab infrastructure, compute strategy, and shaping the UK AI for Science Strategy — ensuring missions meet a high bar.</p></div><span class="programme-arrow">&rarr;</span></div>
-    <div class="programme-item" data-delay="160"><span class="programme-number">03</span><div class="programme-content"><div class="programme-title">Toolbuilding</div><p class="programme-desc">Open-source software fellowships, scientometric tools, and an intelligence platform — building the infrastructure researchers and funders are missing.</p></div><span class="programme-arrow">&rarr;</span></div>
-    <div class="programme-item" data-delay="240"><span class="programme-number">04</span><div class="programme-content"><div class="programme-title">Analytics</div><p class="programme-desc">Capability mapping and system intelligence for funders and researchers — making the UK's research landscape legible for the first time.</p></div><span class="programme-arrow">&rarr;</span></div>
-    <div class="programme-item" data-delay="320"><span class="programme-number">05</span><div class="programme-content"><div class="programme-title">Funding System Reform</div><p class="programme-desc">REF alternatives, UKRI eligibility reform, and novel capital structures — redesigning how research funding flows.</p></div><span class="programme-arrow">&rarr;</span></div>
+  <div class="programme-scroll-spacer">
+    <div class="programme-stage" id="programmeStage">
+      <div class="programme-card" data-index="0">
+        <div class="card-number">01</div>
+        <div class="card-title">Institutional Dynamism</div>
+        <p class="card-desc">New research institutions, the Lovelace Founding Unit, an Institutions Lab, and convenings that connect institutional designers with the capital and policy access they need.</p>
+      </div>
+      <div class="programme-card" data-index="1">
+        <div class="card-number">02</div>
+        <div class="card-title">AI for Science</div>
+        <p class="card-desc">Dark data recovery, lab infrastructure, compute strategy, and shaping the UK AI for Science Strategy — ensuring missions meet a high bar.</p>
+      </div>
+      <div class="programme-card" data-index="2">
+        <div class="card-number">03</div>
+        <div class="card-title">Toolbuilding</div>
+        <p class="card-desc">Open-source software fellowships, scientometric tools, and an intelligence platform — building the infrastructure researchers and funders are missing.</p>
+      </div>
+      <div class="programme-card" data-index="3">
+        <div class="card-number">04</div>
+        <div class="card-title">Analytics</div>
+        <p class="card-desc">Capability mapping and system intelligence for funders and researchers — making the UK's research landscape legible for the first time.</p>
+      </div>
+      <div class="programme-card" data-index="4">
+        <div class="card-number">05</div>
+        <div class="card-title">Funding System Reform</div>
+        <p class="card-desc">REF alternatives, UKRI eligibility reform, and novel capital structures — redesigning how research funding flows.</p>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -302,6 +353,7 @@
 </footer>
 
 <!-- ── Debug ── -->
+<div class="scroll-debug" id="debug"></div>
 <!-- ── Scripts ── -->
 <!-- no external graph library — we roll our own -->
 <script>
@@ -345,18 +397,19 @@ function updateScene() {
   const scrollY = window.scrollY;
   const p = scrollY / vh;
 
+  document.getElementById('debug').textContent = `${Math.round(scrollY)}px | ${p.toFixed(2)}vh`;
 
   // ── Blob progress (linear — eased inside getCanvasRect / updateCanvasPosition) ──
-  blobDockProgress = p <= 0.5 ? 0 : p <= 1 ? clamp((p - 0.5) / 0.5, 0, 1) : 1;
+  blobDockProgress = p <= 0.3 ? 0 : p <= 0.7 ? clamp((p - 0.3) / 0.4, 0, 1) : 1;
   blobFadeProgress = 0; // blob never fades
   updateCanvasPosition();
 
-  // ── Hero text: static 0–0.5, exit right 0.5–1 ──
-  if (p <= 0.5) {
+  // ── Hero text: static 0–0.3, exit right 0.3–0.7 ──
+  if (p <= 0.3) {
     heroTextBox.style.transform = 'none';
     heroTextBox.style.opacity = 1;
-  } else if (p <= 1) {
-    const t = easeInOutCubic(clamp((p - 0.5) / 0.5, 0, 1));
+  } else if (p <= 0.7) {
+    const t = easeInOutCubic(clamp((p - 0.3) / 0.4, 0, 1));
     heroTextBox.style.transform = `translateX(${(t * 120).toFixed(1)}%)`;
     heroTextBox.style.opacity = clamp(1 - t * 1.08, 0, 1).toFixed(3);
   } else {
@@ -364,19 +417,19 @@ function updateScene() {
     heroTextBox.style.transform = 'translateX(120%)';
   }
 
-  // ── About: fade in 0.75–1.25, stays visible (explorer covers it as it slides up) ──
-  const aboutOpacity = p <= 0.75 ? 0 : p <= 1.25 ? easeOutCubic(clamp((p - 0.75) / 0.5, 0, 1)) : 1;
+  // ── About: fade in 0.45–0.9, stays visible (explorer covers it as it slides up) ──
+  const aboutOpacity = p <= 0.45 ? 0 : p <= 0.9 ? easeOutCubic(clamp((p - 0.45) / 0.45, 0, 1)) : 1;
   aboutBox.style.opacity = aboutOpacity.toFixed(3);
   aboutImage.style.opacity = aboutOpacity.toFixed(3);
   aboutDividerBar.style.opacity = aboutOpacity.toFixed(3);
   aboutDividerBar2.style.opacity = aboutOpacity.toFixed(3);
 
-  // ── Explorer: slide up 2–3 ──
-  if (p <= 2) {
+  // ── Explorer: slide up 1.3–2 ──
+  if (p <= 1.3) {
     explorerBox.style.transform = 'translateY(100%)';
     explorerBox.classList.remove('active');
-  } else if (p <= 3) {
-    const t = easeInOutCubic(clamp(p - 2, 0, 1));
+  } else if (p <= 2) {
+    const t = easeInOutCubic(clamp((p - 1.3) / 0.7, 0, 1));
     explorerBox.style.transform = `translateY(${((1 - t) * 100).toFixed(1)}%)`;
     explorerBox.classList.toggle('active', t > 0.5);
   } else {
@@ -384,17 +437,13 @@ function updateScene() {
     explorerBox.classList.add('active');
   }
 
-  // ── Stage fade-out 4–4.5 → Scene 4 ──
-  if (p >= 4.5) {
-    stage.style.opacity = 0;
-    stage.style.pointerEvents = 'none';
-  } else if (p >= 4) {
-    stage.style.opacity = (1 - easeInOutCubic((p - 4) * 2)).toFixed(3);
+  // ── Stage → Scene 4: no fade, just disable interaction ──
+  if (p >= 2.5) {
     stage.style.pointerEvents = 'none';
   } else {
-    stage.style.opacity = 1;
     stage.style.pointerEvents = '';
   }
+  stage.style.opacity = 1;
 
   // ── Nav ──
   navEl.classList.toggle('scrolled', scrollY > 600);
@@ -404,18 +453,18 @@ function updateScene() {
     scrollIndicator.style.opacity = Math.max(0, 0.4 - scrollY / 320).toFixed(3);
   }
 
-  // ── Corner text: fly off left 0.5–1 ──
-  if (p <= 0.5) {
+  // ── Corner text: fly off left 0.3–0.7 ──
+  if (p <= 0.3) {
     heroCornerText.style.transform = 'translateX(0)';
-  } else if (p <= 1) {
-    const t = easeInOutCubic(clamp((p - 0.5) / 0.5, 0, 1));
+  } else if (p <= 0.7) {
+    const t = easeInOutCubic(clamp((p - 0.3) / 0.4, 0, 1));
     heroCornerText.style.transform = `translateX(${(-t * 120)}%)`;
   } else {
     heroCornerText.style.transform = 'translateX(-120%)';
   }
 
   // ── Lazy-init graph when approaching Scene 3 ──
-  if (p >= 2.5) maybeInitGraph();
+  if (p >= 1) maybeInitGraph();
 }
 
 window.addEventListener('scroll', () => requestAnimationFrame(updateScene), { passive: true });
@@ -741,6 +790,9 @@ function buildGraph(data) {
     draw();
   };
 
+  // Transform state for hit-testing (updated each draw)
+  let _tScale = 1, _tCx = 0, _tCy = 0;
+
   function nodeRadius(n) { return n.prominence * n.prominence * 18 + 3; }
 
   function parseHex(hex) {
@@ -766,9 +818,10 @@ function buildGraph(data) {
   }
 
   // Word-wrap cache
-  function getWrappedLines(node, maxW) {
-    if (node.__wrapCache && node.__wrapCache.maxW === maxW) return node.__wrapCache;
-    ctx.font = `400 14px 'Playfair Display', serif`;
+  function getWrappedLines(node, maxW, fontSize) {
+    const key = `${maxW}|${fontSize}`;
+    if (node.__wrapCache && node.__wrapCache.key === key) return node.__wrapCache;
+    ctx.font = `400 ${fontSize}px 'Playfair Display', serif`;
     const words = node.title.split(' ');
     const lines = [];
     let line = '';
@@ -780,15 +833,19 @@ function buildGraph(data) {
     if (line) lines.push(line);
     const widths = lines.map(l => ctx.measureText(l).width);
     const bgW = Math.min(maxW, Math.max(...widths));
-    node.__wrapCache = { maxW, lines, bgW };
+    node.__wrapCache = { key, lines, bgW };
     return node.__wrapCache;
   }
 
+  function screenToGraph(mx, my) {
+    return { x: (mx - W/2) / _tScale + _tCx, y: (my - H/2) / _tScale + _tCy };
+  }
+
   function nodeAt(mx, my) {
-    // Check in reverse prominence order so prominent nodes are on top
+    const g = screenToGraph(mx, my);
     const sorted = [...visibleNodes].sort((a, b) => a.prominence - b.prominence);
     for (const n of sorted) {
-      const dx = mx - (n.x + W/2), dy = my - (n.y + H/2);
+      const dx = g.x - n.x, dy = g.y - n.y;
       if (Math.sqrt(dx*dx + dy*dy) < nodeRadius(n) + 4) return n;
     }
     return null;
@@ -798,10 +855,54 @@ function buildGraph(data) {
     const cw = canvas.width, ch = canvas.height;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, cw/dpr, ch/dpr);
-    ctx.fillStyle = '#faf7f4';
+    ctx.fillStyle = '#fdfbf9';
     ctx.fillRect(0, 0, cw/dpr, ch/dpr);
 
-    const ox = W/2, oy = H/2; // offset: graph coords are centered at 0,0
+    // Grid
+    const gridSize = 40;
+    ctx.strokeStyle = 'rgba(0,0,30,0.05)';
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    for (let x = 0; x <= cw/dpr; x += gridSize) { ctx.moveTo(x, 0); ctx.lineTo(x, ch/dpr); }
+    for (let y = 0; y <= ch/dpr; y += gridSize) { ctx.moveTo(0, y); ctx.lineTo(cw/dpr, y); }
+    ctx.stroke();
+
+    // Compute bounding box of all nodes (including radii + label width)
+    const LABEL_MAX_W = 210; // 200 + padding
+    const LABEL_H = 60; // approximate max label height
+    const MARGIN = 30;
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    for (const n of visibleNodes) {
+      const r = nodeRadius(n);
+      const left = n.x - r;
+      const right = n.x + r + (n.showLabel ? LABEL_MAX_W : 0);
+      const top = n.y - r - (n.isNew ? 18 : 0);
+      const bottom = n.y + r;
+      if (left < minX) minX = left;
+      if (right > maxX) maxX = right;
+      if (top < minY) minY = top;
+      if (bottom > maxY) maxY = bottom;
+    }
+    if (!isFinite(minX)) { minX = -100; maxX = 100; minY = -100; maxY = 100; }
+
+    const contentW = maxX - minX + MARGIN * 2;
+    const contentH = maxY - minY + MARGIN * 2;
+    const contentCx = (minX + maxX) / 2;
+    const contentCy = (minY + maxY) / 2;
+
+    // Transform: center the content and scale to fit
+    const scale = Math.min(1, W / contentW, H / contentH);
+    const ox = W / 2;
+    const oy = H / 2;
+
+    // Store for hit-testing
+    _tScale = scale; _tCx = contentCx; _tCy = contentCy;
+
+    // Apply transform — all subsequent drawing is in graph coordinates
+    ctx.save();
+    ctx.translate(ox, oy);
+    ctx.scale(scale, scale);
+    ctx.translate(-contentCx, -contentCy);
 
     const nodeMap = {};
     visibleNodes.forEach(n => nodeMap[n.id] = n);
@@ -813,10 +914,10 @@ function buildGraph(data) {
       if (!src || !tgt) continue;
       const highlighted = highlightedLinks.has(l);
       ctx.beginPath();
-      ctx.moveTo(src.x + ox, src.y + oy);
-      ctx.lineTo(tgt.x + ox, tgt.y + oy);
+      ctx.moveTo(src.x, src.y);
+      ctx.lineTo(tgt.x, tgt.y);
       ctx.strokeStyle = highlightedNodes.size > 0 ? (highlighted ? 'rgba(0,0,0,0.25)' : 'rgba(0,0,0,0.03)') : 'rgba(0,0,0,0.12)';
-      ctx.lineWidth = l.weight * 2;
+      ctx.lineWidth = l.weight * 2 / scale;
       ctx.stroke();
     }
 
@@ -826,47 +927,84 @@ function buildGraph(data) {
       const r = nodeRadius(n);
       const dimmed = highlightedNodes.size > 0 && !highlightedNodes.has(n.id);
       const color = dimmed ? 'rgba(200,200,200,0.4)' : (TYPE_COLORS[n.type] || '#999');
-      const nx = n.x + ox, ny = n.y + oy;
+      const nx = n.x, ny = n.y;
 
       // Shadow
       ctx.beginPath();
-      ctx.arc(nx + r * 0.15, ny + r * 0.2, r * 0.95, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(0,0,0,0.12)';
+      ctx.arc(nx + r * 0.12, ny + r * 0.18, r * 0.92, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0,0,0,0.10)';
       ctx.globalAlpha = dimmed ? 0.05 : 1;
       ctx.fill();
 
-      // Base sphere gradient
-      const grad = ctx.createRadialGradient(nx - r * 0.3, ny - r * 0.3, r * 0.1, nx, ny, r);
-      grad.addColorStop(0, lightenColor(color, 40));
-      grad.addColorStop(0.5, color);
-      grad.addColorStop(1, darkenColor(color, 30));
+      // Base sphere — dark rim with lighter interior, glass-like depth
+      const grad = ctx.createRadialGradient(nx - r * 0.25, ny - r * 0.25, r * 0.05, nx + r * 0.1, ny + r * 0.15, r * 1.05);
+      grad.addColorStop(0, lightenColor(color, 55));
+      grad.addColorStop(0.35, lightenColor(color, 15));
+      grad.addColorStop(0.65, color);
+      grad.addColorStop(0.85, darkenColor(color, 25));
+      grad.addColorStop(1, darkenColor(color, 50));
       ctx.beginPath();
       ctx.arc(nx, ny, r, 0, Math.PI * 2);
       ctx.fillStyle = grad;
-      ctx.globalAlpha = dimmed ? 0.4 : 0.9;
+      ctx.globalAlpha = dimmed ? 0.4 : 0.92;
       ctx.fill();
 
-      // Highlight / reflection — stronger on bigger blobs
-      const hlStrength = 0.35 + n.prominence * 0.35; // 0.35 for small, up to 0.7 for largest
-      const hl = ctx.createRadialGradient(nx - r * 0.3, ny - r * 0.35, 0, nx - r * 0.1, ny - r * 0.15, r * 0.7);
-      hl.addColorStop(0, `rgba(255,255,255,${hlStrength})`);
-      hl.addColorStop(1, 'rgba(255,255,255,0)');
+      // Inner glow — subsurface light scatter
+      const glow = ctx.createRadialGradient(nx - r * 0.15, ny - r * 0.1, 0, nx, ny, r * 0.85);
+      glow.addColorStop(0, `rgba(255,255,255,0.12)`);
+      glow.addColorStop(0.5, `rgba(255,255,255,0.04)`);
+      glow.addColorStop(1, 'rgba(255,255,255,0)');
       ctx.beginPath();
       ctx.arc(nx, ny, r, 0, Math.PI * 2);
-      ctx.fillStyle = hl;
-      ctx.globalAlpha = dimmed ? 0.1 : 1;
+      ctx.fillStyle = glow;
+      ctx.globalAlpha = dimmed ? 0.05 : 1;
+      ctx.fill();
+
+      // Primary specular — tight, bright, top-left
+      const specSize = r * (0.28 + n.prominence * 0.08);
+      const spec = ctx.createRadialGradient(nx - r * 0.32, ny - r * 0.34, 0, nx - r * 0.28, ny - r * 0.30, specSize);
+      spec.addColorStop(0, `rgba(255,255,255,${0.7 + n.prominence * 0.25})`);
+      spec.addColorStop(0.4, 'rgba(255,255,255,0.25)');
+      spec.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.beginPath();
+      ctx.arc(nx, ny, r, 0, Math.PI * 2);
+      ctx.fillStyle = spec;
+      ctx.globalAlpha = dimmed ? 0.08 : 1;
+      ctx.fill();
+
+      // Secondary specular — faint, bottom-right, simulates environment reflection
+      const spec2 = ctx.createRadialGradient(nx + r * 0.3, ny + r * 0.32, 0, nx + r * 0.25, ny + r * 0.28, r * 0.35);
+      spec2.addColorStop(0, 'rgba(255,255,255,0.12)');
+      spec2.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.beginPath();
+      ctx.arc(nx, ny, r, 0, Math.PI * 2);
+      ctx.fillStyle = spec2;
+      ctx.globalAlpha = dimmed ? 0.03 : 1;
+      ctx.fill();
+
+      // Rim light — thin bright edge at top
+      const rim = ctx.createRadialGradient(nx, ny - r * 0.1, r * 0.75, nx, ny, r * 1.02);
+      rim.addColorStop(0, 'rgba(255,255,255,0)');
+      rim.addColorStop(0.92, 'rgba(255,255,255,0)');
+      rim.addColorStop(0.97, 'rgba(255,255,255,0.15)');
+      rim.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.beginPath();
+      ctx.arc(nx, ny, r, 0, Math.PI * 2);
+      ctx.fillStyle = rim;
+      ctx.globalAlpha = dimmed ? 0.05 : 1;
       ctx.fill();
       ctx.globalAlpha = 1;
 
       // Label
       if (n.showLabel) {
+        const ls = 1 / scale; // compensate so text stays readable
         const labelX = nx + r + 6;
-        const maxW = 200;
-        const lineH = 17;
-        const { lines, bgW } = getWrappedLines(n, maxW);
+        const maxW = 200 * ls;
+        const lineH = 17 * ls;
+        const { lines, bgW } = getWrappedLines(n, maxW, 14 * ls);
         const blockH = lines.length * lineH;
         const startY = ny - blockH / 2 + lineH / 2;
-        const bgPad = 3;
+        const bgPad = 3 * ls;
 
         // Background
         ctx.globalAlpha = dimmed ? 0.02 : 0.1;
@@ -875,7 +1013,7 @@ function buildGraph(data) {
 
         // Text
         ctx.globalAlpha = dimmed ? 0.1 : 1;
-        ctx.font = `400 14px 'Playfair Display', serif`;
+        ctx.font = `400 ${14 * ls}px 'Playfair Display', serif`;
         ctx.fillStyle = '#9b062e';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
@@ -888,11 +1026,12 @@ function buildGraph(data) {
       // "NEW" pill
       if (n.isNew && !dimmed) {
         const pillText = 'NEW';
-        ctx.font = '600 9px Roboto, sans-serif';
-        const pillW = ctx.measureText(pillText).width + 10;
-        const pillH = 16;
+        const ps = 1 / scale; // compensate so pill stays readable at any scale
+        ctx.font = `600 ${9 * ps}px Roboto, sans-serif`;
+        const pillW = ctx.measureText(pillText).width + 10 * ps;
+        const pillH = 16 * ps;
         const pillX = nx + r * 0.5;
-        const pillY = ny - r - pillH + 2;
+        const pillY = ny - r - pillH + 2 * ps;
         ctx.fillStyle = '#fe6350';
         ctx.beginPath();
         const pr = pillH / 2;
@@ -904,6 +1043,8 @@ function buildGraph(data) {
         ctx.fillText(pillText, pillX + pillW / 2, pillY + pillH / 2);
       }
     }
+
+    ctx.restore(); // pop the center+scale transform
   }
 
   // ── Mouse interaction ──
@@ -914,9 +1055,10 @@ function buildGraph(data) {
 
   canvas.addEventListener('mousemove', e => {
     if (dragNode) {
-      dragNode.x = e.offsetX - W/2;
-      dragNode.y = e.offsetY - H/2;
-      dragNode.__wrapCache = null; // clear in case we add position-dependent caching later
+      const g = screenToGraph(e.offsetX, e.offsetY);
+      dragNode.x = g.x;
+      dragNode.y = g.y;
+      dragNode.__wrapCache = null;
       draw();
       return;
     }
@@ -1119,17 +1261,135 @@ function formatDate(dateStr) {
 }
 
 // ═══════════════════════════════════════════
-// Programme Reveal Observer
+// Programme Card Scroll Animation
 // ═══════════════════════════════════════════
-const obs = new IntersectionObserver(es => {
-  es.forEach(e => {
-    if (e.isIntersecting) {
-      setTimeout(() => e.target.classList.add('visible'), parseInt(e.target.dataset.delay || '0', 10));
-      obs.unobserve(e.target);
+const programmeCards = document.querySelectorAll('.programme-card');
+const programmeSpacer = document.querySelector('.programme-scroll-spacer');
+const CARD_COUNT = programmeCards.length;
+const CARD_THICKNESS = 20; // visual gap between edge-on cards in the stack
+
+function ease(t) { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3) / 2; }
+
+function updateCards() {
+  if (!programmeSpacer) return;
+  const rect = programmeSpacer.getBoundingClientRect();
+  const spacerH = programmeSpacer.offsetHeight;
+  const vh = window.innerHeight;
+  // Progress starts when spacer enters viewport (rect.top = vh), ends when scrolled through
+  const scrolled = vh - rect.top;
+  const totalScroll = spacerH;
+  const progress = Math.max(0, Math.min(1, scrolled / totalScroll));
+
+  const stageW = document.getElementById('programmeStage')?.offsetWidth || 800;
+  const stageH = document.getElementById('programmeStage')?.offsetHeight || 400;
+  const cardW = programmeCards[0]?.offsetWidth || 840;
+  const cardH = programmeCards[0]?.offsetHeight || 400;
+  const centerY = (stageH - cardH) / 2;
+
+  // Positions
+  const rightStackX = stageW - 160;
+  const centerX = (stageW - cardW) / 2;
+  const leftStackX = 160 - cardW; // anchor right edge near left side of stage
+  const EDGE_ANGLE = 87;
+
+  // Phase 1: fly-in (progress 0–0.12)
+  const flyT = ease(Math.max(0, Math.min(1, progress / 0.24)));
+
+  // Phase 2: card cycling (progress 0.12–0.95)
+  // Slots overlap: the next card's transIn coincides with current card's transOut
+  const cycleStart = 0.24;
+  const cycleEnd = 0.95;
+  const cycleRange = cycleEnd - cycleStart;
+  const transLen = 0.06;  // absolute progress for each transition
+  const holdLen = 0.075;  // absolute progress for hold in center (0.75x)
+  const slotStep = transLen + holdLen; // step between card starts (no gap, overlap on transitions)
+
+  // Cards are in reverse order: card 4 starts in center, cards 0-3 in right stack
+  // As we scroll, card 4 goes to left, card 3 comes to center, etc.
+  // So the "active" index counts down from CARD_COUNT-1
+
+  programmeCards.forEach((card, i) => {
+    // Reverse index: card 4 moves first, card 0 last
+    const ri = i; // card 0 (Institutional Dynamism) appears first
+    // Each card's timeline in absolute progress values
+    const inStart = cycleStart + ri * slotStep;           // start transition in
+    const inEnd = inStart + transLen;                      // end transition in / start hold
+    const holdEnd = inEnd + holdLen;                       // end hold / start transition out
+    const outEnd = holdEnd + transLen;                     // end transition out
+
+    let x, rotY, origin, zIdx;
+
+    if (progress < cycleStart) {
+      // Phase 1: fly-in
+      const stagger = i * 0.02;
+      const ft = ease(Math.max(0, Math.min(1, (flyT - stagger) / (1 - stagger))));
+      const isFirst = (i === 0); // card 0 starts in center
+
+      if (isFirst) {
+        const startX = -cardW - 200;
+        x = startX + (centerX - startX) * ft;
+        rotY = 0;
+        origin = 'center center';
+        zIdx = CARD_COUNT;
+      } else {
+        const startX = -cardW - 200;
+        const targetX = rightStackX - i * CARD_THICKNESS;
+        x = startX + (targetX - startX) * ft;
+        rotY = -EDGE_ANGLE * ft;
+        origin = 'left center';
+        zIdx = i;
+      }
+      card.style.opacity = ft > 0.01 ? 1 : 0;
+    } else {
+      // Phase 2: cycling
+      card.style.opacity = 1;
+
+      const rightX = rightStackX - i * CARD_THICKNESS;
+      const leftX = leftStackX + ri * CARD_THICKNESS;
+
+      if (progress < inStart) {
+        // Not yet active
+        if (ri === 0) {
+          x = centerX; rotY = 0; origin = 'left center'; zIdx = CARD_COUNT;
+        } else {
+          x = rightX; rotY = -EDGE_ANGLE; origin = 'left center'; zIdx = i;
+        }
+      } else if (progress < inEnd) {
+        // Transition in: right stack → center
+        const t = ease((progress - inStart) / transLen);
+        const fromX = (ri === 0) ? centerX : rightX;
+        const fromRot = (ri === 0) ? 0 : -EDGE_ANGLE;
+        x = fromX + (centerX - fromX) * t;
+        rotY = fromRot + (0 - fromRot) * t;
+        origin = 'left center';
+        zIdx = CARD_COUNT;
+      } else if (progress < holdEnd) {
+        // Hold in center
+        x = centerX; rotY = 0;
+        origin = 'right center';
+        zIdx = CARD_COUNT;
+      } else if (progress < outEnd) {
+        // Transition out: center → left stack
+        const t = ease((progress - holdEnd) / transLen);
+        x = centerX + (leftX - centerX) * t;
+        rotY = EDGE_ANGLE * t;
+        origin = 'right center';
+        zIdx = CARD_COUNT;
+      } else {
+        // Done — in left stack
+        x = leftX; rotY = EDGE_ANGLE;
+        origin = 'right center'; zIdx = ri;
+      }
     }
+
+    card.style.transform = `translateX(${x}px) translateY(${centerY}px) rotateY(${rotY}deg)`;
+    card.style.transformOrigin = origin;
+    card.style.zIndex = zIdx;
   });
-}, { threshold: 0.15 });
-document.querySelectorAll('.programme-item').forEach(el => obs.observe(el));
+}
+
+window.addEventListener('scroll', () => requestAnimationFrame(updateCards), { passive: true });
+updateCards();
 
 // ═══════════════════════════════════════════
 // Init
