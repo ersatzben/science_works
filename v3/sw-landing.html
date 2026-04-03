@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Science Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f2efea;
+    --navy: #1B3A5C;
+    --mid-blue: #2E5984;
+    --coral: #e14d3a;
+    --text: #1B3A5C;
+    --text-light: #5a7490;
+    --rule: rgba(27,58,92,0.12);
+    --dark-bg: #0c1220;
+    --stage-h: 100vh;
+  }
+  @supports (height: 100svh) {
+    :root { --stage-h: 100svh; }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; overflow-x: hidden; scroll-snap-type: y proximity; }
+  body { background: var(--cream); color: var(--text); font-family: 'DM Sans', sans-serif; overflow-x: hidden; }
+
+  /* Navigation */
+  nav { position: fixed; top: 0; right: 0; left: 0; z-index: 100; padding: 28px 48px; display: flex; justify-content: space-between; align-items: center; transition: background 0.5s, backdrop-filter 0.4s, padding-right 0.4s; }
+  nav.scrolled { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding-right: 110px; }
+  nav.scrolled.nav-light { background: rgba(242, 239, 234, 0.85); }
+  nav.scrolled.nav-dark { background: rgba(12, 18, 32, 0.88); }
+  .wordmark { font-family: 'Instrument Serif', serif; font-size: 22px; letter-spacing: -0.02em; text-decoration: none; transition: color 0.5s; }
+  .nav-links { display: flex; gap: 36px; list-style: none; }
+  .nav-links a { font-size: 13px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; text-decoration: none; transition: color 0.5s; }
+  body.light-mode .wordmark { color: var(--navy); }
+  body.light-mode .nav-links a { color: var(--text-light); }
+  body.light-mode .nav-links a:hover { color: var(--coral); }
+  body.dark-mode .wordmark { color: rgba(255,255,255,0.92); }
+  body.dark-mode .nav-links a { color: rgba(255,255,255,0.5); }
+  body.dark-mode .nav-links a:hover { color: var(--coral); }
+
+  /* Storyboard */
+  .storyboard {
+    position: relative;
+    z-index: 20;
+    --hero-text-x: 0px;
+    --hero-text-y: 0px;
+    --hero-text-o: 1;
+    --about-o: 0;
+    --about-y: 0px;
+    --outputs-o: 0;
+    --outputs-y: 18vh;
+    --outputs-scale: 0.88;
+    --outputs-radius: 32px;
+    --outputs-shadow: none;
+    --outputs-pad-x: 7vw;
+    --outputs-pad-y: 14vh;
+  }
+  .storyboard-track { position: relative; }
+  .storyboard-stage { position: sticky; top: 0; height: var(--stage-h); overflow: hidden; }
+  .story-steps { margin-top: calc(-1 * var(--stage-h)); padding-top: var(--stage-h); position: relative; z-index: 0; }
+  .story-step { height: var(--stage-h); scroll-snap-align: start; scroll-snap-stop: always; }
+  .story-step-exit { height: 130vh; }
+  .scene { position: absolute; inset: 0; }
+  .scene-hero { z-index: 1; background: var(--cream); }
+  .scene-about { z-index: 2; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+  .scene-outputs {
+    z-index: 3;
+    opacity: var(--outputs-o);
+    transform: translate3d(0, var(--outputs-y), 0);
+    padding: var(--outputs-pad-y) var(--outputs-pad-x);
+    display: flex;
+    pointer-events: none;
+  }
+  .scene-outputs.is-active { pointer-events: auto; }
+
+  /* Hero */
+  .hero { height: 100%; min-height: 0; display: flex; position: relative; }
+  .hero-blob-area { position: relative; width: 56%; height: 100%; flex-shrink: 0; }
+  .hero-text { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 0 72px 0 48px; transform: translate3d(var(--hero-text-x), 0, 0); opacity: var(--hero-text-o); will-change: transform, opacity; }
+  .hero-label { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--coral); margin-bottom: 24px; }
+  .hero-heading { font-family: 'Instrument Serif', serif; font-size: clamp(38px, 4.2vw, 62px); line-height: 1.1; letter-spacing: -0.025em; color: var(--navy); margin-bottom: 28px; }
+  .hero-heading em { font-style: italic; color: var(--coral); }
+  .hero-sub { font-size: 17px; line-height: 1.65; color: var(--text-light); max-width: 420px; margin-bottom: 40px; }
+  .hero-cta { display: inline-flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--navy); text-decoration: none; padding: 14px 0; border-bottom: 2px solid var(--navy); transition: color 0.25s, border-color 0.25s; width: fit-content; }
+  .hero-cta:hover { color: var(--coral); border-color: var(--coral); }
+  .hero-cta svg { transition: transform 0.25s; }
+  .hero-cta:hover svg { transform: translateX(4px); }
+  .scroll-indicator { position: absolute; bottom: 36px; right: 48px; display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0.4; transition: opacity 0.4s; }
+  .scroll-indicator span { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); }
+  .scroll-line { width: 1px; height: 40px; background: var(--navy); position: relative; overflow: hidden; }
+  .scroll-line::after { content: ''; position: absolute; top: -100%; left: 0; width: 100%; height: 100%; background: var(--coral); animation: scrollPulse 2s ease-in-out infinite; }
+  @keyframes scrollPulse { 0% { top: -100%; } 50% { top: 100%; } 100% { top: 100%; } }
+
+  /* Blob canvas */
+  #blobCanvas { position: fixed; top: 0; left: 0; z-index: 10; pointer-events: auto; }
+
+  /* About */
+  .about-strip { position: relative; z-index: 20; width: min(1100px, calc(100% - 96px)); padding: 0 48px; display: flex; gap: 80px; opacity: var(--about-o); transform: translate3d(0, 0, 0); will-change: opacity; }
+  .about-strip .section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--coral); min-width: 140px; padding-top: 6px; }
+  .about-text { flex: 1; }
+  .about-text p { font-family: 'Instrument Serif', serif; font-size: clamp(24px, 2.3vw, 32px); line-height: 1.5; letter-spacing: -0.01em; color: var(--navy); max-width: 660px; }
+  .about-text p em { font-style: italic; color: var(--coral); }
+
+  /* Outputs */
+  .outputs-section { position: relative; z-index: 20; }
+  .outputs-body {
+    background: var(--dark-bg);
+    position: relative;
+    min-height: 100%;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transform: scale(var(--outputs-scale));
+    transform-origin: 50% 50%;
+    border-radius: var(--outputs-radius);
+    box-shadow: var(--outputs-shadow);
+  }
+  .outputs-body::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 20% 18%, rgba(46, 89, 132, 0.35), transparent 34%),
+      radial-gradient(circle at 84% 26%, rgba(225, 77, 58, 0.16), transparent 22%);
+    z-index: 0;
+    pointer-events: none;
+  }
+  #starCanvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+  .outputs-header { padding: 126px 48px 36px; max-width: 760px; margin: 0 auto; text-align: center; position: relative; z-index: 2; }
+  .outputs-header .section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--coral); margin-bottom: 20px; }
+  .outputs-header h2 { font-family: 'Instrument Serif', serif; font-size: clamp(32px, 3.5vw, 48px); line-height: 1.15; letter-spacing: -0.02em; color: rgba(255,255,255,0.92); }
+  .outputs-header p { font-size: 16px; line-height: 1.6; color: rgba(255,255,255,0.45); margin-top: 20px; max-width: 520px; margin-left: auto; margin-right: auto; }
+  .outputs-map { flex: 1; min-height: 0; display: flex; align-items: stretch; justify-content: center; padding: 12px 48px 56px; position: relative; z-index: 2; }
+  .outputs-map-placeholder {
+    width: min(1120px, 100%);
+    min-height: min(62vh, 620px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.34);
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 28px;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)),
+      radial-gradient(circle at 50% 12%, rgba(255,255,255,0.06), rgba(255,255,255,0) 42%);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+    text-align: center;
+    padding: 40px 60px;
+  }
+
+  /* Programmes */
+  .programmes { position: relative; z-index: 20; padding: 0 0 120px; background: var(--cream); scroll-snap-align: start; }
+  .programmes-header { padding: 80px 48px 64px; max-width: 680px; margin-left: auto; margin-right: auto; text-align: center; }
+  .programmes-header .section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--coral); margin-bottom: 20px; }
+  .programmes-header h2 { font-family: 'Instrument Serif', serif; font-size: clamp(32px, 3.5vw, 48px); line-height: 1.15; letter-spacing: -0.02em; color: var(--navy); }
+  .programme-list { max-width: 1100px; margin: 0 auto; padding: 0 48px; }
+  .programme-item { display: flex; align-items: baseline; padding: 40px 0; border-top: 1px solid var(--rule); gap: 32px; opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; cursor: pointer; }
+  .programme-item.visible { opacity: 1; transform: translateY(0); }
+  .programme-item:last-child { border-bottom: 1px solid var(--rule); }
+  .programme-number { font-family: 'Instrument Serif', serif; font-size: 14px; color: var(--coral); min-width: 28px; padding-top: 2px; }
+  .programme-content { flex: 1; }
+  .programme-title { font-family: 'Instrument Serif', serif; font-size: clamp(24px, 2.5vw, 34px); letter-spacing: -0.015em; color: var(--navy); margin-bottom: 10px; transition: color 0.25s; }
+  .programme-item:hover .programme-title { color: var(--coral); }
+  .programme-desc { font-size: 15px; line-height: 1.6; color: var(--text-light); max-width: 560px; }
+  .programme-arrow { font-size: 20px; color: var(--rule); transition: color 0.25s, transform 0.25s; align-self: center; }
+  .programme-item:hover .programme-arrow { color: var(--coral); transform: translateX(6px); }
+
+  /* Footer */
+  footer { padding: 48px; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; align-items: center; max-width: 1100px; margin: 0 auto; background: var(--cream); position: relative; z-index: 20; }
+  footer .wordmark { font-size: 18px; color: var(--navy); }
+  footer small { font-size: 12px; color: var(--text-light); }
+
+  @media (max-width: 980px) {
+    nav { padding: 24px 28px; }
+    .nav-links { gap: 22px; }
+    .hero { min-height: 0; flex-direction: column; }
+    .hero-blob-area { width: 100%; height: 48%; min-height: 340px; }
+    .hero-text { padding: 110px 28px 52px; }
+    .scroll-indicator { right: 28px; bottom: 28px; }
+    .about-strip { width: calc(100% - 56px); padding: 0 28px; gap: 24px; flex-direction: column; }
+    .outputs-header { padding: 112px 28px 28px; }
+    .outputs-map { padding: 12px 28px 44px; }
+    .programme-list { padding: 0 28px; }
+    .programmes-header { padding: 72px 28px 56px; }
+    footer { padding: 40px 28px; }
+  }
+
+  @media (max-width: 720px) {
+    nav { padding: 20px; }
+    .nav-links { gap: 14px; }
+    .nav-links a { font-size: 11px; }
+    nav.scrolled { padding-right: 84px; }
+    .hero-blob-area { min-height: 300px; }
+    .hero-text { padding: 96px 20px 48px; }
+    .scroll-indicator { right: 20px; bottom: 22px; }
+    .about-strip { width: calc(100% - 40px); padding: 0 20px; }
+    .outputs-header { padding: 104px 20px 24px; }
+    .outputs-map { padding: 10px 20px 36px; }
+    .outputs-map-placeholder { min-height: 50vh; padding: 28px; font-size: 12px; }
+    .programmes-header { padding: 64px 20px 48px; }
+    .programme-list { padding: 0 20px; }
+    footer { padding: 32px 20px; flex-direction: column; gap: 10px; align-items: flex-start; }
+  }
+</style>
+</head>
+<body class="light-mode">
+
+<nav id="mainNav" class="nav-light">
+  <a href="#storyboard" class="wordmark">Science Works</a>
+  <ul class="nav-links">
+    <li><a href="#outputs">Outputs</a></li>
+    <li><a href="#programmes">Programmes</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#">Contact</a></li>
+  </ul>
+</nav>
+
+<section class="storyboard" id="storyboard">
+  <div class="storyboard-track">
+    <div class="storyboard-stage">
+      <div class="scene scene-hero">
+        <div class="hero">
+          <div class="hero-blob-area" id="heroBlobArea"></div>
+          <div class="hero-text">
+            <div class="hero-label">Think tank &amp; delivery unit</div>
+            <h1 class="hero-heading">Reshaping Britain's <em>research system</em></h1>
+            <p class="hero-sub">Science Works builds the institutions, tools, and analysis that the UK's research system is missing — at the intersection of science, technology, and statecraft.</p>
+            <a href="#programmes" class="hero-cta">Our programmes <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          </div>
+          <div class="scroll-indicator" id="scrollIndicator"><span>Scroll</span><div class="scroll-line"></div></div>
+        </div>
+      </div>
+
+      <div class="scene scene-about">
+        <div class="about-strip">
+          <div class="section-label">About</div>
+          <div class="about-text">
+            <p>Science Works is a UK think tank and delivery unit founded to address a structural gap: Britain has world-class researchers but <em>inadequate infrastructure</em> around them. We do analytical work, build tools, design institutions, and shape policy — sitting between government, philanthropy, and the research system itself.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="scene scene-outputs outputs-section" id="outputsScene">
+        <div class="outputs-body">
+          <canvas id="starCanvas"></canvas>
+          <div class="outputs-header">
+            <div class="section-label">Our outputs</div>
+            <h2>A map of everything we've built</h2>
+            <p>Reports, tools, analysis, institutional designs, and policy interventions — connected across five programmes.</p>
+          </div>
+          <div class="outputs-map">
+            <div class="outputs-map-placeholder">Interactive constellation map — coming soon</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="story-steps">
+      <div class="story-step" id="about" aria-hidden="true"></div>
+      <div class="story-step" id="outputs" aria-hidden="true"></div>
+      <div class="story-step story-step-exit" aria-hidden="true"></div>
+    </div>
+  </div>
+</section>
+
+<section class="programmes" id="programmes">
+  <div class="programmes-header">
+    <div class="section-label">Five programmes</div>
+    <h2>Building what the research system is missing</h2>
+  </div>
+  <div class="programme-list">
+    <div class="programme-item" data-delay="0"><span class="programme-number">01</span><div class="programme-content"><div class="programme-title">Institutional Dynamism</div><p class="programme-desc">New research institutions, the Lovelace Founding Unit, an Institutions Lab, and convenings that connect institutional designers with the capital and policy access they need.</p></div><span class="programme-arrow">→</span></div>
+    <div class="programme-item" data-delay="80"><span class="programme-number">02</span><div class="programme-content"><div class="programme-title">AI for Science</div><p class="programme-desc">Dark data recovery, lab infrastructure, compute strategy, and shaping the UK AI for Science Strategy — ensuring missions meet a high bar.</p></div><span class="programme-arrow">→</span></div>
+    <div class="programme-item" data-delay="160"><span class="programme-number">03</span><div class="programme-content"><div class="programme-title">Toolbuilding</div><p class="programme-desc">Open-source software fellowships, scientometric tools, and an intelligence platform — building the infrastructure researchers and funders are missing.</p></div><span class="programme-arrow">→</span></div>
+    <div class="programme-item" data-delay="240"><span class="programme-number">04</span><div class="programme-content"><div class="programme-title">Analytics</div><p class="programme-desc">Capability mapping and system intelligence for funders and researchers — making the UK's research landscape legible for the first time.</p></div><span class="programme-arrow">→</span></div>
+    <div class="programme-item" data-delay="320"><span class="programme-number">05</span><div class="programme-content"><div class="programme-title">Funding System Reform</div><p class="programme-desc">REF alternatives, UKRI eligibility reform, and novel capital structures — redesigning how research funding flows.</p></div><span class="programme-arrow">→</span></div>
+  </div>
+</section>
+
+<footer>
+  <a href="#" class="wordmark">Science Works</a>
+  <small>© 2026 Science Works. Company limited by guarantee.</small>
+</footer>
+
+<canvas id="blobCanvas"></canvas>
+
+<script>
+// Helpers
+function clamp(v, min = 0, max = 1) { return Math.min(max, Math.max(min, v)); }
+function lerp(a, b, t) { return a + (b - a) * t; }
+function invLerp(v, a, b) { return a === b ? 0 : clamp((v - a) / (b - a)); }
+function easeInOutQuad(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
+function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+// Starfield
+(function() {
+  const sc = document.getElementById('starCanvas');
+  const ctx = sc.getContext('2d');
+  let stars = [], W = 1, H = 1;
+  function resize() {
+    const r = sc.parentElement.getBoundingClientRect();
+    const d = window.devicePixelRatio || 1;
+    W = Math.max(1, Math.round(r.width * d));
+    H = Math.max(1, Math.round(r.height * d));
+    sc.width = W;
+    sc.height = H;
+    sc.style.width = r.width + 'px';
+    sc.style.height = r.height + 'px';
+    stars = [];
+    const n = Math.floor((W * H) / 3000);
+    for (let i = 0; i < n; i++) {
+      stars.push({ x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.2 + 0.3, base: Math.random() * 0.5 + 0.15, speed: Math.random() * 0.8 + 0.3, phase: Math.random() * Math.PI * 2 });
+    }
+  }
+  function draw(t) {
+    ctx.clearRect(0, 0, W, H);
+    for (const s of stars) {
+      const a = Math.max(0, Math.min(1, s.base + Math.sin(t * 0.001 * s.speed + s.phase) * 0.15));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${a})`;
+      ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  requestAnimationFrame(draw);
+})();
+
+// Scene state
+const navEl = document.getElementById('mainNav');
+const bodyEl = document.body;
+const storyboardEl = document.getElementById('storyboard');
+const storyStepsEl = document.querySelector('.story-steps');
+const outputsSceneEl = document.getElementById('outputsScene');
+const scrollIndicatorEl = document.getElementById('scrollIndicator');
+const heroBlobAreaEl = document.getElementById('heroBlobArea');
+
+let storyProgress = 0;
+let blobDockProgress = 0;
+let blobFadeProgress = 0;
+
+function setStoryboardVar(name, value) {
+  storyboardEl.style.setProperty(name, value);
+}
+
+function getStoryProgress() {
+  const rect = storyStepsEl.getBoundingClientRect();
+  const max = Math.max(storyStepsEl.offsetHeight - window.innerHeight, 1);
+  return clamp(-rect.top / max);
+}
+
+function updateSceneState() {
+  storyProgress = getStoryProgress();
+  const heroDock = easeInOutQuad(invLerp(storyProgress, 0.06, 0.24));
+  const heroTextExit = easeInOutQuad(invLerp(storyProgress, 0.1, 0.28));
+  const aboutReveal = easeOutCubic(invLerp(storyProgress, 0.22, 0.36));
+  const outputsReveal = easeInOutQuad(invLerp(storyProgress, 0.46, 0.66));
+  const outputsExit = easeInOutQuad(invLerp(storyProgress, 0.86, 1));
+  const aboutOpacity = clamp(aboutReveal * (1 - outputsReveal * 0.96));
+  const outputsOpacity = clamp(outputsReveal * (1 - outputsExit * 0.08));
+  const outputsScale = lerp(0.88, 1, easeOutCubic(outputsReveal));
+  const outputsPadX = lerp(Math.min(window.innerWidth * 0.08, 120), 0, outputsReveal);
+  const outputsPadY = lerp(Math.min(window.innerHeight * 0.14, 120), 0, outputsReveal);
+  const blobFade = easeInOutQuad(invLerp(storyProgress, 0.5, 0.74));
+
+  blobDockProgress = heroDock;
+  blobFadeProgress = blobFade;
+  updateCanvasPosition();
+
+  setStoryboardVar('--hero-text-x', `${lerp(0, window.innerWidth * 0.62, heroTextExit).toFixed(1)}px`);
+  setStoryboardVar('--hero-text-y', '0px');
+  setStoryboardVar('--hero-text-o', `${clamp(1 - heroTextExit * 1.08).toFixed(3)}`);
+  setStoryboardVar('--about-o', aboutOpacity.toFixed(3));
+  setStoryboardVar('--about-y', '0px');
+  setStoryboardVar('--outputs-o', outputsOpacity.toFixed(3));
+  setStoryboardVar('--outputs-y', `${(lerp(window.innerHeight * 0.18, 0, outputsReveal) - window.innerHeight * 0.28 * outputsExit).toFixed(1)}px`);
+  setStoryboardVar('--outputs-scale', outputsScale.toFixed(3));
+  setStoryboardVar('--outputs-radius', `${lerp(32, 0, outputsReveal).toFixed(1)}px`);
+  setStoryboardVar('--outputs-shadow', outputsReveal > 0.02 ? `0 36px 90px rgba(12, 18, 32, ${lerp(0, 0.32, outputsReveal).toFixed(3)})` : 'none');
+  setStoryboardVar('--outputs-pad-x', `${outputsPadX.toFixed(1)}px`);
+  setStoryboardVar('--outputs-pad-y', `${outputsPadY.toFixed(1)}px`);
+  outputsSceneEl.classList.toggle('is-active', outputsOpacity > 0.08 && outputsExit < 0.98);
+
+  navEl.classList.toggle('scrolled', window.scrollY > 40);
+  if (scrollIndicatorEl) scrollIndicatorEl.style.opacity = Math.max(0, 0.4 - window.scrollY / 320).toFixed(3);
+
+  const inDark = outputsOpacity > 0.32 && outputsExit < 0.96;
+  bodyEl.classList.toggle('dark-mode', inDark);
+  bodyEl.classList.toggle('light-mode', !inDark);
+  navEl.classList.toggle('nav-dark', inDark);
+  navEl.classList.toggle('nav-light', !inDark);
+}
+
+// Blob
+const canvas = document.getElementById('blobCanvas');
+const gl = canvas.getContext('webgl', { antialias: true, alpha: true, premultipliedAlpha: false });
+gl.getExtension('OES_standard_derivatives');
+const MAX_BALLS = 30;
+const vsSource = `attribute vec2 aPos; void main() { gl_Position = vec4(aPos, 0.0, 1.0); }`;
+const fsSource = `
+#extension GL_OES_standard_derivatives : enable
+precision highp float;
+uniform vec3 uBalls[${MAX_BALLS}]; uniform int uNumBalls; uniform float uTime; uniform float uScale;
+const vec3 BASE_COLOR = vec3(0.88, 0.30, 0.25); const vec3 HIGHLIGHT_COLOR = vec3(0.95, 0.42, 0.34);
+float metafield(vec2 p) { float f = 0.0; for (int i = 0; i < ${MAX_BALLS}; i++) { if (i >= uNumBalls) break; vec2 d = p - uBalls[i].xy; float r = uBalls[i].z; f += (r*r)/(dot(d,d)+1.0); } return f; }
+vec2 fieldGradient(vec2 p) { vec2 g = vec2(0.0); for (int i = 0; i < ${MAX_BALLS}; i++) { if (i >= uNumBalls) break; vec2 d = p - uBalls[i].xy; float r = uBalls[i].z; float den = dot(d,d)+1.0; g += -2.0*r*r*d/(den*den); } return g; }
+void main() {
+  vec2 uv = gl_FragCoord.xy; float field = metafield(uv);
+  float fw = fwidth(field); float edge = smoothstep(1.0 - fw*0.5, 1.0 + fw*0.5, field);
+  float shadowField = metafield(uv + vec2(-25.0, 25.0)*uScale);
+  float shadowAlpha = smoothstep(0.6, 1.4, shadowField) * 0.18;
+  if (edge < 0.001) { gl_FragColor = shadowAlpha > 0.001 ? vec4(0.0,0.0,0.0,shadowAlpha) : vec4(0.0); return; }
+  vec2 grad = fieldGradient(uv); float depth = clamp((field-1.0)/2.5,0.0,1.0);
+  vec3 N_edge = normalize(vec3(-grad, 18.0*(0.4+depth*0.6)));
+  vec2 wc = vec2(0.0); float tw = 0.0; float dr = 0.0;
+  for (int i = 0; i < ${MAX_BALLS}; i++) { if (i >= uNumBalls) break; vec2 d = uv-uBalls[i].xy; float r = uBalls[i].z; float w = (r*r)/(dot(d,d)+1.0); wc += uBalls[i].xy*w; tw += w; if (w > dr) dr = r; }
+  wc /= tw; vec2 fc = uv - wc; float nd = min(length(fc)/(dr*1.2),1.0);
+  vec3 N_dome = normalize(vec3(fc/(dr*1.2), sqrt(max(1.0-nd*nd,0.01))));
+  vec3 L1 = normalize(vec3(-0.5,0.6,0.75)); vec3 L2 = normalize(vec3(0.5,-0.2,0.6));
+  vec3 V = vec3(0.0,0.0,1.0); vec3 H1 = normalize(L1+V); vec3 H2 = normalize(L2+V);
+  float diff1 = max(dot(N_edge,L1),0.0); float diff2 = max(dot(N_edge,L2),0.0);
+  float sp1t = pow(max(dot(N_dome,H1),0.0),120.0); float sp1b = pow(max(dot(N_dome,H1),0.0),12.0);
+  float sp2 = pow(max(dot(N_dome,H2),0.0),60.0);
+  float fr = pow(1.0-max(dot(N_dome,V),0.0),1.8);
+  vec3 env = mix(vec3(0.72,0.58,0.52),vec3(1.0,0.97,0.94),reflect(-V,N_dome).y*0.5+0.5);
+  float sss = (1.0-clamp((field-1.0)/1.5,0.0,1.0))*0.2;
+  vec3 sc = mix(vec3(0.75,0.20,0.16), HIGHLIGHT_COLOR, diff1*0.6+diff2*0.2);
+  sc += BASE_COLOR*0.2; sc += vec3(1.0,0.98,0.96)*sp1t*1.2; sc += vec3(1.0,0.96,0.93)*sp1b*0.2;
+  sc += vec3(0.98,0.95,0.93)*sp2*0.4; sc = mix(sc,env,fr*0.45); sc += vec3(1.0,0.5,0.35)*sss*0.15;
+  float ao = smoothstep(1.0,2.0,field);
+  vec3 aoC = mix(mix(sc*0.78, mix(vec3(0.85,0.28,0.20),sc,0.7), 0.75), sc, ao);
+  sc = aoC;
+  sc += (fract(sin(dot(uv*0.01+uTime*0.0005,vec2(12.9898,78.233)))*43758.5453)-0.5)*0.02;
+  gl_FragColor = vec4(sc, edge);
+}`;
+function createShader(t, s) { const sh = gl.createShader(t); gl.shaderSource(sh, s); gl.compileShader(sh); if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) console.error(gl.getShaderInfoLog(sh)); return sh; }
+const prog = gl.createProgram();
+gl.attachShader(prog, createShader(gl.VERTEX_SHADER, vsSource));
+gl.attachShader(prog, createShader(gl.FRAGMENT_SHADER, fsSource));
+gl.linkProgram(prog);
+gl.useProgram(prog);
+gl.enable(gl.BLEND);
+gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+gl.clearColor(0, 0, 0, 0);
+const buf = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+const aPos = gl.getAttribLocation(prog, 'aPos');
+gl.enableVertexAttribArray(aPos);
+gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+const uTimeLoc = gl.getUniformLocation(prog, 'uTime');
+const uBallsLoc = gl.getUniformLocation(prog, 'uBalls');
+const uNumBallsLoc = gl.getUniformLocation(prog, 'uNumBalls');
+const uScaleLoc = gl.getUniformLocation(prog, 'uScale');
+
+const blobGroups = [
+  { groupRadius: 38, subBalls: 3, spread: 22, xWaves: [{ freq: 0.08, amp: 0.85, phase: 0.0 }, { freq: 0.19, amp: 0.25, phase: 2.1 }], yWaves: [{ freq: 0.065, amp: 0.80, phase: 1.0 }, { freq: 0.16, amp: 0.22, phase: 4.3 }], deform: [{ xFreq: 0.13, yFreq: 0.11, xPhase: 0.0, yPhase: 1.5 }, { xFreq: 0.10, yFreq: 0.14, xPhase: 2.5, yPhase: 0.3 }, { xFreq: 0.15, yFreq: 0.09, xPhase: 4.8, yPhase: 3.7 }] },
+  { groupRadius: 40, subBalls: 3, spread: 24, xWaves: [{ freq: 0.07, amp: 0.90, phase: 3.5 }, { freq: 0.17, amp: 0.28, phase: 0.8 }], yWaves: [{ freq: 0.09, amp: 0.85, phase: 5.2 }, { freq: 0.21, amp: 0.20, phase: 1.6 }], deform: [{ xFreq: 0.12, yFreq: 0.15, xPhase: 1.2, yPhase: 4.0 }, { xFreq: 0.16, yFreq: 0.10, xPhase: 3.8, yPhase: 2.1 }, { xFreq: 0.09, yFreq: 0.13, xPhase: 5.5, yPhase: 0.6 }] },
+  { groupRadius: 32, subBalls: 3, spread: 20, xWaves: [{ freq: 0.095, amp: 0.92, phase: 1.7 }, { freq: 0.22, amp: 0.22, phase: 5.5 }], yWaves: [{ freq: 0.075, amp: 0.78, phase: 3.8 }, { freq: 0.18, amp: 0.25, phase: 0.4 }], deform: [{ xFreq: 0.14, yFreq: 0.12, xPhase: 2.0, yPhase: 5.2 }, { xFreq: 0.11, yFreq: 0.16, xPhase: 0.5, yPhase: 3.3 }, { xFreq: 0.17, yFreq: 0.08, xPhase: 4.1, yPhase: 1.8 }] },
+  { groupRadius: 28, subBalls: 2, spread: 16, xWaves: [{ freq: 0.06, amp: 0.82, phase: 5.0 }, { freq: 0.15, amp: 0.30, phase: 3.2 }], yWaves: [{ freq: 0.1, amp: 0.88, phase: 0.5 }, { freq: 0.23, amp: 0.18, phase: 2.8 }], deform: [{ xFreq: 0.13, yFreq: 0.17, xPhase: 3.0, yPhase: 0.9 }, { xFreq: 0.18, yFreq: 0.11, xPhase: 5.8, yPhase: 2.5 }] },
+  { groupRadius: 22, subBalls: 2, spread: 14, xWaves: [{ freq: 0.085, amp: 0.88, phase: 2.3 }, { freq: 0.2, amp: 0.24, phase: 4.7 }], yWaves: [{ freq: 0.07, amp: 0.84, phase: 4.0 }, { freq: 0.165, amp: 0.26, phase: 1.1 }], deform: [{ xFreq: 0.15, yFreq: 0.12, xPhase: 1.7, yPhase: 4.4 }, { xFreq: 0.10, yFreq: 0.18, xPhase: 4.2, yPhase: 0.1 }] },
+  { groupRadius: 24, subBalls: 2, spread: 15, xWaves: [{ freq: 0.09, amp: 1.1, phase: 4.2 }, { freq: 0.21, amp: 0.35, phase: 1.6 }], yWaves: [{ freq: 0.11, amp: 1.05, phase: 2.0 }, { freq: 0.19, amp: 0.30, phase: 5.4 }], deform: [{ xFreq: 0.14, yFreq: 0.16, xPhase: 0.8, yPhase: 3.6 }, { xFreq: 0.17, yFreq: 0.10, xPhase: 5.1, yPhase: 1.2 }] },
+];
+const smalls = [
+  { radius: 10, xWaves: [{ freq: 0.11, amp: 0.95, phase: 1.2 }, { freq: 0.24, amp: 0.28, phase: 3.8 }], yWaves: [{ freq: 0.095, amp: 0.92, phase: 4.5 }, { freq: 0.22, amp: 0.25, phase: 0.7 }] },
+  { radius: 6, xWaves: [{ freq: 0.1, amp: 0.98, phase: 5.1 }, { freq: 0.25, amp: 0.30, phase: 2.0 }], yWaves: [{ freq: 0.12, amp: 0.90, phase: 2.3 }, { freq: 0.21, amp: 0.22, phase: 5.9 }] },
+  { radius: 12, xWaves: [{ freq: 0.09, amp: 0.93, phase: 3.3 }, { freq: 0.23, amp: 0.26, phase: 1.5 }], yWaves: [{ freq: 0.105, amp: 0.95, phase: 0.9 }, { freq: 0.26, amp: 0.20, phase: 4.2 }] },
+  { radius: 4, xWaves: [{ freq: 0.13, amp: 1.0, phase: 0.4 }, { freq: 0.27, amp: 0.24, phase: 5.3 }], yWaves: [{ freq: 0.115, amp: 0.97, phase: 3.1 }, { freq: 0.24, amp: 0.28, phase: 1.8 }] },
+];
+const repelOffsets = [];
+for (let i = 0; i < blobGroups.length + smalls.length; i++) repelOffsets.push({ x: 0, y: 0 });
+function evalWaves(w, t, h) { let v = 0; for (const x of w) v += Math.sin(t * x.freq + x.phase) * x.amp * h; return v; }
+
+const CORNER_SIZE = 56;
+const CORNER_MR = 52;
+const NAV_H = 78;
+let heroRefW = 1;
+let heroRefH = 1;
+
+function getCanvasRect() {
+  const heroRect = heroBlobAreaEl.getBoundingClientRect();
+  const ease = easeInOutQuad(blobDockProgress);
+  return {
+    x: lerp(heroRect.left, window.innerWidth - CORNER_SIZE - CORNER_MR, ease),
+    y: lerp(heroRect.top, (NAV_H - CORNER_SIZE) / 2, ease),
+    w: lerp(heroRect.width, CORNER_SIZE, ease),
+    h: lerp(heroRect.height, CORNER_SIZE, ease),
+  };
+}
+
+function updateCanvasPosition() {
+  const r = getCanvasRect();
+  canvas.style.left = r.x + 'px';
+  canvas.style.top = r.y + 'px';
+  canvas.style.width = r.w + 'px';
+  canvas.style.height = r.h + 'px';
+  canvas.style.borderRadius = '0';
+  canvas.style.boxShadow = 'none';
+  canvas.style.opacity = (1 - blobFadeProgress).toFixed(3);
+  canvas.style.zIndex = blobDockProgress > 0.08 ? '101' : '10';
+}
+
+let mouseX = -9999, mouseY = -9999;
+canvas.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+canvas.addEventListener('mouseleave', () => { mouseX = -9999; mouseY = -9999; });
+
+function resizeCanvas() {
+  const heroRect = heroBlobAreaEl.getBoundingClientRect();
+  heroRefW = Math.max(heroRect.width, 1);
+  heroRefH = Math.max(heroRect.height, 1);
+  const r = getCanvasRect();
+  const d = window.devicePixelRatio || 1;
+  canvas.width = Math.max(1, Math.round(r.w * d));
+  canvas.height = Math.max(1, Math.round(r.h * d));
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  updateCanvasPosition();
+}
+
+window.addEventListener('scroll', updateSceneState, { passive: true });
+window.addEventListener('resize', () => {
+  resizeCanvas();
+  updateSceneState();
+});
+
+// Animation
+let time = 0;
+function update(dt) {
+  time += dt * 1.15;
+  const r = getCanvasRect();
+  const dpr = window.devicePixelRatio || 1;
+  const nW = Math.max(1, Math.round(r.w * dpr));
+  const nH = Math.max(1, Math.round(r.h * dpr));
+  if (canvas.width !== nW || canvas.height !== nH) {
+    canvas.width = nW;
+    canvas.height = nH;
+    gl.viewport(0, 0, nW, nH);
+  }
+  const refW = Math.max(1, heroRefW * dpr);
+  const refH = Math.max(1, heroRefH * dpr);
+  const refCx = refW / 2;
+  const refCy = refH / 2;
+  const rMin = Math.min(refW, refH);
+  const rHalf = rMin * (9 / 16) / 2;
+  const uniScale = Math.min(nW / refW, nH / refH);
+  const decay = 1 - Math.exp(-dt * 0.5);
+  const push = 90;
+  const cr = canvas.getBoundingClientRect();
+  const rmx = (mouseX - cr.left) / (Math.max(cr.width, 1) / heroRefW);
+  const rmy = (mouseY - cr.top) / (Math.max(cr.height, 1) / heroRefH);
+  const refData = [];
+
+  for (let g = 0; g < blobGroups.length; g++) {
+    const grp = blobGroups[g];
+    let cx = evalWaves(grp.xWaves, time, rHalf);
+    let cy = evalWaves(grp.yWaves, time, rHalf);
+    const lim = rHalf - grp.groupRadius * dpr * 1.5;
+    cx = lim * Math.tanh(cx / lim);
+    cy = lim * Math.tanh(cy / lim);
+    const ro = repelOffsets[g];
+    const rx = heroRefW / 2 + cx / dpr + ro.x;
+    const ry = heroRefH / 2 - cy / dpr + ro.y;
+    const dx = rx - rmx;
+    const dy = ry - rmy;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 180 && dist > 0.1) {
+      const p = Math.pow(1 - dist / 180, 2) * Math.max(35 / grp.groupRadius, 1.5) * push * dt;
+      ro.x += dx / dist * p;
+      ro.y += dy / dist * p;
+    }
+    ro.x -= ro.x * decay;
+    ro.y -= ro.y * decay;
+    for (let s = 0; s < grp.subBalls; s++) {
+      const d = grp.deform[s];
+      refData.push(refCx + cx + Math.sin(time * d.xFreq + d.xPhase) * grp.spread * dpr + ro.x * dpr, refCy + cy + Math.sin(time * d.yFreq + d.yPhase) * grp.spread * dpr - ro.y * dpr, grp.groupRadius * dpr);
+    }
+  }
+
+  for (let s = 0; s < smalls.length; s++) {
+    const sm = smalls[s];
+    const ro = repelOffsets[blobGroups.length + s];
+    let bx = evalWaves(sm.xWaves, time, rHalf);
+    let by = evalWaves(sm.yWaves, time, rHalf);
+    const lim = rHalf - sm.radius * dpr;
+    bx = lim * Math.tanh(bx / lim);
+    by = lim * Math.tanh(by / lim);
+    const rx = heroRefW / 2 + bx / dpr + ro.x;
+    const ry = heroRefH / 2 - by / dpr + ro.y;
+    const dx = rx - rmx;
+    const dy = ry - rmy;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 180 && dist > 0.1) {
+      const p = Math.pow(1 - dist / 180, 2) * (35 / sm.radius) * push * dt;
+      ro.x += dx / dist * p;
+      ro.y += dy / dist * p;
+    }
+    ro.x -= ro.x * decay;
+    ro.y -= ro.y * decay;
+    refData.push(refCx + bx + ro.x * dpr, refCy + by - ro.y * dpr, sm.radius * dpr);
+  }
+
+  const data = [];
+  const aCx = nW / 2;
+  const aCy = nH / 2;
+  for (let i = 0; i < refData.length; i += 3) {
+    data.push(aCx + (refData[i] - refCx) * uniScale, aCy + (refData[i + 1] - refCy) * uniScale, refData[i + 2] * uniScale);
+  }
+  const total = Math.min(data.length / 3, MAX_BALLS);
+  const u = new Float32Array(MAX_BALLS * 3);
+  for (let i = 0; i < total * 3; i++) u[i] = data[i];
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.uniform1f(uTimeLoc, time);
+  gl.uniform1f(uScaleLoc, uniScale);
+  gl.uniform3fv(uBallsLoc, u);
+  gl.uniform1i(uNumBallsLoc, total);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+
+let lastTime = performance.now();
+function loop(now) {
+  const dt = Math.min((now - lastTime) / 1000, 0.05);
+  lastTime = now;
+  update(dt);
+  requestAnimationFrame(loop);
+}
+
+resizeCanvas();
+updateSceneState();
+requestAnimationFrame(loop);
+
+// Scroll reveal
+const obs = new IntersectionObserver(es => {
+  es.forEach(e => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), parseInt(e.target.dataset.delay || '0', 10));
+      obs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.programme-item').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

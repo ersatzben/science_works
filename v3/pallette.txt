@@ -1,0 +1,7 @@
+Off-white: #faf7f4
+Orange: #fe6350
+Burgundy: #9b062e
+Dark teal: #0c6669
+Bright Purple: #4859c6
+Mid-green: #5baf75
+Dark dark brown: #440d1f

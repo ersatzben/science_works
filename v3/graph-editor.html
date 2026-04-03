@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Graph Position Editor</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Roboto Mono', monospace; background: #1a1a2e; color: #ccc; display: flex; height: 100vh; overflow: hidden; }
+
+  #toolbar {
+    width: 260px; flex-shrink: 0; padding: 20px; overflow-y: auto;
+    background: #16213e; border-right: 1px solid rgba(255,255,255,0.06);
+  }
+  #toolbar h1 { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #fff; margin-bottom: 20px; }
+  #toolbar p { font-size: 11px; color: #666; line-height: 1.6; margin-bottom: 16px; }
+  .tb-btn {
+    display: block; width: 100%; padding: 10px; margin-bottom: 8px;
+    font-size: 11px; font-family: 'Roboto Mono', monospace; text-transform: uppercase; letter-spacing: 1px;
+    color: #ccc; background: none; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .tb-btn:hover { color: #fe6350; border-color: #fe6350; }
+  .tb-btn.primary { background: #fe6350; color: #fff; border-color: #fe6350; }
+  .tb-btn.primary:hover { background: #e55540; }
+  #status { font-size: 10px; color: #5baf75; margin-top: 12px; min-height: 14px; }
+  #node-info { margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.06); font-size: 11px; }
+  #node-info .ni-title { font-size: 13px; color: #fff; margin-bottom: 4px; }
+  #node-info .ni-id { color: #666; margin-bottom: 8px; }
+  #node-info .ni-pos { color: #999; }
+
+  #canvas-wrap {
+    flex: 1; position: relative; overflow: hidden; background: #faf7f4;
+  }
+  canvas { width: 100%; height: 100%; }
+</style>
+</head>
+<body>
+
+<div id="toolbar">
+  <h1>Graph Editor</h1>
+  <p>Load your metadata JSON, drag nodes to arrange them, then save positions back into the JSON.</p>
+  <button class="tb-btn" id="btn-load">Load JSON file</button>
+  <button class="tb-btn" id="btn-auto">Auto-layout (rough)</button>
+  <button class="tb-btn primary" id="btn-save">Save JSON with positions</button>
+  <div id="status"></div>
+  <div id="node-info"></div>
+  <input type="file" id="file-input" accept=".json" style="display:none">
+</div>
+
+<div id="canvas-wrap">
+  <canvas id="graph"></canvas>
+</div>
+
+<script>
+const TYPE_COLORS = { 'report': '#9b062e', 'essay': '#fe6350', 'explorer': '#0c6669', 'tool-release': '#4859c6' };
+
+let metadata = [];
+let nodes = [];
+let links = [];
+let dragNode = null;
+let hoveredNode = null;
+
+const canvasWrap = document.getElementById('canvas-wrap');
+const canvas = document.getElementById('graph');
+const ctx = canvas.getContext('2d');
+const status = document.getElementById('status');
+const nodeInfo = document.getElementById('node-info');
+let dpr = 1;
+let W = 800, H = 600;
+
+function nodeRadius(n) { return n.prominence * n.prominence * 18 + 3; }
+
+function resize() {
+  dpr = window.devicePixelRatio || 1;
+  W = canvasWrap.offsetWidth;
+  H = canvasWrap.offsetHeight;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  draw();
+}
+
+function getWrappedLines(node, maxW) {
+  if (node.__wc && node.__wc.mw === maxW) return node.__wc;
+  ctx.font = '400 14px Playfair Display, serif';
+  const words = node.title.split(' ');
+  const lines = []; let line = '';
+  for (const word of words) {
+    const test = line ? line + ' ' + word : word;
+    if (ctx.measureText(test).width > maxW && line) { lines.push(line); line = word; }
+    else { line = test; }
+  }
+  if (line) lines.push(line);
+  const bgW = Math.min(maxW, Math.max(...lines.map(l => ctx.measureText(l).width)));
+  node.__wc = { mw: maxW, lines, bgW };
+  return node.__wc;
+}
+
+function draw() {
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#faf7f4';
+  ctx.fillRect(0, 0, W, H);
+
+  const ox = W / 2, oy = H / 2;
+  const nm = {}; nodes.forEach(n => nm[n.id] = n);
+
+  // Edges
+  for (const l of links) {
+    const src = nm[l.source], tgt = nm[l.target];
+    if (!src || !tgt) continue;
+    ctx.beginPath();
+    ctx.moveTo(src.x + ox, src.y + oy);
+    ctx.lineTo(tgt.x + ox, tgt.y + oy);
+    ctx.strokeStyle = 'rgba(0,0,0,0.12)';
+    ctx.lineWidth = l.weight * 2;
+    ctx.stroke();
+  }
+
+  // Nodes + labels
+  const sorted = [...nodes].sort((a, b) => a.prominence - b.prominence);
+  const topByProm = [...nodes].sort((a, b) => b.prominence - a.prominence).slice(0, 8);
+  const labelIds = new Set(topByProm.map(n => n.id));
+
+  for (const n of sorted) {
+    const r = nodeRadius(n);
+    const nx = n.x + ox, ny = n.y + oy;
+    const isHovered = hoveredNode === n;
+
+    ctx.beginPath();
+    ctx.arc(nx, ny, r, 0, Math.PI * 2);
+    ctx.fillStyle = TYPE_COLORS[n.type] || '#999';
+    ctx.globalAlpha = isHovered ? 1 : 0.85;
+    ctx.fill();
+    if (isHovered) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke(); }
+    ctx.globalAlpha = 1;
+
+    // Label
+    if (labelIds.has(n.id)) {
+      const labelX = nx + r + 6;
+      const maxW = 200, lineH = 17;
+      const { lines, bgW } = getWrappedLines(n, maxW);
+      const blockH = lines.length * lineH;
+      const startY = ny - blockH / 2 + lineH / 2;
+      const bgPad = 3;
+
+      ctx.globalAlpha = 0.1;
+      ctx.fillStyle = '#faf7f4';
+      ctx.fillRect(labelX - bgPad, startY - lineH/2 - bgPad, bgW + bgPad*2, blockH + bgPad*2);
+
+      ctx.globalAlpha = 1;
+      ctx.font = '400 14px Playfair Display, serif';
+      ctx.fillStyle = '#9b062e';
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      for (let i = 0; i < lines.length; i++) ctx.fillText(lines[i], labelX, startY + i * lineH);
+    }
+
+    // Always show ID as tiny label
+    ctx.font = '10px Roboto Mono, monospace';
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText(n.id, nx, ny + r + 3);
+
+    // Indicators for showLabel and isNew
+    const badges = [];
+    if (n.showLabel) badges.push({ text: 'L', bg: '#0c6669' });
+    if (n.isNew) badges.push({ text: 'N', bg: '#fe6350' });
+    for (let bi = 0; bi < badges.length; bi++) {
+      const bx = nx + r - 2 + bi * 14, by = ny - r - 4;
+      ctx.fillStyle = badges[bi].bg;
+      ctx.beginPath(); ctx.arc(bx, by, 6, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.font = '600 8px Roboto, sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(badges[bi].text, bx, by);
+    }
+  }
+}
+
+function nodeAt(mx, my) {
+  const ox = W / 2, oy = H / 2;
+  for (const n of [...nodes].sort((a, b) => b.prominence - a.prominence)) {
+    const dx = mx - (n.x + ox), dy = my - (n.y + oy);
+    if (Math.sqrt(dx*dx + dy*dy) < nodeRadius(n) + 4) return n;
+  }
+  return null;
+}
+
+// ── Mouse ──
+let selectedNode = null; // click-selected, persists for sidebar editing
+let didDrag = false;
+
+canvas.addEventListener('mousedown', e => {
+  const n = nodeAt(e.offsetX, e.offsetY);
+  if (n) { dragNode = n; didDrag = false; }
+});
+
+canvas.addEventListener('mousemove', e => {
+  if (dragNode) {
+    dragNode.x = e.offsetX - W / 2;
+    dragNode.y = e.offsetY - H / 2;
+    didDrag = true;
+    draw();
+    updateNodeInfo(dragNode);
+    return;
+  }
+  const n = nodeAt(e.offsetX, e.offsetY);
+  if (n !== hoveredNode) {
+    hoveredNode = n;
+    canvas.style.cursor = n ? 'grab' : 'default';
+    // Only update sidebar on hover if no node is selected
+    if (!selectedNode) { updateNodeInfo(n); }
+    draw();
+  }
+});
+
+canvas.addEventListener('mouseup', e => {
+  if (dragNode && !didDrag) {
+    // Click without drag — select/deselect
+    selectedNode = selectedNode === dragNode ? null : dragNode;
+    updateNodeInfo(selectedNode);
+    draw();
+  }
+  if (dragNode) canvas.style.cursor = 'grab';
+  dragNode = null;
+});
+
+canvas.addEventListener('mouseleave', () => {
+  dragNode = null;
+  hoveredNode = null;
+  draw();
+});
+
+function updateNodeInfo(n) {
+  if (!n) { nodeInfo.innerHTML = ''; return; }
+  nodeInfo.innerHTML = `
+    <div class="ni-title">${n.title}</div>
+    <div class="ni-id">${n.id} &middot; ${n.type}</div>
+    <div class="ni-pos">x: ${Math.round(n.x)}, y: ${Math.round(n.y)}</div>
+    <label style="display:block;margin-top:10px;cursor:pointer;color:#ccc;font-size:11px;">
+      <input type="checkbox" id="tog-label" ${n.showLabel ? 'checked' : ''} style="margin-right:6px;">Show label
+    </label>
+    <label style="display:block;margin-top:6px;cursor:pointer;color:#ccc;font-size:11px;">
+      <input type="checkbox" id="tog-new" ${n.isNew ? 'checked' : ''} style="margin-right:6px;">Mark as NEW
+    </label>
+  `;
+  document.getElementById('tog-label').addEventListener('change', e => { n.showLabel = e.target.checked; draw(); });
+  document.getElementById('tog-new').addEventListener('change', e => { n.isNew = e.target.checked; draw(); });
+}
+
+// ── Load JSON ──
+document.getElementById('btn-load').addEventListener('click', () => {
+  document.getElementById('file-input').click();
+});
+
+document.getElementById('file-input').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      metadata = JSON.parse(ev.target.result);
+      loadGraph();
+      status.textContent = `Loaded ${metadata.length} nodes`;
+    } catch (err) { status.textContent = 'Error: ' + err.message; }
+  };
+  reader.readAsText(file);
+});
+
+function loadGraph() {
+  nodes = metadata.map(d => ({
+    id: d.id, title: d.title, type: d.type, prominence: d.prominence,
+    showLabel: !!d.showLabel, isNew: !!d.isNew,
+    x: d.position ? d.position.x : (Math.random() - 0.5) * W * 0.6,
+    y: d.position ? d.position.y : (Math.random() - 0.5) * H * 0.6,
+  }));
+  const nm = {}; nodes.forEach(n => nm[n.id] = n);
+  const edgeMap = {};
+  metadata.forEach(d => {
+    d.linked.forEach(([targetId, weight]) => {
+      const key = [d.id, targetId].sort().join('--');
+      if (!edgeMap[key] || weight > edgeMap[key].weight) edgeMap[key] = { source: d.id, target: targetId, weight };
+    });
+  });
+  links = Object.values(edgeMap);
+  resize();
+}
+
+// ── Auto-layout (simple spring) ──
+document.getElementById('btn-auto').addEventListener('click', () => {
+  if (!nodes.length) return;
+  const nm = {}; nodes.forEach(n => { nm[n.id] = n; n.vx = 0; n.vy = 0; });
+  const resolved = links.map(l => ({ source: nm[l.source], target: nm[l.target], weight: l.weight })).filter(l => l.source && l.target);
+
+  for (let iter = 0; iter < 300; iter++) {
+    const alpha = 1 - iter / 300;
+    // Repulsion
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const a = nodes[i], b = nodes[j];
+        let dx = b.x - a.x, dy = b.y - a.y;
+        const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+        if (dist > 600) continue;
+        const f = -300 * alpha / (dist * dist + 1);
+        a.vx -= dx/dist*f; a.vy -= dy/dist*f;
+        b.vx += dx/dist*f; b.vy += dy/dist*f;
+      }
+    }
+    // Links
+    for (const l of resolved) {
+      let dx = l.target.x - l.source.x, dy = l.target.y - l.source.y;
+      const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+      const f = (dist - 150) * 0.04 * alpha;
+      l.source.vx += dx/dist*f; l.source.vy += dy/dist*f;
+      l.target.vx -= dx/dist*f; l.target.vy -= dy/dist*f;
+    }
+    // Apply
+    const hw = W/2 - 40, hh = H/2 - 40;
+    nodes.forEach(n => {
+      n.vx *= 0.6; n.vy *= 0.6; n.x += n.vx; n.y += n.vy;
+      const r = nodeRadius(n);
+      n.x = Math.max(-hw+r, Math.min(hw-r, n.x));
+      n.y = Math.max(-hh+r, Math.min(hh-r, n.y));
+    });
+  }
+  nodes.forEach(n => { n.vx = 0; n.vy = 0; });
+  draw();
+  status.textContent = 'Auto-layout done — drag to refine';
+});
+
+// ── Save JSON with positions ──
+document.getElementById('btn-save').addEventListener('click', () => {
+  if (!metadata.length) return;
+  const nodeMap = {};
+  nodes.forEach(n => { nodeMap[n.id] = n; });
+  const output = metadata.map(d => {
+    const n = nodeMap[d.id];
+    return {
+      ...d,
+      position: n ? { x: Math.round(n.x), y: Math.round(n.y) } : d.position || null,
+      showLabel: n ? n.showLabel : !!d.showLabel,
+      isNew: n ? n.isNew : !!d.isNew,
+    };
+  });
+  const json = JSON.stringify(output, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'dummy_metadata.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  status.textContent = 'Saved! Replace your dummy_metadata.json with the download.';
+});
+
+window.addEventListener('resize', resize);
+resize();
+</script>
+</body>
+</html>

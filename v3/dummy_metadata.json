@@ -1,0 +1,1441 @@
+[
+  {
+    "id": "SW-002",
+    "title": "The Lovelace Proposal",
+    "subtitle": "Disruptive Invention Labs for British Science",
+    "type": "report",
+    "authors": [
+      "Laura Ryan",
+      "Ben Johnson"
+    ],
+    "linked": [
+      [
+        "SW-003",
+        0.9
+      ],
+      [
+        "SW-004",
+        0.7
+      ],
+      [
+        "SW-033",
+        0.5
+      ],
+      [
+        "SW-034",
+        0.6
+      ],
+      [
+        "SW-006",
+        0.4
+      ],
+      [
+        "SW-015",
+        0.3
+      ],
+      [
+        "SW-007",
+        0.3
+      ]
+    ],
+    "tags": [
+      "institutional dynamism",
+      "talent",
+      "wetware"
+    ],
+    "prominence": 1,
+    "date": "2025-11-01",
+    "keywords": [
+      "Lovelace",
+      "new institutions",
+      "co-location",
+      "cross-disciplinary"
+    ],
+    "position": {
+      "x": 104,
+      "y": -173
+    },
+    "showLabel": true,
+    "isNew": false
+  },
+  {
+    "id": "SW-003",
+    "title": "Windows of Technoscientific Opportunity",
+    "subtitle": "Where to Nucleate the First Lovelace Labs",
+    "type": "report",
+    "authors": [
+      "Laura Ryan",
+      "Alvin Djajadikerta"
+    ],
+    "linked": [
+      [
+        "SW-002",
+        0.9
+      ]
+    ],
+    "tags": [
+      "institutional dynamism",
+      "wetware",
+      "talent"
+    ],
+    "prominence": 0.7,
+    "date": "2026-06-10",
+    "keywords": [
+      "scoping",
+      "frontier science",
+      "lab nucleation"
+    ],
+    "position": {
+      "x": 125,
+      "y": -265
+    },
+    "showLabel": false,
+    "isNew": false
+  },
+  {
+    "id": "SW-004",
+    "title": "A Map of Institutional Models",
+    "subtitle": "Organisational Forms for 21st-Century Science",
+    "type": "explorer",
+    "authors": [
+      "Alvin Djajadikerta",
+      "Laura Ryan"
+    ],
+    "linked": [
+      [
+        "SW-002",
+        0.7
+      ]
+    ],
+    "tags": [
+      "institutional dynamism",
+      "research policy"
+    ],
+    "prominence": 0.65,
+    "date": "2026-08-22",
+    "keywords": [
+      "organisational design",
+      "typology",
+      "FROs",
+      "DARPA"
+    ],
+    "position": {
+      "x": 148,
+      "y": -115
+    },
+    "showLabel": false,
+    "isNew": false
+  },
+  {
+    "id": "SW-033",
+    "title": "When Institutions Die",
+    "subtitle": "Five Historical Failures in Scientific Organisation",
+    "type": "essay",
+    "authors": [
+      "Alvin Djajadikerta"
+    ],
+    "linked": [
+      [
+        "SW-002",
+        0.5
+      ]
+    ],
+    "tags": [
+      "institutional dynamism"
+    ],
+    "prominence": 0.3,
+    "date": "2026-07-04",
+    "keywords": [
+      "failure modes",
+      "institutional decline",
+      "case studies"
+    ],
+    "position": {
+      "x": 51,
+      "y": -224
+    },
+    "showLabel": false,
+    "isNew": false
+  },
+  {
+    "id": "SW-034",
+    "title": "The Governance of Bold Science",
+    "subtitle": "Accountability Without Risk-Aversion",
+    "type": "essay",
+    "authors": [
+      "Laura Ryan"
+    ],
+    "linked": [
+      [
+        "SW-002",
+        0.6
+      ]
+    ],
+    "tags": [
+      "institutional dynamism",
+      "funding reform"
+    ],
+    "prominence": 0.35,
+    "date": "2026-09-08",
+    "keywords": [
+      "governance",
+      "accountability",
+      "autonomy",
+      "oversight"
+    ],
+    "position": {
+      "x": 231,
+      "y": -183
+    },
+    "showLabel": false,
+    "isNew": false
+  },
+  {
+    "id": "SW-006",
+    "title": "Creative Destruction in the Public Sector",
+    "subtitle": "How Scientific Institutions Become Sclerotic",
+    "type": "essay",
+    "authors": [
+      "Ben Johnson"
+    ],
+    "linked": [
+      [
+        "SW-002",
+        0.4
+      ],
+      [
+        "SW-040",
+        0.5
+      ]
+    ],
+    "tags": [
+      "institutional dynamism",
+      "universities",
+      "research policy"
+    ],
+    "prominence": 0.5,
+    "date": "2026-04-03",
+    "keywords": [
+      "sclerosis",
+      "organisational decline",
+      "renewal"
+    ],
+    "position": {
+      "x": 186,
+      "y": -242
+    },
+    "showLabel": false,
+    "isNew": false
+  },
+  {
+    "id": "SW-040",
+    "title": "What Happened to the Polytechnics",
+    "subtitle": "Institutional Diversity and the 1992 Settlement",
+    "type": "essay",
+    "authors": [
+      "Ben Johnson"
+    ],
+    "linked": [
+      [
+        "SW-006",
+        0.5
+      ]
+    ],
+    "tags": [
+      "institutional dynamism",
+      "universities"
+    ],
+    "prominence": 0.3,
+    "date": "2026-06-01",
+    "keywords": [
+      "polytechnics",
+      "1992",
+      "institutional diversity",
+      "history"
+    ],
+    "position": {
+      "x": 224,
+      "y": -275
+    },
+    "showLabel": false,
+    "isNew": false
+  },
+  {
+    "id": "SW-015",
+    "title": "Why Science Needs Outsiders",
+    "subtitle": null,
+    "type": "essay",
+    "authors": [
+      "Alvin Djajadikerta"
+    ],
+    "linked": [
+      [
+        "SW-002",
+        0.3
+      ]
+    ],
+    "tags": [
+      "institutional dynamism",
+      "talent",
+      "universities"
+    ],
+    "prominence": 0.4,
+    "date": "2025-07-22",
+    "keywords": [
+      "outsiders",
+      "innovation",
+      "diversity of thought"
+    ],
+    "position": {
+      "x": 206,
+      "y": -134
+    },
+    "showLabel": false,
+    "isNew": false
+  },
+  {
+    "id": "SW-007",
+    "title": "Selecting AI-for-Science Missions",
+    "subtitle": "Six Criteria for National Priority-Setting",
+    "type": "essay",
+    "authors": [
+      "Laura Ryan",
+      "Ben Johnson"
+    ],
+    "linked": [
+      [
+        "SW-008",
+        0.8
+      ],
+      [
+        "SW-009",
+        0.5
+      ],
+      [
+        "SW-002",
+        0.3
+      ],
+      [
+        "SW-012",
+        0.3
+      ]
+    ],
+    "tags": [
+      "AI for science",
+      "research policy"
+    ],
+    "prominence": 0.4,
+    "date": "2026-02-14",
+    "keywords": [
+      "mission selection",
+      "drug discovery",
+      "criteria"
+    ],
+    "position": {
+      "x": 75,
+      "y": -57
+    },
+    "showLabel": true,
+    "isNew": false
+  },
+  {
+    "id": "SW-008",
+    "title": "Delivery Architecture for AI-Enabled Discovery",
+    "subtitle": "From Strategy to Infrastructure",
+    "type": "report",
+    "authors": [
+      "Laura Ryan",
+      "Rory Byrne"
+    ],
+    "linked": [
+      [
+        "SW-007",
+        0.8
+      ],
+      [
+        "SW-010",
+        0.5
+      ],
+      [
+        "SW-016",
+        0.4
+      ]
+    ],
+    "tags": [
+      "AI for science",
+      "software toolbuilding",
+      "dark data"
+    ],
+    "prominence": 0.75,
+    "date": "2026-05-30",
+    "keywords": [
+      "delivery",
+      "infrastructure",
+      "compute",
+      "biofoundries"
+    ],
+    "position": {
+      "x": 110,
+      "y": 41
+    },
+    "showLabel": true,
+    "isNew": false
+  },
+  {
+    "id": "SW-009",
+    "title": "The Dark Data Problem",
+    "subtitle": "What Science Loses When Only Successes Are Visible",
+    "type": "essay",
+    "authors": [
+      "Laura Ryan"
+    ],
+    "linked": [
+      [
+        "SW-007",
+        0.5
+      ],
+      [
+        "SW-010",
+        0.7
+      ],
+      [
+        "SW-035",
+        0.6
+      ]
+    ],
+    "tags": [
+      "dark data",
+      "open science",
+      "publication reform"
+    ],
+    "prominence": 0.9,
+    "date": "2026-03-18",
+    "keywords": [
+      "negative results",
+      "null results",
+      "lab notebooks",
+      "replication"
+    ],
+    "position": {
+      "x": 323,
+      "y": 2
+    },
+    "showLabel": true,
+    "isNew": false
+  },
+  {
+    "id": "SW-010",
+    "title": "Dark Data Hackathon: Results and Tools",
+    "subtitle": "Six Prototypes for Recovering the Hidden Record of Science",
+    "type": "tool-release",
+    "authors": [
+      "Rory Byrne",
+      "Laura Ryan"
+    ],
+    "linked": [
+      [
+        "SW-009",
+        0.7
+      ],
+      [
+        "SW-008",
+        0.5
+      ]
+    ],
+    "tags": [
+      "dark data",
+      "software toolbuilding",
+      "AI for science",
+      "open science"
+    ],
+    "prominence": 0.55,
+    "date": "2026-04-25",
+    "keywords": [
+      "hackathon",
+      "digitisation",
+      "CompMotifs",
+      "prototypes"
+    ],
+    "position": {
+      "x": 305,
+      "y": 115
+    },
+    "showLabel": true,
+    "isNew": false
+  },
+  {
+    "id": "SW-035",
+    "title": "What We Found in the Notebooks",
+    "subtitle": "A Case Study in Dark Data Recovery",
+    "type": "essay",
+    "authors": [
+      "Laura Ryan"
+    ],
+    "linked": [
+      [
+        "SW-009",
+        0.6
+      ]
+    ],
+    "tags": [
+      "dark data",
+      "open science"
+    ],
+    "prominence": 0.25,
+    "date": "2026-05-12",
+    "keywords": [
+      "case study",
+      "lab notebooks",
+      "digitisation"
+    ],
+    "position": {
+      "x": 377,
+      "y": -60
+    },
+    "showLabel": false,
+    "isNew": false
+  },
+  {
+    "id": "SW-016",
+    "title": "Open Science Archive",
+    "subtitle": "An AI-Ready Repository for Scientific Data",
+    "type": "tool-release",
+    "authors": [
+      "Rory Byrne"
+    ],
+    "linked": [
+      [
+        "SW-008",
+        0.4
+      ],
+      [
+        "SW-017",
+        0.7
+      ],
+      [
+        "SW-036",
+        0.5
+      ]
+    ],
+    "tags": [
+      "software toolbuilding",
+      "open science",
+      "dark data",
+      "AI for science"
+    ],
+    "prominence": 0.6,
+    "date": "2026-06-20",
+    "keywords": [
+      "archive",
+      "data repository",
+      "interoperability",
+      "AI-ready"
+    ],
+    "position": {
+      "x": 111,
+      "y": 95
+    },
+    "showLabel": false,
+    "isNew": false
+  },
+  {
+    "id": "SW-017",
+    "title": "Building for Adoption",
+    "subtitle": "A Public-Interest Product Philosophy for Research Software",
+    "type": "essay",
+    "authors": [
+      "Ben Johnson",
+      "Rory Byrne"
+    ],
+    "linked": [
+      [
+        "SW-016",
+        0.7
+      ],
+      [
+        "SW-018",
+        0.6
+      ]
+    ],
+    "tags": [
+      "software toolbuilding",
+      "open science"
+    ],
+    "prominence": 0.55,
+    "date": "2026-05-08",
+    "keywords": [
+      "adoption",
+      "maintenance",
+      "open source",
+      "product philosophy"
+    ],
+    "position": {
+      "x": 93,
+      "y": 147
+    },
+    "showLabel": false,
+    "isNew": false
+  },
+  {
+    "id": "SW-018",
+    "title": "Software as a First-Class Research Output",
+    "subtitle": "What Funders Should Do Differently",
+    "type": "essay",
+    "authors": [
+      "Rory Byrne",
+      "Ben Johnson"
+    ],
+    "linked": [
+      [
+        "SW-017",
+        0.6
+      ]
+    ],
+    "tags": [
+      "software toolbuilding",
+      "funding reform",
+      "open science"
+    ],
+    "prominence": 0.45,
+    "date": "2026-09-12",
+    "keywords": [
+      "RSE",
+      "research software",
+      "funder policy",
+      "recognition"
+    ],
+    "position": {
+      "x": 77,
+      "y": 200
+    },
+    "showLabel": false,
+    "isNew": false
+  },
+  {
+    "id": "SW-036",
+    "title": "Reference Architectures for Research Data",
+    "subtitle": "Three Patterns That Actually Get Adopted",
+    "type": "essay",
+    "authors": [
+      "Rory Byrne"
+    ],
+    "linked": [
+      [
+        "SW-016",
+        0.5
+      ]
+    ],
+    "tags": [
+      "software toolbuilding",
+      "open science"
+    ],
+    "prominence": 0.25,
+    "date": "2026-07-30",
+    "keywords": [
+      "reference architecture",
+      "patterns",
+      "data infrastructure"
+    ],
+    "position": {
+      "x": 174,
+      "y": 143
+    },
+    "showLabel": false,
+    "isNew": false
+  },
+  {
+    "id": "SW-012",
+    "title": "Global Science Capacity Explorer",
+    "subtitle": "Mapping Research Strengths Across 129 Countries",
+    "type": "explorer",
+    "authors": [
+      "Ben Johnson",
+      "Rory Byrne"
+    ],
+    "linked": [
+      [
+        "SW-011",
+        0.7
+      ],
+      [
+        "SW-019",
+        0.6
+      ],
+      [
+        "SW-020",
+        0.5
+      ],
+      [
+        "SW-013",
+        0.4
+      ],
+      [
+        "SW-007",
+        0.3
+      ],
+      [
+        "SW-022",
+        0.3
+      ]
+    ],
+    "tags": [
+      "economic analysis",
+      "software toolbuilding",
+      "research policy"
+    ],
+    "prominence": 0.85,
+    "date": "2026-02-01",
+    "keywords": [
+      "global",
+      "capacity",
+      "dashboard",
+      "OpenAlex"
+    ],
+    "position": {
+      "x": -321,
+      "y": -80
+    },
+    "showLabel": true,
+    "isNew": false
+  },
+  {
+    "id": "SW-011",
+    "title": "Redefining Interdisciplinarity",
+    "subtitle": "Bridging Scores Across 14.5 Million Papers",
+    "type": "report",
+    "authors": [
+      "Ben Johnson",
+      "Rory Byrne"
+    ],
+    "linked": [
+      [
+        "SW-012",
+        0.7
+      ],
+      [
+        "SW-028",
+        0.5
+      ],
+      [
+        "SW-025",
+        0.4
+      ]
+    ],
+    "tags": [
+      "economic analysis",
+      "open science",
+      "publication reform"
+    ],
+    "prominence": 0.7,
+    "date": "2026-03-05",
+    "keywords": [
+      "bridging score",
+      "interdisciplinary",
+      "bibliometrics",
+      "novelty"
+    ],
+    "position": {
+      "x": -416,
+      "y": -92
+    },
+    "showLabel": false,
+    "isNew": false
+  },
+  {
+    "id": "SW-028",
+    "title": "Research Ecosystems",
+    "subtitle": "A Bibliometric Anatomy of Scientific Communities",
+    "type": "report",
+    "authors": [
+      "Ben Johnson",
+      "Rory Byrne"
+    ],
+    "linked": [
+      [
+        "SW-011",
+        0.5
+      ]
+    ],
+    "tags": [
+      "economic analysis",
+      "open science",
+      "publication reform"
+    ],
+    "prominence": 0.5,
+    "date": "2026-08-15",
+    "keywords": [
+      "ecosystems",
+      "clustering",
+      "community structure",
+      "bibliometrics"
+    ],
+    "position": {
+      "x": -459,
+      "y": -39
+    },
+    "showLabel": false,
+    "isNew": false
+  },
+  {
+    "id": "SW-025",
+    "title": "The Long Road to PI",
+    "subtitle": "What Early-Career Trajectories Tell Us About the System",
+    "type": "report",
+    "authors": [
+      "Ben Johnson",
+      "Rory Byrne"
+    ],
+    "linked": [
+      [
+        "SW-011",
+        0.4
+      ]
+    ],
+    "tags": [
+      "talent",
+      "economic analysis",
+      "universities"
+    ],
+    "prominence": 0.6,
+    "date": "2026-07-28",
+    "keywords": [
+      "early career",
+      "PI",
+      "career trajectories",
+      "attrition"
+    ],
+    "position": {
+      "x": -470,
+      "y": -125
+    },
+    "showLabel": false,
+    "isNew": true
+  },
+  {
+    "id": "SW-013",
+    "title": "The Hidden Economy of Research",
+    "subtitle": "Mapping What the Metrics Miss",
+    "type": "report",
+    "authors": [
+      "Ben Johnson"
+    ],
+    "linked": [
+      [
+        "SW-012",
+        0.4
+      ]
+    ],
+    "tags": [
+      "economic analysis",
+      "funding reform",
+      "publication reform"
+    ],
+    "prominence": 0.65,
+    "date": "2026-07-14",
+    "keywords": [
+      "hidden economy",
+      "tacit knowledge",
+      "metrics",
+      "valuation"
+    ],
+    "position": {
+      "x": -363,
+      "y": -185
+    },
+    "showLabel": true,
+    "isNew": false
+  },
+  {
+    "id": "SW-019",
+    "title": "UK Research Base by Constituency",
+    "subtitle": "Scientific Capability Mapped to Industrial Strategy",
+    "type": "explorer",
+    "authors": [
+      "Ben Johnson",
+      "Rory Byrne"
+    ],
+    "linked": [
+      [
+        "SW-012",
+        0.6
+      ],
+      [
+        "SW-031",
+        0.6
+      ]
+    ],
+    "tags": [
+      "economic analysis",
+      "research policy",
+      "software toolbuilding"
+    ],
+    "prominence": 0.6,
+    "date": "2026-04-15",
+    "keywords": [
+      "constituency",
+      "industrial strategy",
+      "place",
+      "levelling up"
+    ],
+    "position": {
+      "x": -379,
+      "y": -13
+    },
+    "showLabel": false,
+    "isNew": false
+  },
+  {
+    "id": "SW-031",
+    "title": "The Innovation Clusters Map",
+    "subtitle": "R&D Capability for DSIT",
+    "type": "explorer",
+    "authors": [
+      "Ben Johnson"
+    ],
+    "linked": [
+      [
+        "SW-019",
+        0.6
+      ]
+    ],
+    "tags": [
+      "economic analysis",
+      "software toolbuilding",
+      "research policy"
+    ],
+    "prominence": 0.45,
+    "date": "2025-12-10",
+    "keywords": [
+      "clusters",
+      "DSIT",
+      "mapping",
+      "government"
+    ],
+    "position": {
+      "x": -422,
+      "y": 32
+    },
+    "showLabel": false,
+    "isNew": false
+  },
+  {
+    "id": "SW-020",
+    "title": "UK Science Intelligence Platform",
+    "subtitle": "Live Decision Support for Funders and Government",
+    "type": "explorer",
+    "authors": [
+      "Ben Johnson",
+      "Rory Byrne"
+    ],
+    "linked": [
+      [
+        "SW-012",
+        0.5
+      ],
+      [
+        "SW-021",
+        0.6
+      ],
+      [
+        "SW-037",
+        0.4
+      ]
+    ],
+    "tags": [
+      "software toolbuilding",
+      "economic analysis",
+      "research policy"
+    ],
+    "prominence": 0.8,
+    "date": "2026-10-01",
+    "keywords": [
+      "intelligence",
+      "dashboard",
+      "funder tools",
+      "live data"
+    ],
+    "position": {
+      "x": -339,
+      "y": 76
+    },
+    "showLabel": true,
+    "isNew": false
+  },
+  {
+    "id": "SW-021",
+    "title": "What the Data Says",
+    "subtitle": "Analytical Briefings for Strategic Research Investment",
+    "type": "essay",
+    "authors": [
+      "Ben Johnson"
+    ],
+    "linked": [
+      [
+        "SW-020",
+        0.6
+      ]
+    ],
+    "tags": [
+      "economic analysis",
+      "funding reform",
+      "research policy"
+    ],
+    "prominence": 0.35,
+    "date": "2026-11-05",
+    "keywords": [
+      "investment",
+      "briefing",
+      "sub-fields",
+      "trends"
+    ],
+    "position": {
+      "x": -332,
+      "y": 164
+    },
+    "showLabel": true,
+    "isNew": false
+  },
+  {
+    "id": "SW-037",
+    "title": "Where Are the Physicists Going?",
+    "subtitle": "Talent Flows from Physical Sciences into Industry",
+    "type": "essay",
+    "authors": [
+      "Ben Johnson"
+    ],
+    "linked": [
+      [
+        "SW-020",
+        0.4
+      ]
+    ],
+    "tags": [
+      "talent",
+      "economic analysis"
+    ],
+    "prominence": 0.2,
+    "date": "2026-11-20",
+    "keywords": [
+      "talent flows",
+      "physics",
+      "industry",
+      "brain drain"
+    ],
+    "position": {
+      "x": -392,
+      "y": 125
+    },
+    "showLabel": false,
+    "isNew": false
+  },
+  {
+    "id": "SW-022",
+    "title": "The Alternative REF",
+    "subtitle": "Proving That Assessment Can Be Radically Simpler",
+    "type": "report",
+    "authors": [
+      "Ben Johnson",
+      "Will Stone"
+    ],
+    "linked": [
+      [
+        "SW-023",
+        0.7
+      ],
+      [
+        "SW-024",
+        0.5
+      ],
+      [
+        "SW-030",
+        0.5
+      ],
+      [
+        "SW-032",
+        0.4
+      ],
+      [
+        "SW-012",
+        0.3
+      ]
+    ],
+    "tags": [
+      "funding reform",
+      "universities",
+      "publication reform"
+    ],
+    "prominence": 0.85,
+    "date": "2026-09-30",
+    "keywords": [
+      "REF",
+      "assessment",
+      "low friction",
+      "evaluation"
+    ],
+    "position": {
+      "x": -135,
+      "y": 34
+    },
+    "showLabel": true,
+    "isNew": false
+  },
+  {
+    "id": "SW-023",
+    "title": "An Evidenced Playbook for Discretion",
+    "subtitle": "Director-Led Programmes, Desk Rejection, and Skin in the Game",
+    "type": "report",
+    "authors": [
+      "Will Stone",
+      "Ben Johnson"
+    ],
+    "linked": [
+      [
+        "SW-022",
+        0.7
+      ],
+      [
+        "SW-038",
+        0.4
+      ]
+    ],
+    "tags": [
+      "funding reform",
+      "research policy"
+    ],
+    "prominence": 0.7,
+    "date": "2026-11-18",
+    "keywords": [
+      "discretion",
+      "agency",
+      "peer review",
+      "director-led"
+    ],
+    "position": {
+      "x": -85,
+      "y": 138
+    },
+    "showLabel": false,
+    "isNew": false
+  },
+  {
+    "id": "SW-038",
+    "title": "How Other Countries Fund the Frontier",
+    "subtitle": "A Comparative Note on DARPA, ARPA-H, and SPRIND",
+    "type": "essay",
+    "authors": [
+      "Will Stone"
+    ],
+    "linked": [
+      [
+        "SW-023",
+        0.4
+      ]
+    ],
+    "tags": [
+      "funding reform",
+      "research policy"
+    ],
+    "prominence": 0.25,
+    "date": "2026-10-22",
+    "keywords": [
+      "comparative",
+      "DARPA",
+      "SPRIND",
+      "international"
+    ],
+    "position": {
+      "x": -58,
+      "y": 183
+    },
+    "showLabel": false,
+    "isNew": false
+  },
+  {
+    "id": "SW-024",
+    "title": "R&D in the Fiscal Framework",
+    "subtitle": "Recognising Outsized Returns in the Fiscal Rules",
+    "type": "report",
+    "authors": [
+      "Will Stone"
+    ],
+    "linked": [
+      [
+        "SW-022",
+        0.5
+      ]
+    ],
+    "tags": [
+      "funding reform",
+      "economic analysis",
+      "research policy"
+    ],
+    "prominence": 0.75,
+    "date": "2026-08-08",
+    "keywords": [
+      "fiscal rules",
+      "R&D gilts",
+      "public investment",
+      "Treasury"
+    ],
+    "position": {
+      "x": -29,
+      "y": 88
+    },
+    "showLabel": false,
+    "isNew": false
+  },
+  {
+    "id": "SW-030",
+    "title": "Novelty Over Citations",
+    "subtitle": "A Practical Agenda for Reorienting Funding Toward Discovery",
+    "type": "essay",
+    "authors": [
+      "Ben Johnson",
+      "Will Stone"
+    ],
+    "linked": [
+      [
+        "SW-022",
+        0.5
+      ]
+    ],
+    "tags": [
+      "funding reform",
+      "publication reform",
+      "economic analysis"
+    ],
+    "prominence": 0.5,
+    "date": "2027-01-08",
+    "keywords": [
+      "novelty",
+      "citations",
+      "metrics",
+      "discovery"
+    ],
+    "position": {
+      "x": -47,
+      "y": 8
+    },
+    "showLabel": false,
+    "isNew": false
+  },
+  {
+    "id": "SW-032",
+    "title": "Metascience at Scale",
+    "subtitle": "What a National R&D Programme Could Look Like",
+    "type": "report",
+    "authors": [
+      "Laura Ryan",
+      "Ben Johnson"
+    ],
+    "linked": [
+      [
+        "SW-022",
+        0.4
+      ]
+    ],
+    "tags": [
+      "research policy",
+      "funding reform",
+      "institutional dynamism"
+    ],
+    "prominence": 0.6,
+    "date": "2026-12-15",
+    "keywords": [
+      "metascience",
+      "ARIA",
+      "programme design",
+      "system-level"
+    ],
+    "position": {
+      "x": -162,
+      "y": 122
+    },
+    "showLabel": false,
+    "isNew": true
+  },
+  {
+    "id": "SW-027",
+    "title": "Britain's Scientific Future",
+    "subtitle": "What Kind of Country Do We Want to Be?",
+    "type": "essay",
+    "authors": [
+      "Ben Johnson",
+      "Laura Ryan"
+    ],
+    "linked": [
+      [
+        "SW-026",
+        0.6
+      ],
+      [
+        "SW-029",
+        0.3
+      ],
+      [
+        "SW-001",
+        0.5
+      ],
+      [
+        "SW-002",
+        0.3
+      ]
+    ],
+    "tags": [
+      "research policy",
+      "institutional dynamism"
+    ],
+    "prominence": 0.9,
+    "date": "2026-12-01",
+    "keywords": [
+      "narrative",
+      "national purpose",
+      "ambition",
+      "scientific renewal"
+    ],
+    "position": {
+      "x": -107,
+      "y": -258
+    },
+    "showLabel": true,
+    "isNew": false
+  },
+  {
+    "id": "SW-001",
+    "title": "The Counter-Reformation of Science",
+    "subtitle": "How to Make Magnificence Democratic",
+    "type": "essay",
+    "authors": [
+      "Ben Johnson",
+      "Laura Ryan"
+    ],
+    "linked": [
+      [
+        "SW-027",
+        0.5
+      ]
+    ],
+    "tags": [
+      "institutional dynamism",
+      "research policy",
+      "universities"
+    ],
+    "prominence": 0.3,
+    "date": "2025-09-15",
+    "keywords": [
+      "institutional reform",
+      "scientific culture",
+      "autonomy"
+    ],
+    "position": {
+      "x": -177,
+      "y": -333
+    },
+    "showLabel": false,
+    "isNew": false
+  },
+  {
+    "id": "SW-026",
+    "title": "New Atlantis",
+    "subtitle": "A Prospectus for the Oxford–Cambridge Arc",
+    "type": "report",
+    "authors": [
+      "Ben Johnson",
+      "Laura Ryan"
+    ],
+    "linked": [
+      [
+        "SW-027",
+        0.6
+      ]
+    ],
+    "tags": [
+      "institutional dynamism",
+      "research policy",
+      "talent"
+    ],
+    "prominence": 0.8,
+    "date": "2027-01-20",
+    "keywords": [
+      "OxCam Arc",
+      "infrastructure",
+      "place",
+      "national strategy"
+    ],
+    "position": {
+      "x": -239,
+      "y": -241
+    },
+    "showLabel": true,
+    "isNew": true
+  },
+  {
+    "id": "SW-029",
+    "title": "Fred Sanger and the Craft of Sequence",
+    "subtitle": null,
+    "type": "essay",
+    "authors": [
+      "Laura Ryan"
+    ],
+    "linked": [
+      [
+        "SW-027",
+        0.3
+      ],
+      [
+        "SW-039",
+        0.4
+      ]
+    ],
+    "tags": [
+      "institutional dynamism",
+      "talent"
+    ],
+    "prominence": 0.4,
+    "date": "2026-10-15",
+    "keywords": [
+      "Sanger",
+      "festschrift",
+      "craft",
+      "biography"
+    ],
+    "position": {
+      "x": -93,
+      "y": -314
+    },
+    "showLabel": false,
+    "isNew": false
+  },
+  {
+    "id": "SW-039",
+    "title": "Dorothy Hodgkin and the Molecular Gaze",
+    "subtitle": null,
+    "type": "essay",
+    "authors": [
+      "Laura Ryan"
+    ],
+    "linked": [
+      [
+        "SW-029",
+        0.4
+      ]
+    ],
+    "tags": [
+      "talent"
+    ],
+    "prominence": 0.3,
+    "date": "2027-02-10",
+    "keywords": [
+      "Hodgkin",
+      "festschrift",
+      "crystallography",
+      "biography"
+    ],
+    "position": {
+      "x": -86,
+      "y": -357
+    },
+    "showLabel": true,
+    "isNew": false
+  }
+]

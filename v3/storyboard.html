@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Science Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Open+Sans:wght@300;400;600;700&family=Roboto:wght@300;400;700&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  @font-face {
+    font-family: 'Antique Olive';
+    src: url('antique-olive-std/Antique-Olive-Std-Roman_3869.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'Antique Olive';
+    src: url('antique-olive-std/Antique-Olive-Std-Bold_3863.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+  }
+
+  /* ── Variables & Reset ── */
+  :root {
+    --off-white: #faf7f4;
+    --orange: #fe6350;
+    --burgundy: #9b062e;
+    --dark-teal: #0c6669;
+    --bright-purple: #4859c6;
+    --mid-green: #5baf75;
+    --dark-brown: #440d1f;
+    --rule: rgba(155, 6, 46, 0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { overflow-x: hidden; scroll-behavior: smooth; }
+  body { background: var(--off-white); color: var(--burgundy); font-family: 'DM Sans', sans-serif; overflow-x: hidden; }
+
+  /* ── Navigation ── */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 20px 28px; display: flex; justify-content: space-between; align-items: center; transition: background 0.5s, backdrop-filter 0.4s, padding-right 0.4s; }
+  nav.scrolled { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding-right: 100px; }
+  nav.scrolled.nav-light { background: rgba(250, 247, 244, 0.85); }
+  .wordmark { font-family: 'Antique Olive', sans-serif; font-size: 24px; font-weight: 700; letter-spacing: -0.07em; text-transform: uppercase; text-decoration: none; color: #9b062e; }
+  .nav-links { display: flex; gap: 36px; list-style: none; margin-right: 10px;}
+  .nav-links a { font-family: 'Antique Olive', sans-serif; font-size: 16px; font-weight: 500; letter-spacing: -0.05em; text-transform: uppercase; text-decoration: none; color: #9b062e; transition: color 0.3s; }
+  .nav-links a:hover { color: var(--orange); }
+
+  /* ── Scroll Track & Stage ── */
+  .scroll-track { height: 500vh; position: relative; }
+  .scroll-anchor { position: absolute; pointer-events: none; }
+  .stage { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 10; overflow: hidden; background: var(--off-white); }
+
+  /* ── Scene 1: Logo Area (blob positioning reference) ── */
+  .logo-area { position: absolute; left: 51%; top: 47%; transform: translate(-50%, -50%); width: 50%; height: 80%;}
+
+  /* ── Scene 1: Hero Text ── */
+  .hero-text-box { position: absolute; left: 64%; top: -45px; right: 0; height: 100%; display: flex; flex-direction: column; justify-content: center; padding: 0 72px 0 48px; }
+  .hero-label { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--orange); margin-bottom: 24px; }
+  .hero-heading { font-family: 'Antique Olive', sans-serif; font-size: 62px; font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; color: #9b062e; margin-top: 1em; margin-bottom: 28px; }
+  .hero-heading .hero-lead { font-size: 0.6em; display: block; }
+  .hero-heading em { font-family: 'Playfair Display', serif; font-style: italic; font-weight: 400; font-size: 0.62em; color: #fe6350; position: relative; top: -0.525em; }
+  .hero-divider { width: 57%; height: 2.5px; background: #9b062e; border: none; margin-top: -3em; margin-bottom: 1em; }
+  .hero-sub { font-family: 'Antique Olive', sans-serif; font-size: 17px; font-weight: 400; line-height: 1.3; letter-spacing: -0.03em; color: #9b062e; max-width: 420px; margin-bottom: 40px; margin-top: -0.25em; }
+  .hero-cta { align-self: flex-start; font-family: 'Open Sans', sans-serif; font-size: 17px; font-weight: 300; letter-spacing: 0.02em; color: var(--off-white); background: var(--dark-teal); text-decoration: none; padding: 7px 16px; border-radius: 10px; transition: background 0.25s; margin-top: -1em; }
+  .hero-cta:hover { background: var(--burgundy); }
+
+  /* ── Scroll Indicator ── */
+  .scroll-indicator { position: absolute; bottom: 36px; right: 48px; display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0.4; transition: opacity 0.4s; z-index: 5; }
+  .scroll-indicator span { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--burgundy); }
+  .scroll-line { width: 1px; height: 40px; background: var(--burgundy); position: relative; overflow: hidden; }
+  .scroll-line::after { content: ''; position: absolute; top: -100%; left: 0; width: 100%; height: 100%; background: var(--orange); animation: scrollPulse 2s ease-in-out infinite; }
+  @keyframes scrollPulse { 0% { top: -100%; } 50% { top: 100%; } 100% { top: 100%; } }
+
+
+  /* ── Scene 1: Corner Text ── */
+  .hero-corner-text { position: fixed; bottom: 4vh; left: 25px; font-family: 'Playfair Display', serif; font-size: 12.5vh; font-weight: 400; color: #9b062e; z-index: 103; letter-spacing: -0.05em; line-height: 0.85; }
+  .hero-corner-text .studio { color: var(--orange); font-weight: 700; display: inline-block; margin-top: -0.12em; font-size: 15vh;}
+  .hero-corner-text .amp { color: var(--orange); font-weight: 700; font-size: 1.6em; line-height: 0.6; position: relative; top: 0.25em; left: -0.15em; z-index: -1; }
+
+  /* ── Scene 2: About ── */
+  .about-text-box { position: absolute; left: 0; top: 0; width: 50%; height: 100%; display: flex; align-items: center; padding: 0 50px 0 110px; opacity: 0; }
+  .about-text { flex: 1; }
+  .about-text p { font-family: 'Playfair Display', serif; font-size: clamp(20px, 1.8vw, 28px); line-height: 1.4; letter-spacing: -0.01em; color: #9b062e; }
+  .about-text p em { font-style: italic; color: #fe6350; }
+  .about-image { position: absolute; right: calc(-4% - 20px); top: 70px; width: 40%; height: 100%; object-fit: cover; opacity: 0; }
+  .about-divider-bar { position: absolute; left: 64.5%; top: 70px; width: 15px; height: calc(100% - 70px); background: #9b062e; border-radius: 5px 0 0 0; opacity: 0; z-index: 2; }
+  .about-divider-bar2 { position: absolute; left: calc(64.5% + 15px); top: 70px; width: 35px; height: calc(100% - 70px); background: #fe6350; opacity: 0; z-index: 2; }
+
+  /* ── Scene 3: Explorer Box ── */
+  .explorer-box { position: absolute; left: 0; top: 70px; width: 100%; height: calc(100% - 70px); transform: translateY(100%); pointer-events: none; overflow: hidden; z-index: 3; }
+  .explorer-box.active { pointer-events: auto; }
+
+  /* ── Graph Explorer (from graph.html) ── */
+  #graph-explorer { display: flex; width: 100%; height: 100%; background: #faf7f4; color: #440d1f; font-family: 'Roboto', sans-serif; border-top: 1px solid rgba(0,0,0,0.06); }
+  #graph-explorer #sidebar { width: 220px; flex-shrink: 0; border-right: 1px solid rgba(0,0,0,0.06); padding: 20px; overflow-y: auto; }
+  #graph-explorer #graph-container { position: relative; flex: 1; min-width: 0; overflow: hidden; }
+  #graph-explorer #graph { width: 100%; height: 100%; }
+  #graph-explorer #tooltip { position: absolute; pointer-events: none; background: rgba(253, 252, 251, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(0, 0, 0, 0.08); border-radius: 6px; padding: 12px 16px; max-width: 320px; font-size: 13px; line-height: 1.5; opacity: 0; transition: opacity 0.15s ease; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+  #graph-explorer #tooltip.visible { opacity: 1; }
+  #graph-explorer #tooltip .tt-type-pill { display: inline-block; font-size: 10px; font-family: 'Roboto Mono', monospace; text-transform: uppercase; letter-spacing: 0.8px; padding: 2px 8px; border-radius: 10px; color: #fff; margin-bottom: 8px; }
+  #graph-explorer #tooltip .tt-title { font-weight: 700; font-size: 14px; color: #440d1f; margin-bottom: 2px; }
+  #graph-explorer #tooltip .tt-subtitle { font-size: 13px; color: #999; margin-bottom: 10px; font-weight: 300; }
+  #graph-explorer #tooltip .tt-authors { font-size: 12px; color: #666; margin-bottom: 2px; }
+  #graph-explorer #tooltip .tt-date { font-size: 11px; color: #999; font-family: 'Roboto Mono', monospace; margin-bottom: 8px; }
+  #graph-explorer #tooltip .tt-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  #graph-explorer #tooltip .tt-tag { background: rgba(0,0,0,0.05); border-radius: 4px; padding: 2px 6px; font-size: 10px; color: #999; font-family: 'Roboto Mono', monospace; }
+  #graph-explorer .filter-panel { margin-bottom: 24px; font-size: 11px; }
+  #graph-explorer .filter-panel .filter-title { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: #ccc; margin-bottom: 8px; font-family: 'Roboto Mono', monospace; }
+  #graph-explorer .filter-panel .filter-item { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; color: #999; cursor: pointer; transition: color 0.15s; user-select: none; }
+  #graph-explorer .filter-panel .filter-item:hover { color: #666; }
+  #graph-explorer .filter-panel .filter-item.active { color: #9b062e; }
+  #graph-explorer .filter-panel .filter-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; transition: opacity 0.15s; }
+  #graph-explorer .filter-panel .filter-item:not(.active) .filter-dot { opacity: 0.35; }
+  #graph-explorer .filter-panel .filter-clear { margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(0,0,0,0.06); font-size: 10px; color: #ccc; cursor: pointer; font-family: 'Roboto Mono', monospace; transition: color 0.15s; }
+  #graph-explorer .filter-panel .filter-clear:hover { color: #9b062e; }
+  #graph-explorer #reset-all { display: block; width: 100%; padding: 8px; margin-bottom: 8px; font-size: 11px; font-family: 'Roboto Mono', monospace; text-transform: uppercase; letter-spacing: 1px; color: #999; background: none; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px; cursor: pointer; transition: all 0.15s; }
+  #graph-explorer #reset-all { margin-bottom: 24px; }
+  #graph-explorer #reset-all:hover { color: #9b062e; border-color: #9b062e; }
+  #graph-explorer #filter-date .date-range-display { font-size: 11px; color: #666; margin-bottom: 8px; font-family: 'Roboto Mono', monospace; }
+  #graph-explorer #filter-date .date-slider-container { position: relative; height: 24px; margin-bottom: 10px; }
+  #graph-explorer #filter-date input[type="range"] { -webkit-appearance: none; appearance: none; position: absolute; width: 100%; height: 4px; background: transparent; pointer-events: none; top: 10px; }
+  #graph-explorer #filter-date input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #9b062e; cursor: pointer; pointer-events: all; border: 2px solid #faf7f4; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+  #graph-explorer #filter-date .slider-track { position: absolute; top: 10px; left: 0; right: 0; height: 4px; background: #eee; border-radius: 2px; }
+  #graph-explorer #filter-date .slider-track-active { position: absolute; top: 10px; height: 4px; background: #9b062e; border-radius: 2px; opacity: 0.3; }
+  #graph-explorer #filter-date .date-buttons { display: flex; flex-wrap: wrap; gap: 4px; }
+  #graph-explorer #filter-date .date-btn { font-size: 10px; font-family: 'Roboto Mono', monospace; padding: 3px 8px; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px; background: none; color: #999; cursor: pointer; transition: all 0.15s; }
+  #graph-explorer #filter-date .date-btn:hover { color: #666; border-color: rgba(0,0,0,0.2); }
+  #graph-explorer #filter-date .date-btn.active { color: #9b062e; border-color: #9b062e; }
+
+  /* ── Scene 4: Programmes ── */
+  .programmes { position: relative; z-index: 20; padding: 0 0 120px; background: var(--off-white); }
+  .programmes-header { padding: 80px 48px 64px; max-width: 680px; margin-left: auto; margin-right: auto; text-align: center; }
+  .programmes-header .section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--orange); margin-bottom: 20px; }
+  .programmes-header h2 { font-family: 'Instrument Serif', serif; font-size: clamp(32px, 3.5vw, 48px); line-height: 1.15; letter-spacing: -0.02em; color: var(--burgundy); }
+  .programme-list { max-width: 1100px; margin: 0 auto; padding: 0 48px; }
+  .programme-item { display: flex; align-items: baseline; padding: 40px 0; border-top: 1px solid var(--rule); gap: 32px; opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; cursor: pointer; }
+  .programme-item.visible { opacity: 1; transform: translateY(0); }
+  .programme-item:last-child { border-bottom: 1px solid var(--rule); }
+  .programme-number { font-family: 'Instrument Serif', serif; font-size: 14px; color: var(--orange); min-width: 28px; padding-top: 2px; }
+  .programme-content { flex: 1; }
+  .programme-title { font-family: 'Instrument Serif', serif; font-size: clamp(24px, 2.5vw, 34px); letter-spacing: -0.015em; color: var(--burgundy); margin-bottom: 10px; transition: color 0.25s; }
+  .programme-item:hover .programme-title { color: var(--orange); }
+  .programme-desc { font-size: 15px; line-height: 1.6; color: var(--burgundy); max-width: 560px; }
+  .programme-arrow { font-size: 20px; color: var(--rule); transition: color 0.25s, transform 0.25s; align-self: center; }
+  .programme-item:hover .programme-arrow { color: var(--orange); transform: translateX(6px); }
+
+  /* ── Footer ── */
+  footer { padding: 48px; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; align-items: center; max-width: 1100px; margin: 0 auto; background: var(--off-white); position: relative; z-index: 20; }
+  footer .wordmark { font-size: 18px; }
+  footer small { font-size: 12px; color: var(--burgundy); }
+
+  /* ── Blob Canvas ── */
+  #blobCanvas { position: fixed; top: 0; left: 0; z-index: 11; pointer-events: auto; }
+
+
+  /* ── Media Queries ── */
+  @media (max-width: 980px) {
+    nav { padding: 24px 28px; }
+    .nav-links { gap: 22px; }
+    .hero-text-box { padding: 0 28px 0 28px; }
+    .scroll-indicator { right: 28px; bottom: 28px; }
+    .about-text-box { width: calc(100% - 56px); padding: 0 28px; gap: 24px; flex-direction: column; }
+    .programmes-header { padding: 72px 28px 56px; }
+    .programme-list { padding: 0 28px; }
+    footer { padding: 40px 28px; }
+    #graph-explorer #sidebar { width: 180px; padding: 16px; }
+  }
+
+  @media (max-width: 720px) {
+    nav { padding: 20px; }
+    .nav-links { gap: 14px; }
+    .nav-links a { font-size: 11px; }
+    nav.scrolled { padding-right: 84px; }
+    .logo-area { width: 100%; height: 50%; }
+    .hero-text-box { left: 0; width: 100%; top: 50%; height: 50%; padding: 20px; }
+    .scroll-indicator { right: 20px; bottom: 22px; }
+    .about-text-box { width: calc(100% - 40px); padding: 0 20px; }
+    .programmes-header { padding: 64px 20px 48px; }
+    .programme-list { padding: 0 20px; }
+    footer { padding: 32px 20px; flex-direction: column; gap: 10px; align-items: flex-start; }
+    #graph-explorer #sidebar { display: none; }
+  }
+</style>
+</head>
+<body class="light-mode">
+
+<!-- ── Navigation ── -->
+<nav id="mainNav" class="nav-light">
+  <a href="#" class="wordmark">Science Works</a>
+  <ul class="nav-links">
+    <li><a href="explore.html">Explore</a></li>
+    <li><a href="programmes.html">Programmes</a></li>
+    <li><a href="about.html">About</a></li>
+        
+  </ul>
+</nav>
+
+<!-- ── Scroll Track (creates scroll distance for scenes 1-3) ── -->
+<div class="scroll-track">
+  <div id="about" class="scroll-anchor" style="position:absolute;top:200vh;"></div>
+  <div id="outputs" class="scroll-anchor" style="position:absolute;top:400vh;"></div>
+</div>
+
+<!-- ── Fixed Stage ── -->
+<div class="stage" id="stage">
+
+  <!-- Scene 1: Logo area (invisible reference for blob positioning) -->
+  <div class="logo-area" id="logoArea"></div>
+
+  <!-- Scene 1: Hero text -->
+  <div class="hero-text-box" id="heroTextBox">
+    <!-- <div class="hero-label">Think tank &amp; delivery unit</div> -->
+    <h1 class="hero-heading"><span class="hero-lead">Reshaping Britain&rsquo;s</span> <em>research system</em></h1>
+    <hr class="hero-divider">
+    <p class="hero-sub">A British think tank for advancing<br /> something about science & tech.</p>
+    <a href="#" class="hero-cta">Get Involved</a>
+  </div>
+
+  <!-- Scene 2: About -->
+  <div class="about-text-box" id="aboutBox">
+    <div class="about-text">
+      <p>Britain has world-class researchers and <em>inadequate infrastructure </em>around them. Science Works builds the institutions, tools, and analysis the research system is missing — sitting between government, philanthropy, and the frontier of science itself.</p>
+    </div>
+  </div>
+  <div class="about-divider-bar" id="aboutDividerBar"></div>
+  <div class="about-divider-bar2" id="aboutDividerBar2"></div>
+  <img class="about-image" id="aboutImage" src="marble.jpeg" alt="">
+
+  <!-- Scene 3: Explorer (graph from graph.html) -->
+  <div class="explorer-box" id="explorerBox">
+    <div id="graph-explorer">
+      <div id="sidebar">
+        <button id="reset-all">Reset all filters</button>
+        <div id="filter-date" class="filter-panel">
+          <div class="filter-title">Date Range</div>
+          <div class="date-range-display"></div>
+          <div class="date-slider-container">
+            <div class="slider-track"></div>
+            <div class="slider-track-active"></div>
+            <input type="range" id="date-from" min="0" max="100" value="0">
+            <input type="range" id="date-to" min="0" max="100" value="100">
+          </div>
+          <div class="date-buttons">
+            <button class="date-btn" data-range="1m">Last month</button>
+            <button class="date-btn" data-range="3m">Last 3 months</button>
+            <button class="date-btn" data-range="all">All time</button>
+          </div>
+        </div>
+        <div id="filter-topics" class="filter-panel">
+          <div class="filter-title">Topics</div>
+        </div>
+        <div id="filter-types" class="filter-panel">
+          <div class="filter-title">Output Type</div>
+        </div>
+      </div>
+      <div id="graph-container">
+        <div id="graph"></div>
+        <div id="tooltip">
+          <div class="tt-type-pill"></div>
+          <div class="tt-title"></div>
+          <div class="tt-subtitle"></div>
+          <div class="tt-authors"></div>
+          <div class="tt-date"></div>
+          <div class="tt-tags"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="scroll-indicator" id="scrollIndicator">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+
+</div>
+
+<!-- ── Corner Text (fixed) ── -->
+<div class="hero-corner-text" id="heroCornerText">A POLICY <span class="amp">&amp;</span><br>RESEARCH<br><span class="studio">Studio</span></div>
+
+<!-- ── Blob Canvas (fixed, positioned by JS) ── -->
+<canvas id="blobCanvas"></canvas>
+
+<!-- ── Scene 4: Programmes ── -->
+<section class="programmes" id="programmes">
+  <div class="programmes-header">
+    <div class="section-label">Five programmes</div>
+    <h2>Building what the research system is missing</h2>
+  </div>
+  <div class="programme-list">
+    <div class="programme-item" data-delay="0"><span class="programme-number">01</span><div class="programme-content"><div class="programme-title">Institutional Dynamism</div><p class="programme-desc">New research institutions, the Lovelace Founding Unit, an Institutions Lab, and convenings that connect institutional designers with the capital and policy access they need.</p></div><span class="programme-arrow">&rarr;</span></div>
+    <div class="programme-item" data-delay="80"><span class="programme-number">02</span><div class="programme-content"><div class="programme-title">AI for Science</div><p class="programme-desc">Dark data recovery, lab infrastructure, compute strategy, and shaping the UK AI for Science Strategy — ensuring missions meet a high bar.</p></div><span class="programme-arrow">&rarr;</span></div>
+    <div class="programme-item" data-delay="160"><span class="programme-number">03</span><div class="programme-content"><div class="programme-title">Toolbuilding</div><p class="programme-desc">Open-source software fellowships, scientometric tools, and an intelligence platform — building the infrastructure researchers and funders are missing.</p></div><span class="programme-arrow">&rarr;</span></div>
+    <div class="programme-item" data-delay="240"><span class="programme-number">04</span><div class="programme-content"><div class="programme-title">Analytics</div><p class="programme-desc">Capability mapping and system intelligence for funders and researchers — making the UK's research landscape legible for the first time.</p></div><span class="programme-arrow">&rarr;</span></div>
+    <div class="programme-item" data-delay="320"><span class="programme-number">05</span><div class="programme-content"><div class="programme-title">Funding System Reform</div><p class="programme-desc">REF alternatives, UKRI eligibility reform, and novel capital structures — redesigning how research funding flows.</p></div><span class="programme-arrow">&rarr;</span></div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <a href="#" class="wordmark">Science Works</a>
+  <small>&copy; 2026 Science Works. Company limited by guarantee.</small>
+</footer>
+
+<!-- ── Debug ── -->
+<!-- ── Scripts ── -->
+<!-- no external graph library — we roll our own -->
+<script>
+// ═══════════════════════════════════════════
+// Helpers
+// ═══════════════════════════════════════════
+function clamp(v, min, max) {
+  if (max === undefined) { max = min !== undefined ? min : 1; min = 0; }
+  return Math.min(max, Math.max(min, v));
+}
+function lerp(a, b, t) { return a + (b - a) * t; }
+function invLerp(v, a, b) { return a === b ? 0 : clamp((v - a) / (b - a), 0, 1); }
+function easeInOutQuad(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
+function easeInOutCubic(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+// ═══════════════════════════════════════════
+// DOM References
+// ═══════════════════════════════════════════
+const heroTextBox = document.getElementById('heroTextBox');
+const aboutBox = document.getElementById('aboutBox');
+const aboutImage = document.getElementById('aboutImage');
+const aboutDividerBar = document.getElementById('aboutDividerBar');
+const aboutDividerBar2 = document.getElementById('aboutDividerBar2');
+const explorerBox = document.getElementById('explorerBox');
+const stage = document.getElementById('stage');
+const navEl = document.getElementById('mainNav');
+const scrollIndicator = document.getElementById('scrollIndicator');
+const heroCornerText = document.getElementById('heroCornerText');
+const logoAreaEl = document.getElementById('logoArea');
+const blobCanvas = document.getElementById('blobCanvas');
+
+// ═══════════════════════════════════════════
+// Scroll Animation Controller
+// ═══════════════════════════════════════════
+let blobDockProgress = 0;
+let blobFadeProgress = 0;
+
+function updateScene() {
+  const vh = window.innerHeight;
+  const scrollY = window.scrollY;
+  const p = scrollY / vh;
+
+
+  // ── Blob progress (linear — eased inside getCanvasRect / updateCanvasPosition) ──
+  blobDockProgress = p <= 0.5 ? 0 : p <= 1 ? clamp((p - 0.5) / 0.5, 0, 1) : 1;
+  blobFadeProgress = 0; // blob never fades
+  updateCanvasPosition();
+
+  // ── Hero text: static 0–0.5, exit right 0.5–1 ──
+  if (p <= 0.5) {
+    heroTextBox.style.transform = 'none';
+    heroTextBox.style.opacity = 1;
+  } else if (p <= 1) {
+    const t = easeInOutCubic(clamp((p - 0.5) / 0.5, 0, 1));
+    heroTextBox.style.transform = `translateX(${(t * 120).toFixed(1)}%)`;
+    heroTextBox.style.opacity = clamp(1 - t * 1.08, 0, 1).toFixed(3);
+  } else {
+    heroTextBox.style.opacity = 0;
+    heroTextBox.style.transform = 'translateX(120%)';
+  }
+
+  // ── About: fade in 0.75–1.25, stays visible (explorer covers it as it slides up) ──
+  const aboutOpacity = p <= 0.75 ? 0 : p <= 1.25 ? easeOutCubic(clamp((p - 0.75) / 0.5, 0, 1)) : 1;
+  aboutBox.style.opacity = aboutOpacity.toFixed(3);
+  aboutImage.style.opacity = aboutOpacity.toFixed(3);
+  aboutDividerBar.style.opacity = aboutOpacity.toFixed(3);
+  aboutDividerBar2.style.opacity = aboutOpacity.toFixed(3);
+
+  // ── Explorer: slide up 2–3 ──
+  if (p <= 2) {
+    explorerBox.style.transform = 'translateY(100%)';
+    explorerBox.classList.remove('active');
+  } else if (p <= 3) {
+    const t = easeInOutCubic(clamp(p - 2, 0, 1));
+    explorerBox.style.transform = `translateY(${((1 - t) * 100).toFixed(1)}%)`;
+    explorerBox.classList.toggle('active', t > 0.5);
+  } else {
+    explorerBox.style.transform = 'translateY(0)';
+    explorerBox.classList.add('active');
+  }
+
+  // ── Stage fade-out 4–4.5 → Scene 4 ──
+  if (p >= 4.5) {
+    stage.style.opacity = 0;
+    stage.style.pointerEvents = 'none';
+  } else if (p >= 4) {
+    stage.style.opacity = (1 - easeInOutCubic((p - 4) * 2)).toFixed(3);
+    stage.style.pointerEvents = 'none';
+  } else {
+    stage.style.opacity = 1;
+    stage.style.pointerEvents = '';
+  }
+
+  // ── Nav ──
+  navEl.classList.toggle('scrolled', scrollY > 600);
+
+  // ── Scroll indicator ──
+  if (scrollIndicator) {
+    scrollIndicator.style.opacity = Math.max(0, 0.4 - scrollY / 320).toFixed(3);
+  }
+
+  // ── Corner text: fly off left 0.5–1 ──
+  if (p <= 0.5) {
+    heroCornerText.style.transform = 'translateX(0)';
+  } else if (p <= 1) {
+    const t = easeInOutCubic(clamp((p - 0.5) / 0.5, 0, 1));
+    heroCornerText.style.transform = `translateX(${(-t * 120)}%)`;
+  } else {
+    heroCornerText.style.transform = 'translateX(-120%)';
+  }
+
+  // ── Lazy-init graph when approaching Scene 3 ──
+  if (p >= 2.5) maybeInitGraph();
+}
+
+window.addEventListener('scroll', () => requestAnimationFrame(updateScene), { passive: true });
+window.addEventListener('resize', () => { resizeBlobCanvas(); updateScene(); });
+
+// ── Block wheel events inside the explorer so d3-zoom can't hijack page scroll ──
+// Capture-phase: fires before any child (canvas/d3) listener.
+// stopPropagation prevents d3-zoom from seeing the event.
+// We never call preventDefault, so the browser still scrolls the page.
+explorerBox.addEventListener('wheel', function(e) { e.stopPropagation(); }, true);
+
+// ═══════════════════════════════════════════
+// Blob WebGL (from sw-landing.html)
+// ═══════════════════════════════════════════
+const gl = blobCanvas.getContext('webgl', { antialias: true, alpha: true, premultipliedAlpha: false });
+gl.getExtension('OES_standard_derivatives');
+const MAX_BALLS = 30;
+
+const vsSource = `attribute vec2 aPos; void main() { gl_Position = vec4(aPos, 0.0, 1.0); }`;
+const fsSource = `
+#extension GL_OES_standard_derivatives : enable
+precision highp float;
+uniform vec3 uBalls[${MAX_BALLS}]; uniform int uNumBalls; uniform float uTime; uniform float uScale;
+const vec3 BASE_COLOR = vec3(0.88, 0.30, 0.25); const vec3 HIGHLIGHT_COLOR = vec3(0.95, 0.42, 0.34);
+float metafield(vec2 p) { float f = 0.0; for (int i = 0; i < ${MAX_BALLS}; i++) { if (i >= uNumBalls) break; vec2 d = p - uBalls[i].xy; float r = uBalls[i].z; f += (r*r)/(dot(d,d)+1.0); } return f; }
+vec2 fieldGradient(vec2 p) { vec2 g = vec2(0.0); for (int i = 0; i < ${MAX_BALLS}; i++) { if (i >= uNumBalls) break; vec2 d = p - uBalls[i].xy; float r = uBalls[i].z; float den = dot(d,d)+1.0; g += -2.0*r*r*d/(den*den); } return g; }
+void main() {
+  vec2 uv = gl_FragCoord.xy; float field = metafield(uv);
+  float fw = fwidth(field); float edge = smoothstep(1.0 - fw*0.5, 1.0 + fw*0.5, field);
+  float shadowField = metafield(uv + vec2(-25.0, 25.0)*uScale);
+  float shadowAlpha = smoothstep(0.6, 1.4, shadowField) * 0.18;
+  if (edge < 0.001) { gl_FragColor = shadowAlpha > 0.001 ? vec4(0.0,0.0,0.0,shadowAlpha) : vec4(0.0); return; }
+  vec2 grad = fieldGradient(uv); float depth = clamp((field-1.0)/2.5,0.0,1.0);
+  vec3 N_edge = normalize(vec3(-grad, 18.0*(0.4+depth*0.6)));
+  vec2 wc = vec2(0.0); float tw = 0.0; float dr = 0.0;
+  for (int i = 0; i < ${MAX_BALLS}; i++) { if (i >= uNumBalls) break; vec2 d = uv-uBalls[i].xy; float r = uBalls[i].z; float w = (r*r)/(dot(d,d)+1.0); wc += uBalls[i].xy*w; tw += w; if (w > dr) dr = r; }
+  wc /= tw; vec2 fc = uv - wc; float nd = min(length(fc)/(dr*1.2),1.0);
+  vec3 N_dome = normalize(vec3(fc/(dr*1.2), sqrt(max(1.0-nd*nd,0.01))));
+  vec3 L1 = normalize(vec3(-0.5,0.6,0.75)); vec3 L2 = normalize(vec3(0.5,-0.2,0.6));
+  vec3 V = vec3(0.0,0.0,1.0); vec3 H1 = normalize(L1+V); vec3 H2 = normalize(L2+V);
+  float diff1 = max(dot(N_edge,L1),0.0); float diff2 = max(dot(N_edge,L2),0.0);
+  float sp1t = pow(max(dot(N_dome,H1),0.0),120.0); float sp1b = pow(max(dot(N_dome,H1),0.0),12.0);
+  float sp2 = pow(max(dot(N_dome,H2),0.0),60.0);
+  float fr = pow(1.0-max(dot(N_dome,V),0.0),1.8);
+  vec3 env = mix(vec3(0.72,0.58,0.52),vec3(1.0,0.97,0.94),reflect(-V,N_dome).y*0.5+0.5);
+  float sss = (1.0-clamp((field-1.0)/1.5,0.0,1.0))*0.2;
+  vec3 sc = mix(vec3(0.75,0.20,0.16), HIGHLIGHT_COLOR, diff1*0.6+diff2*0.2);
+  sc += BASE_COLOR*0.2; sc += vec3(1.0,0.98,0.96)*sp1t*1.2; sc += vec3(1.0,0.96,0.93)*sp1b*0.2;
+  sc += vec3(0.98,0.95,0.93)*sp2*0.4; sc = mix(sc,env,fr*0.45); sc += vec3(1.0,0.5,0.35)*sss*0.15;
+  float ao = smoothstep(1.0,2.0,field);
+  vec3 aoC = mix(mix(sc*0.78, mix(vec3(0.85,0.28,0.20),sc,0.7), 0.75), sc, ao);
+  sc = aoC;
+  sc += (fract(sin(dot(uv*0.01+uTime*0.0005,vec2(12.9898,78.233)))*43758.5453)-0.5)*0.02;
+  gl_FragColor = vec4(sc, edge);
+}`;
+
+function createShader(t, s) { const sh = gl.createShader(t); gl.shaderSource(sh, s); gl.compileShader(sh); if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) console.error(gl.getShaderInfoLog(sh)); return sh; }
+const prog = gl.createProgram();
+gl.attachShader(prog, createShader(gl.VERTEX_SHADER, vsSource));
+gl.attachShader(prog, createShader(gl.FRAGMENT_SHADER, fsSource));
+gl.linkProgram(prog);
+gl.useProgram(prog);
+gl.enable(gl.BLEND);
+gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+gl.clearColor(0, 0, 0, 0);
+const buf = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+const aPos = gl.getAttribLocation(prog, 'aPos');
+gl.enableVertexAttribArray(aPos);
+gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+const uTimeLoc = gl.getUniformLocation(prog, 'uTime');
+const uBallsLoc = gl.getUniformLocation(prog, 'uBalls');
+const uNumBallsLoc = gl.getUniformLocation(prog, 'uNumBalls');
+const uScaleLoc = gl.getUniformLocation(prog, 'uScale');
+
+const blobGroups = [
+  { groupRadius: 38, subBalls: 3, spread: 22, xWaves: [{ freq: 0.08, amp: 0.85, phase: 0.0 }, { freq: 0.19, amp: 0.25, phase: 2.1 }], yWaves: [{ freq: 0.065, amp: 0.80, phase: 1.0 }, { freq: 0.16, amp: 0.22, phase: 4.3 }], deform: [{ xFreq: 0.13, yFreq: 0.11, xPhase: 0.0, yPhase: 1.5 }, { xFreq: 0.10, yFreq: 0.14, xPhase: 2.5, yPhase: 0.3 }, { xFreq: 0.15, yFreq: 0.09, xPhase: 4.8, yPhase: 3.7 }] },
+  { groupRadius: 40, subBalls: 3, spread: 24, xWaves: [{ freq: 0.07, amp: 0.90, phase: 3.5 }, { freq: 0.17, amp: 0.28, phase: 0.8 }], yWaves: [{ freq: 0.09, amp: 0.85, phase: 5.2 }, { freq: 0.21, amp: 0.20, phase: 1.6 }], deform: [{ xFreq: 0.12, yFreq: 0.15, xPhase: 1.2, yPhase: 4.0 }, { xFreq: 0.16, yFreq: 0.10, xPhase: 3.8, yPhase: 2.1 }, { xFreq: 0.09, yFreq: 0.13, xPhase: 5.5, yPhase: 0.6 }] },
+  { groupRadius: 32, subBalls: 3, spread: 20, xWaves: [{ freq: 0.095, amp: 0.92, phase: 1.7 }, { freq: 0.22, amp: 0.22, phase: 5.5 }], yWaves: [{ freq: 0.075, amp: 0.78, phase: 3.8 }, { freq: 0.18, amp: 0.25, phase: 0.4 }], deform: [{ xFreq: 0.14, yFreq: 0.12, xPhase: 2.0, yPhase: 5.2 }, { xFreq: 0.11, yFreq: 0.16, xPhase: 0.5, yPhase: 3.3 }, { xFreq: 0.17, yFreq: 0.08, xPhase: 4.1, yPhase: 1.8 }] },
+  { groupRadius: 28, subBalls: 2, spread: 16, xWaves: [{ freq: 0.06, amp: 0.82, phase: 5.0 }, { freq: 0.15, amp: 0.30, phase: 3.2 }], yWaves: [{ freq: 0.1, amp: 0.88, phase: 0.5 }, { freq: 0.23, amp: 0.18, phase: 2.8 }], deform: [{ xFreq: 0.13, yFreq: 0.17, xPhase: 3.0, yPhase: 0.9 }, { xFreq: 0.18, yFreq: 0.11, xPhase: 5.8, yPhase: 2.5 }] },
+  { groupRadius: 22, subBalls: 2, spread: 14, xWaves: [{ freq: 0.085, amp: 0.88, phase: 2.3 }, { freq: 0.2, amp: 0.24, phase: 4.7 }], yWaves: [{ freq: 0.07, amp: 0.84, phase: 4.0 }, { freq: 0.165, amp: 0.26, phase: 1.1 }], deform: [{ xFreq: 0.15, yFreq: 0.12, xPhase: 1.7, yPhase: 4.4 }, { xFreq: 0.10, yFreq: 0.18, xPhase: 4.2, yPhase: 0.1 }] },
+  { groupRadius: 24, subBalls: 2, spread: 15, xWaves: [{ freq: 0.09, amp: 1.1, phase: 4.2 }, { freq: 0.21, amp: 0.35, phase: 1.6 }], yWaves: [{ freq: 0.11, amp: 1.05, phase: 2.0 }, { freq: 0.19, amp: 0.30, phase: 5.4 }], deform: [{ xFreq: 0.14, yFreq: 0.16, xPhase: 0.8, yPhase: 3.6 }, { xFreq: 0.17, yFreq: 0.10, xPhase: 5.1, yPhase: 1.2 }] },
+];
+const smalls = [
+  { radius: 10, xWaves: [{ freq: 0.11, amp: 0.95, phase: 1.2 }, { freq: 0.24, amp: 0.28, phase: 3.8 }], yWaves: [{ freq: 0.095, amp: 0.92, phase: 4.5 }, { freq: 0.22, amp: 0.25, phase: 0.7 }] },
+  { radius: 6, xWaves: [{ freq: 0.1, amp: 0.98, phase: 5.1 }, { freq: 0.25, amp: 0.30, phase: 2.0 }], yWaves: [{ freq: 0.12, amp: 0.90, phase: 2.3 }, { freq: 0.21, amp: 0.22, phase: 5.9 }] },
+  { radius: 12, xWaves: [{ freq: 0.09, amp: 0.93, phase: 3.3 }, { freq: 0.23, amp: 0.26, phase: 1.5 }], yWaves: [{ freq: 0.105, amp: 0.95, phase: 0.9 }, { freq: 0.26, amp: 0.20, phase: 4.2 }] },
+  { radius: 4, xWaves: [{ freq: 0.13, amp: 1.0, phase: 0.4 }, { freq: 0.27, amp: 0.24, phase: 5.3 }], yWaves: [{ freq: 0.115, amp: 0.97, phase: 3.1 }, { freq: 0.24, amp: 0.28, phase: 1.8 }] },
+];
+const repelOffsets = [];
+for (let i = 0; i < blobGroups.length + smalls.length; i++) repelOffsets.push({ x: 0, y: 0 });
+function evalWaves(w, t, h) { let v = 0; for (const x of w) v += Math.sin(t * x.freq + x.phase) * x.amp * h; return v; }
+
+const CORNER_SIZE = 75;
+const CORNER_MR = 20;
+const CORNER_MT = -3;
+let heroRefW = 1;
+let heroRefH = 1;
+
+function getCanvasRect() {
+  const ref = logoAreaEl.getBoundingClientRect();
+  const ease = easeInOutQuad(blobDockProgress);
+  return {
+    x: lerp(ref.left, window.innerWidth - CORNER_SIZE - CORNER_MR, ease),
+    y: lerp(ref.top, CORNER_MT, ease),
+    w: lerp(ref.width, CORNER_SIZE, ease),
+    h: lerp(ref.height, CORNER_SIZE, ease),
+  };
+}
+
+function updateCanvasPosition() {
+  const r = getCanvasRect();
+  blobCanvas.style.left = r.x + 'px';
+  blobCanvas.style.top = r.y + 'px';
+  blobCanvas.style.width = r.w + 'px';
+  blobCanvas.style.height = r.h + 'px';
+  blobCanvas.style.opacity = (1 - easeInOutQuad(blobFadeProgress)).toFixed(3);
+  blobCanvas.style.zIndex = blobDockProgress > 0.08 ? '101' : '11';
+}
+
+let mouseX = -9999, mouseY = -9999;
+blobCanvas.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+blobCanvas.addEventListener('mouseleave', () => { mouseX = -9999; mouseY = -9999; });
+
+function resizeBlobCanvas() {
+  const ref = logoAreaEl.getBoundingClientRect();
+  const PHYSICS_W = 850;
+  const aspect = Math.max(ref.height, 1) / Math.max(ref.width, 1);
+  heroRefW = PHYSICS_W;
+  heroRefH = PHYSICS_W * aspect;
+  const r = getCanvasRect();
+  const d = window.devicePixelRatio || 1;
+  blobCanvas.width = Math.max(1, Math.round(r.w * d));
+  blobCanvas.height = Math.max(1, Math.round(r.h * d));
+  gl.viewport(0, 0, blobCanvas.width, blobCanvas.height);
+  updateCanvasPosition();
+}
+
+let blobTime = 0;
+function updateBlob(dt) {
+  blobTime += dt * 1.15;
+  const r = getCanvasRect();
+  const dpr = window.devicePixelRatio || 1;
+  const nW = Math.max(1, Math.round(r.w * dpr));
+  const nH = Math.max(1, Math.round(r.h * dpr));
+  if (blobCanvas.width !== nW || blobCanvas.height !== nH) {
+    blobCanvas.width = nW;
+    blobCanvas.height = nH;
+    gl.viewport(0, 0, nW, nH);
+  }
+  const refW = Math.max(1, heroRefW * dpr);
+  const refH = Math.max(1, heroRefH * dpr);
+  const refCx = refW / 2;
+  const refCy = refH / 2;
+  const rMin = Math.min(refW, refH);
+  const rHalf = rMin * (9 / 16) / 2;
+  const uniScale = Math.min(nW / refW, nH / refH);
+  const decay = 1 - Math.exp(-dt * 0.5);
+  const push = 90;
+  const cr = blobCanvas.getBoundingClientRect();
+  const rmx = (mouseX - cr.left) / (Math.max(cr.width, 1) / heroRefW);
+  const rmy = (mouseY - cr.top) / (Math.max(cr.height, 1) / heroRefH);
+  const refData = [];
+
+  for (let g = 0; g < blobGroups.length; g++) {
+    const grp = blobGroups[g];
+    let cx = evalWaves(grp.xWaves, blobTime, rHalf);
+    let cy = evalWaves(grp.yWaves, blobTime, rHalf);
+    const lim = rHalf - grp.groupRadius * dpr * 1.5;
+    cx = lim * Math.tanh(cx / lim);
+    cy = lim * Math.tanh(cy / lim);
+    const ro = repelOffsets[g];
+    const rx = heroRefW / 2 + cx / dpr + ro.x;
+    const ry = heroRefH / 2 - cy / dpr + ro.y;
+    const dx = rx - rmx;
+    const dy = ry - rmy;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 180 && dist > 0.1) {
+      const p = Math.pow(1 - dist / 180, 2) * Math.max(35 / grp.groupRadius, 1.5) * push * dt;
+      ro.x += dx / dist * p;
+      ro.y += dy / dist * p;
+    }
+    ro.x -= ro.x * decay;
+    ro.y -= ro.y * decay;
+    for (let s = 0; s < grp.subBalls; s++) {
+      const d = grp.deform[s];
+      refData.push(refCx + cx + Math.sin(blobTime * d.xFreq + d.xPhase) * grp.spread * dpr + ro.x * dpr, refCy + cy + Math.sin(blobTime * d.yFreq + d.yPhase) * grp.spread * dpr - ro.y * dpr, grp.groupRadius * dpr);
+    }
+  }
+
+  for (let s = 0; s < smalls.length; s++) {
+    const sm = smalls[s];
+    const ro = repelOffsets[blobGroups.length + s];
+    let bx = evalWaves(sm.xWaves, blobTime, rHalf);
+    let by = evalWaves(sm.yWaves, blobTime, rHalf);
+    const lim = rHalf - sm.radius * dpr;
+    bx = lim * Math.tanh(bx / lim);
+    by = lim * Math.tanh(by / lim);
+    const rx = heroRefW / 2 + bx / dpr + ro.x;
+    const ry = heroRefH / 2 - by / dpr + ro.y;
+    const dx = rx - rmx;
+    const dy = ry - rmy;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 180 && dist > 0.1) {
+      const p = Math.pow(1 - dist / 180, 2) * (35 / sm.radius) * push * dt;
+      ro.x += dx / dist * p;
+      ro.y += dy / dist * p;
+    }
+    ro.x -= ro.x * decay;
+    ro.y -= ro.y * decay;
+    refData.push(refCx + bx + ro.x * dpr, refCy + by - ro.y * dpr, sm.radius * dpr);
+  }
+
+  const data = [];
+  const aCx = nW / 2;
+  const aCy = nH / 2;
+  for (let i = 0; i < refData.length; i += 3) {
+    data.push(aCx + (refData[i] - refCx) * uniScale, aCy + (refData[i + 1] - refCy) * uniScale, refData[i + 2] * uniScale);
+  }
+  const total = Math.min(data.length / 3, MAX_BALLS);
+  const u = new Float32Array(MAX_BALLS * 3);
+  for (let i = 0; i < total * 3; i++) u[i] = data[i];
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.uniform1f(uTimeLoc, blobTime);
+  gl.uniform1f(uScaleLoc, uniScale);
+  gl.uniform3fv(uBallsLoc, u);
+  gl.uniform1i(uNumBallsLoc, total);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+
+let lastBlobTime = performance.now();
+function blobLoop(now) {
+  const dt = Math.min((now - lastBlobTime) / 1000, 0.05);
+  lastBlobTime = now;
+  updateBlob(dt);
+  requestAnimationFrame(blobLoop);
+}
+
+// ═══════════════════════════════════════════
+// Graph Explorer (from graph.html)
+// ═══════════════════════════════════════════
+const TODAY = new Date('2027-03-01');
+const TYPE_COLORS = { 'report': '#9b062e', 'essay': '#fe6350', 'explorer': '#0c6669', 'tool-release': '#4859c6' };
+const TYPE_LABELS = { 'report': 'Report', 'essay': 'Essay', 'explorer': 'Explorer', 'tool-release': 'Tool Release' };
+
+let metadata = [];
+let nodeById = {};
+let allNodes = [];
+let allLinks = [];
+const activeTopics = new Set();
+const activeTypes = new Set();
+let dateFrom = null;
+let dateTo = null;
+let dataDateMin = null;
+let dataDateMax = null;
+let highlightedNodes = new Set();
+let highlightedLinks = new Set();
+
+let graphInitialized = false;
+function maybeInitGraph() {
+  if (graphInitialized) return;
+  graphInitialized = true;
+  fetch('dummy_metadata.json')
+    .then(r => r.json())
+    .then(data => {
+      metadata = data;
+      data.forEach(d => nodeById[d.id] = d);
+      const dates = data.map(d => new Date(d.date)).sort((a, b) => a - b);
+      dataDateMin = dates[0];
+      dataDateMax = dates[dates.length - 1];
+      dateFrom = dataDateMin;
+      dateTo = dataDateMax;
+      buildGraph(data);
+      buildFilters(data);
+      buildDateFilter();
+    });
+}
+
+function buildGraph(data) {
+  const hasPositions = data.some(d => d.position);
+  allNodes = data.map(d => ({ id: d.id, title: d.title, subtitle: d.subtitle, type: d.type, authors: d.authors, tags: d.tags, keywords: d.keywords, date: d.date, prominence: d.prominence, linked: d.linked, showLabel: !!d.showLabel, isNew: !!d.isNew, x: d.position ? d.position.x : 0, y: d.position ? d.position.y : 0 }));
+  const nodeMap = {};
+  allNodes.forEach(n => nodeMap[n.id] = n);
+  const edgeMap = {};
+  data.forEach(d => {
+    d.linked.forEach(([targetId, weight]) => {
+      const key = [d.id, targetId].sort().join('--');
+      if (!edgeMap[key] || weight > edgeMap[key].weight) edgeMap[key] = { source: d.id, target: targetId, weight };
+    });
+  });
+  allLinks = Object.values(edgeMap);
+
+  const graphEl = document.getElementById('graph');
+  const containerEl = document.getElementById('graph-container');
+
+  // ═══════════════════════════════════════════
+  // Layout engine — runs once, produces frozen positions
+  // ═══════════════════════════════════════════
+  const W = containerEl.offsetWidth;
+  const H = containerEl.offsetHeight;
+
+
+
+  // ═══════════════════════════════════════════
+  // Canvas renderer — pure drawing, no physics
+  // ═══════════════════════════════════════════
+  const canvas = document.createElement('canvas');
+  canvas.style.width = '100%';
+  canvas.style.height = '100%';
+  graphEl.appendChild(canvas);
+  const ctx = canvas.getContext('2d');
+  let dpr = window.devicePixelRatio || 1;
+  let hoveredNode = null;
+  let dragNode = null;
+  let visibleNodes = allNodes;
+  let visibleLinks = allLinks;
+
+  // Expose for filters (defined outside buildGraph)
+  window._graphSetVisible = function(nodes, links) {
+    visibleNodes = nodes;
+    visibleLinks = links;
+    draw();
+  };
+
+  function nodeRadius(n) { return n.prominence * n.prominence * 18 + 3; }
+
+  function parseHex(hex) {
+    hex = hex.replace('#', '');
+    return [parseInt(hex.slice(0,2),16), parseInt(hex.slice(2,4),16), parseInt(hex.slice(4,6),16)];
+  }
+  function lightenColor(hex, amt) {
+    if (hex.startsWith('rgba')) return hex;
+    const [r,g,b] = parseHex(hex);
+    return `rgb(${Math.min(255,r+amt)},${Math.min(255,g+amt)},${Math.min(255,b+amt)})`;
+  }
+  function darkenColor(hex, amt) {
+    if (hex.startsWith('rgba')) return hex;
+    const [r,g,b] = parseHex(hex);
+    return `rgb(${Math.max(0,r-amt)},${Math.max(0,g-amt)},${Math.max(0,b-amt)})`;
+  }
+
+  function resizeCanvas() {
+    dpr = window.devicePixelRatio || 1;
+    canvas.width = containerEl.offsetWidth * dpr;
+    canvas.height = containerEl.offsetHeight * dpr;
+    draw();
+  }
+
+  // Word-wrap cache
+  function getWrappedLines(node, maxW) {
+    if (node.__wrapCache && node.__wrapCache.maxW === maxW) return node.__wrapCache;
+    ctx.font = `400 14px 'Playfair Display', serif`;
+    const words = node.title.split(' ');
+    const lines = [];
+    let line = '';
+    for (const word of words) {
+      const test = line ? line + ' ' + word : word;
+      if (ctx.measureText(test).width > maxW && line) { lines.push(line); line = word; }
+      else { line = test; }
+    }
+    if (line) lines.push(line);
+    const widths = lines.map(l => ctx.measureText(l).width);
+    const bgW = Math.min(maxW, Math.max(...widths));
+    node.__wrapCache = { maxW, lines, bgW };
+    return node.__wrapCache;
+  }
+
+  function nodeAt(mx, my) {
+    // Check in reverse prominence order so prominent nodes are on top
+    const sorted = [...visibleNodes].sort((a, b) => a.prominence - b.prominence);
+    for (const n of sorted) {
+      const dx = mx - (n.x + W/2), dy = my - (n.y + H/2);
+      if (Math.sqrt(dx*dx + dy*dy) < nodeRadius(n) + 4) return n;
+    }
+    return null;
+  }
+
+  function draw() {
+    const cw = canvas.width, ch = canvas.height;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, cw/dpr, ch/dpr);
+    ctx.fillStyle = '#faf7f4';
+    ctx.fillRect(0, 0, cw/dpr, ch/dpr);
+
+    const ox = W/2, oy = H/2; // offset: graph coords are centered at 0,0
+
+    const nodeMap = {};
+    visibleNodes.forEach(n => nodeMap[n.id] = n);
+
+    // Draw edges
+    for (const l of visibleLinks) {
+      const src = nodeMap[typeof l.source === 'string' ? l.source : l.source.id];
+      const tgt = nodeMap[typeof l.target === 'string' ? l.target : l.target.id];
+      if (!src || !tgt) continue;
+      const highlighted = highlightedLinks.has(l);
+      ctx.beginPath();
+      ctx.moveTo(src.x + ox, src.y + oy);
+      ctx.lineTo(tgt.x + ox, tgt.y + oy);
+      ctx.strokeStyle = highlightedNodes.size > 0 ? (highlighted ? 'rgba(0,0,0,0.25)' : 'rgba(0,0,0,0.03)') : 'rgba(0,0,0,0.12)';
+      ctx.lineWidth = l.weight * 2;
+      ctx.stroke();
+    }
+
+    // Draw nodes + labels (only top 8 by prominence get labels)
+    const sorted = [...visibleNodes].sort((a, b) => a.prominence - b.prominence);
+    for (const n of sorted) {
+      const r = nodeRadius(n);
+      const dimmed = highlightedNodes.size > 0 && !highlightedNodes.has(n.id);
+      const color = dimmed ? 'rgba(200,200,200,0.4)' : (TYPE_COLORS[n.type] || '#999');
+      const nx = n.x + ox, ny = n.y + oy;
+
+      // Shadow
+      ctx.beginPath();
+      ctx.arc(nx + r * 0.15, ny + r * 0.2, r * 0.95, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0,0,0,0.12)';
+      ctx.globalAlpha = dimmed ? 0.05 : 1;
+      ctx.fill();
+
+      // Base sphere gradient
+      const grad = ctx.createRadialGradient(nx - r * 0.3, ny - r * 0.3, r * 0.1, nx, ny, r);
+      grad.addColorStop(0, lightenColor(color, 40));
+      grad.addColorStop(0.5, color);
+      grad.addColorStop(1, darkenColor(color, 30));
+      ctx.beginPath();
+      ctx.arc(nx, ny, r, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.globalAlpha = dimmed ? 0.4 : 0.9;
+      ctx.fill();
+
+      // Highlight / reflection — stronger on bigger blobs
+      const hlStrength = 0.35 + n.prominence * 0.35; // 0.35 for small, up to 0.7 for largest
+      const hl = ctx.createRadialGradient(nx - r * 0.3, ny - r * 0.35, 0, nx - r * 0.1, ny - r * 0.15, r * 0.7);
+      hl.addColorStop(0, `rgba(255,255,255,${hlStrength})`);
+      hl.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.beginPath();
+      ctx.arc(nx, ny, r, 0, Math.PI * 2);
+      ctx.fillStyle = hl;
+      ctx.globalAlpha = dimmed ? 0.1 : 1;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // Label
+      if (n.showLabel) {
+        const labelX = nx + r + 6;
+        const maxW = 200;
+        const lineH = 17;
+        const { lines, bgW } = getWrappedLines(n, maxW);
+        const blockH = lines.length * lineH;
+        const startY = ny - blockH / 2 + lineH / 2;
+        const bgPad = 3;
+
+        // Background
+        ctx.globalAlpha = dimmed ? 0.02 : 0.1;
+        ctx.fillStyle = '#faf7f4';
+        ctx.fillRect(labelX - bgPad, startY - lineH/2 - bgPad, bgW + bgPad*2, blockH + bgPad*2);
+
+        // Text
+        ctx.globalAlpha = dimmed ? 0.1 : 1;
+        ctx.font = `400 14px 'Playfair Display', serif`;
+        ctx.fillStyle = '#9b062e';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        for (let i = 0; i < lines.length; i++) {
+          ctx.fillText(lines[i], labelX, startY + i * lineH);
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      // "NEW" pill
+      if (n.isNew && !dimmed) {
+        const pillText = 'NEW';
+        ctx.font = '600 9px Roboto, sans-serif';
+        const pillW = ctx.measureText(pillText).width + 10;
+        const pillH = 16;
+        const pillX = nx + r * 0.5;
+        const pillY = ny - r - pillH + 2;
+        ctx.fillStyle = '#fe6350';
+        ctx.beginPath();
+        const pr = pillH / 2;
+        ctx.roundRect(pillX, pillY, pillW, pillH, pr);
+        ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(pillText, pillX + pillW / 2, pillY + pillH / 2);
+      }
+    }
+  }
+
+  // ── Mouse interaction ──
+  canvas.addEventListener('mousedown', e => {
+    const n = nodeAt(e.offsetX, e.offsetY);
+    if (n) dragNode = n;
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    if (dragNode) {
+      dragNode.x = e.offsetX - W/2;
+      dragNode.y = e.offsetY - H/2;
+      dragNode.__wrapCache = null; // clear in case we add position-dependent caching later
+      draw();
+      return;
+    }
+    const n = nodeAt(e.offsetX, e.offsetY);
+    if (n !== hoveredNode) {
+      hoveredNode = n;
+      containerEl.style.cursor = n ? 'pointer' : 'default';
+      if (n) { showTooltip(n); highlightNode(n); }
+      else { hideTooltip(); clearHighlight(); }
+      draw();
+    }
+  });
+
+  canvas.addEventListener('mouseup', () => { dragNode = null; });
+  canvas.addEventListener('mouseleave', () => {
+    dragNode = null;
+    if (hoveredNode) { hoveredNode = null; hideTooltip(); clearHighlight(); draw(); }
+  });
+
+  // ── Render ──
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+}
+
+// ── Filtering ──
+function isAnyFilterActive() {
+  return activeTopics.size > 0 || activeTypes.size > 0 || dateFrom > dataDateMin || dateTo < dataDateMax;
+}
+
+function applyFilters() {
+  const hasTopicFilter = activeTopics.size > 0;
+  const hasTypeFilter = activeTypes.size > 0;
+  const filteredNodes = allNodes.filter(n => {
+    const matchesTopic = !hasTopicFilter || n.tags.some(t => activeTopics.has(t));
+    const matchesType = !hasTypeFilter || activeTypes.has(n.type);
+    const nodeDate = new Date(n.date);
+    return matchesTopic && matchesType && nodeDate >= dateFrom && nodeDate <= dateTo;
+  });
+  const visibleIds = new Set(filteredNodes.map(n => n.id));
+  const filteredLinks = allLinks.filter(l => {
+    const srcId = typeof l.source === 'object' ? l.source.id : l.source;
+    const tgtId = typeof l.target === 'object' ? l.target.id : l.target;
+    return visibleIds.has(srcId) && visibleIds.has(tgtId);
+  });
+  if (window._graphSetVisible) window._graphSetVisible(filteredNodes, filteredLinks);
+}
+
+// ── Date filter ──
+function buildDateFilter() {
+  const fromSlider = document.getElementById('date-from');
+  const toSlider = document.getElementById('date-to');
+  const display = document.querySelector('#filter-date .date-range-display');
+  const trackActive = document.querySelector('#filter-date .slider-track-active');
+  const buttons = document.querySelectorAll('#filter-date .date-btn');
+  const totalMs = dataDateMax.getTime() - dataDateMin.getTime();
+  function pctToDate(pct) { return new Date(dataDateMin.getTime() + (pct / 100) * totalMs); }
+  function dateToPct(d) { return ((d.getTime() - dataDateMin.getTime()) / totalMs) * 100; }
+  function updateDisplay() {
+    display.textContent = formatDate(dateFrom) + ' — ' + formatDate(dateTo);
+    trackActive.style.left = dateToPct(dateFrom) + '%';
+    trackActive.style.width = (dateToPct(dateTo) - dateToPct(dateFrom)) + '%';
+  }
+  function clearActiveButtons() { buttons.forEach(b => b.classList.remove('active')); }
+  fromSlider.addEventListener('input', () => {
+    let val = parseInt(fromSlider.value);
+    if (val > parseInt(toSlider.value)) val = parseInt(toSlider.value);
+    fromSlider.value = val;
+    dateFrom = pctToDate(val);
+    clearActiveButtons();
+    updateDisplay();
+    applyFilters();
+  });
+  toSlider.addEventListener('input', () => {
+    let val = parseInt(toSlider.value);
+    if (val < parseInt(fromSlider.value)) val = parseInt(fromSlider.value);
+    toSlider.value = val;
+    dateTo = pctToDate(val);
+    clearActiveButtons();
+    updateDisplay();
+    applyFilters();
+  });
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      clearActiveButtons();
+      btn.classList.add('active');
+      const range = btn.dataset.range;
+      if (range === 'all') { dateFrom = dataDateMin; dateTo = dataDateMax; }
+      else if (range === '1m') { dateFrom = new Date(TODAY.getFullYear(), TODAY.getMonth() - 1, TODAY.getDate()); dateTo = dataDateMax; }
+      else if (range === '3m') { dateFrom = new Date(TODAY.getFullYear(), TODAY.getMonth() - 3, TODAY.getDate()); dateTo = dataDateMax; }
+      if (dateFrom < dataDateMin) dateFrom = dataDateMin;
+      fromSlider.value = dateToPct(dateFrom);
+      toSlider.value = dateToPct(dateTo);
+      updateDisplay();
+      applyFilters();
+    });
+  });
+  updateDisplay();
+  buttons[2].classList.add('active');
+}
+
+// ── Build filter panels ──
+function buildFilters(data) {
+  const allTags = [...new Set(data.flatMap(d => d.tags))].sort();
+  const topicPanel = document.getElementById('filter-topics');
+  allTags.forEach(tag => {
+    const item = document.createElement('div');
+    item.className = 'filter-item';
+    item.innerHTML = `<span class="filter-dot" style="background:#9b062e"></span>${tag}`;
+    item.addEventListener('click', () => {
+      if (activeTopics.has(tag)) { activeTopics.delete(tag); item.classList.remove('active'); }
+      else { activeTopics.add(tag); item.classList.add('active'); }
+      applyFilters();
+    });
+    topicPanel.appendChild(item);
+  });
+  const topicClear = document.createElement('div');
+  topicClear.className = 'filter-clear';
+  topicClear.textContent = 'Clear';
+  topicClear.addEventListener('click', () => { activeTopics.clear(); topicPanel.querySelectorAll('.filter-item').forEach(el => el.classList.remove('active')); applyFilters(); });
+  topicPanel.appendChild(topicClear);
+
+  const typePanel = document.getElementById('filter-types');
+  Object.entries(TYPE_LABELS).forEach(([type, label]) => {
+    const item = document.createElement('div');
+    item.className = 'filter-item';
+    item.innerHTML = `<span class="filter-dot" style="background:${TYPE_COLORS[type]}"></span>${label}`;
+    item.addEventListener('click', () => {
+      if (activeTypes.has(type)) { activeTypes.delete(type); item.classList.remove('active'); }
+      else { activeTypes.add(type); item.classList.add('active'); }
+      applyFilters();
+    });
+    typePanel.appendChild(item);
+  });
+  const typeClear = document.createElement('div');
+  typeClear.className = 'filter-clear';
+  typeClear.textContent = 'Clear';
+  typeClear.addEventListener('click', () => { activeTypes.clear(); typePanel.querySelectorAll('.filter-item').forEach(el => el.classList.remove('active')); applyFilters(); });
+  typePanel.appendChild(typeClear);
+
+  document.getElementById('reset-all').addEventListener('click', () => {
+    activeTopics.clear();
+    topicPanel.querySelectorAll('.filter-item').forEach(el => el.classList.remove('active'));
+    activeTypes.clear();
+    typePanel.querySelectorAll('.filter-item').forEach(el => el.classList.remove('active'));
+    dateFrom = dataDateMin;
+    dateTo = dataDateMax;
+    document.getElementById('date-from').value = 0;
+    document.getElementById('date-to').value = 100;
+    document.querySelectorAll('#filter-date .date-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('#filter-date .date-btn[data-range="all"]').classList.add('active');
+    document.querySelector('#filter-date .date-range-display').textContent = formatDate(dataDateMin) + ' — ' + formatDate(dataDateMax);
+    const ta = document.querySelector('#filter-date .slider-track-active');
+    ta.style.left = '0%';
+    ta.style.width = '100%';
+    applyFilters();
+  });
+}
+
+// ── Tooltip ──
+function showTooltip(node) {
+  const tooltip = document.getElementById('tooltip');
+  const pill = tooltip.querySelector('.tt-type-pill');
+  pill.textContent = TYPE_LABELS[node.type] || node.type;
+  pill.style.background = TYPE_COLORS[node.type] || '#999';
+  tooltip.querySelector('.tt-title').textContent = node.title;
+  tooltip.querySelector('.tt-subtitle').textContent = node.subtitle || '';
+  tooltip.querySelector('.tt-authors').textContent = node.authors.join(', ');
+  tooltip.querySelector('.tt-date').textContent = formatDate(node.date);
+  tooltip.querySelector('.tt-tags').innerHTML = node.tags.map(t => `<span class="tt-tag">${t}</span>`).join('');
+  tooltip.classList.add('visible');
+}
+function hideTooltip() { document.getElementById('tooltip').classList.remove('visible'); }
+
+document.addEventListener('mousemove', e => {
+  const tt = document.getElementById('tooltip');
+  if (tt.classList.contains('visible')) {
+    const container = document.getElementById('graph-container');
+    const rect = container.getBoundingClientRect();
+    tt.style.left = (e.clientX - rect.left + 16) + 'px';
+    tt.style.top = (e.clientY - rect.top - 10) + 'px';
+  }
+});
+
+// ── Highlight ──
+function highlightNode(node) {
+  highlightedNodes.clear();
+  highlightedLinks.clear();
+  highlightedNodes.add(node.id);
+  allLinks.forEach(l => {
+    const srcId = typeof l.source === 'object' ? l.source.id : l.source;
+    const tgtId = typeof l.target === 'object' ? l.target.id : l.target;
+    if (srcId === node.id || tgtId === node.id) { highlightedNodes.add(srcId); highlightedNodes.add(tgtId); highlightedLinks.add(l); }
+  });
+}
+function clearHighlight() { highlightedNodes.clear(); highlightedLinks.clear(); }
+
+function formatDate(dateStr) {
+  const d = (dateStr instanceof Date) ? dateStr : new Date(dateStr);
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+// ═══════════════════════════════════════════
+// Programme Reveal Observer
+// ═══════════════════════════════════════════
+const obs = new IntersectionObserver(es => {
+  es.forEach(e => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), parseInt(e.target.dataset.delay || '0', 10));
+      obs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.programme-item').forEach(el => obs.observe(el));
+
+// ═══════════════════════════════════════════
+// Init
+// ═══════════════════════════════════════════
+resizeBlobCanvas();
+updateScene();
+requestAnimationFrame(blobLoop);
+</script>
+
+</body>
+</html>
