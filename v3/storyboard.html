@@ -1333,18 +1333,18 @@ function updateCards() {
         zIdx = CARD_COUNT;
       } else {
         const startX = -cardW - 200;
-        const targetX = rightStackX - i * CARD_THICKNESS;
+        const targetX = rightStackX - (CARD_COUNT - 1 - i) * CARD_THICKNESS;
         x = startX + (targetX - startX) * ft;
         rotY = -EDGE_ANGLE * ft;
         origin = 'left center';
-        zIdx = i;
+        zIdx = CARD_COUNT - i;
       }
       card.style.opacity = ft > 0.01 ? 1 : 0;
     } else {
       // Phase 2: cycling
       card.style.opacity = 1;
 
-      const rightX = rightStackX - i * CARD_THICKNESS;
+      const rightX = rightStackX - (CARD_COUNT - 1 - i) * CARD_THICKNESS;
       const leftX = leftStackX + ri * CARD_THICKNESS;
 
       if (progress < inStart) {
@@ -1352,7 +1352,7 @@ function updateCards() {
         if (ri === 0) {
           x = centerX; rotY = 0; origin = 'left center'; zIdx = CARD_COUNT;
         } else {
-          x = rightX; rotY = -EDGE_ANGLE; origin = 'left center'; zIdx = i;
+          x = rightX; rotY = -EDGE_ANGLE; origin = 'left center'; zIdx = CARD_COUNT - i;
         }
       } else if (progress < inEnd) {
         // Transition in: right stack → center

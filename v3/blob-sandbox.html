@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blob Sandbox</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #faf7f4; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+  .canvas-wrap { position: relative; width: 850px; height: 600px; }
+  .canvas-wrap canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+  #trailCanvas { z-index: 0; }
+  #blobCanvas { z-index: 1; }
+</style>
+</head>
+<body>
+
+<div class="canvas-wrap">
+  <canvas id="trailCanvas"></canvas>
+  <canvas id="blobCanvas"></canvas>
+</div>
+
+<script>
+/* ── WebGL setup ── */
+const blobCanvas = document.getElementById('blobCanvas');
+const gl = blobCanvas.getContext('webgl', { antialias: true, alpha: true, premultipliedAlpha: false });
+gl.getExtension('OES_standard_derivatives');
+const MAX_BALLS = 40;
+
+const trailCanvas = document.getElementById('trailCanvas');
+const tCtx = trailCanvas.getContext('2d');
+
+const vsSource = `attribute vec2 aPos; void main() { gl_Position = vec4(aPos, 0.0, 1.0); }`;
+const fsSource = `
+#extension GL_OES_standard_derivatives : enable
+precision highp float;
+uniform vec3 uBalls[${MAX_BALLS}];
+uniform vec3 uBallColors[${MAX_BALLS}];
+uniform int uNumBalls;
+uniform float uTime;
+uniform float uScale;
+uniform float uFieldPower;
+uniform float uMorph;
+
+float metafield(vec2 p) {
+  float f = 0.0;
+  for (int i = 0; i < ${MAX_BALLS}; i++) {
+    if (i >= uNumBalls) break;
+    vec2 d = p - uBalls[i].xy; float r = uBalls[i].z;
+    f += pow((r*r)/(dot(d,d)+1.0), uFieldPower);
+  }
+  return f;
+}
+vec2 fieldGradient(vec2 p) {
+  vec2 g = vec2(0.0);
+  for (int i = 0; i < ${MAX_BALLS}; i++) {
+    if (i >= uNumBalls) break;
+    vec2 d = p - uBalls[i].xy; float r = uBalls[i].z;
+    float den = dot(d,d)+1.0;
+    float base = max(r*r/den, 0.0001);
+    g += uFieldPower * pow(base, uFieldPower - 1.0) * (-2.0*r*r*d/(den*den));
+  }
+  return g;
+}
+void main() {
+  vec2 uv = gl_FragCoord.xy;
+  float field = metafield(uv);
+  float fw = fwidth(field);
+  float edge = smoothstep(1.0 - fw*0.5, 1.0 + fw*0.5, field);
+  float shadowField = metafield(uv + vec2(-25.0, 25.0)*uScale);
+  float shadowAlpha = smoothstep(0.6, 1.4, shadowField) * 0.18;
+  if (edge < 0.001) { gl_FragColor = shadowAlpha > 0.001 ? vec4(0.0,0.0,0.0,shadowAlpha) : vec4(0.0); return; }
+
+  vec3 wColor = vec3(0.0);
+  vec2 wc = vec2(0.0); float tw = 0.0; float dr = 0.0;
+  for (int i = 0; i < ${MAX_BALLS}; i++) {
+    if (i >= uNumBalls) break;
+    vec2 d = uv - uBalls[i].xy; float r = uBalls[i].z;
+    float w = pow((r*r)/(dot(d,d)+1.0), uFieldPower);
+    wColor += uBallColors[i] * w;
+    wc += uBalls[i].xy * w; tw += w;
+    if (w > dr) dr = r;
+  }
+  wColor /= tw; wc /= tw;
+
+  vec3 baseCol = wColor;
+  vec3 highlightCol = mix(baseCol, vec3(1.0), 0.22);
+  vec3 shadowCol = baseCol * 0.82;
+
+  vec2 grad = fieldGradient(uv);
+  float depth = clamp((field-1.0)/2.5, 0.0, 1.0);
+  vec3 N_edge = normalize(vec3(-grad, 18.0*(0.4+depth*0.6)));
+  vec2 fc = uv - wc; float nd = min(length(fc)/(dr*1.2), 1.0);
+  vec3 N_dome = normalize(vec3(fc/(dr*1.2), sqrt(max(1.0-nd*nd, 0.01))));
+  vec3 L1 = normalize(vec3(-0.5,0.6,0.75)); vec3 L2 = normalize(vec3(0.5,-0.2,0.6));
+  vec3 V = vec3(0.0,0.0,1.0); vec3 H1 = normalize(L1+V); vec3 H2 = normalize(L2+V);
+  float diff1 = max(dot(N_edge,L1),0.0); float diff2 = max(dot(N_edge,L2),0.0);
+  float sp1t = pow(max(dot(N_dome,H1),0.0),120.0); float sp1b = pow(max(dot(N_dome,H1),0.0),12.0);
+  float sp2 = pow(max(dot(N_dome,H2),0.0),60.0);
+  float fr = pow(1.0-max(dot(N_dome,V),0.0),1.8);
+  vec3 env = mix(vec3(0.72,0.58,0.52),vec3(1.0,0.97,0.94),reflect(-V,N_dome).y*0.5+0.5);
+  float sss = (1.0-clamp((field-1.0)/1.5,0.0,1.0))*0.2;
+
+  vec3 sc = mix(shadowCol, highlightCol, diff1*0.6+diff2*0.2);
+  sc += baseCol*0.2;
+  float specMix = 1.0 - uMorph * 0.8;
+  sc += vec3(1.0,0.98,0.96)*sp1t*1.2*specMix;
+  sc += vec3(1.0,0.96,0.93)*sp1b*0.2*specMix;
+  sc += vec3(0.98,0.95,0.93)*sp2*0.4*specMix;
+  sc = mix(sc, env, fr*mix(0.45, 0.10, uMorph));
+  sc += mix(baseCol, vec3(1.0,0.5,0.35), 0.5)*sss*0.15;
+  float ao = smoothstep(1.0,2.0,field);
+  vec3 aoC = mix(mix(sc*0.78, mix(baseCol*0.8,sc,0.7), 0.75), sc, ao);
+  sc = aoC;
+  sc += (fract(sin(dot(uv*0.01+uTime*0.0005,vec2(12.9898,78.233)))*43758.5453)-0.5)*0.02;
+  gl_FragColor = vec4(sc, edge);
+}`;
+
+function createShader(t, s) { const sh = gl.createShader(t); gl.shaderSource(sh, s); gl.compileShader(sh); if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) console.error(gl.getShaderInfoLog(sh)); return sh; }
+const prog = gl.createProgram();
+gl.attachShader(prog, createShader(gl.VERTEX_SHADER, vsSource));
+gl.attachShader(prog, createShader(gl.FRAGMENT_SHADER, fsSource));
+gl.linkProgram(prog);
+gl.useProgram(prog);
+gl.enable(gl.BLEND);
+gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+gl.clearColor(0, 0, 0, 0);
+const buf = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
+const aPos = gl.getAttribLocation(prog, 'aPos');
+gl.enableVertexAttribArray(aPos);
+gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+const uTimeLoc = gl.getUniformLocation(prog, 'uTime');
+const uBallsLoc = gl.getUniformLocation(prog, 'uBalls');
+const uBallColorsLoc = gl.getUniformLocation(prog, 'uBallColors');
+const uNumBallsLoc = gl.getUniformLocation(prog, 'uNumBalls');
+const uScaleLoc = gl.getUniformLocation(prog, 'uScale');
+const uFieldPowerLoc = gl.getUniformLocation(prog, 'uFieldPower');
+const uMorphLoc = gl.getUniformLocation(prog, 'uMorph');
+
+/* ══════════════════════════════════════════════
+   PHASE 1: Blob configs
+   ══════════════════════════════════════════════ */
+const blobGroups = [
+  { groupRadius: 38, subBalls: 3, spread: 22, xWaves: [{ freq: 0.08, amp: 0.85, phase: 0.0 }, { freq: 0.19, amp: 0.25, phase: 2.1 }], yWaves: [{ freq: 0.065, amp: 0.80, phase: 1.0 }, { freq: 0.16, amp: 0.22, phase: 4.3 }], deform: [{ xFreq: 0.13, yFreq: 0.11, xPhase: 0.0, yPhase: 1.5 }, { xFreq: 0.10, yFreq: 0.14, xPhase: 2.5, yPhase: 0.3 }, { xFreq: 0.15, yFreq: 0.09, xPhase: 4.8, yPhase: 3.7 }] },
+  { groupRadius: 40, subBalls: 3, spread: 24, xWaves: [{ freq: 0.07, amp: 0.90, phase: 3.5 }, { freq: 0.17, amp: 0.28, phase: 0.8 }], yWaves: [{ freq: 0.09, amp: 0.85, phase: 5.2 }, { freq: 0.21, amp: 0.20, phase: 1.6 }], deform: [{ xFreq: 0.12, yFreq: 0.15, xPhase: 1.2, yPhase: 4.0 }, { xFreq: 0.16, yFreq: 0.10, xPhase: 3.8, yPhase: 2.1 }, { xFreq: 0.09, yFreq: 0.13, xPhase: 5.5, yPhase: 0.6 }] },
+  { groupRadius: 32, subBalls: 3, spread: 20, xWaves: [{ freq: 0.095, amp: 0.92, phase: 1.7 }, { freq: 0.22, amp: 0.22, phase: 5.5 }], yWaves: [{ freq: 0.075, amp: 0.78, phase: 3.8 }, { freq: 0.18, amp: 0.25, phase: 0.4 }], deform: [{ xFreq: 0.14, yFreq: 0.12, xPhase: 2.0, yPhase: 5.2 }, { xFreq: 0.11, yFreq: 0.16, xPhase: 0.5, yPhase: 3.3 }, { xFreq: 0.17, yFreq: 0.08, xPhase: 4.1, yPhase: 1.8 }] },
+  { groupRadius: 28, subBalls: 2, spread: 16, xWaves: [{ freq: 0.06, amp: 0.82, phase: 5.0 }, { freq: 0.15, amp: 0.30, phase: 3.2 }], yWaves: [{ freq: 0.1, amp: 0.88, phase: 0.5 }, { freq: 0.23, amp: 0.18, phase: 2.8 }], deform: [{ xFreq: 0.13, yFreq: 0.17, xPhase: 3.0, yPhase: 0.9 }, { xFreq: 0.18, yFreq: 0.11, xPhase: 5.8, yPhase: 2.5 }] },
+  { groupRadius: 22, subBalls: 2, spread: 14, xWaves: [{ freq: 0.085, amp: 0.88, phase: 2.3 }, { freq: 0.2, amp: 0.24, phase: 4.7 }], yWaves: [{ freq: 0.07, amp: 0.84, phase: 4.0 }, { freq: 0.165, amp: 0.26, phase: 1.1 }], deform: [{ xFreq: 0.15, yFreq: 0.12, xPhase: 1.7, yPhase: 4.4 }, { xFreq: 0.10, yFreq: 0.18, xPhase: 4.2, yPhase: 0.1 }] },
+  { groupRadius: 24, subBalls: 2, spread: 15, xWaves: [{ freq: 0.09, amp: 1.1, phase: 4.2 }, { freq: 0.21, amp: 0.35, phase: 1.6 }], yWaves: [{ freq: 0.11, amp: 1.05, phase: 2.0 }, { freq: 0.19, amp: 0.30, phase: 5.4 }], deform: [{ xFreq: 0.14, yFreq: 0.16, xPhase: 0.8, yPhase: 3.6 }, { xFreq: 0.17, yFreq: 0.10, xPhase: 5.1, yPhase: 1.2 }] },
+];
+const smalls = [
+  { radius: 10, xWaves: [{ freq: 0.11, amp: 0.95, phase: 1.2 }, { freq: 0.24, amp: 0.28, phase: 3.8 }], yWaves: [{ freq: 0.095, amp: 0.92, phase: 4.5 }, { freq: 0.22, amp: 0.25, phase: 0.7 }] },
+  { radius: 6, xWaves: [{ freq: 0.1, amp: 0.98, phase: 5.1 }, { freq: 0.25, amp: 0.30, phase: 2.0 }], yWaves: [{ freq: 0.12, amp: 0.90, phase: 2.3 }, { freq: 0.21, amp: 0.22, phase: 5.9 }] },
+  { radius: 12, xWaves: [{ freq: 0.09, amp: 0.93, phase: 3.3 }, { freq: 0.23, amp: 0.26, phase: 1.5 }], yWaves: [{ freq: 0.105, amp: 0.95, phase: 0.9 }, { freq: 0.26, amp: 0.20, phase: 4.2 }] },
+  { radius: 4, xWaves: [{ freq: 0.13, amp: 1.0, phase: 0.4 }, { freq: 0.27, amp: 0.24, phase: 5.3 }], yWaves: [{ freq: 0.115, amp: 0.97, phase: 3.1 }, { freq: 0.24, amp: 0.28, phase: 1.8 }] },
+];
+
+/* ══════════════════════════════════════════════
+   PHASE 2: Solar system configs
+   ══════════════════════════════════════════════ */
+const BLOB_COLOR = [0.88, 0.30, 0.25];
+const groupSolar = [
+  { isCenter: false, orbitR: 250, period: 20, ecc: 0.88, tilt: -0.18, startPhase: 5.5, targetRadius: 15.75, color: [0.282, 0.349, 0.776] },
+  { isCenter: true,  orbitR: 0,   period: 1,  ecc: 1,    tilt: 0,     startPhase: 0,   targetRadius: 37.5,  color: [0.996, 0.388, 0.314] },
+  { isCenter: false, orbitR: 225, period: 17, ecc: 0.84, tilt: -0.08, startPhase: 2.8, targetRadius: 14.25, color: [0.357, 0.686, 0.459] },
+  { isCenter: false, orbitR: 195, period: 14, ecc: 0.87, tilt: 0.14,  startPhase: 4.1, targetRadius: 14.25, color: [0.282, 0.349, 0.776] },
+  { isCenter: false, orbitR: 160, period: 10, ecc: 0.82, tilt: -0.22, startPhase: 1.2, targetRadius: 12,    color: [0.047, 0.400, 0.412] },
+  { isCenter: false, orbitR: 130, period: 7.5,ecc: 0.85, tilt: 0.1,   startPhase: 3.5, targetRadius: 11.25, color: [0.608, 0.024, 0.180] },
+];
+const smallSolar = [
+  { parentGroup: 0, moonOrbitR: 32, moonPeriod: 2.5, moonEcc: 0.95, moonTilt: 0.3, moonPhase: 0.0, targetRadius: 5,   color: [0.357, 0.686, 0.459] },
+  { isCenter: false, orbitR: 105, period: 5.5, ecc: 0.88, tilt: -0.12, startPhase: 1.8, targetRadius: 6,    color: [0.608, 0.024, 0.180] },
+  { isCenter: false, orbitR: 210, period: 15,  ecc: 0.92, tilt: 0.05,  startPhase: 0.8, targetRadius: 10.5, color: [0.996, 0.388, 0.314] },
+  { parentGroup: 5, moonOrbitR: 26, moonPeriod: 2.0, moonEcc: 0.92, moonTilt: -0.2, moonPhase: 2.5, targetRadius: 4,   color: [0.047, 0.400, 0.412] },
+];
+
+/* ══════════════════════════════════════════════
+   PHASE 3: Circuit / Lattice
+   ══════════════════════════════════════════════ */
+const CIRCUIT_R = 7;
+const EXTRA_PARENT_IDX = [3, 4, 5, 0, 1, 6, 7, 9, 11, 13, 17];
+
+function mulberry32(a) {
+  return function() {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+function generateLattice() {
+  const rng = mulberry32(42);
+  const COLS = 18, ROWS = 12, SP = 45;
+  const ox = (850 - (COLS - 1) * SP) / 2, oy = (600 - (ROWS - 1) * SP) / 2;
+  const cx = 425, cy = 300, rx = 375, ry = 258;
+  const nodes = [], grid = new Map();
+  const edgeRng = mulberry32(99);
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const x = ox + c * SP, y = oy + r * SP;
+      const ex = (x - cx) / rx, ey = (y - cy) / ry;
+      let d = ex * ex + ey * ey;
+      d += Math.sin(c * 3.7 + r * 1.9) * 0.12 + Math.sin(c * 1.1 + r * 4.3) * 0.08;
+      if (d > 1.0) continue;
+      if (d > 0.6 && rng() < 0.22) continue;
+      grid.set(`${c},${r}`, nodes.length);
+      nodes.push({ x, y, col: c, row: r, edges: [] });
+    }
+  }
+  for (let i = 0; i < nodes.length; i++) {
+    const { col, row } = nodes[i];
+    for (const [dc, dr] of [[1,0],[0,1]]) {
+      const j = grid.get(`${col+dc},${row+dr}`);
+      if (j === undefined || edgeRng() < 0.45) continue;
+      nodes[i].edges.push(j); nodes[j].edges.push(i);
+    }
+    for (const [dc, dr] of [[1,1],[1,-1]]) {
+      const j = grid.get(`${col+dc},${row+dr}`);
+      if (j === undefined || edgeRng() > 0.10) continue;
+      nodes[i].edges.push(j); nodes[j].edges.push(i);
+    }
+  }
+  let ci = 0, cd = Infinity;
+  for (let i = 0; i < nodes.length; i++) { const dx = nodes[i].x-425, dy = nodes[i].y-300; if (dx*dx+dy*dy < cd) { cd = dx*dx+dy*dy; ci = i; } }
+  const vis = new Set([ci]), q = [ci];
+  while (q.length) { const n = q.shift(); for (const nb of nodes[n].edges) if (!vis.has(nb)) { vis.add(nb); q.push(nb); } }
+  const remap = new Map(), out = [];
+  for (const idx of vis) { remap.set(idx, out.length); out.push({ x: nodes[idx].x, y: nodes[idx].y, edges: [] }); }
+  for (const idx of vis) { const ni = remap.get(idx); const seen = new Set(); for (const nb of nodes[idx].edges) { if (vis.has(nb) && !seen.has(nb)) { seen.add(nb); out[ni].edges.push(remap.get(nb)); } } }
+  return out;
+}
+
+let lattice;
+const walkers = [], walkerColors = [];
+const TRAIL_LEN = 12, walkerTrails = [];
+
+function getWalkerCSS(w) {
+  const a = lattice[w.nodeFrom], b = lattice[w.nodeTo];
+  return { x: a.x + (b.x - a.x) * w.progress, y: a.y + (b.y - a.y) * w.progress };
+}
+
+function initCircuit() {
+  lattice = generateLattice();
+  const rng = mulberry32(67890);
+  for (let g = 0; g < blobGroups.length; g++)
+    for (let s = 0; s < blobGroups[g].subBalls; s++) walkerColors.push(groupSolar[g].color);
+  for (const sol of smallSolar) walkerColors.push(sol.color);
+  for (const pi of EXTRA_PARENT_IDX) walkerColors.push(walkerColors[pi]);
+
+  const m2t = BLOB_HOLD + MORPH1_DUR + SOLAR_HOLD;
+  const sCSS = [];
+  for (let g = 0; g < blobGroups.length; g++) {
+    const o = orbitOffset(groupSolar[g], m2t, 1);
+    for (let s = 0; s < blobGroups[g].subBalls; s++) sCSS.push({ x: 425 + o.x, y: 300 - o.y });
+  }
+  const gsOff = blobGroups.map((_, g) => orbitOffset(groupSolar[g], m2t, 1));
+  for (let s = 0; s < smalls.length; s++) {
+    const sol = smallSolar[s]; let sx, sy;
+    if (sol.parentGroup !== undefined) {
+      const po = gsOff[sol.parentGroup], a2 = sol.moonPhase + 2*Math.PI*m2t/sol.moonPeriod;
+      const mx = sol.moonOrbitR*Math.cos(a2), my = sol.moonOrbitR*sol.moonEcc*Math.sin(a2);
+      const ct = Math.cos(sol.moonTilt), st = Math.sin(sol.moonTilt);
+      sx = po.x + mx*ct - my*st; sy = po.y + mx*st + my*ct;
+    } else { const o = orbitOffset(sol, m2t, 1); sx = o.x; sy = o.y; }
+    sCSS.push({ x: 425 + sx, y: 300 - sy });
+  }
+
+  const used = new Set();
+  function pickNearest(pos) {
+    let best = -1, bd = Infinity;
+    for (let n = 0; n < lattice.length; n++) { if (used.has(n) || !lattice[n].edges.length) continue; const dx = lattice[n].x-pos.x, dy = lattice[n].y-pos.y; if (dx*dx+dy*dy < bd) { bd = dx*dx+dy*dy; best = n; } }
+    if (best >= 0) used.add(best); return best;
+  }
+  function pickNearish(pos) {
+    let cands = [];
+    for (let n = 0; n < lattice.length; n++) { if (used.has(n) || !lattice[n].edges.length) continue; const dx = lattice[n].x-pos.x, dy = lattice[n].y-pos.y; cands.push({ n, d: dx*dx+dy*dy }); }
+    if (!cands.length) { for (let n = 0; n < lattice.length; n++) { if (!lattice[n].edges.length) continue; const dx = lattice[n].x-pos.x, dy = lattice[n].y-pos.y; cands.push({ n, d: dx*dx+dy*dy }); } }
+    cands.sort((a, b) => a.d - b.d);
+    const pick = cands[Math.min(Math.floor(rng() * 5), cands.length - 1)];
+    used.add(pick.n); return pick.n;
+  }
+
+  for (let i = 0; i < 19; i++) {
+    const node = pickNearest(sCSS[i]);
+    const next = lattice[node].edges[Math.floor(rng() * lattice[node].edges.length)];
+    walkers.push({ nodeFrom: node, nodeTo: next, prevNode: -1, progress: 0, speed: 38 + rng() * 28 });
+    walkerTrails.push([{ x: lattice[node].x, y: lattice[node].y }]);
+  }
+  for (let i = 0; i < EXTRA_PARENT_IDX.length; i++) {
+    const node = pickNearish(sCSS[EXTRA_PARENT_IDX[i]]);
+    const next = lattice[node].edges[Math.floor(rng() * lattice[node].edges.length)];
+    walkers.push({ nodeFrom: node, nodeTo: next, prevNode: -1, progress: 0, speed: 38 + rng() * 28 });
+    walkerTrails.push([{ x: lattice[node].x, y: lattice[node].y }]);
+  }
+}
+
+function updateWalkers(dt, mCSSx, mCSSy, speedMult) {
+  for (let wi = 0; wi < walkers.length; wi++) {
+    const w = walkers[wi];
+    const from = lattice[w.nodeFrom], to = lattice[w.nodeTo];
+    const edgeLen = Math.sqrt((to.x-from.x)**2 + (to.y-from.y)**2) || 1;
+    const pos = getWalkerCSS(w);
+    const md = Math.sqrt((pos.x-mCSSx)**2 + (pos.y-mCSSy)**2);
+    const mBoost = md < 120 ? 1 + 1.5 * (1 - md/120)**2 : 1;
+    w.progress += w.speed * mBoost * speedMult * dt / edgeLen;
+    if (w.progress >= 1) {
+      w.progress -= 1;
+      w.prevNode = w.nodeFrom;
+      w.nodeFrom = w.nodeTo;
+      const arrived = lattice[w.nodeFrom];
+      const trail = walkerTrails[wi];
+      trail.push({ x: arrived.x, y: arrived.y });
+      if (trail.length > TRAIL_LEN + 1) trail.shift();
+      let cands = lattice[w.nodeFrom].edges.filter(n => n !== w.prevNode);
+      if (!cands.length) cands = [...lattice[w.nodeFrom].edges];
+      const prev = lattice[w.prevNode >= 0 ? w.prevNode : w.nodeFrom];
+      const cur = lattice[w.nodeFrom];
+      const dx0 = cur.x - prev.x, dy0 = cur.y - prev.y;
+      const len0 = Math.sqrt(dx0*dx0 + dy0*dy0) || 1;
+      const weights = cands.map(n => {
+        const nb = lattice[n], dx1 = nb.x - cur.x, dy1 = nb.y - cur.y;
+        const len1 = Math.sqrt(dx1*dx1 + dy1*dy1) || 1;
+        const dot = (dx0*dx1 + dy0*dy1) / (len0*len1);
+        let wt = dot > 0.7 ? 6 : dot > 0 ? 2 : 1;
+        if (mCSSx > -9000) { const cd2 = (cur.x-mCSSx)**2 + (cur.y-mCSSy)**2; const nd2 = (nb.x-mCSSx)**2 + (nb.y-mCSSy)**2; if (cd2 < 120*120 && nd2 > cd2) wt *= 2; }
+        return wt;
+      });
+      let tw = weights.reduce((a,b) => a+b, 0), r = Math.random() * tw;
+      for (let i = 0; i < cands.length; i++) { r -= weights[i]; if (r <= 0) { w.nodeTo = cands[i]; break; } }
+      if (r > 0) w.nodeTo = cands[cands.length-1];
+    }
+  }
+}
+
+/* ══════════════════════════════════════════════
+   PHASE 4: Double Helix
+   ══════════════════════════════════════════════ */
+const HELIX_BALLS = 30;
+const HELIX_AMP = 65;
+const HELIX_PERIOD_PX = 320;
+const HELIX_SPEED = 40;
+const HELIX_R_NEAR = 9;
+const HELIX_R_FAR = 5;
+// Colors: strand A = teal/burgundy, strand B = purple/green
+const HELIX_COLORS_A = [[0.047, 0.400, 0.412], [0.608, 0.024, 0.180]];
+const HELIX_COLORS_B = [[0.282, 0.349, 0.776], [0.357, 0.686, 0.459]];
+
+function getHelixBall(i, time) {
+  const strand = i < HELIX_BALLS / 2 ? 0 : 1;
+  const si = i - strand * (HELIX_BALLS / 2);
+  const spacing = HELIX_PERIOD_PX / (HELIX_BALLS / 2);
+  const phase = strand * Math.PI;
+  const scroll = time * HELIX_SPEED;
+  const baseY = si * spacing - scroll;
+  // Wrap around vertically to stay in view
+  const totalLen = HELIX_PERIOD_PX;
+  let y = ((baseY % totalLen) + totalLen) % totalLen - totalLen / 2;
+  y += 300; // center on canvas
+  const angPerPx = (2 * Math.PI) / HELIX_PERIOD_PX;
+  const ang = (baseY + scroll) * angPerPx + phase;
+  const x = 425 + Math.sin(ang) * HELIX_AMP;
+  const depth = Math.cos(ang);
+  const r = HELIX_R_FAR + (HELIX_R_NEAR - HELIX_R_FAR) * (depth * 0.5 + 0.5);
+  const colors = strand === 0 ? HELIX_COLORS_A : HELIX_COLORS_B;
+  const ci = si % 2;
+  return { x, y, r, color: colors[ci], depth };
+}
+
+/* ══════════════════════════════════════════════
+   Timing & shared state
+   ══════════════════════════════════════════════ */
+const BLOB_HOLD = 10;
+const MORPH1_DUR = 5;
+const SOLAR_HOLD = 17;
+const MORPH2_DUR = 5;
+const CIRCUIT_HOLD = 17;
+const MORPH3_DUR = 5;
+const HELIX_HOLD = 17;
+const MORPH4_DUR = 5;
+
+const repelOffsets = [];
+for (let i = 0; i < blobGroups.length + smalls.length; i++) repelOffsets.push({ x: 0, y: 0 });
+function evalWaves(w, t, h) { let v = 0; for (const x of w) v += Math.sin(t * x.freq + x.phase) * x.amp * h; return v; }
+
+const PHYSICS_W = 850;
+let heroRefW = PHYSICS_W, heroRefH = 600;
+let mouseX = -9999, mouseY = -9999;
+blobCanvas.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+blobCanvas.addEventListener('mouseleave', () => { mouseX = -9999; mouseY = -9999; });
+
+function resizeCanvas() {
+  const rect = blobCanvas.getBoundingClientRect();
+  heroRefW = PHYSICS_W; heroRefH = PHYSICS_W * (rect.height / rect.width);
+  const d = window.devicePixelRatio || 1;
+  const pw = Math.max(1, Math.round(rect.width * d)), ph = Math.max(1, Math.round(rect.height * d));
+  blobCanvas.width = pw; blobCanvas.height = ph;
+  trailCanvas.width = pw; trailCanvas.height = ph;
+  gl.viewport(0, 0, pw, ph);
+  tCtx.fillStyle = '#faf7f4'; tCtx.fillRect(0, 0, pw, ph);
+}
+
+function orbitOffset(sol, time, dpr) {
+  if (sol.isCenter) return { x: 0, y: 0 };
+  const a = sol.startPhase + 2 * Math.PI * time / sol.period;
+  const ox = sol.orbitR * dpr * Math.cos(a), oy = sol.orbitR * dpr * sol.ecc * Math.sin(a);
+  const ct = Math.cos(sol.tilt), st = Math.sin(sol.tilt);
+  return { x: ox*ct - oy*st, y: ox*st + oy*ct };
+}
+function moonOffset(sol, time, dpr) {
+  const a = sol.moonPhase + 2 * Math.PI * time / sol.moonPeriod;
+  const ox = sol.moonOrbitR * dpr * Math.cos(a), oy = sol.moonOrbitR * dpr * sol.moonEcc * Math.sin(a);
+  const ct = Math.cos(sol.moonTilt), st = Math.sin(sol.moonTilt);
+  return { x: ox*ct - oy*st, y: ox*st + oy*ct };
+}
+
+const groupSolarOffsets = new Array(blobGroups.length);
+function ss01(t) { return t * t * (3 - 2 * t); }
+
+/* ══════════════════════════════════════════════
+   Main update
+   ══════════════════════════════════════════════ */
+let blobTime = 0;
+// Cycle length for looping
+const CYCLE_LEN = BLOB_HOLD + MORPH1_DUR + SOLAR_HOLD + MORPH2_DUR + CIRCUIT_HOLD + MORPH3_DUR + HELIX_HOLD + MORPH4_DUR;
+
+function updateBlob(dt) {
+  blobTime += dt * 1.15;
+  const cycleTime = blobTime % CYCLE_LEN;
+
+  // Phase boundaries
+  const m1s = BLOB_HOLD, m1e = m1s + MORPH1_DUR;
+  const m2s = m1e + SOLAR_HOLD, m2e = m2s + MORPH2_DUR;
+  const m3s = m2e + CIRCUIT_HOLD, m3e = m3s + MORPH3_DUR;
+  const m4s = m3e + HELIX_HOLD, m4e = m4s + MORPH4_DUR;
+
+  const morphT1 = cycleTime < m1s ? 0 : cycleTime >= m1e ? 1 : ss01((cycleTime - m1s) / MORPH1_DUR);
+  const morphT2 = cycleTime < m2s ? 0 : cycleTime >= m2e ? 1 : ss01((cycleTime - m2s) / MORPH2_DUR);
+  const morphT3 = cycleTime < m3s ? 0 : cycleTime >= m3e ? 1 : ss01((cycleTime - m3s) / MORPH3_DUR);
+  const morphT4 = cycleTime < m4s ? 0 : cycleTime >= m4e ? 1 : ss01((cycleTime - m4s) / MORPH4_DUR);
+
+  const dpr = window.devicePixelRatio || 1;
+  const nW = blobCanvas.width, nH = blobCanvas.height;
+  const refW = Math.max(1, heroRefW * dpr), refH = Math.max(1, heroRefH * dpr);
+  const refCx = refW / 2, refCy = refH / 2;
+  const rMin = Math.min(refW, refH), rHalf = rMin * (9/16) / 2;
+  const uniScale = Math.min(nW / refW, nH / refH);
+  const decay = 1 - Math.exp(-dt * 0.5);
+  const push = 90, pushDir = 1 - 2*morphT1, pushScale = 1 - 0.4*morphT1;
+  const cr = blobCanvas.getBoundingClientRect();
+  const rmx = (mouseX - cr.left) / (Math.max(cr.width,1) / heroRefW);
+  const rmy = (mouseY - cr.top) / (Math.max(cr.height,1) / heroRefH);
+
+  // Update circuit walkers during phases 3 & 4 morph
+  if (morphT2 > 0 && morphT3 < 1) {
+    const wSpeed = morphT2 < 1 ? Math.min(1, morphT2 * 2) : Math.max(0.01, 1 - morphT3);
+    updateWalkers(dt, rmx, rmy, wSpeed);
+  }
+
+  const refData = [], colorData = [], trailPositions = [];
+  const solarRef = [];
+  let ballIdx = 0;
+  const roScale = Math.max(0, 1 - morphT2);
+
+  // ── Blob groups ──
+  for (let g = 0; g < blobGroups.length; g++) {
+    const grp = blobGroups[g], sol = groupSolar[g];
+    let bCx = evalWaves(grp.xWaves, blobTime, rHalf);
+    let bCy = evalWaves(grp.yWaves, blobTime, rHalf);
+    const bLim = rHalf - grp.groupRadius*dpr*1.5;
+    bCx = bLim * Math.tanh(bCx/bLim); bCy = bLim * Math.tanh(bCy/bLim);
+
+    const sOrb = orbitOffset(sol, blobTime, dpr);
+    groupSolarOffsets[g] = sOrb;
+    const bCx_css = heroRefW/2 + bCx/dpr, bCy_css = heroRefH/2 - bCy/dpr;
+    const sCx_css = heroRefW/2 + sOrb.x/dpr, sCy_css = heroRefH/2 - sOrb.y/dpr;
+    const tx = bCx_css + (sCx_css - bCx_css)*morphT1;
+    const ty = bCy_css + (sCy_css - bCy_css)*morphT1;
+    trailPositions.push({ x: tx, y: ty, color: sol.color, isCenter: !!sol.isCenter });
+
+    const ro = repelOffsets[g];
+    if (morphT2 < 0.5 && morphT4 < 0.5) {
+      const dx = tx+ro.x - rmx, dy = ty+ro.y - rmy, dist = Math.sqrt(dx*dx+dy*dy);
+      if (dist < 180 && dist > 0.1) { const p = (1-dist/180)**2 * Math.max(35/grp.groupRadius,1.5)*push*dt*pushScale; ro.x += dx/dist*p*pushDir; ro.y += dy/dist*p*pushDir; }
+    }
+    ro.x -= ro.x*decay; ro.y -= ro.y*decay;
+
+    const sR = sol.targetRadius*dpr;
+    for (let s = 0; s < grp.subBalls; s++) {
+      const d = grp.deform[s];
+      const bSx = bCx + Math.sin(blobTime*d.xFreq+d.xPhase)*grp.spread*dpr;
+      const bSy = bCy + Math.sin(blobTime*d.yFreq+d.yPhase)*grp.spread*dpr;
+      const wb = 3*dpr;
+      const sSx = sOrb.x + Math.sin(blobTime*0.5+s*2.094)*wb;
+      const sSy = sOrb.y + Math.cos(blobTime*0.5+s*2.094)*wb;
+
+      let px = refCx + bSx + (sSx - bSx)*morphT1;
+      let py = refCy + bSy + (sSy - bSy)*morphT1;
+      let pr = grp.groupRadius*dpr + (sR - grp.groupRadius*dpr)*morphT1;
+      solarRef.push({ x: px, y: py });
+
+      // → circuit
+      if (morphT2 > 0 && morphT3 < 1) {
+        const wp = getWalkerCSS(walkers[ballIdx]);
+        const wRx = refCx + (wp.x - heroRefW/2)*dpr, wRy = refCy + (heroRefH/2 - wp.y)*dpr;
+        const cR = CIRCUIT_R*dpr;
+        const t2 = Math.min(morphT2, 1 - morphT3);
+        px += (wRx - px)*t2; py += (wRy - py)*t2; pr += (cR - pr)*t2;
+      }
+      // → helix
+      if (morphT3 > 0 && morphT4 < 1) {
+        const hb = getHelixBall(ballIdx % HELIX_BALLS, blobTime);
+        const hRx = refCx + (hb.x - heroRefW/2)*dpr, hRy = refCy + (heroRefH/2 - hb.y)*dpr;
+        const hR = hb.r*dpr;
+        const t3 = Math.min(morphT3, 1 - morphT4);
+        px += (hRx - px)*t3; py += (hRy - py)*t3; pr += (hR - pr)*t3;
+      }
+      // → back to blob
+      if (morphT4 > 0) {
+        const blobRx = refCx + bSx, blobRy = refCy + bSy;
+        px += (blobRx - px)*morphT4; py += (blobRy - py)*morphT4;
+        pr += (grp.groupRadius*dpr - pr)*morphT4;
+      }
+
+      px += ro.x*dpr*roScale; py -= ro.y*dpr*roScale;
+      refData.push(px, py, pr);
+
+      // Color: blend through phases
+      let cr0 = BLOB_COLOR, cg, cb;
+      cr0 = [cr0[0]+(sol.color[0]-cr0[0])*morphT1, cr0[1]+(sol.color[1]-cr0[1])*morphT1, cr0[2]+(sol.color[2]-cr0[2])*morphT1];
+      if (morphT3 > 0) {
+        const hb = getHelixBall(ballIdx % HELIX_BALLS, blobTime);
+        cr0 = [cr0[0]+(hb.color[0]-cr0[0])*morphT3, cr0[1]+(hb.color[1]-cr0[1])*morphT3, cr0[2]+(hb.color[2]-cr0[2])*morphT3];
+      }
+      if (morphT4 > 0) {
+        cr0 = [cr0[0]+(BLOB_COLOR[0]-cr0[0])*morphT4, cr0[1]+(BLOB_COLOR[1]-cr0[1])*morphT4, cr0[2]+(BLOB_COLOR[2]-cr0[2])*morphT4];
+      }
+      colorData.push(cr0[0], cr0[1], cr0[2]);
+      ballIdx++;
+    }
+  }
+
+  // ── Small balls ──
+  for (let s = 0; s < smalls.length; s++) {
+    const sm = smalls[s], sol = smallSolar[s];
+    let bx = evalWaves(sm.xWaves, blobTime, rHalf);
+    let by = evalWaves(sm.yWaves, blobTime, rHalf);
+    const lim = rHalf - sm.radius*dpr;
+    bx = lim*Math.tanh(bx/lim); by = lim*Math.tanh(by/lim);
+    let sOx, sOy;
+    if (sol.parentGroup !== undefined) { const po = groupSolarOffsets[sol.parentGroup]; const mo = moonOffset(sol, blobTime, dpr); sOx = po.x+mo.x; sOy = po.y+mo.y; }
+    else { const o = orbitOffset(sol, blobTime, dpr); sOx = o.x; sOy = o.y; }
+
+    const bCx_css = heroRefW/2 + bx/dpr, bCy_css = heroRefH/2 - by/dpr;
+    const sCx_css = heroRefW/2 + sOx/dpr, sCy_css = heroRefH/2 - sOy/dpr;
+    const tx = bCx_css + (sCx_css - bCx_css)*morphT1;
+    const ty = bCy_css + (sCy_css - bCy_css)*morphT1;
+    trailPositions.push({ x: tx, y: ty, color: sol.color, isCenter: false, isMoon: sol.parentGroup !== undefined });
+
+    const ro = repelOffsets[blobGroups.length+s];
+    if (morphT2 < 0.5 && morphT4 < 0.5) {
+      const dx = tx+ro.x-rmx, dy = ty+ro.y-rmy, dist = Math.sqrt(dx*dx+dy*dy);
+      if (dist < 180 && dist > 0.1) { const p = (1-dist/180)**2*(35/sm.radius)*push*dt*pushScale; ro.x += dx/dist*p*pushDir; ro.y += dy/dist*p*pushDir; }
+    }
+    ro.x -= ro.x*decay; ro.y -= ro.y*decay;
+
+    const sR = sol.targetRadius*dpr, wb = 2*dpr;
+    const sSx = sOx + Math.sin(blobTime*0.7+s*1.571)*wb;
+    const sSy = sOy + Math.cos(blobTime*0.7+s*1.571)*wb;
+
+    let px = refCx + bx + (sSx - bx)*morphT1;
+    let py = refCy + by + (sSy - by)*morphT1;
+    let pr = sm.radius*dpr + (sR - sm.radius*dpr)*morphT1;
+    solarRef.push({ x: px, y: py });
+
+    if (morphT2 > 0 && morphT3 < 1) {
+      const wp = getWalkerCSS(walkers[ballIdx]);
+      const wRx = refCx + (wp.x - heroRefW/2)*dpr, wRy = refCy + (heroRefH/2 - wp.y)*dpr;
+      const cR = CIRCUIT_R*dpr;
+      const t2 = Math.min(morphT2, 1 - morphT3);
+      px += (wRx - px)*t2; py += (wRy - py)*t2; pr += (cR - pr)*t2;
+    }
+    if (morphT3 > 0 && morphT4 < 1) {
+      const hb = getHelixBall(ballIdx % HELIX_BALLS, blobTime);
+      const hRx = refCx + (hb.x - heroRefW/2)*dpr, hRy = refCy + (heroRefH/2 - hb.y)*dpr;
+      const hR = hb.r*dpr;
+      const t3 = Math.min(morphT3, 1 - morphT4);
+      px += (hRx - px)*t3; py += (hRy - py)*t3; pr += (hR - pr)*t3;
+    }
+    if (morphT4 > 0) {
+      const blobRx = refCx + bx, blobRy = refCy + by;
+      px += (blobRx - px)*morphT4; py += (blobRy - py)*morphT4;
+      pr += (sm.radius*dpr - pr)*morphT4;
+    }
+
+    px += ro.x*dpr*roScale; py -= ro.y*dpr*roScale;
+    refData.push(px, py, pr);
+
+    let cr0 = BLOB_COLOR;
+    cr0 = [cr0[0]+(sol.color[0]-cr0[0])*morphT1, cr0[1]+(sol.color[1]-cr0[1])*morphT1, cr0[2]+(sol.color[2]-cr0[2])*morphT1];
+    if (morphT3 > 0) { const hb = getHelixBall(ballIdx % HELIX_BALLS, blobTime); cr0 = [cr0[0]+(hb.color[0]-cr0[0])*morphT3, cr0[1]+(hb.color[1]-cr0[1])*morphT3, cr0[2]+(hb.color[2]-cr0[2])*morphT3]; }
+    if (morphT4 > 0) { cr0 = [cr0[0]+(BLOB_COLOR[0]-cr0[0])*morphT4, cr0[1]+(BLOB_COLOR[1]-cr0[1])*morphT4, cr0[2]+(BLOB_COLOR[2]-cr0[2])*morphT4]; }
+    colorData.push(cr0[0], cr0[1], cr0[2]);
+    ballIdx++;
+  }
+
+  // ── Extra balls ──
+  if (morphT2 > 0.001 && morphT4 < 0.999) {
+    for (let e = 0; e < EXTRA_PARENT_IDX.length; e++) {
+      const parent = solarRef[EXTRA_PARENT_IDX[e]];
+      const wi = 19 + e;
+
+      // Circuit position
+      let ex = parent.x, ey = parent.y, er = 0;
+      if (morphT2 > 0 && morphT3 < 1) {
+        const wp = getWalkerCSS(walkers[wi]);
+        const wRx = refCx + (wp.x - heroRefW/2)*dpr, wRy = refCy + (heroRefH/2 - wp.y)*dpr;
+        const cR = CIRCUIT_R*dpr;
+        const t2 = Math.min(morphT2, 1 - morphT3);
+        ex += (wRx - ex)*t2; ey += (wRy - ey)*t2; er = cR * t2;
+      }
+      // Helix position
+      if (morphT3 > 0 && morphT4 < 1) {
+        const hb = getHelixBall((19 + e) % HELIX_BALLS, blobTime);
+        const hRx = refCx + (hb.x - heroRefW/2)*dpr, hRy = refCy + (heroRefH/2 - hb.y)*dpr;
+        const t3 = Math.min(morphT3, 1 - morphT4);
+        ex += (hRx - ex)*t3; ey += (hRy - ey)*t3; er += (hb.r*dpr - er)*t3;
+      }
+      // Shrink during morph back to blob
+      if (morphT4 > 0) { er *= (1 - morphT4); }
+
+      refData.push(ex, ey, er);
+      const col = walkerColors[wi];
+      let cr0 = [col[0], col[1], col[2]];
+      if (morphT3 > 0) { const hb = getHelixBall((19+e) % HELIX_BALLS, blobTime); cr0 = [cr0[0]+(hb.color[0]-cr0[0])*morphT3, cr0[1]+(hb.color[1]-cr0[1])*morphT3, cr0[2]+(hb.color[2]-cr0[2])*morphT3]; }
+      colorData.push(cr0[0], cr0[1], cr0[2]);
+    }
+  }
+
+  // ── Trails ──
+  const tSx = trailCanvas.width / heroRefW, tSy = trailCanvas.height / heroRefH;
+
+  if (morphT2 > 0.5 && morphT3 < 0.5) {
+    // Circuit mode: snake trails
+    tCtx.fillStyle = '#faf7f4';
+    tCtx.fillRect(0, 0, trailCanvas.width, trailCanvas.height);
+    const cA = Math.min(1, (morphT2 - 0.5) * 2) * Math.max(0, 1 - morphT3 * 2);
+    if (cA > 0.01) {
+      for (let wi = 0; wi < walkers.length; wi++) {
+        const trail = walkerTrails[wi];
+        if (trail.length < 2) continue;
+        const col = walkerColors[wi];
+        const rc = Math.floor(col[0]*255), gc = Math.floor(col[1]*255), bc = Math.floor(col[2]*255);
+        const pos = getWalkerCSS(walkers[wi]);
+        const total = trail.length;
+        for (let i = 0; i < total; i++) {
+          const p0 = trail[i], p1 = i < total - 1 ? trail[i + 1] : pos;
+          const seg = i < total - 1 ? i : total - 1;
+          const alpha = cA * (0.08 + 0.92 * (seg / Math.max(total - 1, 1)));
+          tCtx.strokeStyle = `rgba(${rc},${gc},${bc},${alpha})`;
+          tCtx.lineWidth = 2 * dpr; tCtx.lineCap = 'round';
+          tCtx.beginPath();
+          tCtx.moveTo(p0.x * tSx, p0.y * tSy);
+          tCtx.lineTo((i === total - 1 ? pos.x : p1.x) * tSx, (i === total - 1 ? pos.y : p1.y) * tSy);
+          tCtx.stroke();
+        }
+      }
+    }
+  } else if (morphT3 >= 0.5 || morphT4 > 0) {
+    // Helix / morph back: clear trails
+    tCtx.fillStyle = '#faf7f4';
+    tCtx.fillRect(0, 0, trailCanvas.width, trailCanvas.height);
+  } else {
+    // Orbital trail mode
+    const fadeRate = 0.06 + (1 - morphT1) * 0.15;
+    tCtx.fillStyle = `rgba(250,247,244,${fadeRate})`;
+    tCtx.fillRect(0, 0, trailCanvas.width, trailCanvas.height);
+    if (morphT1 > 0.01) {
+      const oA = 0.35 * morphT1 * Math.max(0, 1 - morphT2 * 2.5);
+      if (oA > 0.005) {
+        for (const tp of trailPositions) {
+          if (tp.isCenter || tp.isMoon) continue;
+          tCtx.fillStyle = `rgba(${tp.color.map(v => Math.floor(v * 255)).join(',')},${oA})`;
+          tCtx.beginPath();
+          tCtx.arc(tp.x * tSx, tp.y * tSy, 1.5 * dpr, 0, Math.PI * 2);
+          tCtx.fill();
+        }
+      }
+    }
+  }
+
+  // ── Transform to canvas space & upload ──
+  const data = [], aCx = nW/2, aCy = nH/2;
+  for (let i = 0; i < refData.length; i += 3) {
+    data.push(aCx + (refData[i]-refCx)*uniScale, aCy + (refData[i+1]-refCy)*uniScale, refData[i+2]*uniScale);
+  }
+  const total = Math.min(data.length/3, MAX_BALLS);
+  const u = new Float32Array(MAX_BALLS*3), c = new Float32Array(MAX_BALLS*3);
+  for (let i = 0; i < total*3; i++) { u[i] = data[i]; c[i] = colorData[i]; }
+
+  // Field power: high during solar/circuit/helix, back to 1 for blob
+  let fp = 1.0 + Math.max(morphT1, morphT2) * 1.5;
+  if (morphT4 > 0) fp += (1.0 - fp) * morphT4;
+  // Morph uniform for shader (spec reduction etc)
+  let shaderMorph = Math.max(morphT1, morphT2);
+  if (morphT4 > 0) shaderMorph += (0 - shaderMorph) * morphT4;
+
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.uniform1f(uTimeLoc, blobTime);
+  gl.uniform1f(uScaleLoc, uniScale);
+  gl.uniform1f(uFieldPowerLoc, fp);
+  gl.uniform1f(uMorphLoc, shaderMorph);
+  gl.uniform3fv(uBallsLoc, u);
+  gl.uniform3fv(uBallColorsLoc, c);
+  gl.uniform1i(uNumBallsLoc, total);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+
+let lastTime = performance.now();
+function loop(now) {
+  const dt = Math.min((now - lastTime)/1000, 0.05);
+  lastTime = now;
+  updateBlob(dt);
+  requestAnimationFrame(loop);
+}
+
+resizeCanvas();
+initCircuit();
+window.addEventListener('resize', resizeCanvas);
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
