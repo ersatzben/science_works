@@ -224,7 +224,7 @@
     #signup .sib-form-message-panel {
       display: none;
       font-family: 'Roboto', sans-serif;
-      font-size: 12px;
+      font-size: 13px;
       padding: 8px 12px;
       margin-bottom: 8px;
       max-width: 260px;
@@ -232,15 +232,23 @@
       background: transparent;
       border-radius: 0;
     }
+    #signup .sib-form-message-panel.sib-form-message-panel--active {
+      display: block;
+    }
     #signup #success-message {
-      color: var(--success);
-      border: 1.5px solid var(--success);
-      background: transparent;
+      color: var(--red);
+      border: none;
+      padding: 16px 0;
+      font-size: 14px;
+      max-width: none;
     }
     #signup #error-message {
       color: var(--red);
       border: 1.5px solid var(--red);
-      background: transparent;
+    }
+    /* When success is shown, hide the form so success replaces it */
+    #signup #success-message.sib-form-message-panel--active ~ #sib-container {
+      display: none;
     }
     #signup .sib-form-message-panel__text {
       padding: 0;
@@ -250,15 +258,27 @@
     }
     #signup .sib-form-message-panel__inner-text {
       font-family: 'Roboto', sans-serif;
-      font-size: 12px;
+      font-size: inherit;
     }
     #signup .entry__error {
+      display: block;
       font-family: 'Roboto', sans-serif;
       font-size: 11px;
       margin-top: 4px;
+      color: var(--red);
     }
     #signup .entry__error:empty {
       display: none;
+    }
+    @keyframes gdpr-shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-3px); }
+      40% { transform: translateX(3px); }
+      60% { transform: translateX(-3px); }
+      80% { transform: translateX(3px); }
+    }
+    #signup input[type="checkbox"]#GDPR_ACCEPTED.gdpr-shake {
+      animation: gdpr-shake 0.4s ease-in-out;
     }
     #signup .input--hidden {
       display: none;
@@ -424,7 +444,7 @@
       </div>
       <div id="success-message" class="sib-form-message-panel">
         <div class="sib-form-message-panel__text sib-form-message-panel__text--center">
-          <span class="sib-form-message-panel__inner-text">Your subscription has been successful.</span>
+          <span class="sib-form-message-panel__inner-text">✓ Thanks — you're on the list.</span>
         </div>
       </div>
       <div id="sib-container" class="sib-container--large sib-container--vertical">
@@ -501,12 +521,16 @@
         if (!gdpr.checked) {
           e.preventDefault();
           e.stopImmediatePropagation();
-          if (errorLabel) errorLabel.textContent = 'Please tick the box to confirm.';
+          if (errorLabel) errorLabel.textContent = 'Please confirm consent to subscribe.';
+          gdpr.classList.remove('gdpr-shake');
+          void gdpr.offsetWidth;
+          gdpr.classList.add('gdpr-shake');
           gdpr.focus();
         } else if (errorLabel) {
           errorLabel.textContent = '';
         }
       }, true);
+      gdpr.addEventListener('animationend', () => gdpr.classList.remove('gdpr-shake'));
       gdpr.addEventListener('change', () => {
         if (gdpr.checked && errorLabel) errorLabel.textContent = '';
       });
