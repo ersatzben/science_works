@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Science Works — Pixel Art Editor</title>
+  <style>
+    :root {
+      --bg: #f6eee8;
+      --text: #66223b;
+      --theme: #eb3131;
+      --beige: #ebe5cf;
+      --almost-white: #faf8f6;
+      --darkest-brown: #440214;
+
+      --pixel: 32px;
+      --pixel-gap: 2px;
+      --pixel-radius: 4px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, sans-serif;
+      min-height: 100vh;
+    }
+
+    .nav {
+      height: 60px;
+      border-bottom: 3px solid var(--theme);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+    .nav h1 {
+      margin: 0;
+      font-family: serif;
+      font-size: 20px;
+      font-weight: 500;
+    }
+    .nav .sub { color: var(--theme); font-size: 13px; }
+
+    main {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 24px;
+      padding: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .panel h2 {
+      margin: 0 0 8px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text);
+      opacity: 0.7;
+    }
+
+    .palette {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+    }
+    .swatch {
+      aspect-ratio: 1;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      position: relative;
+    }
+    .swatch.selected {
+      border-color: var(--text);
+      box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--theme);
+    }
+    .swatch[data-idx="0"]::after {
+      content: '∅';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+      opacity: 0.4;
+      font-size: 14px;
+    }
+
+    .tools {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    button {
+      font-family: inherit;
+      font-size: 13px;
+      padding: 8px 10px;
+      background: var(--almost-white);
+      color: var(--text);
+      border: 1px solid var(--text);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover { background: var(--beige); }
+    button.danger { color: var(--theme); border-color: var(--theme); }
+
+    .minimap {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-template-rows: repeat(3, 28px);
+      gap: 4px;
+    }
+    .slot {
+      background: var(--beige);
+      border-radius: 3px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+      opacity: 0.85;
+    }
+    .slot.hero {
+      background: var(--text);
+      color: var(--almost-white);
+      cursor: default;
+      opacity: 1;
+      font-family: serif;
+    }
+    .slot.current {
+      border-color: var(--theme);
+      opacity: 1;
+    }
+    .slot.painted {
+      background: var(--almost-white);
+      box-shadow: inset 0 0 0 1px var(--text);
+    }
+
+    .canvas-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .grid-selector {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .grid-selector .label {
+      font-size: 14px;
+      min-width: 220px;
+    }
+
+    .canvas-row {
+      display: flex;
+      gap: 32px;
+      align-items: flex-start;
+    }
+
+    .canvas {
+      display: grid;
+      grid-template-columns: repeat(12, var(--pixel));
+      grid-template-rows: repeat(11, var(--pixel));
+      gap: var(--pixel-gap);
+      background: var(--text);
+      padding: var(--pixel-gap);
+      border-radius: 6px;
+      touch-action: none;
+      user-select: none;
+    }
+    .pixel {
+      width: var(--pixel);
+      height: var(--pixel);
+      border-radius: var(--pixel-radius);
+      background: var(--bg);
+      cursor: crosshair;
+    }
+    .pixel[data-empty="true"] {
+      background:
+        repeating-conic-gradient(var(--bg) 0% 25%, var(--beige) 0% 50%) 50% / 12px 12px;
+    }
+
+    .preview-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    /* Target-size preview: exactly matches splash dimensions (14px / 2px / 2px) */
+    .preview {
+      display: grid;
+      grid-template-columns: repeat(12, 14px);
+      grid-template-rows: repeat(11, 14px);
+      gap: 2px;
+      background: var(--bg);
+      padding: 8px;
+      border: 1px dashed var(--text);
+      border-radius: 4px;
+    }
+    .ppixel {
+      width: 14px;
+      height: 14px;
+      border-radius: 2px;
+      background: var(--bg);
+    }
+    .preview-meta {
+      font-size: 11px;
+      opacity: 0.6;
+      max-width: 220px;
+    }
+
+    .data-io {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .data-io .row { display: flex; gap: 8px; }
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+      padding: 8px;
+      border: 1px solid var(--text);
+      border-radius: 4px;
+      background: var(--almost-white);
+      color: var(--text);
+      resize: vertical;
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <h1>Science Works — Pixel Art Editor</h1>
+    <span class="sub">14 grids × 12×11 cells</span>
+  </header>
+
+  <main>
+    <aside class="sidebar">
+      <div class="panel">
+        <h2>Palette</h2>
+        <div class="palette" id="palette"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Tools</h2>
+        <div class="tools">
+          <button id="clearGrid">Clear grid</button>
+          <button id="fillGrid">Fill grid</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Composition map</h2>
+        <div class="minimap" id="minimap"></div>
+      </div>
+    </aside>
+
+    <section class="canvas-wrap">
+      <div class="grid-selector">
+        <button id="prevGrid">‹ Prev</button>
+        <span class="label" id="gridLabel">Grid 1 of 14</span>
+        <button id="nextGrid">Next ›</button>
+      </div>
+      <div class="canvas-row">
+        <div id="canvas" class="canvas"></div>
+        <div class="preview-panel">
+          <h2 class="panel" style="margin:0; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; opacity:0.7;">Target size</h2>
+          <div id="preview" class="preview"></div>
+          <div class="preview-meta">As it'll appear in the splash — 190 × 174px, 14px cells, 2px gap.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <section class="data-io">
+    <div class="row">
+      <button id="exportBtn">Export JSON</button>
+      <button id="importBtn">Import JSON</button>
+      <button id="copyBtn">Copy to clipboard</button>
+      <button id="resetAll" class="danger">Reset all grids</button>
+    </div>
+    <textarea id="jsonArea" placeholder="Exported JSON appears here; paste JSON here to import."></textarea>
+  </section>
+
+  <script>
+    // -----------------------------------------------------------------------
+    // Constants and data model
+    // -----------------------------------------------------------------------
+    const COLS = 12;
+    const ROWS = 11;
+    const TOTAL_CELLS = COLS * ROWS;
+
+    const MATRIX_COLS = 6;
+    const MATRIX_ROWS = 3;
+    const TOTAL_SLOTS = MATRIX_COLS * MATRIX_ROWS; // 18
+
+    // Hero text covers middle 4 of row 1 (row-major indices).
+    const HERO_SLOTS = new Set([7, 8, 9, 10]);
+
+    // Slot order in editor = row-major matrix order minus hero slots.
+    const EDITABLE_SLOTS = [];
+    for (let i = 0; i < TOTAL_SLOTS; i++) {
+      if (!HERO_SLOTS.has(i)) EDITABLE_SLOTS.push(i);
+    }
+
+    // Palette. Index 0 = empty (renders as page bg / "no paint").
+    // Order is the contract for stored data — DO NOT reorder without migration.
+    const PALETTE = [
+      { name: 'empty',         hex: '#f6eee8' }, // 0
+      { name: 'text',          hex: '#66223b' }, // 1
+      { name: 'theme',         hex: '#eb3131' }, // 2
+      { name: 'sage',          hex: '#00726b' }, // 3
+      { name: 'brightBlue',    hex: '#004ee6' }, // 4
+      { name: 'paleBlue',      hex: '#a3c0d7' }, // 5
+      { name: 'lightGreen',    hex: '#64b37b' }, // 6
+      { name: 'deepGreen',     hex: '#0e676a' }, // 7
+      { name: 'coral',         hex: '#f45e57' }, // 8
+      { name: 'beige',         hex: '#ebe5cf' }, // 9
+      { name: 'almostWhite',   hex: '#faf8f6' }, // 10
+      { name: 'purpleBlue',    hex: '#4b5cce' }, // 11
+      { name: 'darkestBrown',  hex: '#440214' }, // 12
+      { name: 'opt1',          hex: '#3a3c7c' }, // 13
+      { name: 'opt2',          hex: '#72679b' }, // 14
+    ];
+
+    const STORAGE_KEY = 'sw.pixelart.v1';
+
+    function emptyGrid() { return new Array(TOTAL_CELLS).fill(0); }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return { grids: EDITABLE_SLOTS.map(emptyGrid) };
+        const parsed = JSON.parse(raw);
+        if (parsed?.grids?.length === EDITABLE_SLOTS.length) return parsed;
+      } catch (_) {}
+      return { grids: EDITABLE_SLOTS.map(emptyGrid) };
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    // -----------------------------------------------------------------------
+    // Runtime state
+    // -----------------------------------------------------------------------
+    const state = loadState();
+    let currentEditIdx = 0;   // 0..13 into EDITABLE_SLOTS
+    let currentColorIdx = 1;
+    let drawing = false;
+    let drawColor = 1;        // colour latched for the current drag
+
+    // -----------------------------------------------------------------------
+    // Palette UI
+    // -----------------------------------------------------------------------
+    const paletteEl = document.getElementById('palette');
+    const swatchEls = [];
+    PALETTE.forEach((p, i) => {
+      const el = document.createElement('div');
+      el.className = 'swatch';
+      el.dataset.idx = i;
+      el.style.background = p.hex;
+      el.title = `${i}: ${p.name}`;
+      el.addEventListener('click', () => selectColor(i));
+      paletteEl.appendChild(el);
+      swatchEls.push(el);
+    });
+
+    function selectColor(i) {
+      currentColorIdx = i;
+      swatchEls.forEach((el, k) => el.classList.toggle('selected', k === i));
+    }
+    selectColor(1);
+
+    // -----------------------------------------------------------------------
+    // Canvas (the 12×11 pixel grid being edited)
+    // -----------------------------------------------------------------------
+    const canvasEl = document.getElementById('canvas');
+    const previewEl = document.getElementById('preview');
+    const pixelEls = [];
+    const previewPixelEls = [];
+    for (let i = 0; i < TOTAL_CELLS; i++) {
+      const el = document.createElement('div');
+      el.className = 'pixel';
+      el.dataset.index = i;
+      canvasEl.appendChild(el);
+      pixelEls.push(el);
+
+      const pe = document.createElement('div');
+      pe.className = 'ppixel';
+      previewEl.appendChild(pe);
+      previewPixelEls.push(pe);
+    }
+
+    function paint(i) {
+      if (i < 0 || i >= TOTAL_CELLS) return;
+      const cur = state.grids[currentEditIdx][i];
+      if (cur === drawColor) return;
+      state.grids[currentEditIdx][i] = drawColor;
+      applyPixel(i);
+      saveState();
+      updateSlotPainted(currentEditIdx);
+    }
+
+    function applyPixel(i) {
+      const v = state.grids[currentEditIdx][i];
+      const hex = PALETTE[v].hex;
+      const el = pixelEls[i];
+      el.style.background = hex;
+      el.dataset.empty = v === 0 ? 'true' : 'false';
+      previewPixelEls[i].style.background = hex;
+    }
+
+    function indexFromPoint(x, y) {
+      const el = document.elementFromPoint(x, y);
+      if (!el || !el.classList.contains('pixel')) return -1;
+      return +el.dataset.index;
+    }
+
+    canvasEl.addEventListener('pointerdown', (e) => {
+      const i = indexFromPoint(e.clientX, e.clientY);
+      if (i < 0) return;
+      drawing = true;
+      drawColor = currentColorIdx;
+      canvasEl.setPointerCapture(e.pointerId);
+      paint(i);
+      e.preventDefault();
+    });
+    canvasEl.addEventListener('pointermove', (e) => {
+      if (!drawing) return;
+      const i = indexFromPoint(e.clientX, e.clientY);
+      if (i >= 0) paint(i);
+    });
+    const endDraw = () => { drawing = false; };
+    canvasEl.addEventListener('pointerup', endDraw);
+    canvasEl.addEventListener('pointercancel', endDraw);
+    canvasEl.addEventListener('pointerleave', endDraw);
+
+    // -----------------------------------------------------------------------
+    // Grid selector + minimap
+    // -----------------------------------------------------------------------
+    const labelEl = document.getElementById('gridLabel');
+    const minimapEl = document.getElementById('minimap');
+    const slotEls = [];
+
+    for (let i = 0; i < TOTAL_SLOTS; i++) {
+      const el = document.createElement('div');
+      el.className = 'slot';
+      const row = Math.floor(i / MATRIX_COLS);
+      const col = i % MATRIX_COLS;
+      if (HERO_SLOTS.has(i)) {
+        el.classList.add('hero');
+        if (i === 8) el.textContent = 'TEXT'; // label one of them for clarity
+      } else {
+        const editIdx = EDITABLE_SLOTS.indexOf(i);
+        el.dataset.editIdx = editIdx;
+        el.title = `Row ${row}, Col ${col}`;
+        el.addEventListener('click', () => selectGrid(editIdx));
+      }
+      minimapEl.appendChild(el);
+      slotEls.push(el);
+    }
+
+    function isPainted(editIdx) {
+      return state.grids[editIdx].some(v => v !== 0);
+    }
+
+    function updateSlotPainted(editIdx) {
+      const slot = slotEls[EDITABLE_SLOTS[editIdx]];
+      slot.classList.toggle('painted', isPainted(editIdx));
+    }
+
+    function selectGrid(idx) {
+      currentEditIdx = idx;
+      const slotPos = EDITABLE_SLOTS[idx];
+      const row = Math.floor(slotPos / MATRIX_COLS);
+      const col = slotPos % MATRIX_COLS;
+      labelEl.textContent = `Grid ${idx + 1} of ${EDITABLE_SLOTS.length}  ·  Row ${row}, Col ${col}`;
+      for (let i = 0; i < TOTAL_CELLS; i++) applyPixel(i);
+      slotEls.forEach(s => s.classList.remove('current'));
+      slotEls[slotPos].classList.add('current');
+    }
+
+    document.getElementById('prevGrid').onclick = () => {
+      selectGrid((currentEditIdx - 1 + EDITABLE_SLOTS.length) % EDITABLE_SLOTS.length);
+    };
+    document.getElementById('nextGrid').onclick = () => {
+      selectGrid((currentEditIdx + 1) % EDITABLE_SLOTS.length);
+    };
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'TEXTAREA') return;
+      if (e.key === 'ArrowLeft' || e.key === '[') {
+        selectGrid((currentEditIdx - 1 + EDITABLE_SLOTS.length) % EDITABLE_SLOTS.length);
+      } else if (e.key === 'ArrowRight' || e.key === ']') {
+        selectGrid((currentEditIdx + 1) % EDITABLE_SLOTS.length);
+      }
+    });
+
+    // -----------------------------------------------------------------------
+    // Tools
+    // -----------------------------------------------------------------------
+    document.getElementById('clearGrid').onclick = () => {
+      state.grids[currentEditIdx].fill(0);
+      saveState();
+      for (let i = 0; i < TOTAL_CELLS; i++) applyPixel(i);
+      updateSlotPainted(currentEditIdx);
+    };
+    document.getElementById('fillGrid').onclick = () => {
+      state.grids[currentEditIdx].fill(currentColorIdx);
+      saveState();
+      for (let i = 0; i < TOTAL_CELLS; i++) applyPixel(i);
+      updateSlotPainted(currentEditIdx);
+    };
+
+    // -----------------------------------------------------------------------
+    // Import / export
+    // -----------------------------------------------------------------------
+    function exportPayload() {
+      return {
+        version: 1,
+        cols: COLS,
+        rows: ROWS,
+        matrixCols: MATRIX_COLS,
+        matrixRows: MATRIX_ROWS,
+        heroSlots: [...HERO_SLOTS],
+        editableSlots: EDITABLE_SLOTS,
+        palette: PALETTE,
+        grids: state.grids,
+      };
+    }
+
+    const jsonArea = document.getElementById('jsonArea');
+    document.getElementById('exportBtn').onclick = () => {
+      jsonArea.value = JSON.stringify(exportPayload(), null, 2);
+    };
+    document.getElementById('copyBtn').onclick = async () => {
+      const text = JSON.stringify(exportPayload());
+      try {
+        await navigator.clipboard.writeText(text);
+        jsonArea.value = text;
+      } catch (e) {
+        jsonArea.value = text;
+      }
+    };
+    document.getElementById('importBtn').onclick = () => {
+      try {
+        const parsed = JSON.parse(jsonArea.value);
+        if (!parsed?.grids || parsed.grids.length !== EDITABLE_SLOTS.length) {
+          alert(`Expected ${EDITABLE_SLOTS.length} grids, got ${parsed?.grids?.length}`);
+          return;
+        }
+        const ok = parsed.grids.every(g => Array.isArray(g) && g.length === TOTAL_CELLS);
+        if (!ok) { alert('Each grid must be an array of ' + TOTAL_CELLS); return; }
+        state.grids = parsed.grids;
+        saveState();
+        EDITABLE_SLOTS.forEach((_, i) => updateSlotPainted(i));
+        selectGrid(currentEditIdx);
+      } catch (e) {
+        alert('Bad JSON: ' + e.message);
+      }
+    };
+    document.getElementById('resetAll').onclick = () => {
+      if (!confirm('Reset all 14 grids? This cannot be undone.')) return;
+      state.grids = EDITABLE_SLOTS.map(emptyGrid);
+      saveState();
+      EDITABLE_SLOTS.forEach((_, i) => updateSlotPainted(i));
+      selectGrid(currentEditIdx);
+    };
+
+    // -----------------------------------------------------------------------
+    // Initial render
+    // -----------------------------------------------------------------------
+    EDITABLE_SLOTS.forEach((_, i) => updateSlotPainted(i));
+    selectGrid(0);
+  </script>
+</body>
+</html>

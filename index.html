@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Science Works — Splash Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    @font-face {
+      font-family: 'Antique Olive';
+      src: url('assets/fonts/antique-olive-std/Antique-Olive-Std-Roman_3869.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Antique Olive';
+      src: url('assets/fonts/antique-olive-std/Antique-Olive-Std-Bold_3863.ttf') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+      font-display: swap;
+    }
+    :root {
+      /* Primary */
+      --bg: #f6eee8;
+      --text: #66223b;
+      --theme: #eb3131;
+
+      /* Secondary */
+      --bg-secondary: #fffaf4;
+      --sage: #00726b;
+      --bright-blue: #004ee6;
+      --pale-blue: #a3c0d7;
+      --light-green: #64b37b;
+
+      /* Tertiary */
+      --deep-green: #0e676a;
+      --coral: #f45e57;
+      --beige: #ebe5cf;
+      --almost-white: #faf8f6;
+      --purple-blue: #4b5cce;
+      --darkest-brown: #440214;
+
+      /* Optional */
+      --opt-1: #3a3c7c;
+      --opt-2: #72679b;
+
+      /* Cell metrics */
+      --cell-size: 14px;
+      --cell-radius: 2px;
+      --cell-gap: 2px;
+      --grid-cols: 12;
+      --grid-rows: 11;
+
+      /* Matrix metrics */
+      --matrix-cols: 6;
+      --matrix-rows: 3;
+      --matrix-gap: 50px;
+
+      /* One grid is 12*14 + 11*2 = 190px wide, 11*14 + 10*2 = 174px tall */
+      --grid-w: 190px;
+      --grid-h: 174px;
+
+      /* Full composition: 6*190 + 5*50 = 1390w, 3*174 + 2*50 = 622h */
+      --composition-w: 1390px;
+      --composition-h: 622px;
+
+      /* Hero text box = exactly four horizontal grids: 4*190 + 3*50 = 910px wide, 174px tall */
+      --hero-w: 910px;
+      --hero-h: 174px;
+
+      /* Set by JS on resize; clamp at 1 (no upscaling beyond natural size). */
+      --scale: 1;
+      /* Horizontal viewport padding budget used in the scale calculation. */
+      --viewport-pad: 100px;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-family: system-ui, sans-serif;
+    }
+
+    .nav {
+      height: 60px;
+      background: var(--bg-secondary);
+      border-bottom: 2px solid var(--theme);
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--theme);
+      text-decoration: none;
+    }
+    .logo-mark {
+      height: 22px;
+      margin-left: 10px;
+      width: auto;
+      display: block;
+    }
+    .logo-text {
+      font-family: 'Antique Olive', sans-serif;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: -0.08em;
+      margin-left: -5px;
+      font-size: 24px;
+      line-height: 1;
+      white-space: nowrap;
+      /* Optical-centering nudge — uppercase glyphs sit high in the line box. */
+      transform: translateY(2px);
+    }
+
+    .nav-links {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 34px;
+      margin-right: 16px;
+    }
+    .nav-links a {
+      font-family: 'Antique Olive', sans-serif;
+      font-weight: normal;
+      color: var(--theme);
+      text-decoration: none;
+      font-size: 16px;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+
+    .stage {
+      min-height: calc(100vh - 63px);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: var(--matrix-gap);
+      box-sizing: border-box;
+    }
+
+    /* Outer box reserves space at scaled dimensions so the page lays out cleanly. */
+    .scaler {
+      width: calc(var(--composition-w) * var(--scale));
+      height: calc(var(--composition-h) * var(--scale));
+    }
+
+    /* Inner composition is always its natural size; transform scales it visually. */
+    .matrix-wrap {
+      position: relative;
+      width: var(--composition-w);
+      height: var(--composition-h);
+      transform: scale(var(--scale));
+      transform-origin: top left;
+    }
+
+    .matrix {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--matrix-gap);
+      width: var(--composition-w);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(var(--grid-cols), var(--cell-size));
+      grid-template-rows: repeat(var(--grid-rows), var(--cell-size));
+      gap: var(--cell-gap);
+      width: var(--grid-w);
+      height: var(--grid-h);
+      flex: 0 0 auto;
+    }
+
+    .cell {
+      width: var(--cell-size);
+      height: var(--cell-size);
+      border-radius: var(--cell-radius);
+      background: var(--beige);
+      position: relative;
+    }
+    /* Theme-red hover overlay; instant on hover-in, 0.5s fade-out on hover-off. */
+    .cell::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--theme);
+      border-radius: inherit;
+      opacity: 0;
+      transition: opacity 1.5s ease;
+      pointer-events: none;
+    }
+    .cell:hover::after {
+      opacity: 1;
+      transition: opacity 0s;
+    }
+
+    .hero-box {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: var(--hero-w);
+      height: var(--hero-h);
+      background: transparent;
+      color: var(--theme);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 50px;
+      box-sizing: border-box;
+      font-family: 'Playfair Display', serif;
+      font-weight: 400;
+      font-size: 64px;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .hero-box .line-1 { text-align: left; }
+    .hero-box .line-2 { text-align: right; font-size: 1.2em; }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <a class="logo" href="/" aria-label="Science Works home">
+      <img class="logo-mark" src="assets/images/FINAL4.svg" alt="" />
+      <span class="logo-text">SCIENCE WORKS</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#about">About</a>
+      <a href="#programmes">Programmes</a>
+      <a href="#writing">Writing</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+  <div class="stage">
+    <div class="scaler">
+      <div class="matrix-wrap">
+        <div id="matrix" class="matrix" role="img" aria-label="Science Works dot-matrix field"></div>
+        <div class="hero-box">
+          <div class="line-1">Reshaping Britain&rsquo;s</div>
+          <div class="line-2">Research System</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const COLS = 12;
+      const ROWS = 11;
+      const MATRIX_COLS = 6;
+      const MATRIX_ROWS = 3;
+      const GRID_COUNT = MATRIX_COLS * MATRIX_ROWS;
+
+      // Brand palette, exposed so JS can address cells by colour name later.
+      const PALETTE = {
+        bg: '#f6eee8',
+        text: '#66223b',
+        theme: '#eb3131',
+        sage: '#00726b',
+        brightBlue: '#004ee6',
+        paleBlue: '#a3c0d7',
+        lightGreen: '#64b37b',
+        deepGreen: '#0e676a',
+        coral: '#f45e57',
+        beige: '#ebe5cf',
+        almostWhite: '#faf8f6',
+        purpleBlue: '#4b5cce',
+        darkestBrown: '#440214',
+        opt1: '#3a3c7c',
+        opt2: '#72679b',
+      };
+
+      const matrixEl = document.getElementById('matrix');
+
+      // grids[i].cells[row][col] -> HTMLElement
+      // grids[i].el                -> grid container
+      const grids = [];
+
+      function buildGrid() {
+        const gridEl = document.createElement('div');
+        gridEl.className = 'grid';
+        const cells = [];
+        for (let r = 0; r < ROWS; r++) {
+          const rowArr = [];
+          for (let c = 0; c < COLS; c++) {
+            const el = document.createElement('div');
+            el.className = 'cell';
+            el.dataset.row = r;
+            el.dataset.col = c;
+            gridEl.appendChild(el);
+            rowArr.push(el);
+          }
+          cells.push(rowArr);
+        }
+        return { el: gridEl, cells };
+      }
+
+      for (let i = 0; i < GRID_COUNT; i++) {
+        const g = buildGrid();
+        g.el.dataset.index = i;
+        matrixEl.appendChild(g.el);
+        grids.push(g);
+      }
+
+      // Helpers exposed for future animation code.
+      function setCell(gridIdx, row, col, color) {
+        const el = grids[gridIdx]?.cells[row]?.[col];
+        if (el) el.style.background = color;
+      }
+
+      function setAll(color) {
+        for (let i = 0; i < grids.length; i++) {
+          for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) grids[i].cells[r][c].style.background = color;
+          }
+        }
+      }
+
+      // ----- Pixel art loading + dissolve animation --------------------
+      // Editor stores under this key. Palette order matches the editor's
+      // stored data exactly — DO NOT reorder.
+      const ART_STORAGE_KEY = 'sw.pixelart.v1';
+      const ART_PALETTE = [
+        '#f6eee8', // 0 empty / bg
+        '#66223b', // 1 text
+        '#eb3131', // 2 theme
+        '#00726b', // 3 sage
+        '#004ee6', // 4 brightBlue
+        '#a3c0d7', // 5 paleBlue
+        '#64b37b', // 6 lightGreen
+        '#0e676a', // 7 deepGreen
+        '#f45e57', // 8 coral
+        '#ebe5cf', // 9 beige
+        '#faf8f6', // 10 almostWhite
+        '#4b5cce', // 11 purpleBlue
+        '#440214', // 12 darkestBrown
+        '#3a3c7c', // 13 opt1
+        '#72679b', // 14 opt2
+      ];
+
+      const TOTAL_CELLS = COLS * ROWS; // 132
+      const HERO_SLOTS = new Set([7, 8, 9, 10]);
+      const EDITABLE_SLOTS = [];
+      for (let i = 0; i < grids.length; i++) {
+        if (!HERO_SLOTS.has(i)) EDITABLE_SLOTS.push(i);
+      }
+
+      // Per-slot current cell data (palette indices). Mutated by swaps so
+      // each pair oscillates between its two states over time.
+      const slotData = grids.map(() => new Array(TOTAL_CELLS).fill(0));
+
+      function ingestArt(art) {
+        for (let i = 0; i < grids.length; i++) {
+          slotData[i] = new Array(TOTAL_CELLS).fill(0);
+        }
+        if (!art?.grids || art.grids.length !== EDITABLE_SLOTS.length) return;
+        for (let ei = 0; ei < EDITABLE_SLOTS.length; ei++) {
+          const data = art.grids[ei];
+          if (Array.isArray(data) && data.length === TOTAL_CELLS) {
+            slotData[EDITABLE_SLOTS[ei]] = data.slice();
+          }
+        }
+      }
+
+      function renderSlot(slotIdx) {
+        const data = slotData[slotIdx];
+        const cells = grids[slotIdx].cells;
+        for (let i = 0; i < TOTAL_CELLS; i++) {
+          const r = (i / COLS) | 0;
+          const c = i % COLS;
+          cells[r][c].style.background = ART_PALETTE[data[i]] || ART_PALETTE[0];
+        }
+      }
+
+      function renderAll() {
+        for (let i = 0; i < grids.length; i++) renderSlot(i);
+      }
+
+      const ART_FILE_URL = 'assets/pixel_art/splash.json';
+
+      function loadArtLocal() {
+        try {
+          const raw = localStorage.getItem(ART_STORAGE_KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch (_) { return null; }
+      }
+
+      async function loadArtFile() {
+        try {
+          const resp = await fetch(ART_FILE_URL, { cache: 'no-cache' });
+          if (!resp.ok) return null;
+          return await resp.json();
+        } catch (_) { return null; }
+      }
+
+      // localStorage wins when present (so the editor's live drafts show
+      // up in the splash during dev). Falls back to the committed file
+      // when there's no draft — which is the production path.
+      async function loadArt() {
+        return loadArtLocal() || await loadArtFile();
+      }
+
+      // ----- Pair selection --------------------------------------------
+      const FIXED_PAIRS = [[0, 12], [5, 17]];
+
+      function buildPairs() {
+        const used = new Set(FIXED_PAIRS.flat());
+        const remaining = EDITABLE_SLOTS.filter(s => !used.has(s));
+        // Fisher–Yates shuffle on the remaining 10 slots.
+        for (let i = remaining.length - 1; i > 0; i--) {
+          const j = (Math.random() * (i + 1)) | 0;
+          [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
+        }
+        const pairs = FIXED_PAIRS.map(p => p.slice());
+        for (let i = 0; i + 1 < remaining.length; i += 2) {
+          pairs.push([remaining[i], remaining[i + 1]]);
+        }
+        return pairs;
+      }
+
+      // ----- Dissolve animation ----------------------------------------
+      const DISSOLVE_MS = 20000;        // per-swap dissolve window
+      const SWAP_INTERVAL_MS = 120000;   // time between swaps for one pair
+      const PAIR_STAGGER_MS = 7000;     // offset between pairs' first swap
+      const FIRST_SWAP_DELAY_MS = 2000;
+
+      // Generation counter lets in-flight setTimeouts no-op when art reloads.
+      let animGen = 0;
+      let activeIntervals = [];
+
+      function stopAnimations() {
+        animGen++;
+        activeIntervals.forEach(clearInterval);
+        activeIntervals = [];
+      }
+
+      function dissolveSwap(a, b, gen) {
+        for (let i = 0; i < TOTAL_CELLS; i++) {
+          const delay = Math.random() * DISSOLVE_MS;
+          setTimeout(() => {
+            if (gen !== animGen) return;
+            const tmp = slotData[a][i];
+            slotData[a][i] = slotData[b][i];
+            slotData[b][i] = tmp;
+            const r = (i / COLS) | 0;
+            const c = i % COLS;
+            grids[a].cells[r][c].style.background = ART_PALETTE[slotData[a][i]] || ART_PALETTE[0];
+            grids[b].cells[r][c].style.background = ART_PALETTE[slotData[b][i]] || ART_PALETTE[0];
+          }, delay);
+        }
+      }
+
+      function startAnimations() {
+        const pairs = buildPairs();
+        const gen = animGen;
+        pairs.forEach((pair, idx) => {
+          const startDelay = FIRST_SWAP_DELAY_MS + idx * PAIR_STAGGER_MS;
+          setTimeout(() => {
+            if (gen !== animGen) return;
+            dissolveSwap(pair[0], pair[1], gen);
+            const intervalId = setInterval(() => {
+              if (gen !== animGen) { clearInterval(intervalId); return; }
+              dissolveSwap(pair[0], pair[1], gen);
+            }, SWAP_INTERVAL_MS);
+            activeIntervals.push(intervalId);
+          }, startDelay);
+        });
+      }
+
+      function paintFromArt(art) {
+        stopAnimations();
+        ingestArt(art);
+        renderAll();
+        startAnimations();
+      }
+
+      loadArt().then(paintFromArt);
+
+      // Auto-refresh when the editor saves in another tab.
+      window.addEventListener('storage', (e) => {
+        if (e.key === ART_STORAGE_KEY) loadArt().then(paintFromArt);
+      });
+
+      // Proportional scaling: shrink the whole composition when the viewport
+      // is narrower than its natural width. Mobile layout (fewer grids) TBD.
+      const NATURAL_W = 1390;
+      const VIEWPORT_PAD = 100;
+      function updateScale() {
+        const available = window.innerWidth - VIEWPORT_PAD;
+        const scale = Math.min(1, available / NATURAL_W);
+        document.documentElement.style.setProperty('--scale', scale);
+      }
+      window.addEventListener('resize', updateScale);
+      updateScale();
+
+      // Expose for console tinkering / future modules.
+      window.SW = {
+        grids, PALETTE, setCell, setAll,
+        COLS, ROWS, MATRIX_COLS, MATRIX_ROWS,
+        updateScale,
+        ART_PALETTE, HERO_SLOTS, EDITABLE_SLOTS,
+        slotData, loadArt, loadArtLocal, loadArtFile, paintFromArt,
+        buildPairs, dissolveSwap,
+        stopAnimations, startAnimations,
+      };
+    })();
+  </script>
+</body>
+</html>
