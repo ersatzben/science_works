@@ -1018,9 +1018,10 @@
       const RADIUS = 2;
       let W, H, midX, amp, dpr;
 
-      // Warm strand (reds) vs cool strand (greens/blue).
-      const palA = ['#eb3131', '#f45e57', '#66223b', '#440214'];
-      const palB = ['#00726b', '#0e676a', '#64b37b', '#004ee6'];
+      // Both strands are reds / red-adjacents: palA leans bright, palB deep,
+      // so the two strands still read with some depth contrast.
+      const palA = ['#eb3131', '#f45e57', '#eb3131', '#66223b'];
+      const palB = ['#66223b', '#440214', '#f45e57', '#440214'];
 
       const TWO_PI = Math.PI * 2;
       const wavelength = 360;
@@ -1064,13 +1065,15 @@
       // edge. Path is a function of fall position, so the recycle at top/bottom
       // happens inside the fade and never jumps. Independent phases/wavelengths
       // keep them from following each other like a train.
-      const REDS = ['#eb3131', '#f45e57', '#66223b'];
+      // Non-red accent colours only — the particles contrast the red helix.
+      const ACCENTS = ['#00726b', '#004ee6', '#a3c0d7', '#64b37b', '#0e676a',
+                       '#4b5cce', '#3a3c7c', '#72679b'];
       const particles = [];
       let pHalf = 0;  // half of the full (unreduced) x-range (set on resize)
       function seedParticles() {
         particles.length = 0;
         const span = H + 120;
-        const n = 11;
+        const n = 9;   // 20% fewer particles
         for (let i = 0; i < n; i++) {
           const r1 = rand(i * 1.7 + 0.3);
           const r2 = rand(i * 2.9 + 1.1);
@@ -1083,7 +1086,7 @@
             // sweep plays out over a tall vertical distance.
             wavelength: span * (1.6 + r3 * 1.9),
             phase: r1 * TWO_PI,                  // own phase → own path
-            col: REDS[Math.floor(r4 * REDS.length)],
+            col: ACCENTS[Math.floor(r4 * ACCENTS.length)],
             vy: 34 + r2 * 36,                    // fall speed — faster than strands
           });
         }
