@@ -1057,11 +1057,19 @@
       // rounded-cell style, but only in the theme reds. Motion is a smooth
       // Lissajous wander (two sinusoids per axis) so it loops seamlessly and
       // never needs random per-frame jitter.
+      // Red particles that get "swept up" in the helix's motion. Each follows
+      // its OWN sine path as it falls — same centre as the helix, but with a
+      // much longer (vertically stretched) wavelength, so over a single fall a
+      // particle only traverses part of its arc and may never reach the full
+      // edge. Path is a function of fall position, so the recycle at top/bottom
+      // happens inside the fade and never jumps. Independent phases/wavelengths
+      // keep them from following each other like a train.
       const REDS = ['#eb3131', '#f45e57', '#66223b'];
       const particles = [];
-      let pHalf = 0;  // half-width of the particle band (set on resize)
+      let pHalf = 0;  // half of the full (unreduced) x-range (set on resize)
       function seedParticles() {
         particles.length = 0;
+        const span = H + 120;
         const n = 11;
         for (let i = 0; i < n; i++) {
           const r1 = rand(i * 1.7 + 0.3);
@@ -1069,14 +1077,14 @@
           const r3 = rand(i * 3.7 + 2.2);
           const r4 = rand(i * 5.1 + 0.7);
           particles.push({
-            x0: r1 * (2 * pHalf),        // start point within the full-width band
-            cy: r2 * (H + 120),          // staggered start so they don't fall in sync
-            ampX: 8 + r3 * 14,           // gentle wobble on top of the slow drift
-            fx: 0.5 + r1 * 1.2,          // wobble frequency
-            phx: r1 * TWO_PI,
+            cy: r2 * span,                       // staggered start, not in sync
+            amp: pHalf * (0.55 + 0.45 * r4),     // up to the full unreduced range
+            // Much longer than the helix's 360px wavelength → stretched, so the
+            // sweep plays out over a tall vertical distance.
+            wavelength: span * (1.6 + r3 * 1.9),
+            phase: r1 * TWO_PI,                  // own phase → own path
             col: REDS[Math.floor(r4 * REDS.length)],
-            vx: (r3 < 0.5 ? -1 : 1) * (6 + r1 * 10),  // slow horizontal drift, either way
-            vy: 34 + r2 * 36,            // fall speed — faster than the strands
+            vy: 34 + r2 * 36,                    // fall speed — faster than strands
           });
         }
       }
@@ -1183,18 +1191,15 @@
           ctx.fill();
         }
 
-        // Red particles falling like rain, drawn over the strands. They fall
-        // faster than the strands and drift slowly across the full width, so the
-        // whole band feels occupied and they read as sitting outside the helix.
+        // Red particles drawn over the strands. Each falls (faster than the
+        // strands) along its own stretched sine path, so it reads as being
+        // caught up in the helix's motion without tracing it exactly.
         const pSpan = H + 120;
-        const pBand = 2 * pHalf;
-        const left = midX - pHalf;
         for (const p of particles) {
-          // Slow horizontal drift wrapped across the band, plus a gentle wobble.
-          const drift = ((p.x0 + ptime * p.vx) % pBand + pBand) % pBand;
-          const px = left + drift + p.ampX * Math.sin(ptime * p.fx + p.phx);
-          let py = (p.cy + ptime * p.vy) % pSpan;
-          py -= 60;
+          const raw = (p.cy + ptime * p.vy) % pSpan;   // 0..pSpan fall position
+          // x is a function of fall position → resets with y, hidden in the fade.
+          const px = midX + p.amp * Math.sin(raw / p.wavelength * TWO_PI + p.phase);
+          let py = raw - 60;
           if (py < -CELL || py > H + CELL) continue;
           // Edge fade, matching the strands.
           const fadeZone = 90;
