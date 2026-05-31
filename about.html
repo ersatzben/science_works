@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Science Works — About</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    @font-face {
+      font-family: 'Antique Olive';
+      src: url('assets/fonts/antique-olive-std/Antique-Olive-Std-Roman_3869.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Antique Olive';
+      src: url('assets/fonts/antique-olive-std/Antique-Olive-Std-Bold_3863.ttf') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+      font-display: swap;
+    }
+    :root {
+      /* Primary */
+      --bg: #f6eee8;
+      --text: #66223b;
+      --theme: #eb3131;
+
+      /* Secondary */
+      --bg-secondary: #fffaf4;
+      --sage: #00726b;
+      --bright-blue: #004ee6;
+      --pale-blue: #a3c0d7;
+      --light-green: #64b37b;
+
+      /* Tertiary */
+      --deep-green: #0e676a;
+      --coral: #f45e57;
+      --beige: #ebe5cf;
+      --almost-white: #faf8f6;
+      --purple-blue: #4b5cce;
+      --darkest-brown: #440214;
+
+      /* Optional */
+      --opt-1: #3a3c7c;
+      --opt-2: #72679b;
+    }
+
+    /* No snap-scroll here — about.html is a normal scrolling page. Uses the
+       warm homepage background to match the lifted About hero. */
+    html { scroll-behavior: smooth; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-family: system-ui, sans-serif;
+    }
+
+    .nav {
+      height: 60px;
+      background: var(--bg-secondary);
+      border-bottom: 2px solid var(--theme);
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--theme);
+      text-decoration: none;
+    }
+    .logo-mark {
+      height: 22px;
+      margin-left: 10px;
+      width: auto;
+      display: block;
+    }
+    .logo-text {
+      font-family: 'Antique Olive', sans-serif;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: -0.08em;
+      margin-left: -5px;
+      font-size: 24px;
+      line-height: 1;
+      white-space: nowrap;
+      /* Optical-centering nudge — uppercase glyphs sit high in the line box. */
+      transform: translateY(2px);
+    }
+    .nav-links {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-right: 16px;
+    }
+    .nav-links a {
+      font-family: 'Antique Olive', sans-serif;
+      font-weight: normal;
+      color: var(--theme);
+      text-decoration: none;
+      font-size: 16px;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      padding: 8px 14px;
+      border: 1.5px solid transparent;   /* always present so hover doesn't shift layout */
+      border-radius: 8px;
+      transition: border-color 0.15s ease;
+    }
+    .nav-links a:hover { border-color: var(--theme); }
+
+    .section-heading {
+      font-family: 'Playfair Display', serif;
+      font-weight: 500;
+      color: var(--text);
+      font-size: 56px;
+      letter-spacing: -0.02em;
+      margin: 0 0 24px;
+      text-align: right;
+    }
+    .section-body {
+      font-family: 'Antique Olive', sans-serif;
+      font-size: 18px;
+      line-height: 1.5;
+      color: var(--text);
+      margin: 0 0 16px;
+      text-align: right;
+    }
+    .section-inner {
+      max-width: 800px;
+      padding: 80px 50px;
+      margin: 0 auto;
+    }
+    .section-inner--wide { max-width: 1400px; }
+
+    /* ---------- About hero: helix animation left, text right ---------- */
+    .about-row {
+      display: flex;
+      /* Stable baseline for the helix canvas, but grows to fit taller copy so
+         the vertically-centred heading is never pushed off the top. */
+      min-height: 560px;
+    }
+    .about-hero {
+      flex: 0 0 44%;
+      position: relative;
+      overflow: hidden;
+    }
+    .about-hero canvas {
+      display: block;
+      /* Absolutely positioned so the canvas fills the hero but never
+         contributes to its layout height — without this, the JS-set pixel
+         buffer (height × devicePixelRatio) inflates the box and the row height
+         ratchets up on every resize. */
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .about-copy {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px 80px;
+      box-sizing: border-box;
+    }
+    .about-copy .section-heading {
+      max-width: 560px;
+    }
+    .about-copy .section-body {
+      font-size: 18px;
+      line-height: 1.6;
+      margin: 0 0 18px;
+      max-width: 560px;
+    }
+    .copy-link {
+      color: var(--theme);
+      font-weight: bold;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .copy-link:hover { text-decoration: underline; }
+    .copy-link .arrow {
+      display: inline-block;
+      transition: transform 0.2s ease;
+    }
+    .copy-link:hover .arrow { transform: translateX(3px); }
+
+    /* ---------- Our People ---------- */
+    .people {
+      padding: 84px 32px 110px;
+    }
+    .people-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+    .people-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 500;
+      color: var(--text);
+      font-size: 48px;
+      letter-spacing: -0.02em;
+      margin: 0 0 28px;
+    }
+
+    /* Horizontal tab menu: full-width white rounded bar split into three equal
+       sections; the active section is an inset red-outlined rounded box. */
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      background: var(--almost-white);
+      border: 1px solid rgba(235, 49, 49, 0.18);
+      border-radius: 12px;
+      padding: 0;
+      margin-bottom: 16px;
+    }
+    .tab {
+      appearance: none;
+      background: none;
+      border: 1.5px solid transparent;
+      border-radius: 11px;       /* sits just inside the container's 12px */
+      padding: 11px 10px;
+      font-family: 'Antique Olive', sans-serif;
+      font-size: 17px;
+      color: var(--text);
+      text-align: center;
+      cursor: pointer;
+      transition: color 0.15s ease, border-color 0.15s ease;
+    }
+    .tab:hover { color: var(--theme); }
+    .tab.is-active {
+      color: var(--theme);
+      font-weight: bold;
+      border-color: rgba(235, 49, 49, 0.55);
+    }
+
+    /* White container the cards sit inside, so the cards pop. */
+    .cards-container {
+      background: var(--almost-white);
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .card {
+      background: var(--bg);
+      border-radius: 9px;
+      padding: 14px 22px;     /* tighter top/bottom than sides */
+      display: flex;
+      flex-direction: column;
+    }
+    .card-top {
+      display: flex;
+      gap: 18px;
+    }
+    .card-photo {
+      flex: 0 0 auto;
+      width: 168px;
+      height: 188px;
+      border-radius: 2px;     /* same rounding as the homepage cells */
+      object-fit: cover;
+      display: block;
+    }
+    /* Initials fallback until real photos arrive. */
+    .card-photo.is-placeholder {
+      background: var(--beige);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 50px;
+      color: var(--text);
+      opacity: 0.85;
+    }
+    .card-headinfo {
+      flex: 1;
+      min-width: 0;
+      height: 188px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    /* Glyph: a 5×5 grid of cells, same metrics as the homepage dot-matrix.
+       Colours are seeded randomly for now; later each person can author their
+       own. Empty cells are transparent so the card background shows through. */
+    .card-glyph {
+      display: grid;
+      grid-template-columns: repeat(5, 14px);
+      grid-template-rows: repeat(5, 14px);
+      gap: 2px;
+      align-self: flex-start;
+    }
+    .glyph-cell {
+      width: 14px;
+      height: 14px;
+      border-radius: 2px;
+    }
+    .card-name {
+      font-family: 'Playfair Display', serif;
+      font-weight: 500;
+      color: var(--text);
+      font-size: 23px;
+      line-height: 1.12;
+      letter-spacing: -0.01em;
+      margin: 0 0 6px;
+    }
+    .card-role {
+      font-family: 'Antique Olive', sans-serif;
+      color: var(--theme);
+      font-size: 15px;
+      line-height: 1.3;
+      margin: 0;
+    }
+    .card-bio {
+      font-family: 'Antique Olive', sans-serif;
+      color: var(--text);
+      font-size: 14.5px;
+      line-height: 1.55;
+      margin: 20px 0 0;
+    }
+    .card-socials {
+      display: flex;
+      gap: 14px;
+      margin-top: auto;     /* pin to the bottom of the (stretched) card */
+      padding-top: 18px;
+    }
+    .card-socials a {
+      display: inline-flex;
+      width: 20px;
+      height: 20px;
+      color: var(--theme);
+      opacity: 0.7;
+      transition: opacity 0.15s ease;
+    }
+    .card-socials a:hover { opacity: 1; }
+    .card-socials svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+      display: block;
+    }
+
+    @media (max-width: 1080px) {
+      .cards-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 720px) {
+      .cards-grid { grid-template-columns: 1fr; }
+      .card-photo { width: 150px; height: 170px; }
+      .card-headinfo { height: 170px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <a class="logo" href="index.html" aria-label="Science Works home">
+      <img class="logo-mark" src="assets/images/FINAL4.svg" alt="" />
+      <span class="logo-text">SCIENCE WORKS</span>
+    </a>
+    <nav class="nav-links">
+      <a href="about.html">About</a>
+      <a href="index.html#programmes">Programmes</a>
+      <a href="index.html#writing">Writing</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="about-hero-section">
+      <div class="about-row">
+        <div class="about-hero">
+          <canvas id="helix" aria-hidden="true"></canvas>
+        </div>
+        <div class="about-copy">
+          <h2 class="section-heading">What do you do?</h2>
+          <p class="section-body">Science Works is a research and policy studio focused on accelerating progress in British science and technology.</p>
+          <p class="section-body">We work on building and improving the organisational, technological, and intellectual infrastructure that the UK's research and innovation system needs to stay at the frontier. We work on a small number of identified problems that we believe, if solved, will generate the highest leverage and impact for both the UK and for humanity as a whole.</p>
+          <p class="section-body">Science Works is editorially independent, strictly non-partisan, not-for-profit, and not aligned with any single funder, department, agency, or institution.</p>
+          <p class="section-body"><a class="copy-link" href="charter.html">Read more about our approach &nbsp;<span class="arrow">&rarr;</span></a></p>
+</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="people">
+      <div class="people-inner">
+        <h2 class="people-title">Our People</h2>
+        <div class="tabs" role="tablist">
+          <button class="tab is-active" data-tab="team" role="tab">Our Team</button>
+          <button class="tab" data-tab="igb" role="tab">Independent Governance Board</button>
+          <button class="tab" data-tab="sab" role="tab">Strategic Advisory Board</button>
+        </div>
+        <div class="cards-container">
+          <div class="cards-grid" id="cards"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // ----- About hero: falling double-helix rain ------------------------
+    // Two strands of rounded cells sway sinusoidally around the centre line;
+    // depth (cos phase) drives alpha for a 3D feel. Accent particles get swept
+    // up in the motion on their own stretched sine paths.
+    (function () {
+      const cv = document.getElementById('helix');
+      if (!cv) return;
+      const ctx = cv.getContext('2d');
+      const CELL = 14;
+      const RADIUS = 2;
+      let W, H, midX, amp, dpr;
+
+      // Both strands are reds / red-adjacents: palA leans bright, palB deep,
+      // so the two strands still read with some depth contrast.
+      const palA = ['#eb3131', '#f45e57', '#eb3131', '#66223b'];
+      const palB = ['#66223b', '#440214', '#f45e57', '#440214'];
+
+      const TWO_PI = Math.PI * 2;
+      const wavelength = 360;
+      const fallSpeed = 16;
+      const twist = 0.32;
+      const spacing = 26;
+
+      function rand(seed) {
+        const x = Math.sin(seed * 99991.7) * 43758.545;
+        return x - Math.floor(x);
+      }
+
+      // Multi-octave noise (~[-1, 1]) used to vary the gap between cells along
+      // a strand, so the strand has clustered runs and wider gaps.
+      function octaveNoise(t) {
+        return 1.1 * Math.sin(t * 0.7)
+             + 0.3 * Math.sin(t * 1.9 + 1.3)
+             + 0.2 * Math.sin(t * 4.7 + 2.7);
+      }
+
+      const blocks = [];
+      function makeBlock(strand, yWorld) {
+        const jitter = (rand(yWorld * 0.13 + strand * 7.7) - 0.5) * 22;
+        const along = rand(yWorld * 0.31 + strand * 3.3);
+        return {
+          strand, yWorld, jitter,
+          colA: palA[Math.floor(rand(yWorld * 1.7 + 0.5) * palA.length)],
+          colB: palB[Math.floor(rand(yWorld * 2.3 + 0.9) * palB.length)],
+          live: along > 0.4,
+        };
+      }
+
+      // Particles that get "swept up" in the helix's motion. Each follows its
+      // OWN sine path as it falls — same centre as the helix, but with a much
+      // longer (vertically stretched) wavelength, so over a single fall a
+      // particle only traverses part of its arc and may never reach the full
+      // edge. Path is a function of fall position, so the recycle at top/bottom
+      // happens inside the fade and never jumps. Independent phases/wavelengths
+      // keep them from following each other like a train.
+      // Non-red accent colours only — the particles contrast the red helix.
+      const ACCENTS = ['#00726b', '#004ee6', '#a3c0d7', '#64b37b', '#0e676a',
+                       '#4b5cce', '#3a3c7c', '#72679b'];
+      const particles = [];
+      let pHalf = 0;  // half of the full (unreduced) x-range (set on resize)
+      function seedParticles() {
+        particles.length = 0;
+        const span = H + 120;
+        const n = 9;   // 20% fewer particles
+        for (let i = 0; i < n; i++) {
+          const r1 = rand(i * 1.7 + 0.3);
+          const r2 = rand(i * 2.9 + 1.1);
+          const r3 = rand(i * 3.7 + 2.2);
+          const r4 = rand(i * 5.1 + 0.7);
+          particles.push({
+            cy: r2 * span,                       // staggered start, not in sync
+            amp: pHalf * (0.55 + 0.45 * r4),     // up to the full unreduced range
+            // Much longer than the helix's 360px wavelength → stretched, so the
+            // sweep plays out over a tall vertical distance.
+            wavelength: span * (1.6 + r3 * 1.9),
+            phase: r1 * TWO_PI,                  // own phase → own path
+            col: ACCENTS[Math.floor(r4 * ACCENTS.length)],
+            vy: 34 + r2 * 36,                    // fall speed — faster than strands
+          });
+        }
+      }
+
+      let topWorld = 0;
+      function seed() {
+        blocks.length = 0;
+        const span = H + 120;
+        // Accumulate cell positions with a noise-driven variable gap so the
+        // strand clusters in places and opens up in others. The cumulative
+        // total becomes topWorld, so the varied pattern still loops seamlessly.
+        const positions = [];
+        let yw = 0;
+        let i = 0;
+        while (yw < span) {
+          positions.push(yw);
+          // gap factor ~[0.14, 1.74] of base spacing — tighter clusters
+          const f = 0.14 + 0.8 * (octaveNoise(i * 0.55) + 1);
+          yw += spacing * f;
+          i++;
+        }
+        topWorld = yw;  // next position = loop point; keeps the seam gap natural
+        for (let k = 0; k < positions.length; k++) {
+          const p = positions[k];
+          const nextGap = (k + 1 < positions.length ? positions[k + 1] - positions[k] : topWorld - p);
+          blocks.push(makeBlock(0, p));
+          blocks.push(makeBlock(1, p + nextGap * 0.5));
+        }
+      }
+
+      function resize() {
+        const r = cv.getBoundingClientRect();
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        W = Math.round(r.width);
+        H = Math.round(r.height);
+        cv.width = W * dpr;
+        cv.height = H * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        midX = W / 2 + 60;  /* shift the whole helix right */
+        const ampBase = Math.min(W * 0.40, 188);
+        amp = ampBase * 0.85;        /* helix 15% narrower */
+        pHalf = ampBase * 1.25;      /* particles roam the wider, original span */
+        seed();
+        seedParticles();
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      function roundRectPath(x, y, w, h, r) {
+        if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); return; }
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
+      }
+
+      let last = performance.now();
+      let offset = 0;
+      let ptime = 0;
+
+      function draw(now) {
+        const dt = Math.min((now - last) / 1000, 0.05);
+        last = now;
+        offset += fallSpeed * dt;
+        ptime += dt;
+        ctx.clearRect(0, 0, W, H);
+
+        for (const b of blocks) {
+          let yScreen = b.yWorld + offset;
+          yScreen = ((yScreen % topWorld) + topWorld) % topWorld;
+          yScreen -= 60;
+          if (yScreen < -CELL || yScreen > H + CELL) continue;
+          if (!b.live) continue;
+
+          const phaseWorld = b.yWorld + offset;
+          const phase = (phaseWorld / wavelength) * TWO_PI - offset * 0.004 * twist * 100 / fallSpeed;
+          const s = Math.sin(phase);
+          const depth = Math.cos(phase);
+
+          let x, col, al;
+          if (b.strand === 0) {
+            x = midX + s * amp + b.jitter;
+            col = b.colA;
+            al = 0.5 + 0.5 * ((depth + 1) / 2);
+          } else {
+            x = midX - s * amp + b.jitter;
+            col = b.colB;
+            al = 0.5 + 0.5 * ((-depth + 1) / 2);
+          }
+
+          // Fade in over the top edge, fade out over the bottom edge.
+          const fadeZone = 90;
+          let edge = 1;
+          if (yScreen < fadeZone) edge = yScreen / fadeZone;
+          else if (yScreen > H - fadeZone) edge = (H - yScreen) / fadeZone;
+          edge = edge < 0 ? 0 : edge > 1 ? 1 : edge;
+
+          ctx.globalAlpha = al * edge;
+          ctx.fillStyle = col;
+          roundRectPath(x - CELL / 2, yScreen - CELL / 2, CELL, CELL, RADIUS);
+          ctx.fill();
+        }
+
+        // Accent particles drawn over the strands. Each falls (faster than the
+        // strands) along its own stretched sine path, so it reads as being
+        // caught up in the helix's motion without tracing it exactly.
+        const pSpan = H + 120;
+        for (const p of particles) {
+          const raw = (p.cy + ptime * p.vy) % pSpan;   // 0..pSpan fall position
+          // x is a function of fall position → resets with y, hidden in the fade.
+          const px = midX + p.amp * Math.sin(raw / p.wavelength * TWO_PI + p.phase);
+          let py = raw - 60;
+          if (py < -CELL || py > H + CELL) continue;
+          // Edge fade, matching the strands.
+          const fadeZone = 90;
+          let edge = 1;
+          if (py < fadeZone) edge = py / fadeZone;
+          else if (py > H - fadeZone) edge = (H - py) / fadeZone;
+          edge = edge < 0 ? 0 : edge > 1 ? 1 : edge;
+          ctx.globalAlpha = edge;
+          ctx.fillStyle = p.col;
+          roundRectPath(px - CELL / 2, py - CELL / 2, CELL, CELL, RADIUS);
+          ctx.fill();
+        }
+
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(draw);
+      }
+      requestAnimationFrame(draw);
+    })();
+  </script>
+
+  <script>
+    // ----- Our People: tabbed people cards ------------------------------
+    (function () {
+      // Photos and per-person social handles are placeholders for now (real
+      // images + links to come). `photo` is used when present; otherwise an
+      // initials placeholder is shown.
+      const PEOPLE = {
+        team: [
+          { name: 'Ben Johnson', role: 'Co-Director',
+            bio: 'Ben is Co-Director of Science Works. He is a former senior UK government adviser on science and R&D, having advised multiple administrations, and co-author of national-level science policies including the UK R&D Roadmap and UK Innovation Strategy. He was previously associate director at UKRI, has contributed to G7 open science frameworks, and builds data tools for research strategy. Ben is also Professor of Research and Innovation Policy at the University of Strathclyde.' },
+          { name: 'Laura Ryan', role: 'Co-Director',
+            bio: 'Laura is Co-Director of Science Works. She was previously Senior Analyst in Science and Technology at the Tony Blair Institute, leading work on metascience, AI for science, and institutional models for R&D, and is lead author of the Lovelace Disruptive Invention Labs report. Laura is co-founder of the Better Science Project and a former Cambridge neuroscientist with a PhD in the field.' },
+          { name: 'Louise Dunsby', role: 'Chief Operating Officer',
+            bio: 'Louise is a senior operations leader with extensive experience building and scaling mission-driven organisations. She has established core operating infrastructure for early-stage non-profits, serving as COO and leading the launch of a £17m programme portfolio. As a senior civil servant, she built the UK government’s Office for Science and Technology Strategy, overseeing government-wide science and technology decision-making processes.' },
+          { name: 'Alvin Djajadikerta', role: 'Researcher', photo: 'assets/images/alvin.jpg',
+            bio: 'Alvin is a Researcher at Science Works, working on AI for Science and wider metascience delivery. He was co-founder of the Better Science Project and a strategy consultant at BCG, where he delivered transformation programmes across health, industry, and the public sector. He is a former Cambridge neuroscientist and PhD graduate.' },
+          { name: 'Will Stone', role: 'Researcher',
+            bio: 'Will is a Researcher at Science Works, working on science and innovation funding reform. He was previously Senior Policy Advisor for Science and Innovation at HM Treasury, where he led a team driving innovation-led growth policy across Whitehall and allocated more than £20bn in annual budgets. His focus is on funding reform, government-institutional architecture, and strategy.' },
+          { name: 'Rory Byrne', role: 'Researcher',
+            bio: 'Rory is a Researcher at Science Works, working on software toolbuilding. He is an engineer and two-time founder, currently completing a PhD in computational neuroscience at Cambridge. He was previously a senior software engineer and is co-organiser of the CompMotifs ARIA Innovator Circle.' },
+          { name: 'Will Bolton', role: 'Researcher',
+            bio: 'Will is a Researcher at Science Works, working on software toolbuilding. He is an AI for Health Researcher at Imperial College London, where he recently completed his PhD on machine learning systems to support antibiotic prescribing decisions. As an Encode Fellow at Oxford, he develops multi-agent AI scientist systems to generate, critique, and compare research strategies, using clinical research as a testbed. He founded Steward.ai, a clinical decision support tool now being clinically evaluated, and won the No.10 Generative AI Hackathon 2024 on biothreats detection. Will has published in Nature Communications and Nature Machine Intelligence, and holds an MPhil in Bioscience Enterprise from Cambridge and a BSc in Biochemistry from Imperial.' },
+          { name: 'Alex Chalmers', role: 'Contributor',
+            bio: 'Alex is a staff writer at the Cosmos Institute. Before joining Cosmos, he was an editor at Works in Progress, a magazine focused on new and underrated ideas to improve the world. He previously held roles in venture capital and policy consultancy. Alex studied History at the University of Oxford and won an Emergent Ventures grant in 2024 to support Chalmermagne, his Substack on the intersection of policy, finance, and technology.' },
+          { name: 'Charlie Harris', role: 'Contributor',
+            bio: 'Charlie is an AI scientist and PhD candidate at the University of Cambridge, working on geometric deep learning for structural biology and drug discovery. He is a leading contributor to the Boltz project, an open-source AI model for protein folding and molecular interaction prediction.' },
+          { name: 'Anastasia Bektimirova', role: 'Contributor',
+            bio: 'Anastasia is a policy expert, researcher, and author specialising in science, technology, and AI governance. She was previously Head of Science and Technology at the UK think tank The Entrepreneurs Network, and has since worked at the Royal Academy of Engineering in a policy delivery role.' },
+          { name: 'James Phillips', role: 'Contributor',
+            bio: 'James is a former neuroscientist and policy expert who served as Special Adviser to the Prime Minister from 2020 to 2022. He is best known for helping architect the UK’s Advanced Research and Invention Agency (ARIA) and for leading rapid COVID-19 testing initiatives.' },
+          { name: 'David Jordan', role: 'Contributor',
+            bio: 'David is an independent researcher, engineer, and founding director of the Living Physics Lab. Backed by the UK’s Advanced Research and Invention Agency (ARIA), his work merges theory, experiments, and engineering to understand how living cells learn, adapt, and compute.' },
+          { name: 'Lydia Farnham', role: 'Contributor',
+            bio: 'Lydia is Chief Technology Officer at Asothia, a startup building a platform matching researchers to funding and automating grant writing. She is also social and events curator at the Pharos Foundation, building community and connecting people across disciplines. Her background is in atmospheric chemistry and climate technology, and her interests lie at the intersection of scientific research, technology, and the systems that help researchers do their best work.' },
+          { name: 'Eric Gilliam', role: 'Contributor',
+            bio: 'Eric runs FreakTakes, a Substack focused on the organisational infrastructure of scientific progress, producing ‘administrative histories’ of historically exceptional R&D organisations such as Bell Labs, early MIT, the Rockefeller Foundation, and DARPA. His work explores what made these labs unusually effective and what it would take to build their modern equivalents. Eric is a Fellow at the Good Science Project and works with ARIA UK and Renaissance Philanthropy on new R&D models. He has a degree in political science from Stanford and previously worked with economist Steve Levitt at the University of Chicago, where he developed his interest in the empirical literature on the economics of science and innovation.' },
+          { name: 'Hope Bretscher', role: 'Contributor',
+            bio: 'Hope is a physicist and researcher specialising in experimental condensed matter, low-energy physics, and ultrafast optoelectronics. She is a postdoctoral researcher at the Max Planck Institute for the Structure and Dynamics of Matter in Germany, and is establishing the Integrated Quantum Materials lab at Boston College.' },
+          { name: 'Jennie Palmer', role: 'Contributor',
+            bio: 'Jennie is a PhD student at the Cambridge Institute for Medical Research (CIMR) and the UK Dementia Research Institute (UK DRI). Her research investigates the interplay between autophagy and neurodegeneration, combining cell biology, molecular biology and biochemistry to explore the molecular mechanisms of neurodegenerative diseases and potential therapeutic avenues. She also contributes to widening participation in science through public engagement and outreach activities.' },
+          { name: 'Sehaj Pasricha', role: 'Contributor',
+            bio: 'Sehaj works with Not Boring, the media and venture studio founded by Packy McCormick, where he helped build Boring News, a Polymarket-sponsored project that turns prediction-market data into daily news analysis. His own work sits at the intersection of machine intelligence and computer systems, with a long-term interest in hardware. He is also building Wayfarers Space, a community for autodidacts learning across disciplines.' },
+        ],
+        igb: [
+          { name: 'Ben Southwood', role: 'Chair',
+            bio: 'Ben is an economist, researcher, and writer. He is co-founder and editor of the magazine Works in Progress, which now operates as part of Stripe Press, and has held roles at the Adam Smith Institute, Policy Exchange, and Create Streets.' },
+          { name: 'Helen Ewles', role: 'Chief of Staff, Royal Academy of Engineering',
+            bio: 'Helen is Chief of Staff at the Royal Academy of Engineering, where she has been shaping UK research and innovation policy for over a decade. Her expertise spans emerging technologies, entrepreneurship, R&D investment, and research culture. Helen has also worked in the civil service on science and technology policy, and previously as an academic in molecular microbiology.' },
+          { name: 'Jeegar Kakkad', role: 'Director, Stonehaven & Public First',
+            bio: 'Jeegar leads the Defence & Industrials team at Stonehaven & Public First. He was previously Director of Government Innovation at the Tony Blair Institute for Global Change, and his career spans roles at Jaguar Land Rover, the Social Market Foundation, the Brookings Institution, and Chief Economist at ADS Group.' },
+        ],
+        sab: [
+          { name: 'Anastasia Gamick', role: 'President, Convergent Research',
+            bio: 'Anastasia is co-founder and President of Convergent Research, a non-profit organisation that pioneers and scales the Focused Research Organization (FRO) model. She sits on the boards and advises various scientific and public-good organisations, including Forest Neurotech, EvE Bio, Cultivarium, Dragonfly, [C]Worthy, and the Unitary Fund.' },
+          { name: 'Rob Miller', role: 'Director, Whittle Laboratory, Cambridge',
+            bio: 'Rob is Professor of Aerothermal Technology and Director of the Whittle Laboratory at the University of Cambridge, and Director of the Rolls-Royce University Technology Centre. His research targets emissions in aviation and power generation. His pioneering work on Rapid Technology Development has cut R&D timelines from years to months, and he is leading a new Whittle Laboratory to accelerate the journey from research to engineering application. Rob founded the Aviation Impact Accelerator, which develops evidence-based tools for net zero aviation. He is a Fellow of the Royal Academy of Engineering and serves on the Department for Transport’s Science Advisory Council.' },
+          { name: 'Tom Kalil', role: 'CEO, Renaissance Philanthropy',
+            bio: 'Tom is CEO of Renaissance Philanthropy. He previously led innovation at Schmidt Futures. Tom served in the White House under Presidents Obama and Clinton, helping design and launch major science and technology initiatives, including the National Nanotechnology Initiative, the BRAIN Initiative, the Next Generation Internet, and programmes in data science, robotics, commercial space, and advanced materials. His team worked with the Senate to give every federal agency authority to support incentive prizes of up to $50 million. From 2001 to 2008, he was Special Assistant to the Chancellor for Science and Technology at UC Berkeley, where he launched Big Ideas@Berkeley.' },
+          { name: 'David Willetts', role: 'Chair, Resolution Foundation',
+            bio: 'Bio coming soon.' },
+          { name: 'Sam Bowman', role: 'Head of Publishing, Stripe',
+            bio: 'Sam is an economist and policy analyst, currently Head of Publishing at Stripe and founding editor of Works in Progress. He is best known for co-authoring the influential 2021 essay ‘The Housing Theory of Everything’, and previously served as Executive Director of the Adam Smith Institute.' },
+          { name: 'James Wilsdon', role: 'Director, Research on Research Institute',
+            bio: 'James is Executive Director of the Research on Research Institute (RoRI), and Professor of Research Policy at UCL’s Department of Science, Technology, Engineering and Public Policy (STEaPP). RoRI’s consortium spans 15 countries and includes funders investing over $25 billion in R&D each year. A transdisciplinary social scientist, James has been active in UK and international science policy since the late 1990s, with academic posts at Sheffield, Sussex and Lancaster, and roles including Director of Science Policy at the Royal Society. He chaired the 2015 review of research metrics published as The Metric Tide.' },
+          { name: 'Saloni Dattani', role: 'Co-founder, Works in Progress',
+            bio: 'Saloni is a science writer, researcher, and co-founder of Works in Progress. She works on data-driven journalism in global health, meta-science, and medical innovation, and holds a PhD in psychiatric genetics from King’s College London and the University of Hong Kong.' },
+          { name: 'Ben Reinhardt', role: 'Founder & CEO, Speculative Technologies',
+            bio: 'Bio coming soon.' },
+          { name: 'Stuart Buck', role: 'Executive Director, Good Science Project',
+            bio: 'Stuart is Executive Director of the Good Science Project, a non-profit think tank dedicated to making federal science funding more innovative and streamlined. He has spearheaded over $60 million in grants to improve scientific reproducibility and transparency, and previously served as Vice President of Research at Arnold Ventures.' },
+          { name: 'Benedict Macon-Cooney', role: 'Chief AI & Innovation Officer, TBI',
+            bio: 'Benedict is Chief AI & Innovation Officer at the Tony Blair Institute for Global Change, where he leads policy work across technology, the economy, climate, health, and geopolitics. His focus is on AI policy and how governments adapt to fast-moving technology. He began his career as an economist at HM Treasury during the financial crisis, before working in finance, in a Prime Minister’s Office in Southeast Asia and in President Kagame’s Office in Rwanda. Benedict led the influential New National Purpose report series, co-authored with Tony Blair and Lord Hague, and writes extensively on artificial intelligence, biotechnology and clean technology.' },
+          { name: 'Sarah Chaytor', role: 'Director of Strategy & Policy, UCL',
+            bio: 'Sarah is a UK higher education professional specialising in research policy and academic-policy engagement. She is Director of Strategy & Policy and Joint Chief of Staff for UCL Research, Innovation and Global Engagement, and Co-Chair and Director of Programmes for the Universities Policy Engagement Network.' },
+          { name: 'Paul Nightingale', role: 'Professor, SPRU, University of Sussex',
+            bio: 'Paul is Professor of Strategy and Associate Dean of Research at the University of Sussex Business School, based at SPRU (Science Policy Research Unit). Originally trained as a chemist, his work focuses on technical change, innovation systems, and the governance of complex and security-relevant technologies. He has contributed to research on biosecurity, dual-use science, and the implications of emerging technologies for the chemical and biological weapons prohibition regimes. His broader interests include industrial dynamics, metascience, financial innovation, and the management of uncertainty in major R&D and transformational projects. Paul is also acting Director of the Harvard Sussex Program.' },
+          { name: 'Ronit Kanwar', role: 'Managing Director, Renaissance Philanthropy',
+            bio: 'Ronit is Managing Director at Renaissance Philanthropy, and was previously Director of Partnerships at Schmidt Futures. Recognised on the Forbes 30 Under 30 Asia list, he co-founded Empower Energy, an enterprise that brings renewable energy to rural communities in India.' },
+          { name: 'Jacqueline Campbell', role: 'Co-Founder, Asterisk Labs',
+            bio: 'Jacqueline is a Schmidt Science Fellow and interdisciplinary scientist with an unconventional career path. After years as a tube driver and social care worker, she took evening classes in astrophysics and earned a First-Class BSc in Earth and Ocean Science from Brighton. Her UCL PhD in Space and Climate Physics searched for life on Mars. As a Schmidt Fellow at Oxford, she investigated ocean acidification using remote sensing satellites, then worked in drug discovery and science entrepreneurship startups. She co-founded Asterisk Labs, the UK’s first worker-owned co-operative research laboratory, combining deep learning, Earth observation and climate science with open-source outputs.' },
+        ],
+      };
+
+      const ICONS = {
+        email: '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm9 7.5 8-5.5H4l8 5.5zM4 8.2V18h16V8.2l-8 5.5-8-5.5z"/></svg>',
+        x: '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M18.24 2.25h3.31l-7.23 8.26L23 21.75h-6.66l-5.21-6.82-5.97 6.82H1.85l7.73-8.84L1.25 2.25h6.83l4.71 6.23 5.45-6.23zm-1.16 17.52h1.83L7.08 4.13H5.12L17.08 19.77z"/></svg>',
+        bluesky: '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 10.8C10.91 8.69 7.95 4.75 5.2 2.8 2.57.94 1.56 1.27.9 1.57.14 1.91 0 3.08 0 3.77c0 .69.38 5.65.62 6.48.82 2.73 3.71 3.66 6.38 3.36-3.91.58-7.38 2.01-2.83 7.08 5.01 5.19 6.87-1.11 7.82-4.31.95 3.2 2.05 9.27 7.73 4.31 4.27-4.31 1.17-6.5-2.74-7.08 2.67.3 5.57-.63 6.38-3.36.25-.83.62-5.79.62-6.48 0-.69-.14-1.86-.9-2.21-.66-.3-1.66-.62-4.3 1.24C16.05 4.75 13.09 8.69 12 10.8z"/></svg>',
+        linkedin: '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43A2.06 2.06 0 1 1 5.34 3.3a2.06 2.06 0 0 1 0 4.13zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>',
+      };
+      const SOCIAL_ORDER = [['email', 'Email'], ['x', 'X'], ['bluesky', 'Bluesky'], ['linkedin', 'LinkedIn']];
+
+      function initials(name) {
+        const parts = name.trim().split(/\s+/);
+        const first = parts[0][0] || '';
+        const last = parts.length > 1 ? parts[parts.length - 1][0] : '';
+        return (first + last).toUpperCase();
+      }
+
+      const grid = document.getElementById('cards');
+
+      // Glyph: a 5×5 cell grid. For now colours are seeded deterministically
+      // from the person's name (so they stay stable across tab switches); later
+      // a `glyph` array of length 25 on the person — palette colour or null for
+      // a transparent cell — can be authored to replace the random fill.
+      const GLYPH_PALETTE = ['#eb3131', '#f45e57', '#66223b', '#440214',
+        '#00726b', '#0e676a', '#64b37b', '#004ee6', '#a3c0d7', '#4b5cce',
+        '#3a3c7c', '#72679b'];
+      function glyphCells(p) {
+        if (p.glyph) return p.glyph;            // authored glyph wins
+        if (p._glyph) return p._glyph;          // cached random fill
+        let s = 0;
+        for (let i = 0; i < p.name.length; i++) s += p.name.charCodeAt(i) * (i + 7);
+        const rnd = function () { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+        const cells = [];
+        for (let i = 0; i < 25; i++) {
+          cells.push(rnd() < 0.34 ? null : GLYPH_PALETTE[Math.floor(rnd() * GLYPH_PALETTE.length)]);
+        }
+        p._glyph = cells;
+        return cells;
+      }
+      function makeGlyph(p) {
+        const g = document.createElement('div');
+        g.className = 'card-glyph';
+        g.setAttribute('aria-hidden', 'true');
+        const cells = glyphCells(p);
+        for (let i = 0; i < 25; i++) {
+          const cell = document.createElement('span');
+          cell.className = 'glyph-cell';
+          if (cells[i]) cell.style.background = cells[i];
+          g.appendChild(cell);
+        }
+        return g;
+      }
+
+      function makePhoto(p) {
+        if (p.photo) {
+          const img = document.createElement('img');
+          img.className = 'card-photo';
+          img.src = p.photo;
+          img.alt = p.name;
+          return img;
+        }
+        const ph = document.createElement('div');
+        ph.className = 'card-photo is-placeholder';
+        ph.textContent = initials(p.name);
+        ph.setAttribute('aria-label', p.name);
+        return ph;
+      }
+
+      function makeCard(p) {
+        const card = document.createElement('article');
+        card.className = 'card';
+
+        const top = document.createElement('div');
+        top.className = 'card-top';
+        top.appendChild(makePhoto(p));
+
+        const info = document.createElement('div');
+        info.className = 'card-headinfo';
+
+        const glyph = makeGlyph(p);
+
+        const id = document.createElement('div');
+        id.className = 'card-id';
+        const name = document.createElement('h3');
+        name.className = 'card-name';
+        name.textContent = p.name;
+        const role = document.createElement('div');
+        role.className = 'card-role';
+        role.textContent = p.role;
+        id.appendChild(name);
+        id.appendChild(role);
+
+        info.appendChild(glyph);
+        info.appendChild(id);
+        top.appendChild(info);
+
+        const bio = document.createElement('p');
+        bio.className = 'card-bio';
+        bio.textContent = p.bio;
+
+        const socials = document.createElement('div');
+        socials.className = 'card-socials';
+        for (const [key, label] of SOCIAL_ORDER) {
+          const a = document.createElement('a');
+          a.href = '#';                 // placeholder until real links are added
+          a.setAttribute('aria-label', label);
+          a.title = label;
+          a.innerHTML = ICONS[key];
+          socials.appendChild(a);
+        }
+
+        card.appendChild(top);
+        card.appendChild(bio);
+        card.appendChild(socials);
+        return card;
+      }
+
+      function render(tab) {
+        grid.innerHTML = '';
+        for (const p of PEOPLE[tab]) grid.appendChild(makeCard(p));
+      }
+
+      const tabs = document.querySelectorAll('.tab');
+      tabs.forEach(function (t) {
+        t.addEventListener('click', function () {
+          tabs.forEach(function (o) { o.classList.remove('is-active'); });
+          t.classList.add('is-active');
+          render(t.dataset.tab);
+        });
+      });
+
+      render('team');
+    })();
+  </script>
+</body>
+</html>

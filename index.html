@@ -405,7 +405,7 @@
       margin-left: auto;
       display: flex;
       align-items: center;
-      gap: 34px;
+      gap: 8px;
       margin-right: 16px;
     }
     .nav-links a {
@@ -416,9 +416,13 @@
       font-size: 16px;
       letter-spacing: -0.02em;
       line-height: 1;
+      padding: 8px 14px;
+      border: 1.5px solid transparent;   /* always present so hover doesn't shift layout */
+      border-radius: 8px;
+      transition: border-color 0.15s ease;
     }
     .nav-links a:hover {
-      text-decoration: underline;
+      border-color: var(--theme);
     }
 
     /* ---------- Footer ---------- */
@@ -571,7 +575,7 @@
       <span class="logo-text">SCIENCE WORKS</span>
     </a>
     <nav class="nav-links">
-      <a href="#about">About</a>
+      <a href="about.html">About</a>
       <a href="#programmes">Programmes</a>
       <a href="#writing">Writing</a>
       <a href="#contact">Contact</a>
