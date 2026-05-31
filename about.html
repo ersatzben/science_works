@@ -639,7 +639,7 @@
             bio: 'Laura is Co-Director of Science Works. She was previously Senior Analyst in Science and Technology at the Tony Blair Institute, leading work on metascience, AI for science, and institutional models for R&D, and is lead author of the Lovelace Disruptive Invention Labs report. Laura is co-founder of the Better Science Project and a former Cambridge neuroscientist with a PhD in the field.' },
           { name: 'Louise Dunsby', role: 'Chief Operating Officer',
             bio: 'Louise is a senior operations leader with extensive experience building and scaling mission-driven organisations. She has established core operating infrastructure for early-stage non-profits, serving as COO and leading the launch of a £17m programme portfolio. As a senior civil servant, she built the UK government’s Office for Science and Technology Strategy, overseeing government-wide science and technology decision-making processes.' },
-          { name: 'Alvin Djajadikerta', role: 'Researcher', photo: 'assets/images/alvin.jpg',
+          { name: 'Alvin Djajadikerta', role: 'Researcher',
             bio: 'Alvin is a Researcher at Science Works, working on AI for Science and wider metascience delivery. He was co-founder of the Better Science Project and a strategy consultant at BCG, where he delivered transformation programmes across health, industry, and the public sector. He is a former Cambridge neuroscientist and PhD graduate.' },
           { name: 'Will Stone', role: 'Researcher',
             bio: 'Will is a Researcher at Science Works, working on science and innovation funding reform. He was previously Senior Policy Advisor for Science and Innovation at HM Treasury, where he led a team driving innovation-led growth policy across Whitehall and allocated more than £20bn in annual budgets. His focus is on funding reform, government-institutional architecture, and strategy.' },
@@ -723,6 +723,17 @@
         return (first + last).toUpperCase();
       }
 
+      // Photo filename derived from the name: lowercase, accents stripped,
+      // runs of non-alphanumerics → single hyphen. e.g. "Benedict Macon-Cooney"
+      // → "benedict-macon-cooney". Photos live in assets/images/people/<slug>.jpg
+      function slug(name) {
+        return name.toLowerCase()
+          .normalize('NFD').replace(/[̀-ͯ]/g, '')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '');
+      }
+      const PHOTO_DIR = 'assets/images/people/';
+
       const grid = document.getElementById('cards');
 
       // Glyph: a 5×5 cell grid. For now colours are seeded deterministically
@@ -759,19 +770,27 @@
         return g;
       }
 
-      function makePhoto(p) {
-        if (p.photo) {
-          const img = document.createElement('img');
-          img.className = 'card-photo';
-          img.src = p.photo;
-          img.alt = p.name;
-          return img;
-        }
+      function makePlaceholder(p) {
         const ph = document.createElement('div');
         ph.className = 'card-photo is-placeholder';
         ph.textContent = initials(p.name);
         ph.setAttribute('aria-label', p.name);
         return ph;
+      }
+
+      function makePhoto(p) {
+        // Try the conventional photo path (or an explicit `photo` override);
+        // if the file isn't there yet, swap in the initials placeholder.
+        const src = p.photo || (PHOTO_DIR + slug(p.name) + '.jpg');
+        const img = document.createElement('img');
+        img.className = 'card-photo';
+        img.src = src;
+        img.alt = p.name;
+        img.loading = 'lazy';
+        img.addEventListener('error', function () {
+          if (img.parentNode) img.parentNode.replaceChild(makePlaceholder(p), img);
+        });
+        return img;
       }
 
       function makeCard(p) {
