@@ -2,27 +2,27 @@
 ## Primary colour pallette 
 
 - #f6eee8 (primary background)
-- #66223b (primary text colour) 
-- #eb3131 (primary theme colour)
+- #66223b (primary text colour) [H]
+- #eb3131 (primary theme colour) [3H]
 
 ## Secondary colours
 – #fffaf4 (secondary background)
-- #00726b (sagey green)  
-- #004ee6 (brighter purple/blue); 
-- #a3c0d7 (pale blue); 
-- #64b37b (lighter green); 
+- #00726b (sagey green)   [H]
+- #004ee6 (brighter purple/blue);  [H]
+- #a3c0d7 (pale blue); [R]
+- #64b37b (lighter green); [colfR]
 
 ## Tertiary variants 
 - #0e676a (deeper green);
-- #f45e57 (paler more coral red for some depth); 
+- #f45e57 (paler more coral red for some depth);  [2H]
 - #ebe5cf (beige, not same as background); 
-- #faf8f6 (almost white); 
-- #4b5cce (a purple/blue); 
+- #faf8f6 (almost white); [R]
+- #4b5cce (a purple/blue);  [R]
 - #440214 (darkest brown); 
 
 ## Optional variants
 - #3a3c7c
-- #72679b
+- #72679b [R]
 
 # Typefaces
 

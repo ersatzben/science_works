@@ -1032,13 +1032,12 @@
       const RADIUS = 2;    // corner rounding of each block. 0 = sharp squares.
 
       /* --- COLOUR --------------------------------------------------------- */
-      // Strand A leans bright, strand B leans deep, so the two strands read
-      // with some depth contrast. Each array is sampled at random per cell.
-      // NOTE: on a LIGHT background the deepest red (#66223b) can
-      // wash out when depth-alpha is low — see ALPHA_FLOOR below, or swap
-      // these for punchier colours.
-      const palA = ['#eb3131', '#f45e57', '#eb3131', '#66223b', '#004ee6'];
-      const palB = ['#66223b', '#f45e57', '#66223b', '#eb3131', '#004ee6'];  // deep strand (no very-dark brown)
+      // Helix strands share one weighted palette; repetition sets pick odds,
+      // per the [H] marks in colours_and_fonts.md: red ×3, coral ×2, others ×1.
+      const palH = ['#eb3131', '#eb3131', '#eb3131', '#f45e57', '#f45e57',
+                    '#66223b', '#00726b', '#004ee6'];
+      const palA = palH;
+      const palB = palH;
 
       /* --- MOTION --------------------------------------------------------- */
       const fallSpeed = 16;    // px/sec the whole pattern descends. Lower = slower rain.
@@ -1048,6 +1047,8 @@
                                // 0 = strands frozen in shape; higher = livelier swirl.
       const ampFactor = 0.85;  // helix width as a fraction of the base amplitude.
                                // 1 = full width; lower = narrower helix.
+      const ARM_PHASE = 0.8;   // phase offset (rad, ~pi/4) on the 2nd strand
+                               // to break the mirror symmetry. 0 = symmetric.
 
       /* --- DEPTH / TRANSPARENCY ------------------------------------------ */
       // Each cell's opacity is driven by its position in the twist (cos phase),
@@ -1094,8 +1095,7 @@
          paths. They fall faster than the strands and never trace them exactly.
          ------------------------------------------------------------------- */
       const PARTICLE_COUNT = 9;   // how many accent particles. 0 = none.
-      const ACCENTS = ['#00726b', '#5a7d95', '#3f8a57', '#0e676a',
-                       '#4b5cce', '#3a3c7c', '#5a4f85'];
+      const ACCENTS = ['#a3c0d7', '#64b37b', '#faf8f6', '#4b5cce', '#72679b'];
 
       /* --- LAYOUT --------------------------------------------------------- */
       const X_SHIFT = 60;  // px the whole helix is nudged right of centre. 0 = centred.
@@ -1233,15 +1233,17 @@
 
           const phaseWorld = b.yWorld + offset;
           const phase = (phaseWorld / wavelength) * TWO_PI - offset * 0.004 * twist * 100 / fallSpeed;
-          const s = Math.sin(phase);
-          const depth = Math.cos(phase);
-
           let x, col, al;
           if (b.strand === 0) {
+            const s = Math.sin(phase);
+            const depth = Math.cos(phase);
             x = midX + s * amp + b.jitter;
             col = b.colA;
             al = ALPHA_FLOOR + (1 - ALPHA_FLOOR) * ((depth + 1) / 2);
           } else {
+            // 2nd arm offset by ARM_PHASE so the helix isn't a perfect mirror.
+            const s = Math.sin(phase + ARM_PHASE);
+            const depth = Math.cos(phase + ARM_PHASE);
             x = midX - s * amp + b.jitter;
             col = b.colB;
             al = ALPHA_FLOOR + (1 - ALPHA_FLOOR) * ((-depth + 1) / 2);
