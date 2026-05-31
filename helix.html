@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Double helix rain</title>
+  <style>
+    html, body { margin: 0; height: 100%; }
+    body {
+      background: #f4f0ea;          /* page background behind the canvas frame */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #frame {
+      position: relative;
+      width: 680px;
+      max-width: 100%;
+      height: 460px;
+      overflow: hidden;
+      border-radius: 12px;
+      background: #f4f0ea;          /* HELIX BACKGROUND — swap to a dark hex (e.g. #1a1416) for a dark field */
+    }
+    #helix { display: block; width: 100%; height: 100%; }
+  </style>
+</head>
+<body>
+  <div id="frame">
+    <canvas id="helix"></canvas>
+  </div>
+
+  <script>
+  (function () {
+    const cv = document.getElementById('helix');
+    if (!cv) return;
+    const ctx = cv.getContext('2d');
+
+    /* ====================================================================
+       TUNING KNOBS
+       Each block below is a self-contained group. Change the numbers and
+       reload the page. Most knobs are independent, but a few interact —
+       those interactions are noted inline.
+       ==================================================================== */
+
+    /* --- CELL APPEARANCE ------------------------------------------------ */
+    const CELL   = 14;   // block size in px (square). Your original 14x14.
+    const RADIUS = 2;    // corner rounding of each block. 0 = sharp squares.
+
+    /* --- COLOUR --------------------------------------------------------- */
+    // Strand A leans bright, strand B leans deep, so the two strands read
+    // with some depth contrast. Each array is sampled at random per cell.
+    // NOTE: on a LIGHT background the deepest reds (#440214, #66223b) can
+    // wash out when depth-alpha is low — see ALPHA_FLOOR below, or swap
+    // these for punchier colours.
+    const palA = ['#eb3131', '#f45e57', '#eb3131', '#66223b'];
+    const palB = ['#66223b', '#440214', '#f45e57', '#440214'];
+
+    /* --- MOTION --------------------------------------------------------- */
+    const fallSpeed = 16;    // px/sec the whole pattern descends. Lower = slower rain.
+    const wavelength = 360;  // px of vertical travel for one full helix turn.
+                             // LARGER = turns more spread out vertically.
+    const twist = 0.32;      // how fast the helix rotates as it falls.
+                             // 0 = strands frozen in shape; higher = livelier swirl.
+    const ampFactor = 0.85;  // helix width as a fraction of the base amplitude.
+                             // 1 = full width; lower = narrower helix.
+
+    /* --- DEPTH / TRANSPARENCY ------------------------------------------ */
+    // Each cell's opacity is driven by its position in the twist (cos phase),
+    // so cells "behind" the centre line fade. al = ALPHA_FLOOR + (1-FLOOR)*depth.
+    const ALPHA_FLOOR = 0.5; // minimum opacity for the farthest cells.
+                             // RAISE toward 0.7 to keep deep-red back-strand
+                             // cells visible on a light background.
+
+    /* --- DENSITY FIELD (the "[rand~]->[*~ s]->[tanh~]->[scale~]" curve) -
+       A sine runs down the strand; tanh squashes it; the result 0..1 is the
+       local density. High density -> tight gaps (a run); low -> big gap (a void).
+       ------------------------------------------------------------------- */
+    const PERIOD   = 150;  // px of vertical travel per density cycle (your "f").
+                           // One run + one void ~= this distance.
+    const SHARP    = 0.8;  // your "s". Squareness of the density curve.
+                           //   ~1   = gently breathing density, no real voids
+                           //   ~2.2 = soft shoulders, legible runs (current)
+                           //   ~4+  = hard runs + clean voids (square-wave-ish)
+    const DMIN_GAP = 0.13; // gap factor at FULL density (tight core).
+                           // LOWER = denser runs. (x spacing = px between cells.)
+    const DMAX_GAP = 1.4;  // gap factor at ZERO density (the void).
+                           // void px ~= DMAX_GAP * spacing. 3.4*26 ~= 88px ~= pi/2 turn.
+
+    const spacing  = 26;   // base px the gap factors multiply. Sets overall scale.
+
+    /* --- NOISE / SCATTER (breaks the smooth look) ----------------------
+       Cores stay solid; only shoulders & voids get thinned by multi-octave
+       noise, so a few stray cells appear/vanish around each run.
+       ------------------------------------------------------------------- */
+    const CORE_THRESHOLD = 0.6;  // density above this keeps EVERY cell (solid cores).
+                                 // LOWER toward 0.6 to protect more cells = denser.
+    const KEEP_FLOOR     = 0.05; // baseline keep-probability added in the shoulders,
+                                 // so low-density zones don't empty out completely.
+    const NOISE_AMOUNT   = 0.38; // how strongly noise scatters the shoulder cells.
+                                 // RAISE = grainier/more broken; LOWER = cleaner.
+    const NOISE_SCALE    = 0.18; // spatial frequency of that scatter along the strand.
+
+    /* --- HORIZONTAL JITTER --------------------------------------------- */
+    const JITTER = 12;   // px of random left/right wobble per cell.
+                         // LOWER for cleaner bead-like runs; 0 = dead straight.
+
+    /* --- ACCENT PARTICLES ----------------------------------------------
+       Non-red blocks swept up in the motion on their own stretched sine
+       paths. They fall faster than the strands and never trace them exactly.
+       ------------------------------------------------------------------- */
+    const PARTICLE_COUNT = 9;   // how many accent particles. 0 = none.
+    const ACCENTS = ['#00726b', '#004ee6', '#5a7d95', '#3f8a57', '#0e676a',
+                     '#4b5cce', '#3a3c7c', '#5a4f85'];
+
+    /* --- LAYOUT --------------------------------------------------------- */
+    const X_SHIFT = 60;  // px the whole helix is nudged right of centre. 0 = centred.
+
+    /* ====================================================================
+       ENGINE — you shouldn't need to edit below here.
+       ==================================================================== */
+
+    const TWO_PI = Math.PI * 2;
+    let W, H, midX, amp, dpr, pHalf = 0, topWorld = 0;
+
+    function rand(seed) {
+      const x = Math.sin(seed * 99991.7) * 43758.545;
+      return x - Math.floor(x);
+    }
+
+    // Multi-octave noise (~[-1.6, 1.6]) for the scatter.
+    function octaveNoise(t) {
+      return 1.1 * Math.sin(t * 0.7)
+           + 0.3 * Math.sin(t * 1.9 + 1.3)
+           + 0.2 * Math.sin(t * 4.7 + 2.7);
+    }
+
+    // Density 0..1 at a given world-y: sine -> *SHARP -> tanh -> scale to 0..1.
+    function densityAt(yw) {
+      const sig = Math.sin((yw / PERIOD) * TWO_PI);
+      const t = Math.tanh(sig * SHARP);
+      return (t + 1) / 2;
+    }
+
+    const blocks = [];
+    function makeBlock(strand, yWorld, density) {
+      const jitter = (rand(yWorld * 0.13 + strand * 7.7) - 0.5) * JITTER;
+      let live = true;
+      if (density <= CORE_THRESHOLD) {
+        const noise = octaveNoise(yWorld * NOISE_SCALE + strand * 4.1) * NOISE_AMOUNT;
+        const keepProb = density + KEEP_FLOOR + noise;
+        live = rand(yWorld * 0.53 + strand * 9.3) < keepProb;
+      }
+      return {
+        strand, yWorld, jitter,
+        colA: palA[Math.floor(rand(yWorld * 1.7 + 0.5) * palA.length)],
+        colB: palB[Math.floor(rand(yWorld * 2.3 + 0.9) * palB.length)],
+        live,
+      };
+    }
+
+    const particles = [];
+    function seedParticles() {
+      particles.length = 0;
+      const span = H + 120;
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        const r1 = rand(i * 1.7 + 0.3);
+        const r2 = rand(i * 2.9 + 1.1);
+        const r3 = rand(i * 3.7 + 2.2);
+        const r4 = rand(i * 5.1 + 0.7);
+        particles.push({
+          cy: r2 * span,                    // staggered start
+          amp: pHalf * (0.55 + 0.45 * r4),  // up to the full unreduced range
+          wavelength: span * (1.6 + r3 * 1.9), // stretched -> slow sweep
+          phase: r1 * TWO_PI,
+          col: ACCENTS[Math.floor(r4 * ACCENTS.length)],
+          vy: 34 + r2 * 36,                 // faster than strands
+        });
+      }
+    }
+
+    function seed() {
+      blocks.length = 0;
+      const span = H + 120;
+      const positions = [];
+      let yw = 0;
+      while (yw < span) {
+        positions.push(yw);
+        const d = densityAt(yw);
+        const f = DMAX_GAP + (DMIN_GAP - DMAX_GAP) * d; // d=1 -> tight, d=0 -> void
+        yw += spacing * f;
+        yw += 0.0001;  // guard against a zero-gap lock if DMIN_GAP is ever 0
+      }
+      topWorld = yw;   // loop point -> seamless wrap
+      for (let k = 0; k < positions.length; k++) {
+        const p = positions[k];
+        const d = densityAt(p);
+        blocks.push(makeBlock(0, p, d));
+        blocks.push(makeBlock(1, p + spacing * DMIN_GAP * 0.5, d));
+      }
+    }
+
+    function resize() {
+      const r = cv.getBoundingClientRect();
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = Math.round(r.width);
+      H = Math.round(r.height);
+      cv.width = W * dpr;
+      cv.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      midX = W / 2 + X_SHIFT;
+      const ampBase = Math.min(W * 0.40, 188);
+      amp = ampBase * ampFactor;
+      pHalf = ampBase * 1.25;   // particles roam the wider, original span
+      seed();
+      seedParticles();
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    function roundRectPath(x, y, w, h, r) {
+      if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); return; }
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
+
+    let last = performance.now();
+    let offset = 0;
+    let ptime = 0;
+
+    function draw(now) {
+      const dt = Math.min((now - last) / 1000, 0.05);
+      last = now;
+      offset += fallSpeed * dt;
+      ptime += dt;
+      ctx.clearRect(0, 0, W, H);
+
+      for (const b of blocks) {
+        if (!b.live) continue;
+        let yScreen = b.yWorld + offset;
+        yScreen = ((yScreen % topWorld) + topWorld) % topWorld;
+        yScreen -= 60;
+        if (yScreen < -CELL || yScreen > H + CELL) continue;
+
+        const phaseWorld = b.yWorld + offset;
+        const phase = (phaseWorld / wavelength) * TWO_PI - offset * 0.004 * twist * 100 / fallSpeed;
+        const s = Math.sin(phase);
+        const depth = Math.cos(phase);
+
+        let x, col, al;
+        if (b.strand === 0) {
+          x = midX + s * amp + b.jitter;
+          col = b.colA;
+          al = ALPHA_FLOOR + (1 - ALPHA_FLOOR) * ((depth + 1) / 2);
+        } else {
+          x = midX - s * amp + b.jitter;
+          col = b.colB;
+          al = ALPHA_FLOOR + (1 - ALPHA_FLOOR) * ((-depth + 1) / 2);
+        }
+
+        const fadeZone = 90;  // top/bottom fade-in distance in px
+        let edge = 1;
+        if (yScreen < fadeZone) edge = yScreen / fadeZone;
+        else if (yScreen > H - fadeZone) edge = (H - yScreen) / fadeZone;
+        edge = edge < 0 ? 0 : edge > 1 ? 1 : edge;
+
+        ctx.globalAlpha = al * edge;
+        ctx.fillStyle = col;
+        roundRectPath(x - CELL / 2, yScreen - CELL / 2, CELL, CELL, RADIUS);
+        ctx.fill();
+      }
+
+      const pSpan = H + 120;
+      for (const p of particles) {
+        const raw = (p.cy + ptime * p.vy) % pSpan;
+        const px = midX + p.amp * Math.sin(raw / p.wavelength * TWO_PI + p.phase);
+        let py = raw - 60;
+        if (py < -CELL || py > H + CELL) continue;
+        const fadeZone = 90;
+        let edge = 1;
+        if (py < fadeZone) edge = py / fadeZone;
+        else if (py > H - fadeZone) edge = (H - py) / fadeZone;
+        edge = edge < 0 ? 0 : edge > 1 ? 1 : edge;
+        ctx.globalAlpha = edge;
+        ctx.fillStyle = p.col;
+        roundRectPath(px - CELL / 2, py - CELL / 2, CELL, CELL, RADIUS);
+        ctx.fill();
+      }
+
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+  })();
+  </script>
+</body>
+</html>
