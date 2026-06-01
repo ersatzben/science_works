@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How not to waste an AI for science mission — Science Works</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    @font-face {
+      font-family: 'Antique Olive';
+      src: url('assets/fonts/antique-olive-std/Antique-Olive-Std-Roman_3869.ttf') format('truetype');
+      font-weight: normal; font-style: normal; font-display: swap;
+    }
+    @font-face {
+      font-family: 'Antique Olive';
+      src: url('assets/fonts/antique-olive-std/Antique-Olive-Std-Bold_3863.ttf') format('truetype');
+      font-weight: bold; font-style: normal; font-display: swap;
+    }
+    @font-face {
+      font-family: 'Antique Olive';
+      src: url('assets/fonts/antique-olive-std/Antique-Olive-Std-Light_3866.ttf') format('truetype');
+      font-weight: 300; font-style: normal; font-display: swap;
+    }
+    @font-face {
+      font-family: 'Copperplate';
+      src: url('assets/fonts/Copperplate30.otf') format('opentype');
+      font-weight: normal; font-style: normal; font-display: swap;
+    }
+    @font-face {
+      font-family: 'Copperplate';
+      src: url('assets/fonts/Copperplate30.otf') format('opentype');
+      font-weight: bold; font-style: normal; font-display: swap;
+    }
+    :root {
+      --bg: #f6f0ed;
+      --text: #66223b;
+      --theme: #eb3131;
+      --bg-secondary: #f9f3ee;
+      --beige: #ebe5cf;
+      --almost-white: #faf8f6;
+      --border-grey: #ddcac9;
+    }
+
+    html { scroll-behavior: smooth; }
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-family: system-ui, sans-serif;
+    }
+
+    /* ---------- Nav (shared) ---------- */
+    .nav {
+      height: 60px;
+      background: var(--bg-secondary);
+      border-bottom: 2px solid var(--border-grey);
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; color: var(--theme); text-decoration: none; }
+    .logo-mark { height: 22px; margin-left: 10px; width: auto; display: block; }
+    .logo-text {
+      font-family: 'Antique Olive', sans-serif;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: -0.08em;
+      margin-left: -5px;
+      font-size: 24px;
+      line-height: 1;
+      white-space: nowrap;
+      transform: translateY(2px);
+    }
+    .nav-links { margin-left: auto; display: flex; align-items: center; gap: 8px; margin-right: 16px; }
+    .nav-links a {
+      font-family: 'Roboto', sans-serif;
+      font-weight: normal;
+      color: var(--theme);
+      text-decoration: none;
+      font-size: 17px;
+      line-height: 1;
+      padding: 8px 14px;
+      border: 1.5px solid transparent;
+      border-radius: 8px;
+      transition: border-color 0.15s ease;
+    }
+    .nav-links a:hover { border-color: var(--theme); }
+
+    /* ---------- Article shell ---------- */
+    .article { padding: 44px 24px 96px; }
+    .article-head { max-width: 1200px; margin: 0 auto 52px; }
+    .article-body {
+      display: grid;
+      grid-template-columns: 210px minmax(0, 1fr);
+      column-gap: 44px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    /* Sticky left rail: reading-progress cells + table of contents */
+    .reading-rail {
+      position: sticky;
+      top: 88px;
+      align-self: start;
+      margin-top: 54px;        /* start in line with the first section title */
+      display: flex;
+      align-items: flex-start; /* strip + TOC both top-aligned */
+      gap: 16px;
+    }
+    .progress-strip { display: flex; flex-direction: column; gap: 4px; flex: 0 0 auto; }
+    .progress-cell {
+      width: 12px; height: 12px; border-radius: 2px;
+      background: var(--beige);
+      transition: background-color 0.2s ease;
+    }
+    .progress-cell.is-filled { background: var(--theme); }
+    .toc { display: flex; flex-direction: column; gap: 10px; }
+    .toc-link {
+      font-family: 'Roboto', sans-serif;
+      font-size: 13px;
+      line-height: 1.3;
+      color: var(--text);
+      text-decoration: none;
+      opacity: 0.55;
+      transition: opacity 0.15s ease, color 0.15s ease;
+    }
+    .toc-link:hover { opacity: 1; }
+    .toc-link.is-active { opacity: 1; color: var(--theme); }
+    /* Reading column reserves a right margin for sidenotes */
+    .reading-main { padding-right: 240px; }
+    .sn-ref {
+      font-size: 0.7em; vertical-align: super; line-height: 0;
+      color: var(--theme); font-weight: 700; padding: 0 1px;
+    }
+    .sidenote {
+      float: right; clear: right;
+      width: 200px;
+      margin: 4px -240px 16px 0;   /* push into the reserved right margin */
+      font-family: 'Roboto', sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text);
+    }
+    .sn-num { color: var(--theme); font-weight: 700; margin-right: 4px; }
+
+    /* Top meta bar */
+    .meta-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: #fff;
+      border: 1px solid var(--border-grey);
+      border-radius: 10px;
+      padding: 12px 22px;
+      margin-bottom: 40px;
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+    }
+    .bar-item { color: var(--text); text-decoration: none; }
+    .bar-item:hover { color: var(--theme); }
+    .bar-sep { width: 1px; height: 15px; background: var(--border-grey); flex: 0 0 auto; }
+    .bar-sep--right { margin-left: auto; }
+    .bar-download { color: var(--theme); font-weight: 500; }
+    .bar-download:hover { text-decoration: underline; color: var(--theme); }
+
+    /* Title + metadata (left), picture (right) */
+    .title-block {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 44px;
+      align-items: stretch;          /* picture matches the title-block height */
+    }
+    .article-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 500;             /* lighter than before */
+      font-size: 42px;
+      line-height: 1.12;
+      letter-spacing: -0.035em;
+      color: var(--text);
+      margin: 0 0 18px;
+    }
+    .article-subtitle {
+      font-family: 'Roboto', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      line-height: 1.45;
+      color: var(--text);
+      margin: 0 0 26px;
+      padding-right: 28%;            /* sits inside the title width — second-order */
+    }
+    .byline-authors { margin: 0; }
+    .author-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 16px;
+      padding-right: 28%;            /* keep the date in line with the subtitle edge */
+    }
+    .author {
+      font-family: 'Copperplate', serif;
+      font-weight: normal;
+      font-size: 18px;
+      letter-spacing: 0.02em;
+      line-height: 1.6;
+      color: var(--theme);
+    }
+    .pub-date {
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .contributors {
+      font-family: 'Roboto', sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      color: var(--text);
+      margin: 16px 0 0;
+    }
+    .contributors strong { font-weight: 700; }
+
+    .title-pic .img {
+      width: 100%;
+      height: 100%;
+      min-height: 260px;
+      border-radius: 10px;
+      background: var(--beige) center / cover no-repeat;
+    }
+
+    /* ---------- Prose ---------- */
+    .prose {
+      font-family: 'Antique Olive', sans-serif;
+      font-weight: 300;
+      font-size: 17px;
+      line-height: 1.72;
+      color: var(--text);
+    }
+    .prose p { margin: 0 0 24px; }
+    .prose a {
+      color: var(--theme);
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .prose a:hover { text-decoration: underline; text-underline-offset: 2px; }
+    .prose h2 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 600;
+      font-size: 29px;
+      line-height: 1.2;
+      color: var(--text);
+      margin: 54px 0 18px;
+    }
+    .prose h3 {
+      font-family: 'Antique Olive', sans-serif;
+      font-style: italic;
+      font-weight: bold;
+      font-size: 18px;
+      line-height: 1.3;
+      color: var(--theme);
+      margin: -10px 0 22px;     /* tuck under the h2 above */
+    }
+    .prose blockquote {
+      margin: 32px 0;
+      padding: 4px 0 4px 26px;
+      border-left: 3px solid var(--theme);
+      font-weight: 300;
+      font-style: italic;
+      font-size: 18px;
+      line-height: 1.6;
+      color: var(--text);
+    }
+    .prose blockquote p { margin: 0; }
+
+    /* Footnote references */
+    .fnref {
+      font-size: 0.7em;
+      line-height: 0;
+      vertical-align: super;
+    }
+    .fnref a { text-decoration: none; font-weight: bold; padding: 0 1px; }
+
+    /* Footnotes list */
+    .footnotes {
+      margin-top: 56px;
+      padding-top: 26px;
+      border-top: 1px solid var(--border-grey);
+    }
+    .footnotes h2 {
+      font-family: 'Copperplate', serif;
+      font-weight: normal;
+      font-size: 20px;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      margin: 0 0 16px;
+    }
+    .footnotes ol {
+      margin: 0;
+      padding-left: 22px;
+      font-family: 'Antique Olive', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--text);
+    }
+    .footnotes li { margin: 0 0 12px; }
+    .footnotes li::marker { color: var(--theme); }
+    .footnotes a { color: var(--theme); text-decoration: none; }
+    .footnotes .fn-back { margin-left: 4px; font-weight: bold; }
+
+    /* ---------- Footer (shared) ---------- */
+    .site-footer {
+      height: 60px;
+      background: var(--beige);
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      font-family: 'Antique Olive', sans-serif;
+      font-size: 13px;
+      color: var(--text);
+    }
+    .footer-inner { width: 100%; display: flex; align-items: center; gap: 22px; }
+    .footer-copy { opacity: 0.7; }
+    .footer-link { color: var(--text); text-decoration: none; opacity: 0.7; }
+    .footer-link:hover { opacity: 1; text-decoration: underline; }
+    .footer-socials { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+    .footer-socials a {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px; color: var(--text); opacity: 0.65;
+      transition: opacity 0.15s ease;
+    }
+    .footer-socials a:hover { opacity: 1; }
+    .footer-socials svg { width: 16px; height: 16px; fill: currentColor; display: block; }
+
+    @media (max-width: 1080px) {
+      .article-body { grid-template-columns: 1fr; max-width: 720px; }
+      .reading-rail { display: none; }
+      .reading-main { padding-right: 0; }
+      .article-head { max-width: 720px; }
+      .title-block { padding-left: 0; }
+      .sidenote {
+        float: none; clear: none; width: auto;
+        margin: 10px 0 18px;
+        padding: 12px 16px;
+        background: var(--almost-white);
+        border-left: 2px solid var(--theme);
+        border-radius: 4px;
+      }
+    }
+    @media (max-width: 860px) {
+      .title-block { grid-template-columns: 1fr; gap: 28px; }
+    }
+    @media (max-width: 640px) {
+      .article-title { font-size: 32px; }
+      .article-subtitle { font-size: 18px; }
+      .prose { font-size: 16px; }
+      .prose h2 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <a class="logo" href="index.html" aria-label="Science Works home">
+      <img class="logo-mark" src="assets/images/FINAL4.svg" alt="" />
+      <span class="logo-text">SCIENCE WORKS</span>
+    </a>
+    <nav class="nav-links">
+      <a href="about.html">About</a>
+      <a href="index.html#projects">Projects</a>
+      <a href="writing.html">Writing</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <article class="article">
+      <div class="article-head">
+        <div class="meta-bar">
+          <a class="bar-item" href="writing.html">Essay</a>
+          <span class="bar-sep" aria-hidden="true"></span>
+          <a class="bar-item" href="index.html#projects">AI for Science</a>
+          <span class="bar-sep bar-sep--right" aria-hidden="true"></span>
+          <a class="bar-item bar-download" href="#">Download PDF</a>
+        </div>
+        <div class="title-block">
+          <div class="title-col">
+            <h1 class="article-title">How not to waste an AI for science mission</h1>
+            <p class="article-subtitle">On the regrettable necessity of thinking carefully before spending public money</p>
+            <div class="byline-authors">
+              <div class="author-row">
+                <span class="author">Ben Johnson</span>
+                <span class="pub-date">7 March 2026</span>
+              </div>
+              <div class="author">Laura Ryan</div>
+            </div>
+            <p class="contributors"><strong>Contributors:</strong> Sam Currie, Alex Chalmers, Alvin Djajadikerta, Charlie Harris</p>
+          </div>
+          <div class="title-pic">
+            <div class="img" role="img" aria-label="The First Step by František Kupka"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="article-body">
+        <aside class="reading-rail" aria-hidden="true">
+          <div class="progress-strip" id="progress"></div>
+          <nav class="toc" id="toc" aria-label="Contents"></nav>
+        </aside>
+        <div class="reading-main">
+        <div class="prose">
+        <h2 data-toc="Missions, possible?">Missions &ndash; possible?</h2>
+        <p>Everybody loves a good mission. The Manhattan Project compressed a decade of theoretical physics into three years of industrial-scale engineering and produced a device that ended a world war. Apollo took a president&rsquo;s dare and, within the decade, landed two men on a body a quarter of a million miles away.</p>
+        <p>But the reason these examples are so oft-cited, more than half a century on, is that they&rsquo;re rare. Most scientific progress doesn&rsquo;t work this way, and we oughtn&rsquo;t pretend it does. National missions are grand undertakings &ndash; they run on both ambition &amp; architecture; the careful selection of goals matched with specific structures to deliver. They require the singular and deliberate concentration of effort, attention, talent, and a huge amount of resources on a well-defined objective; if everything is a &lsquo;mission&rsquo;, nothing is.</p>
+        <p>The language of missions has been loose in British policy for some time now. Mariana Mazzucato popularised the concept amongst the wonks of Whitehall; the Conservative government&rsquo;s Industrial Strategy adopted it; Labour now governs under five grand &ldquo;missions&rdquo; that straddle huge areas of domestic policy. The word has become somewhat promiscuous &ndash; it was only a matter of time before it reached DSIT.</p>
+        <p>The government&rsquo;s <a href="https://www.gov.uk/government/publications/ai-for-science-strategy/ai-for-science-strategy">AI for Science Strategy</a> (published last November)<sup class="sn-ref">1</sup><span class="sidenote"><span class="sn-num">1</span>Recently there has been an uptick in strategies making such commitments &ndash; e.g. the national quantum strategy, &ldquo;By 2035, there will be accessible, UK-based quantum computers capable of running 1 trillion operations and supporting applications that provide benefits well in excess of classical supercomputers across key sectors of the economy&rdquo;. This makes a discussion around the architecture of mission selection and delivery all the more critical.</span> does something refreshing in this space. Instead of paying lip service to mission-ology, it makes a concrete commitment to one flagship mission: a specific, time-bound, falsifiable target to develop trial-ready drugs within 100 days by 2030. It also commits to selecting a further round of missions in 2026.</p>
+        <p>We were each co-authors of the <a href="https://institute.global/insights/tech-and-digitalisation/a-new-national-purpose-accelerating-uk-science-in-the-age-of-ai">Tony Blair Institute&rsquo;s AI for Science paper</a> that fed into the strategy. That paper did not recommend missions. But with one mission announced and more on the way, the stakes are high enough to warrant a more thorough examination. History shows that well-executed missions can produce spectacular results; recent experience shows there are plenty of ways for government to fall short. We want to try to help narrow that gap as much as possible, and make the AI for Science missions a success.</p>
+
+        <h2 data-toc="First principles">First, principles</h2>
+        <p>AI for science matters to Britain. We are fundamentally a scientific nation; a considerable share of our prosperity and national character is derived from this fact. Britain&rsquo;s scientific inheritance is one of the few unambiguous advantages we carry into this century, and AI will reshape what that inheritance is worth.</p>
+        <p>Science is about to transform: radically and within a generation. Getting this transformation right is among the more consequential things the government can do. Few countries have more to gain &ndash; or more to lose &ndash; than we do.</p>
+        <p>Our greatest challenge is embedding AI across the whole scientific landscape: building enabling infrastructure, generating and sharing high-quality data, incentivising upgrades to the tools and workflows on which scientists depend. But alongside that broader effort, there&rsquo;s space for something more concentrated: specific programmes that marshal resources and attention toward defined scientific goals.</p>
+        <p>In this spirit, the AI4S strategy commits to a handful of missions &ndash; but what does that mean?</p>
+        <p>There are many species of &lsquo;mission&rsquo;: scientific moonshots versus the creation of broad societal goods; government as principal versus government as conductor. Do they mean a demanding, resource-intensive push toward a technical objective, like sequencing the human genome? Or do they mean a broad, systemic goal, like using AI to tackle the reproducibility crisis? These are each fundamentally different propositions, with different selection criteria, different delivery models, and different measures of success.</p>
+        <p>As a baseline, we should outline what we think DSIT intends. Per the strategy, the AI for science missions are aiming for <strong>technical and scientific breakthroughs</strong>, and sit closer to a conductor model &ndash; government orchestrating activity across academia, industry, and public institutions, concentrating resources, and using its convening power and national assets.</p>
+        <p>This is helpful framing as far as it goes, but it doesn&rsquo;t go very far. We have a rough idea of the <em>kind</em> of missions they&rsquo;re aiming for, but not yet any detail about <em>how they&rsquo;ll be run</em>. And it is in these details that missions succeed or fail.</p>
+        <p>The credibility and success of the missions programme depends entirely on two things: the quality of what gets selected, and the delivery architecture that surrounds it. This post covers the first of these.</p>
+        <p>The second half of the problem &ndash; implementation &ndash; matters just as much as selection. We shouldn&rsquo;t take it for granted that delivery will be up to par. Anyone who&rsquo;s worked inside the system knows that government&rsquo;s default mode is to treat the announcement as the product. Keeping a mission going depends on sustaining a punishing standard of rigour, and once political attention moves on, it can be difficult for senior civil servants to justify spending significant ongoing resources on yesterday&rsquo;s news. Indeed, delivering missions well may require entirely new institutional architecture &ndash; both inside and outside government. We will return to this at a later date.</p>
+
+        <h2 data-toc="Good, bad, ugly">The good, the bad, and the ugly</h2>
+        <p>Now that missions have been announced, proposals are sure to come thick and fast. Researchers, industry lobbyists, and think-tank operatives will rush to the new seam to pan for gold. Some ideas will be strong. Some considerably less so: there is little cost to throwing ideas out there, and the policy ecosystem is not always known for its quality control. The reputational upside of having your domain selected is considerable; even unsuccessful bids tend to gain disproportionate airtime, while proponents seldom bear the delivery risk.</p>
+        <p>If you squint, just about anything can look like a &ldquo;mission&rdquo;, and we should be wary of uncritically memeing misguided ideas into the mainstream. More important than rushing to stake claims on specific domains is to establish what kinds of proposals are genuinely well suited to be national missions; if the government is to select well, it needs to know what it&rsquo;s selecting <em>for.</em></p>
+        <p>The strategy selects five broad areas of science and technology where AI could unlock progress: engineering biology, fusion energy, materials science, medical research, and quantum technologies. Most of the strategy&rsquo;s efforts will be directed at these domains &ndash; including missions.</p>
+        <p>Each area was selected on the grounds that it shows existing UK strength, alignment with wider UK strategy, and opportunities for AI-driven progress. It would be hard to disagree that any of the five clears that bar. But each is a hefty field. A huge variety of work within these areas will be important and deserving of funding and support; few problems are specifically national mission-shaped. The bar for domain selection was deliberately low: the bar for mission selection must be considerably higher.</p>
+        <p>To raise that bar, we need to know what we&rsquo;re aiming for &ndash; to reverse-engineer what&rsquo;s mission-shaped from an understanding of what national missions are, and how they work.</p>
+        <p>There&rsquo;s good prior thinking on this within government that deserves to be dusted off. In 2018, the Council for Science and Technology &ndash; then chaired by Patrick Vallance, now Science Minister &ndash; published <a href="https://assets.publishing.service.gov.uk/media/668bfd59ab5fc5929851bb98/2018_Principles_for_running_a_successful_mission.pdf">advice on how to run a successful mission</a> programme. In their view:</p>
+        <blockquote><p>Missions should be ambitious, transformative programmes that address grand challenges. They must have a clear vision, be problem-led without pre-defined solutions, and have a quantifiable outcome. They should not consist of existing Government policy re-branded.</p></blockquote>
+        <p>They go on to say that successful missions require (and are characterised by) a fundamentally different approach to management and delivery: a single accountable leader, a dedicated cross-government team of sufficient critical mass, ring-fenced resources, simplified governance, and access to external expertise.</p>
+        <p>These elements are a good jumping off point for thinking about what makes a strong mission candidate, but they are generalised to any mission programme. What follows is our attempt to build on them: a set of criteria, some analytical, others practical, that we think should govern the selection of AI for science missions. It is not exhaustive, but it covers the ground where we think the risks of getting it wrong are highest.</p>
+
+        <h2 data-toc="1. Definitional clarity">1) Definitional clarity</h2>
+        <h3>What is AI for science?</h3>
+        <p>&ldquo;AI for science&rdquo; is almost as promiscuous a term as mission. Does it mean science that makes use of machine learning? AI applied to the research ecosystem? Does it include research <em>into</em> artificial intelligence? And does it matter?</p>
+        <p>The government says the missions should aim for goals &ldquo;that can only be reached through breakthrough scientific progress enabled by AI&rdquo; and that missions may occur in priority areas where AI is &ldquo;poised to play a significant role in accelerating progress.&rdquo;</p>
+        <p>This is sentimentally a good starting point &ndash; we like breakthroughs. But as the programme gets underway and selection approaches, government should articulate a considerably more specific definition. Almost every field and type of science now uses AI in some form &ndash; as a workhorse for data analysis, as an aid to simulation, or as an accelerant to processes that were previously manual and slow. Most serious new research programmes launched today will have AI woven in as a matter of course. If the test is simply whether a mission involves science and is significantly enabled by AI somewhere along the way, then virtually anything qualifies.</p>
+        <p>We think the threshold must be more demanding: an AI for science mission should be one where AI is not merely present but constitutive &ndash; where the goal is unachievable without <em>specific novel</em> AI capabilities, or where the mission itself must build the foundational assets on which those capabilities depend. This is a harder test than &ldquo;science enabled by AI,&rdquo; but it is the only one that gives the label real discriminating power.</p>
+        <p>The mission programme may buckle if swathes of proposals can claim the &ldquo;AI4S&rdquo; label with equal plausibility. It must be able to distinguish genuinely exciting opportunities for value-creation from rebranded scientific programmes that would have been proposed regardless.</p>
+
+        <h2 data-toc="2. Quality over quantity">2) Quality over quantity</h2>
+        <h3>Can we afford another?</h3>
+        <p>Good national missions are expensive. The Vaccine Taskforce agreed a &pound;5.2 billion programme business case with the Treasury. The London 2012 Olympics cost north of &pound;9 billion. AI for science missions will not build stadiums or procure vaccines at breakneck speed during a pandemic; but the resources required to stand up anything deserving of the name are nevertheless substantial.</p>
+        <p>The government has committed up to &pound;137 million to the entire AI for Science Strategy. That figure covers a lot: data infrastructure, fellowships, doctoral training, interdisciplinary teams, and missions. Not all of it &ndash; probably not even most of it &ndash; will go to national missions. The strategy also doesn&rsquo;t say how many missions it intends to select: it commits to &ldquo;a handful&rdquo;, so probably more than two, fewer than ten. In the most restrained possible case, we are talking about an absolute maximum of low tens of millions each. In scientific programmes, this does not get you very far. Crowding in private or philanthropic funding then &ndash; as the government has said it wants to do &ndash; becomes a condition of viability. But it is also in a sense definitional: missions require others to have skin in the game, so the selection process should favour candidates where such co-investment is not just possible but natural.</p>
+        <p>Each new mission is also competing for the same inputs: leadership talent with both scientific credibility and delivery capability, compute allocation (the strategy&rsquo;s own &ldquo;system takeover&rdquo; model ties up 80% of national capacity for two weeks per mission), and sustained political attention. These are extraordinarily difficult to parallelise.</p>
+        <p>The government has said that part of the reason it is pursuing missions is to ensure resources &ldquo;are targeted towards shared goals instead of being spread thinly across diffuse opportunities.&rdquo; That&rsquo;s the right instinct, but the pressure to add missions will be considerable. Announcing the next one is virtually costless and would confer considerable political upside in the short-term (and the goodwill of the research base). Many ideas will be advocated for with great force. Resisting that pressure will be the government&rsquo;s first and most important act of discipline.</p>
+
+        <h2 data-toc="3. Falsifiable targets">3) Meaningful, falsifiable targets</h2>
+        <h3>Can we describe success precisely enough to know if we made it?</h3>
+        <p>The most basic question a mission candidate must answer is also the one most easily fudged: what, precisely, would it mean to succeed? A mission needs a target that&rsquo;s concrete, specific, and tied to a deadline: we will cross this threshold by this date. &ldquo;Trial-ready drugs within 100 days by 2030&rdquo; is a target that government can succeed or fail at, which makes it stick out from the usual mush of &ldquo;strengthen the UK&rsquo;s position&rdquo; or &ldquo;unleash innovation.&rdquo; A target that cannot be clearly met or missed is moot.</p>
+        <p>The target must also be set at the right altitude. Too modest, and it fails to justify the machinery of a national mission. Too unrealistic and no one will take it seriously. The target should sit in the narrow band where achievement is genuinely uncertain but plausibly within reach &ndash; stretching enough to demand extraordinary effort, credible enough that failure reflects on the programme rather than our level of ambition.</p>
+        <p>A target must also be compatible with the delivery model it depends on. If meeting the goal would require fundamentally re-orienting ongoing activities across research communities, industry, or other areas of government, then either the mission team needs the mandate and resources to drive that reorientation, or the goal needs to bend to accommodate reality. A target that assumes a level of systemic coordination the delivery architecture cannot provide is a fiction.</p>
+        <p>As any scientist will tell you, perhaps the most critical consideration when setting a goal or readout metric is correct causal attribution. You need to be confident that your mission was the cause of (or at least a significant contributing factor to) the outcomes you hope to observe. This rules out a lot. A target pegged to macro-level indicators like total factor productivity, R&amp;D intensity, or private investment in research would fail immediately: these indicators are driven by such a wide range of forces that no single programme could honestly claim ownership of the result.</p>
+        <p>Equally, a target pegged to broad research assessment processes would fail. The REF, for instance, is shaped by so many variables that no intervention could credibly take credit &ndash; and its cycles are far too slow and too infrequent to function as a meaningful feedback mechanism in the first place. Good mission targets need verifiable causal chains between the intervention and the result. This also means that, wherever possible, progress should be independently verifiable &ndash; not self-assessed by the mission team or the department that sponsors it.</p>
+        <p>And finally, a really serious mission must be capable of embarrassing its sponsors. To know when you have succeeded, you have to know when you&rsquo;ve failed &ndash; and that failure must be visible enough to sting. The London 2012 Olympics could not be redefined as a partial success if the stadium was unfinished on opening night: the date was fixed and the world was watching. Pressure is the mechanism by which missions sustain political weight; visibility keeps everyone honest.</p>
+
+        <h2 data-toc="4. Multi-faceted">4) Multi-faceted challenges&hellip;</h2>
+        <h3>Is the problem the right <em>shape</em> for a mission?</h3>
+        <p>Scientific research can come in all shapes and sizes. Some efforts are hell-bent on chasing a single quarry; some are sequential, linear pipelines; some traverse vast and directionless oceans of understanding. AI can likely play a role in all of these. What matters for mission suitability is the <em>shape</em> of the problem.</p>
+        <p>At one end of the spectrum, AI is already accelerating well-contained processes across dozens of fields &ndash; improving image classification in pathology, say, or optimising the geometry of a turbine blade. These are discrete technical challenges where AI is applied directly to a known bottleneck, without requiring the government-anchored orchestration of multiple actors. Some of these efforts are enormous in their ambition and impact, but the bottleneck is capability, not coordination, and they don&rsquo;t need the machinery of a national mission.</p>
+        <p>At the other end sit the great diffuse frontiers: broad research spaces that would benefit greatly from widespread AI adoption, but without a defined north star &ndash; no singular goal that requires a grand coordination of effort. Open-ended exploration across multiple fronts lacks the bounded structure a mission demands, with no clear map of pathways that can be shortened. &lsquo;Understanding the mechanisms of neurodegeneration&rsquo;, for instance, is a functionally edgeless space containing countless local bottlenecks that AI might help relieve. But the science advances on a broad front; you can&rsquo;t set a deadline for a problem with no vision of what a &lsquo;solution&rsquo; looks like. A mission is not a general-purpose strategy; it&rsquo;s a siege engine &ndash; and it needs a wall to batter against.<sup class="sn-ref">2</sup><span class="sidenote"><span class="sn-num">2</span>For instance, Richard Nixon&rsquo;s 1971 &lsquo;War on Cancer&rsquo; was well resourced, but ultimately could not fully succeed as it treated a diffuse scientific frontier as though it were a bounded problem.</span></p>
+        <p>The sweet spot lies between these poles. The right candidate for a mission should aim for a scientific or technical goal that was previously out of reach, requiring a multi-stage process and coordination between disparate actors who won&rsquo;t align on their own &ndash; a network of distinct challenges. Crucially, there must be a credible account of why an AI-oriented mission can shift the dial.</p>
+
+        <h2 data-toc="5. Government's role">5) &hellip;that need government intervention</h2>
+        <h3>Does government play a necessary role here?</h3>
+        <p>There should also be an understanding of why government is uniquely necessary, and what a government-backed national mission can offer that can&rsquo;t be achieved otherwise. The strategy talks about missions &ldquo;galvanising activity and coordination across UK industry and academia&rdquo;. This is a natural place for government to be, and aligns with the sweet spot described above. But government can only provide so much funding and bandwidth &ndash; so it should be very strict about discriminating on the basis of additionality.</p>
+        <p>That said, additionality should be assessed against the full range of what government can uniquely provide: access to, or redeployment of, existing national assets &ndash; including public facilities or secure datasets; coordination and brokerage power that can help anchor the disparate efforts of multiple actors inside and outside government; and help with addressing specific policy or regulatory blockers that are holding back delivery.</p>
+        <p>We may go into more detail thinking about some of these concepts in a future delivery-focussed piece. For now, it&rsquo;s sufficient to say that if the private sector or public institutions could get there with a push in the right direction (or with barriers removed), it&rsquo;s probably not a good candidate.</p>
+        <p>Let&rsquo;s apply these last two tests to the drug discovery mission. On the shape of the research problem: the preclinical pipeline &ndash; target discovery, hit identification, binding affinity prediction, lead optimisation, ADMET modelling, and preclinical testing &ndash; is sequential, well-understood, and (critically) slow for reasons that AI seems specifically suited to address. A mission approach is sensible because there are multiple specific stages where specific AI capabilities produce specific acceleration.</p>
+        <p>But the problem isn&rsquo;t merely scientific &ndash; if it were, then the research base and pharmaceutical industry would get there on their own. Critical enablers require targeted action from government: providing access to compute, establishing new public infrastructure like the Health Data Research Service, and reforming regulation to enable the Medicines and Healthcare products Regulatory Agency to accept AI-generated evidence. These are public goods or pre-commercial activities that the market won&rsquo;t supply, and collective action problems that no one company or institution has the incentive to address systemically.</p>
+
+        <h2 data-toc="6. National assets">6) Consideration of existing national assets</h2>
+        <h3>Are we playing to our strengths?</h3>
+        <p>If you want to play missions on easy mode, you don&rsquo;t begin from a standing start &ndash; with a budget this modest you can&rsquo;t afford to. Far better to leverage what already exists to give the mission every possible advantage. What counts as &ldquo;enough&rdquo; will vary by domain, but the question for any candidate is simple: does the UK already possess the assets needed to deliver, or are we planning to build them as we go?</p>
+        <p>For drug discovery, the existing asset base is comprehensive. The UK has considerable infrastructural strength and depth, across research talent, high-quality data, and world-leading institutions and infrastructure. But there is also an established commercial and regulatory ecosystem beyond the lab ready to translate AI-derived treatments into products and improved patient outcomes. Not every mission will need this kind of end-to-end readiness, but existing assets mean the mission can focus its limited resources on the genuinely hard problems. Whatever the relevant assets are for delivery in a given programme, the mission is much more likely to succeed if they&rsquo;re already in place.</p>
+        <p>But &lsquo;existing assets&rsquo; requires more granular thinking than simply listing major institutions. What matters is whether we possess a specific capability &ndash; often a recent breakthrough in experimental technique &ndash; that an AI mission can exploit. One such breakthrough happened recently at the Diamond Light Source: a development in ultra-high throughput crystallography that enables researchers to generate structural data at orders of magnitude greater scale than was previously possible &ndash; the kind of step-change that makes AI approaches newly viable. That insight was critical for the drug discovery mission, but it required deep domain awareness (and external expertise). Learning from this, DSIT should undertake a detailed capability scan, mapping breakthrough experimental technologies that could generate the foundations on which AI-driven science depends.<sup class="sn-ref">3</sup><span class="sidenote"><span class="sn-num">3</span>These breakthroughs won&rsquo;t always come from traditional academic institutions: the UK has a vibrant network of startups producing exactly this kind of stuff. DSIT should cast the net widely.</span> If you don&rsquo;t know what you have, you can&rsquo;t play to your strengths.</p>
+        <p>There is a trade-off here. In some cases it will be acceptable &ndash; desirable, even &ndash; for a mission to build on a more nascent ecosystem rather than exploiting existing institutional strengths. This might be justified where strategic necessity demands it, or where an emerging field shows extraordinary promise but lacks the critical mass to develop without a deliberate concentration of effort. Missions can be a powerful vehicle for fanning early sparks into something larger. But the less you have in place at the outset, the more honest you&rsquo;ve got to be about what that means for deliverability and timelines. A mission that must first construct its own foundations before it can pursue its core objective is a fundamentally riskier proposition &ndash; and the timescales involved must be compatible with the urgency that justifies a mission approach in the first place.</p>
+
+        <h2 data-toc="7. Mission control">7) Mission Control</h2>
+        <h3>Is it governable at the right level?</h3>
+        <p>Missions succeed or fail on the strength of decisions taken by the right people, at the right level, at the right time. Every Manhattan project needs its General Groves, and the enabling operating system around him that turns individual decisions into coordinated delivery at scale. The science is critical, but what makes a mission <em>a mission</em> is the deliberate concentration of authority, resources, and strategic vision under a defined line of command, oriented towards delivery.</p>
+        <p>Government departments typically aren&rsquo;t accustomed to operating this way. The AI for Science strategy contains a long list of activities that appear to support the drug discovery mission, but as yet there isn&rsquo;t much detail on how this or future missions will be governed.</p>
+        <p>Everything turns on the answer: it&rsquo;s the difference between simply defining targets and outlining commitments &ndash; words on pages &ndash; versus something that can actually be <em>done</em>. Will these &ldquo;missions&rdquo; essentially be funds attached to loose collections of already ongoing complementary activities, operating under a shared umbrella heading? Will they be governed through the familiar machinery of &ldquo;deliverology&rdquo;, where plans are set at the outset, milestones tracked, and deviations flagged? Or will mission leaders be given genuine authority to prosecute the problem as they see fit &ndash; the power to marshal and redeploy resources, and the freedom to pivot?</p>
+        <p>We think a true mission must conform with the third model, though we find it hard to pinpoint many examples from recent history where the government has done this successfully.<sup class="sn-ref">4</sup><span class="sidenote"><span class="sn-num">4</span>The obvious exception is the Vaccines Taskforce, which is so oft-cited to qualify as the exception that proves the rule.</span> If this <em>were</em> what DSIT is aiming for in their AI for science missions (and we think it should be), we would propose the following as non-negotiables.</p>
+        <p>A mission needs legible authority: a responsible owner with a strong mandate and a direct line to ministers. It needs clear delegated decision-making, including on spending; excellent situational awareness of who is doing what, including outside government, and an understanding of where external actors must be drawn in. It needs a control hub &ndash; an organising mind capable of seeing the whole board and directing resources accordingly. It needs the right expertise deployed in the right roles. And it needs enough spending power to get the job done.</p>
+        <p>This isn&rsquo;t a novel prescription. Vallance&rsquo;s 2018 mission principles call for essentially this: a single accountable leader, a dedicated cross-Whitehall team of around eight to ten people, ring-fenced funding,<sup class="sn-ref">5</sup><span class="sidenote"><span class="sn-num">5</span>The history of ring-fenced funding surviving contact with UKRI&rsquo;s broader spending pressures is not encouraging.</span> and simplified governance. If Vallance still wants to follow these principles (and we think he should) then he should appoint mission leads with the requisite technical expertise and empower them accordingly.</p>
+        <p>These principles also give us a practical test for whether a proposal is genuinely mission-shaped. If you can&rsquo;t imagine a single person being held accountable for whether the target was met, the mission is probably too diffuse. If the delivery team would need to span so many domains that no group of ten people could cover it and act as the strategic brain, it is probably too broad. The drug discovery mission, whatever its eventual governance arrangements, could plausibly be run this way. That won&rsquo;t be true of every proposal.</p>
+
+        <h2 data-toc="8. Political durability">8) Political durability</h2>
+        <h3>Can the mission survive political changes?</h3>
+        <p>A mission that&rsquo;s analytically perfect but politically fragile is a bad mission, because it will be defunded or hollowed out long before it delivers. Missions require sustained political commitment across spending reviews and ministerial reshuffles &ndash; a mission that can&rsquo;t sell itself to a future minister who wasn&rsquo;t involved in its creation is living on borrowed time.</p>
+        <p>There are several ways to build this resilience. The first is structural: embedding the mission within the ecosystem &ndash; weaving it into the fabric of multiple strategies such that it becomes difficult to unpick without disturbing something else, and is in the interests of many. The drug discovery mission is notable for how many existing government commitments it connects to. The <a href="https://www.gov.uk/government/publications/industrial-strategy">Industrial Strategy</a>, the <a href="https://www.gov.uk/government/publications/life-sciences-sector-plan">Life Sciences Sector Plan</a>, the <a href="https://www.gov.uk/government/publications/life-sciences-healthcare-goals">Life Sciences Healthcare Goals</a>, the <a href="https://www.gov.uk/government/publications/replacing-animals-in-science-strategy/replacing-animals-in-science-a-strategy-to-support-the-development-validation-and-uptake-of-alternative-methods">strategy for replacing animals in research</a> &ndash; all converge on the same set of objectives. This reflects the fact that drug discovery sits at a point of unusually high strategic density, where multiple policy goals are served simultaneously. International commitments and private sector co-investment can serve the same anchoring function: the more a mission is entangled with obligations that extend beyond a single department&rsquo;s discretion, the harder it becomes to kill it.</p>
+        <p>The second is narrative. A mission that tells a good story and can be easily understood and defended has a structural advantage over one that&rsquo;s more abstract or bland. Why does this matter to people&rsquo;s lives? Why does it matter for Britain? A credible link to economic growth, public health, or national security is a load-bearing feature of the mission&rsquo;s design.</p>
+        <p>The third is political constituency. Missions that create place-based effects generate local champions. Missions that attract cross-party support and ownership survive changes of government. Missions that connect to long-standing public priorities &ndash; health, security, cost of living &ndash; are electorally salient. None of this is a substitute for scientific merit, but scientific merit alone has never been sufficient.</p>
+        <p>Without an active champion (or team) invested in a mission&rsquo;s survival, politics tends to be neglected entirely. Many propositions that could otherwise make plausible AI4S missions won&rsquo;t naturally be politically sexy &ndash; and that can make them vulnerable to shifting political winds. The answer is not to ignore this reality, or to retreat into academia and hope that distance from the political battlefield confers safety. Though not necessarily mission-critical, any proposal should engage seriously with the political context it inhabits. The question for each candidate is stark: how many different reasons does the government have to care about this in five years&rsquo; time?</p>
+
+        <h2 data-toc="All to play for">All to play for</h2>
+        <p>There is plenty of reason to doubt that these missions will come off. The budget is modest, the institutional capacity to run missions properly is uncertain, the gravitational pull of the prevailing ways of working is intense. Missions are easy to announce, and brutally hard to deliver.</p>
+        <p>These tests are demanding because missions are demanding. It&rsquo;s not lost on us that many of the most successful historical examples were driven by necessity: wartime pressures, the Space Race, the COVID-19 pandemic. These missions operated on a fundamentally different scale, but it would be naive not to recognise that maintaining critical mass around a mission may be impossible without the pressure of a national crisis.</p>
+        <p>And the consequences of getting it wrong are not zero, but negative: a mission programme that goes wrong is worse than one that was never attempted. &pound;137 million is a modest sum for national missions, but it could go a considerable distance in driving AI adoption across the research base. The opportunity cost of squandering it on a programme that collapses into business as usual would be a serious setback for AI for science &ndash; and for the credibility of ambitious government action more broadly.</p>
+        <p>And yet. It would be bloody brilliant if a mission worked. If the government can hold its nerve &ndash; apply rigorous selection criteria, resist the pressure to dilute, build the institutional architecture that delivery demands, and refuse to let the programme degrade into a collective branding exercise &ndash; there is a chance. Britain needs to be able to do this.</p>
+        <p>AI for science is a great place to start, even if the budget suggests a country tiptoeing where it ought to stride. A well-executed mission programme would count twice over: once for the scientific breakthroughs, and again as a demonstration that the British state can still marshal resources towards a formidable goal and see it through. With sufficient will from the right people, we&rsquo;ll see.</p>
+        </div>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span class="footer-copy">&copy; Science Works 2026.</span>
+      <a class="footer-link" href="cookies.html">Cookies Policy</a>
+      <a class="footer-link" href="privacy.html">Privacy Policy</a>
+      <div class="footer-socials">
+        <a href="#" aria-label="LinkedIn" title="LinkedIn">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43A2.06 2.06 0 1 1 5.34 3.3a2.06 2.06 0 0 1 0 4.13zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>
+        </a>
+        <a href="#" aria-label="X (Twitter)" title="X">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M18.24 2.25h3.31l-7.23 8.26L23 21.75h-6.66l-5.21-6.82-5.97 6.82H1.85l7.73-8.84L1.25 2.25h6.83l4.71 6.23 5.45-6.23zm-1.16 17.52h1.83L7.08 4.13H5.12L17.08 19.77z"/></svg>
+        </a>
+        <a href="#" aria-label="Bluesky" title="Bluesky">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 10.8C10.91 8.69 7.95 4.75 5.2 2.8 2.57.94 1.56 1.27.9 1.57.14 1.91 0 3.08 0 3.77c0 .69.38 5.65.62 6.48.82 2.73 3.71 3.66 6.38 3.36-3.91.58-7.38 2.01-2.83 7.08 5.01 5.19 6.87-1.11 7.82-4.31.95 3.2 2.05 9.27 7.73 4.31 4.27-4.31 1.17-6.5-2.74-7.08 2.67.3 5.57-.63 6.38-3.36.25-.83.62-5.79.62-6.48 0-.69-.14-1.86-.9-2.21-.66-.3-1.66-.62-4.3 1.24C16.05 4.75 13.09 8.69 12 10.8z"/></svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    (function () {
+      const prose = document.querySelector('.prose');
+      const toc = document.getElementById('toc');
+      const progress = document.getElementById('progress');
+      if (!prose || !toc || !progress) return;
+
+      const slug = function (s) {
+        return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      };
+      const items = Array.prototype.slice.call(prose.querySelectorAll('h2')).map(function (h, i) {
+        if (!h.id) h.id = 'sec-' + (slug(h.textContent) || i);
+        const a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.getAttribute('data-toc') || h.textContent;  // short alias if given
+        a.className = 'toc-link';
+        toc.appendChild(a);
+        return { a: a, h: h };
+      });
+
+      // Progress cells: enough tightly-packed cells to span the TOC height,
+      // recomputed on resize / once webfonts settle so they always line up.
+      const CELL = 12, GAP = 4;
+      let cells = [];
+      function buildCells() {
+        progress.innerHTML = '';
+        cells = [];
+        const tocH = toc.getBoundingClientRect().height;
+        const n = Math.max(6, Math.round((tocH + GAP) / (CELL + GAP)));
+        for (let i = 0; i < n; i++) {
+          const c = document.createElement('span');
+          c.className = 'progress-cell';
+          progress.appendChild(c);
+          cells.push(c);
+        }
+      }
+
+      function update() {
+        const docH = document.documentElement.scrollHeight - window.innerHeight;
+        const p = docH > 0 ? Math.min(1, Math.max(0, window.scrollY / docH)) : 0;
+        const filled = Math.round(p * cells.length);
+        for (let i = 0; i < cells.length; i++) cells[i].classList.toggle('is-filled', i < filled);
+        let active = 0;
+        for (let i = 0; i < items.length; i++) {
+          if (items[i].h.getBoundingClientRect().top <= 120) active = i;
+        }
+        items.forEach(function (it, i) { it.a.classList.toggle('is-active', i === active); });
+      }
+
+      buildCells();
+      window.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', function () { buildCells(); update(); });
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(function () { buildCells(); update(); });
+      }
+      update();
+    })();
+  </script>
+</body>
+</html>
