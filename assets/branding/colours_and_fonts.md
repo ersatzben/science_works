@@ -1,7 +1,7 @@
 # Colours
 ## Primary colour pallette 
 
-- #f6eee8 (primary background)
+- #f6f0ed (primary background)
 - #66223b (primary text colour) [H]
 - #eb3131 (primary theme colour) [3H]
 
@@ -23,6 +23,9 @@
 ## Optional variants
 - #3a3c7c
 - #72679b [R]
+
+## UI
+- #ddcac9 (border-grey — horizontal lines & borders)
 
 # Typefaces
 

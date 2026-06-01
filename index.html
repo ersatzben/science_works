@@ -22,14 +22,28 @@
       font-style: normal;
       font-display: swap;
     }
+    @font-face {
+      font-family: 'Copperplate';
+      src: url('assets/fonts/Copperplate30.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Copperplate';
+      src: url('assets/fonts/Copperplate30.otf') format('opentype');
+      font-weight: bold;
+      font-style: normal;
+      font-display: swap;
+    }
     :root {
       /* Primary */
-      --bg: #f6eee8;
+      --bg: #f6f0ed;
       --text: #66223b;
       --theme: #eb3131;
 
       /* Secondary */
-      --bg-secondary: #fffaf4;
+      --bg-secondary: #f9f3ee;
       --sage: #00726b;
       --bright-blue: #004ee6;
       --pale-blue: #a3c0d7;
@@ -46,6 +60,9 @@
       /* Optional */
       --opt-1: #3a3c7c;
       --opt-2: #72679b;
+
+      /* UI */
+      --border-grey: #ddcac9;   /* horizontal lines & borders */
 
       /* Cell metrics */
       --cell-size: 14px;
@@ -94,7 +111,7 @@
     .nav {
       height: 60px;
       background: var(--bg-secondary);
-      border-bottom: 2px solid var(--theme);
+      border-bottom: 2px solid var(--border-grey);
       box-sizing: border-box;
       display: flex;
       align-items: center;
@@ -120,11 +137,11 @@
       max-width: 1400px;
     }
     .section-heading {
-      font-family: 'Playfair Display', serif;
-      font-weight: 500;
+      font-family: 'Copperplate', serif;
+      font-weight: normal;
       color: var(--text);
       font-size: 56px;
-      letter-spacing: -0.02em;
+      letter-spacing: 0.02em;
       margin: 0 0 24px;
     }
     .section-body {
@@ -547,25 +564,29 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: var(--hero-w);
-      height: var(--hero-h);
+      /* Extend beyond the four-block gap it sits in; still centred via the
+         top/left 50% + translate(-50%, -50%) above. */
+      width: calc(var(--hero-w) + 20px);
+      height: calc(var(--hero-h) + 50px);
       background: transparent;
-      color: var(--theme);
+      border: 1px solid var(--border-grey);
+      border-radius: 5px;
+      color: var(--text);
       display: flex;
       flex-direction: column;
       justify-content: center;
       padding: 0 50px;
       box-sizing: border-box;
-      font-family: 'Playfair Display', serif;
-      font-weight: 400;
-      font-size: 64px;
-      line-height: 1.05;
-      letter-spacing: -0.03em;
+      font-family: 'Copperplate', serif;
+      font-weight: 700;
+      font-size: 42px;
+      line-height: 1.0;
+      letter-spacing: 0;
+      text-align: center;
       z-index: 10;
       pointer-events: none;
     }
-    .hero-box .line-1 { text-align: left; }
-    .hero-box .line-2 { text-align: right; font-size: 1.2em; }
+    .hero-box .line-2 { font-size: 0.9em; }
   </style>
 </head>
 <body>
@@ -587,7 +608,7 @@
         <div class="matrix-wrap">
           <div id="matrix" class="matrix" role="img" aria-label="Science Works dot-matrix field"></div>
           <div class="hero-box">
-            <div class="line-1">Reshaping Britain&rsquo;s</div>
+            <div class="line-1">Reshaping the British</div>
             <div class="line-2">Research System</div>
           </div>
         </div>
@@ -719,7 +740,7 @@
 
       // Brand palette, exposed so JS can address cells by colour name later.
       const PALETTE = {
-        bg: '#f6eee8',
+        bg: '#f6f0ed',
         text: '#66223b',
         theme: '#eb3131',
         sage: '#00726b',
@@ -787,7 +808,7 @@
       // stored data exactly — DO NOT reorder.
       const ART_STORAGE_KEY = 'sw.pixelart.v1';
       const ART_PALETTE = [
-        '#f6eee8', // 0 empty / bg
+        '#f6f0ed', // 0 empty / bg
         '#66223b', // 1 text
         '#eb3131', // 2 theme
         '#00726b', // 3 sage

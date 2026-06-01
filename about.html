@@ -22,9 +22,23 @@
       font-style: normal;
       font-display: swap;
     }
+    @font-face {
+      font-family: 'Copperplate';
+      src: url('assets/fonts/Copperplate30.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Copperplate';
+      src: url('assets/fonts/Copperplate30.otf') format('opentype');
+      font-weight: bold;
+      font-style: normal;
+      font-display: swap;
+    }
     :root {
       /* Primary */
-      --bg: #f6eee8;
+      --bg: #f6f0ed;
       --text: #66223b;
       --theme: #eb3131;
 
@@ -46,6 +60,9 @@
       /* Optional */
       --opt-1: #3a3c7c;
       --opt-2: #72679b;
+
+      /* UI */
+      --border-grey: #ddcac9;   /* horizontal lines & borders */
     }
 
     /* No snap-scroll here — about.html is a normal scrolling page. Uses the
@@ -63,7 +80,7 @@
     .nav {
       height: 60px;
       background: var(--bg-secondary);
-      border-bottom: 2px solid var(--theme);
+      border-bottom: 2px solid var(--border-grey);
       box-sizing: border-box;
       display: flex;
       align-items: center;
@@ -120,11 +137,11 @@
     .nav-links a:hover { border-color: var(--theme); }
 
     .section-heading {
-      font-family: 'Playfair Display', serif;
-      font-weight: 500;
+      font-family: 'Copperplate', serif;
+      font-weight: normal;
       color: var(--text);
       font-size: 56px;
-      letter-spacing: -0.02em;
+      letter-spacing: 0.02em;
       margin: 0 0 24px;
       text-align: right;
     }
@@ -205,11 +222,11 @@
       margin: 0 auto;
     }
     .people-title {
-      font-family: 'Playfair Display', serif;
-      font-weight: 500;
+      font-family: 'Copperplate', serif;
+      font-weight: normal;
       color: var(--text);
       font-size: 48px;
-      letter-spacing: -0.02em;
+      letter-spacing: 0.02em;
       margin: 0 0 28px;
     }
 
@@ -217,7 +234,7 @@
        sections; the active section is an inset red-outlined rounded box. */
     .tabs {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 0;
       background: var(--almost-white);
       border: 1px solid rgba(235, 49, 49, 0.18);
@@ -401,6 +418,7 @@
         <h2 class="people-title">Our People</h2>
         <div class="tabs" role="tablist">
           <button class="tab is-active" data-tab="team" role="tab">Our Team</button>
+          <button class="tab" data-tab="contributors" role="tab">Contributors</button>
           <button class="tab" data-tab="igb" role="tab">Independent Governance Board</button>
           <button class="tab" data-tab="sab" role="tab">Strategic Advisory Board</button>
         </div>
@@ -708,6 +726,8 @@
             bio: 'Rory is a Researcher at Science Works, working on software toolbuilding. He is an engineer and two-time founder, currently completing a PhD in computational neuroscience at Cambridge. He was previously a senior software engineer and is co-organiser of the CompMotifs ARIA Innovator Circle.' },
           { name: 'Will Bolton', role: 'Researcher',
             bio: 'Will is a Researcher at Science Works, working on software toolbuilding. He is an AI for Health Researcher at Imperial College London, where he recently completed his PhD on machine learning systems to support antibiotic prescribing decisions. As an Encode Fellow at Oxford, he develops multi-agent AI scientist systems to generate, critique, and compare research strategies, using clinical research as a testbed. He founded Steward.ai, a clinical decision support tool now being clinically evaluated, and won the No.10 Generative AI Hackathon 2024 on biothreats detection. Will has published in Nature Communications and Nature Machine Intelligence, and holds an MPhil in Bioscience Enterprise from Cambridge and a BSc in Biochemistry from Imperial.' },
+        ],
+        contributors: [
           { name: 'Alex Chalmers', role: 'Contributor',
             bio: 'Alex is a staff writer at the Cosmos Institute. Before joining Cosmos, he was an editor at Works in Progress, a magazine focused on new and underrated ideas to improve the world. He previously held roles in venture capital and policy consultancy. Alex studied History at the University of Oxford and won an Emergent Ventures grant in 2024 to support Chalmermagne, his Substack on the intersection of policy, finance, and technology.' },
           { name: 'Charlie Harris', role: 'Contributor',
