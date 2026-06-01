@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Science Works — Splash Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    @font-face {
+      font-family: 'Antique Olive';
+      src: url('assets/fonts/antique-olive-std/Antique-Olive-Std-Roman_3869.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Antique Olive';
+      src: url('assets/fonts/antique-olive-std/Antique-Olive-Std-Bold_3863.ttf') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Copperplate';
+      src: url('assets/fonts/Copperplate30.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Copperplate';
+      src: url('assets/fonts/Copperplate30.otf') format('opentype');
+      font-weight: bold;
+      font-style: normal;
+      font-display: swap;
+    }
+    :root {
+      /* Primary */
+      --bg: #f6f0ed;
+      --text: #66223b;
+      --theme: #eb3131;
+
+      /* Secondary */
+      --bg-secondary: #f9f3ee;
+      --sage: #00726b;
+      --bright-blue: #004ee6;
+      --pale-blue: #a3c0d7;
+      --light-green: #64b37b;
+
+      /* Tertiary */
+      --deep-green: #0e676a;
+      --coral: #f45e57;
+      --beige: #ebe5cf;
+      --almost-white: #faf8f6;
+      --purple-blue: #4b5cce;
+      --darkest-brown: #440214;
+
+      /* Optional */
+      --opt-1: #3a3c7c;
+      --opt-2: #72679b;
+
+      /* UI */
+      --border-grey: #ddcac9;   /* horizontal lines & borders */
+      --button-text: 'Roboto', sans-serif;
+
+      /* Cell metrics */
+      --cell-size: 14px;
+      --cell-radius: 2px;
+      --cell-gap: 2px;
+      --grid-cols: 12;
+      --grid-rows: 11;
+
+      /* Matrix metrics */
+      --matrix-cols: 6;
+      --matrix-rows: 3;
+      --matrix-gap: 50px;
+
+      /* One grid is 12*14 + 11*2 = 190px wide, 11*14 + 10*2 = 174px tall */
+      --grid-w: 190px;
+      --grid-h: 174px;
+
+      /* Full composition: 6*190 + 5*50 = 1390w, 3*174 + 2*50 = 622h */
+      --composition-w: 1390px;
+      --composition-h: 622px;
+
+      /* Hero text box = exactly four horizontal grids: 4*190 + 3*50 = 910px wide, 174px tall */
+      --hero-w: 910px;
+      --hero-h: 174px;
+
+      /* Set by JS on resize; clamp at 1 (no upscaling beyond natural size). */
+      --scale: 1;
+      /* Horizontal viewport padding budget used in the scale calculation. */
+      --viewport-pad: 100px;
+    }
+
+    html {
+      scroll-snap-type: y mandatory;
+      scroll-padding-top: 63px;     /* nav height + 1px border so sections align below */
+      scroll-behavior: smooth;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-family: system-ui, sans-serif;
+    }
+
+    .nav {
+      height: 60px;
+      background: var(--bg-secondary);
+      border-bottom: 2px solid var(--border-grey);
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    /* Each homepage section is a snap target sized to viewport minus nav. */
+    .snap-section {
+      min-height: calc(100vh - 63px);
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+    }
+
+    .section-inner {
+      max-width: 800px;
+      padding: 80px 50px;
+      margin: 0 auto;
+    }
+    .section-inner--wide {
+      max-width: 1400px;
+    }
+    .section-heading {
+      font-family: 'Copperplate', serif;
+      font-weight: normal;
+      color: var(--text);
+      font-size: 56px;
+      letter-spacing: 0.02em;
+      margin: 0 0 24px;
+    }
+    .section-body {
+      font-family: 'Antique Olive', sans-serif;
+      font-size: 18px;
+      line-height: 1.5;
+      color: var(--text);
+      margin: 0 0 16px;
+    }
+
+    /* ---------- About section: helix animation left, text right ---------- */
+    #about .about-row {
+      display: flex;
+      min-height: calc(100vh - 63px);
+    }
+    #about .about-hero {
+      flex: 0 0 44%;
+      position: relative;
+      overflow: hidden;
+    }
+    #about .about-hero canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    #about .about-copy {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px 80px;
+      box-sizing: border-box;
+    }
+    #about .about-copy .section-body {
+      font-size: 18px;
+      line-height: 1.6;
+      margin: 0 0 18px;
+      max-width: 560px;
+    }
+
+    /* ---------- Recents fisheye row ---------- */
+    /* Section is the positioning context for the bookshelf bg.
+       Flex column so the footer sits at the bottom and the section-inner
+       takes the remaining height. */
+    #work {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Bookshelf cell-field: SVG data URI = exactly one cell (14×14, 2px radius)
+       plus a 2px gap, tiled. Matches the splash grid metrics. */
+    #work .bookshelf-bg {
+      position: absolute;
+      left: 0;
+      right: 0;
+      /* Sit directly on top of the footer. */
+      bottom: 60px;
+      /* Multiple of the 16px tile (10 rows) so top-left tiling lands a clean
+         cell row at both the top and the bottom edge — the bottom row meets
+         the footer without being sliced through. */
+      height: 160px;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16'><rect width='14' height='14' rx='2' ry='2' fill='%23ebe5cf'/></svg>");
+      background-size: 16px 16px;
+      background-repeat: repeat;
+      pointer-events: none;
+      z-index: 0;
+    }
+    /* Top two rows of cells are filled at random with non-beige palette colours
+       (generated in JS, see bottom of file). They sit exactly over the first
+       two rows of the tiled beige background so positioning is automatic. */
+    #work .bookshelf-top-cells {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 30px;  /* 2 rows * 14 + 1 gap = 30 visible; tile is 16px tall */
+      display: grid;
+      grid-template-columns: repeat(auto-fill, 14px);
+      grid-template-rows: repeat(2, 14px);
+      gap: 2px;
+      overflow: hidden;
+    }
+    #work .bookshelf-top-cell {
+      width: 14px;
+      height: 14px;
+      border-radius: 2px;
+    }
+    /* Push the row toward the bottom of the section; ensure content sits above the shelf. */
+    #work .section-inner {
+      display: flex;
+      flex-direction: column;
+      flex: 1;  /* takes the space above the footer inside #work's flex column */
+      box-sizing: border-box;
+      position: relative;
+      z-index: 1;
+      /* Trimmed 32px (= 2 cell rows) vs the base 80px so the cards drop down
+         by the same amount the shelf lost from its top. */
+      padding-bottom: 48px;
+    }
+    #work .recents-scaler { margin-top: auto; }
+
+    /* Title row: heading left, "View all" link right. */
+    #work .section-head-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 24px;
+    }
+    #work .section-head-row .section-heading { margin: 0; }
+    .view-all {
+      font-family: 'Antique Olive', sans-serif;
+      font-size: 18px;
+      color: var(--theme);
+      text-decoration: none;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .view-all .arrow { transition: transform 0.2s ease; }
+    .view-all:hover { text-decoration: underline; }
+    .view-all:hover .arrow { transform: translateX(3px); }
+
+    /* The scaler reserves *scaled* space; the inner row stays at its natural
+       size and is visually scaled via transform. Same pattern as the splash
+       composition. Scaling kicks in when viewport content area can't fit the
+       natural row width (1200px, so threshold ≈ 1300px viewport). */
+    .recents-scaler {
+      --recents-w: 1200px;
+      --recents-h: 435px;
+      --recents-scale: min(1, calc((100vw - 100px) / 1200px));
+      width: calc(var(--recents-w) * var(--recents-scale));
+      height: calc(var(--recents-h) * var(--recents-scale));
+      align-self: center;
+    }
+
+    .recents-row {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      align-items: flex-end;
+      width: var(--recents-w);
+      height: var(--recents-h);
+      transform: scale(var(--recents-scale));
+      transform-origin: top left;
+    }
+    .recent-card {
+      flex: 0 0 auto;
+      width: 240px;
+      aspect-ratio: 2 / 3;
+      position: relative;
+      overflow: hidden;
+      background-color: var(--text);
+      background-size: cover;
+      background-position: center;
+      cursor: pointer;
+      transition: width 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+      /* Delay applies on the return-to-base transition only. Hover-in and
+         sibling-shrink rules override to 0s so the *active* changes are
+         immediate. This 150ms buffer suppresses oscillation when the cursor
+         briefly lands in the gap between cards. */
+      transition-delay: 0.2s;
+    }
+    /* :has() ensures the shrink rule only fires when a card is *actually* hovered,
+       not when the cursor is in the row gap. :not(:hover) keeps the hovered card
+       out of the shrink rule so its width-grow always wins. */
+    .recents-row:has(.recent-card:hover) .recent-card:not(:hover) {
+      width: 200px;
+      transition-delay: 0s;
+    }
+    .recent-card:hover {
+      width: 290px;
+      transition-delay: 0s;
+    }
+
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(68, 2, 20, 0.88) 25%, rgba(68, 2, 20, 0) 70%);
+      pointer-events: none;
+    }
+    .card-content {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      padding: 22px 22px 20px;
+      color: var(--almost-white);
+    }
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 500;
+      font-size: 20px;
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+      margin: 0;
+    }
+    .recent-card:hover .card-title {
+      font-size: 22px;
+    }
+    .card-author {
+      font-family: 'Antique Olive', sans-serif;
+      font-size: 13px;
+      margin: 8px 0 0;
+    }
+    .card-author a {
+      color: var(--theme);
+      font-weight: bold;
+      text-decoration: none;
+    }
+    .card-author a:hover {
+      text-decoration: underline;
+    }
+
+    /* Progressive disclosure — hidden until card is hovered. */
+    .card-reveal {
+      max-height: 0;
+      opacity: 0;
+      margin: 0;
+      overflow: hidden;
+      transition:
+        max-height 0.45s cubic-bezier(0.2, 0.7, 0.2, 1),
+        opacity 0.28s ease 0.08s,
+        margin 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+    .recent-card:hover .card-reveal {
+      max-height: 220px;
+      opacity: 1;
+    }
+    .recent-card:hover .card-subtitle { margin: 8px 0 0; }
+    .recent-card:hover .card-meta { margin: 12px 0 0; }
+
+    .card-subtitle {
+      font-family: 'Antique Olive', sans-serif;
+      font-size: 14px;
+      line-height: 1.35;
+      opacity: 0.92;
+    }
+    .card-meta {
+      font-family: 'Antique Olive', sans-serif;
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      opacity: 0.75;
+      letter-spacing: 0.01em;
+    }
+    .card-meta span { display: block; }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--theme);
+      text-decoration: none;
+    }
+    .logo-mark {
+      height: 22px;
+      margin-left: 10px;
+      width: auto;
+      display: block;
+    }
+    .logo-text {
+      font-family: 'Antique Olive', sans-serif;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: -0.08em;
+      margin-left: -5px;
+      font-size: 24px;
+      line-height: 1;
+      white-space: nowrap;
+      /* Optical-centering nudge — uppercase glyphs sit high in the line box. */
+      transform: translateY(2px);
+    }
+
+    .nav-links {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-right: 16px;
+    }
+    .nav-links a {
+      font-family: 'Roboto', sans-serif;
+      font-weight: normal;
+      color: var(--theme);
+      text-decoration: none;
+      font-size: 17px;
+      line-height: 1;
+      padding: 8px 14px;
+      border: 1.5px solid transparent;   /* always present so hover doesn't shift layout */
+      border-radius: 8px;
+      transition: border-color 0.15s ease;
+    }
+    .nav-links a:hover {
+      border-color: var(--theme);
+    }
+
+    /* ---------- Footer ---------- */
+    .site-footer {
+      height: 60px;  /* was 80px band; reduced by 20px, no border */
+      background: var(--beige);
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      font-family: 'Antique Olive', sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      /* When used inside #work: stay above the shelf bg and don't shrink. */
+      position: relative;
+      z-index: 2;
+      flex-shrink: 0;
+    }
+    .footer-inner {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 22px;
+    }
+    .footer-copy { opacity: 0.7; }
+    .footer-link {
+      color: var(--text);
+      text-decoration: none;
+      opacity: 0.7;
+    }
+    .footer-link:hover { opacity: 1; text-decoration: underline; }
+    .footer-socials {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .footer-socials a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      color: var(--text);
+      opacity: 0.65;
+      transition: opacity 0.15s ease;
+    }
+    .footer-socials a:hover { opacity: 1; }
+    .footer-socials svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+      display: block;
+    }
+
+    .stage {
+      min-height: calc(100vh - 63px);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: var(--matrix-gap);
+      box-sizing: border-box;
+    }
+
+    /* Outer box reserves space at scaled dimensions so the page lays out cleanly. */
+    .scaler {
+      width: calc(var(--composition-w) * var(--scale));
+      height: calc(var(--composition-h) * var(--scale));
+    }
+
+    /* Inner composition is always its natural size; transform scales it visually. */
+    .matrix-wrap {
+      position: relative;
+      width: var(--composition-w);
+      height: var(--composition-h);
+      transform: scale(var(--scale));
+      transform-origin: top left;
+    }
+
+    .matrix {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--matrix-gap);
+      width: var(--composition-w);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(var(--grid-cols), var(--cell-size));
+      grid-template-rows: repeat(var(--grid-rows), var(--cell-size));
+      gap: var(--cell-gap);
+      width: var(--grid-w);
+      height: var(--grid-h);
+      flex: 0 0 auto;
+    }
+
+    .cell {
+      width: var(--cell-size);
+      height: var(--cell-size);
+      border-radius: var(--cell-radius);
+      background: var(--beige);
+      position: relative;
+    }
+    /* Theme-red hover overlay; instant on hover-in, 0.5s fade-out on hover-off. */
+    .cell::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--theme);
+      border-radius: inherit;
+      opacity: 0;
+      transition: opacity 1.5s ease;
+      pointer-events: none;
+    }
+    .cell:hover::after {
+      opacity: 1;
+      transition: opacity 0s;
+    }
+
+    .hero-box {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      /* Extend beyond the four-block gap it sits in; still centred via the
+         top/left 50% + translate(-50%, -50%) above. */
+      width: calc(var(--hero-w) + 20px);
+      height: calc(var(--hero-h) + 50px);
+      background: transparent;
+      border: 1px solid var(--border-grey);
+      border-radius: 5px;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 50px;
+      box-sizing: border-box;
+      font-family: 'Copperplate', serif;
+      font-weight: 700;
+      font-size: 42px;
+      line-height: 1.0;
+      letter-spacing: 0;
+      text-align: center;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .hero-box .line-2 { font-size: 0.9em; }
+
+    /* Hero buttons, side by side under the text. */
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 14px;
+      pointer-events: auto;   /* hero-box is pointer-events:none — re-enable here */
+    }
+    .hero-btn {
+      font-family: var(--button-text);
+      font-weight: normal;
+      font-size: 13px;
+      letter-spacing: 0;
+      line-height: 1;
+      text-decoration: none;
+      box-sizing: border-box;
+      width: 140px;            /* equalised, ~20% narrower */
+      padding: 6px 12px;       /* ~20% shorter */
+      text-align: center;
+      border-radius: 5px;
+      border: 1.5px solid var(--theme);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+    /* White on red → inverts to red on white on hover. */
+    .hero-btn--primary {
+      background: var(--theme);
+      color: #fff;
+    }
+    .hero-btn--primary:hover {
+      background: #fff;
+      color: var(--theme);
+    }
+    /* Red on white (red outline) → inverts to white on red on hover. */
+    .hero-btn--secondary {
+      background: #fff;
+      color: var(--theme);
+    }
+    .hero-btn--secondary:hover {
+      background: var(--theme);
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <a class="logo" href="/" aria-label="Science Works home">
+      <img class="logo-mark" src="assets/images/FINAL4.svg" alt="" />
+      <span class="logo-text">SCIENCE WORKS</span>
+    </a>
+    <nav class="nav-links">
+      <a href="about.html">About</a>
+      <a href="#programmes">Programmes</a>
+      <a href="#writing">Writing</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+  <section class="snap-section" id="splash">
+    <div class="stage">
+      <div class="scaler">
+        <div class="matrix-wrap">
+          <div id="matrix" class="matrix" role="img" aria-label="Science Works dot-matrix field"></div>
+          <div class="hero-box">
+            <div class="line-1">Reshaping the British</div>
+            <div class="line-2">Research System</div>
+            <div class="hero-actions">
+              <a class="hero-btn hero-btn--primary" href="writing.html">Explore Our Work</a>
+              <a class="hero-btn hero-btn--secondary" href="about.html">About Us</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="snap-section" id="about">
+    <div class="about-row">
+      <div class="about-hero">
+        <canvas id="helix" aria-hidden="true"></canvas>
+      </div>
+      <div class="about-copy">
+        <h2 class="section-heading">About</h2>
+        <p class="section-body">Science Works is a think tank focused on reshaping how research is funded, organised, and put to use in Britain.</p>
+        <p class="section-body">Placeholder copy — we&rsquo;ll wire this up properly once the short about content is ready.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="snap-section" id="work">
+    <div class="bookshelf-bg" aria-hidden="true">
+      <div class="bookshelf-top-cells"></div>
+    </div>
+    <div class="section-inner section-inner--wide">
+      <div class="section-head-row">
+        <h2 class="section-heading">Latest from Science Works</h2>
+        <a class="view-all" href="writing.html">View all <span class="arrow">&rarr;</span></a>
+      </div>
+      <div class="recents-scaler">
+        <div class="recents-row">
+
+        <article class="recent-card" style="background-image: url('assets/images/alvin.jpg');">
+          <div class="card-overlay"></div>
+          <div class="card-content">
+            <h3 class="card-title">Designing AI for Disruptive Science</h3>
+            <p class="card-subtitle card-reveal">Why scaling AI won&rsquo;t automatically lead to paradigm shifts</p>
+            <p class="card-author"><a href="#">Alvin Djajadikerta</a></p>
+            <div class="card-meta card-reveal">
+              <span>23 March 2026</span>
+              <span>AI for Science</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="recent-card" style="background-image: url('assets/images/counter.jpg');">
+          <div class="card-overlay"></div>
+          <div class="card-content">
+            <h3 class="card-title">The Counter-Reformation of science: how to make magnificence democratic</h3>
+            <p class="card-subtitle card-reveal">British research has perfected discipline and outsourced magnificence. The fix is to practise demonstration statecraft — visible proofs of capacity that pair theatre with delivery.</p>
+            <p class="card-author"><a href="#">Ben Johnson</a></p>
+            <div class="card-meta card-reveal">
+              <span>1 September 2025</span>
+              <span>The Story of British Science &amp; Technology</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="recent-card" style="background-image: url('assets/images/missions.webp');">
+          <div class="card-overlay"></div>
+          <div class="card-content">
+            <h3 class="card-title">How not to waste an AI for science mission</h3>
+            <p class="card-subtitle card-reveal">On the regrettable necessity of thinking carefully before spending public money</p>
+            <p class="card-author"><a href="#">Ben Johnson</a> &amp; <a href="#">Laura Ryan</a></p>
+            <div class="card-meta card-reveal">
+              <span>7 March 2026</span>
+              <span>AI for Science</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="recent-card" style="background-image: url('assets/images/bucket1.jpg');">
+          <div class="card-overlay"></div>
+          <div class="card-content">
+            <h3 class="card-title">The three-bucket problem</h3>
+            <p class="card-subtitle card-reveal">Ten tests for the UK&rsquo;s new R&amp;D funding framework</p>
+            <p class="card-author"><a href="#">Ben Johnson</a></p>
+            <div class="card-meta card-reveal">
+              <span>18 November 2025</span>
+              <span>Funding Reform</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="recent-card" style="background-image: url('assets/images/bucket2.jpg');">
+          <div class="card-overlay"></div>
+          <div class="card-content">
+            <h3 class="card-title">The Bucket Stops Here</h3>
+            <p class="card-subtitle card-reveal">UKRI&rsquo;s new funding framework takes a stab at classifying budgets — but doesn&rsquo;t yet govern research</p>
+            <p class="card-author"><a href="#">Ben Johnson</a></p>
+            <div class="card-meta card-reveal">
+              <span>14 February 2026</span>
+              <span>Funding Reform</span>
+            </div>
+          </div>
+        </article>
+
+        </div>
+      </div>
+    </div>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <span class="footer-copy">&copy; Science Works 2026.</span>
+        <a class="footer-link" href="cookies.html">Cookies Policy</a>
+        <a class="footer-link" href="privacy.html">Privacy Policy</a>
+        <div class="footer-socials">
+          <a href="#" aria-label="LinkedIn" title="LinkedIn">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43A2.06 2.06 0 1 1 5.34 3.3a2.06 2.06 0 0 1 0 4.13zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>
+          </a>
+          <a href="#" aria-label="X (Twitter)" title="X">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M18.24 2.25h3.31l-7.23 8.26L23 21.75h-6.66l-5.21-6.82-5.97 6.82H1.85l7.73-8.84L1.25 2.25h6.83l4.71 6.23 5.45-6.23zm-1.16 17.52h1.83L7.08 4.13H5.12L17.08 19.77z"/></svg>
+          </a>
+          <a href="#" aria-label="Bluesky" title="Bluesky">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 10.8C10.91 8.69 7.95 4.75 5.2 2.8 2.57.94 1.56 1.27.9 1.57.14 1.91 0 3.08 0 3.77c0 .69.38 5.65.62 6.48.82 2.73 3.71 3.66 6.38 3.36-3.91.58-7.38 2.01-2.83 7.08 5.01 5.19 6.87-1.11 7.82-4.31.95 3.2 2.05 9.27 7.73 4.31 4.27-4.31 1.17-6.5-2.74-7.08 2.67.3 5.57-.63 6.38-3.36.25-.83.62-5.79.62-6.48 0-.69-.14-1.86-.9-2.21-.66-.3-1.66-.62-4.3 1.24C16.05 4.75 13.09 8.69 12 10.8z"/></svg>
+          </a>
+        </div>
+      </div>
+    </footer>
+  </section>
+
+  <script>
+    (function () {
+      const COLS = 12;
+      const ROWS = 11;
+      const MATRIX_COLS = 6;
+      const MATRIX_ROWS = 3;
+      const GRID_COUNT = MATRIX_COLS * MATRIX_ROWS;
+
+      // Brand palette, exposed so JS can address cells by colour name later.
+      const PALETTE = {
+        bg: '#f6f0ed',
+        text: '#66223b',
+        theme: '#eb3131',
+        sage: '#00726b',
+        brightBlue: '#004ee6',
+        paleBlue: '#a3c0d7',
+        lightGreen: '#64b37b',
+        deepGreen: '#0e676a',
+        coral: '#f45e57',
+        beige: '#ebe5cf',
+        almostWhite: '#faf8f6',
+        purpleBlue: '#4b5cce',
+        darkestBrown: '#440214',
+        opt1: '#3a3c7c',
+        opt2: '#72679b',
+      };
+
+      const matrixEl = document.getElementById('matrix');
+
+      // grids[i].cells[row][col] -> HTMLElement
+      // grids[i].el                -> grid container
+      const grids = [];
+
+      function buildGrid() {
+        const gridEl = document.createElement('div');
+        gridEl.className = 'grid';
+        const cells = [];
+        for (let r = 0; r < ROWS; r++) {
+          const rowArr = [];
+          for (let c = 0; c < COLS; c++) {
+            const el = document.createElement('div');
+            el.className = 'cell';
+            el.dataset.row = r;
+            el.dataset.col = c;
+            gridEl.appendChild(el);
+            rowArr.push(el);
+          }
+          cells.push(rowArr);
+        }
+        return { el: gridEl, cells };
+      }
+
+      for (let i = 0; i < GRID_COUNT; i++) {
+        const g = buildGrid();
+        g.el.dataset.index = i;
+        matrixEl.appendChild(g.el);
+        grids.push(g);
+      }
+
+      // Helpers exposed for future animation code.
+      function setCell(gridIdx, row, col, color) {
+        const el = grids[gridIdx]?.cells[row]?.[col];
+        if (el) el.style.background = color;
+      }
+
+      function setAll(color) {
+        for (let i = 0; i < grids.length; i++) {
+          for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) grids[i].cells[r][c].style.background = color;
+          }
+        }
+      }
+
+      // ----- Pixel art loading + dissolve animation --------------------
+      // Editor stores under this key. Palette order matches the editor's
+      // stored data exactly — DO NOT reorder.
+      const ART_STORAGE_KEY = 'sw.pixelart.v1';
+      const ART_PALETTE = [
+        '#f6f0ed', // 0 empty / bg
+        '#66223b', // 1 text
+        '#eb3131', // 2 theme
+        '#00726b', // 3 sage
+        '#004ee6', // 4 brightBlue
+        '#a3c0d7', // 5 paleBlue
+        '#64b37b', // 6 lightGreen
+        '#0e676a', // 7 deepGreen
+        '#f45e57', // 8 coral
+        '#ebe5cf', // 9 beige
+        '#faf8f6', // 10 almostWhite
+        '#4b5cce', // 11 purpleBlue
+        '#440214', // 12 darkestBrown
+        '#3a3c7c', // 13 opt1
+        '#72679b', // 14 opt2
+      ];
+
+      const TOTAL_CELLS = COLS * ROWS; // 132
+      const HERO_SLOTS = new Set([7, 8, 9, 10]);
+      const EDITABLE_SLOTS = [];
+      for (let i = 0; i < grids.length; i++) {
+        if (!HERO_SLOTS.has(i)) EDITABLE_SLOTS.push(i);
+      }
+
+      // Per-slot current cell data (palette indices). Mutated by swaps so
+      // each pair oscillates between its two states over time.
+      const slotData = grids.map(() => new Array(TOTAL_CELLS).fill(0));
+
+      function ingestArt(art) {
+        for (let i = 0; i < grids.length; i++) {
+          slotData[i] = new Array(TOTAL_CELLS).fill(0);
+        }
+        if (!art?.grids || art.grids.length !== EDITABLE_SLOTS.length) return;
+        for (let ei = 0; ei < EDITABLE_SLOTS.length; ei++) {
+          const data = art.grids[ei];
+          if (Array.isArray(data) && data.length === TOTAL_CELLS) {
+            slotData[EDITABLE_SLOTS[ei]] = data.slice();
+          }
+        }
+      }
+
+      function renderSlot(slotIdx) {
+        const data = slotData[slotIdx];
+        const cells = grids[slotIdx].cells;
+        for (let i = 0; i < TOTAL_CELLS; i++) {
+          const r = (i / COLS) | 0;
+          const c = i % COLS;
+          cells[r][c].style.background = ART_PALETTE[data[i]] || ART_PALETTE[0];
+        }
+      }
+
+      function renderAll() {
+        for (let i = 0; i < grids.length; i++) renderSlot(i);
+      }
+
+      const ART_FILE_URL = 'assets/pixel_art/splash.json';
+
+      function loadArtLocal() {
+        try {
+          const raw = localStorage.getItem(ART_STORAGE_KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch (_) { return null; }
+      }
+
+      async function loadArtFile() {
+        try {
+          const resp = await fetch(ART_FILE_URL, { cache: 'no-cache' });
+          if (!resp.ok) return null;
+          return await resp.json();
+        } catch (_) { return null; }
+      }
+
+      // localStorage wins when present (so the editor's live drafts show
+      // up in the splash during dev). Falls back to the committed file
+      // when there's no draft — which is the production path.
+      async function loadArt() {
+        return loadArtLocal() || await loadArtFile();
+      }
+
+      // ----- Pair selection --------------------------------------------
+      const FIXED_PAIRS = [[0, 12], [5, 17]];
+
+      function buildPairs() {
+        const used = new Set(FIXED_PAIRS.flat());
+        const remaining = EDITABLE_SLOTS.filter(s => !used.has(s));
+        // Fisher–Yates shuffle on the remaining 10 slots.
+        for (let i = remaining.length - 1; i > 0; i--) {
+          const j = (Math.random() * (i + 1)) | 0;
+          [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
+        }
+        const pairs = FIXED_PAIRS.map(p => p.slice());
+        for (let i = 0; i + 1 < remaining.length; i += 2) {
+          pairs.push([remaining[i], remaining[i + 1]]);
+        }
+        return pairs;
+      }
+
+      // ----- Dissolve animation ----------------------------------------
+      const DISSOLVE_MS = 20000;        // per-swap dissolve window
+      const SWAP_INTERVAL_MS = 120000;   // time between swaps for one pair
+      const PAIR_STAGGER_MS = 7000;     // offset between pairs' first swap
+      const FIRST_SWAP_DELAY_MS = 2000;
+
+      // Generation counter lets in-flight setTimeouts no-op when art reloads.
+      let animGen = 0;
+      let activeIntervals = [];
+
+      function stopAnimations() {
+        animGen++;
+        activeIntervals.forEach(clearInterval);
+        activeIntervals = [];
+      }
+
+      function dissolveSwap(a, b, gen) {
+        for (let i = 0; i < TOTAL_CELLS; i++) {
+          const delay = Math.random() * DISSOLVE_MS;
+          setTimeout(() => {
+            if (gen !== animGen) return;
+            const tmp = slotData[a][i];
+            slotData[a][i] = slotData[b][i];
+            slotData[b][i] = tmp;
+            const r = (i / COLS) | 0;
+            const c = i % COLS;
+            grids[a].cells[r][c].style.background = ART_PALETTE[slotData[a][i]] || ART_PALETTE[0];
+            grids[b].cells[r][c].style.background = ART_PALETTE[slotData[b][i]] || ART_PALETTE[0];
+          }, delay);
+        }
+      }
+
+      function startAnimations() {
+        const pairs = buildPairs();
+        const gen = animGen;
+        pairs.forEach((pair, idx) => {
+          const startDelay = FIRST_SWAP_DELAY_MS + idx * PAIR_STAGGER_MS;
+          setTimeout(() => {
+            if (gen !== animGen) return;
+            dissolveSwap(pair[0], pair[1], gen);
+            const intervalId = setInterval(() => {
+              if (gen !== animGen) { clearInterval(intervalId); return; }
+              dissolveSwap(pair[0], pair[1], gen);
+            }, SWAP_INTERVAL_MS);
+            activeIntervals.push(intervalId);
+          }, startDelay);
+        });
+      }
+
+      function paintFromArt(art) {
+        stopAnimations();
+        ingestArt(art);
+        renderAll();
+        startAnimations();
+      }
+
+      loadArt().then(paintFromArt);
+
+      // Auto-refresh when the editor saves in another tab.
+      window.addEventListener('storage', (e) => {
+        if (e.key === ART_STORAGE_KEY) loadArt().then(paintFromArt);
+      });
+
+      // Proportional scaling: shrink the whole composition when the viewport
+      // is narrower than its natural width. Mobile layout (fewer grids) TBD.
+      const NATURAL_W = 1390;
+      const VIEWPORT_PAD = 100;
+      function updateScale() {
+        const available = window.innerWidth - VIEWPORT_PAD;
+        const scale = Math.min(1, available / NATURAL_W);
+        document.documentElement.style.setProperty('--scale', scale);
+      }
+      window.addEventListener('resize', updateScale);
+      updateScale();
+
+      // Expose for console tinkering / future modules.
+      window.SW = {
+        grids, PALETTE, setCell, setAll,
+        COLS, ROWS, MATRIX_COLS, MATRIX_ROWS,
+        updateScale,
+        ART_PALETTE, HERO_SLOTS, EDITABLE_SLOTS,
+        slotData, loadArt, loadArtLocal, loadArtFile, paintFromArt,
+        buildPairs, dissolveSwap,
+        stopAnimations, startAnimations,
+      };
+    })();
+
+    // ----- Bookshelf top-rows colour fill --------------------------------
+    // Populates two rows of cells over the beige bookshelf bg with random
+    // non-beige palette colours. Re-fills on resize so the count tracks
+    // viewport width.
+    (function () {
+      const container = document.querySelector('.bookshelf-top-cells');
+      if (!container) return;
+
+      // Palette excluding the bookshelf beige (#ebe5cf) and the page bg.
+      const COLOURS = [
+        '#66223b', '#eb3131', '#00726b', '#004ee6', '#a3c0d7',
+        '#64b37b', '#0e676a', '#f45e57', '#faf8f6', '#4b5cce',
+        '#440214', '#3a3c7c', '#72679b',
+      ];
+
+      function build() {
+        const cellsPerRow = Math.ceil((window.innerWidth + 2) / 16);
+        const total = cellsPerRow * 2;
+        // Reuse existing children where possible; only add/remove as needed.
+        while (container.children.length < total) {
+          const el = document.createElement('div');
+          el.className = 'bookshelf-top-cell';
+          container.appendChild(el);
+        }
+        while (container.children.length > total) {
+          container.removeChild(container.lastChild);
+        }
+        for (const cell of container.children) {
+          cell.style.background = COLOURS[(Math.random() * COLOURS.length) | 0];
+        }
+      }
+
+      let resizeTimer;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(build, 100);
+      });
+      build();
+    })();
+
+    // ----- Falling double-helix rain (density-field model) ---------------
+    // Strands fall through a tanh density field (runs + voids) with noise
+    // scatter and depth-driven alpha; accent particles sweep on their own
+    // stretched sine paths. Tuning knobs sit at the top of the IIFE.
+    (function () {
+      const cv = document.getElementById('helix');
+      if (!cv) return;
+      const ctx = cv.getContext('2d');
+
+      /* ====================================================================
+         TUNING KNOBS
+         Each block below is a self-contained group. Change the numbers and
+         reload the page. Most knobs are independent, but a few interact —
+         those interactions are noted inline.
+         ==================================================================== */
+
+      /* --- CELL APPEARANCE ------------------------------------------------ */
+      const CELL   = 14;   // block size in px (square). Your original 14x14.
+      const RADIUS = 2;    // corner rounding of each block. 0 = sharp squares.
+
+      /* --- COLOUR --------------------------------------------------------- */
+      // Helix strands share one weighted palette; repetition sets pick odds,
+      // per the [H] marks in colours_and_fonts.md: red ×3, coral ×2, others ×1.
+      const palH = ['#eb3131', '#eb3131', '#eb3131', '#f45e57', '#f45e57',
+                    '#66223b', '#00726b', '#004ee6'];
+      const palA = palH;
+      const palB = palH;
+
+      /* --- MOTION --------------------------------------------------------- */
+      const fallSpeed = 16;    // px/sec the whole pattern descends. Lower = slower rain.
+      const wavelength = 360;  // px of vertical travel for one full helix turn.
+                               // LARGER = turns more spread out vertically.
+      const twist = 0.32;      // how fast the helix rotates as it falls.
+                               // 0 = strands frozen in shape; higher = livelier swirl.
+      const ampFactor = 0.85;  // helix width as a fraction of the base amplitude.
+                               // 1 = full width; lower = narrower helix.
+      const ARM_PHASE = 0.8;   // phase offset (rad, ~pi/4) on the 2nd strand
+                               // to break the mirror symmetry. 0 = symmetric.
+
+      /* --- DEPTH / TRANSPARENCY ------------------------------------------ */
+      // Each cell's opacity is driven by its position in the twist (cos phase),
+      // so cells "behind" the centre line fade. al = ALPHA_FLOOR + (1-FLOOR)*depth.
+      const ALPHA_FLOOR = 0.5; // minimum opacity for the farthest cells.
+                               // RAISE toward 0.7 to keep deep-red back-strand
+                               // cells visible on a light background.
+
+      /* --- DENSITY FIELD (the "[rand~]->[*~ s]->[tanh~]->[scale~]" curve) -
+         A sine runs down the strand; tanh squashes it; the result 0..1 is the
+         local density. High density -> tight gaps (a run); low -> big gap (a void).
+         ------------------------------------------------------------------- */
+      const PERIOD   = 150;  // px of vertical travel per density cycle (your "f").
+                             // One run + one void ~= this distance.
+      const SHARP    = 0.8;  // your "s". Squareness of the density curve.
+                             //   ~1   = gently breathing density, no real voids
+                             //   ~2.2 = soft shoulders, legible runs (current)
+                             //   ~4+  = hard runs + clean voids (square-wave-ish)
+      const DMIN_GAP = 0.13; // gap factor at FULL density (tight core).
+                             // LOWER = denser runs. (x spacing = px between cells.)
+      const DMAX_GAP = 1.4;  // gap factor at ZERO density (the void).
+                             // void px ~= DMAX_GAP * spacing. 3.4*26 ~= 88px ~= pi/2 turn.
+
+      const spacing  = 26;   // base px the gap factors multiply. Sets overall scale.
+
+      /* --- NOISE / SCATTER (breaks the smooth look) ----------------------
+         Cores stay solid; only shoulders & voids get thinned by multi-octave
+         noise, so a few stray cells appear/vanish around each run.
+         ------------------------------------------------------------------- */
+      const CORE_THRESHOLD = 0.6;  // density above this keeps EVERY cell (solid cores).
+                                   // LOWER toward 0.6 to protect more cells = denser.
+      const KEEP_FLOOR     = 0.05; // baseline keep-probability added in the shoulders,
+                                   // so low-density zones don't empty out completely.
+      const NOISE_AMOUNT   = 0.38; // how strongly noise scatters the shoulder cells.
+                                   // RAISE = grainier/more broken; LOWER = cleaner.
+      const NOISE_SCALE    = 0.18; // spatial frequency of that scatter along the strand.
+
+      /* --- HORIZONTAL JITTER --------------------------------------------- */
+      const JITTER = 12;   // px of random left/right wobble per cell.
+                           // LOWER for cleaner bead-like runs; 0 = dead straight.
+
+      /* --- ACCENT PARTICLES ----------------------------------------------
+         Non-red blocks swept up in the motion on their own stretched sine
+         paths. They fall faster than the strands and never trace them exactly.
+         ------------------------------------------------------------------- */
+      const PARTICLE_COUNT = 9;   // how many accent particles. 0 = none.
+      const ACCENTS = ['#a3c0d7', '#64b37b', '#faf8f6', '#4b5cce', '#72679b'];
+
+      /* --- LAYOUT --------------------------------------------------------- */
+      const X_SHIFT = 60;  // px the whole helix is nudged right of centre. 0 = centred.
+
+      /* ====================================================================
+         ENGINE — you shouldn't need to edit below here.
+         ==================================================================== */
+
+      const TWO_PI = Math.PI * 2;
+      let W, H, midX, amp, dpr, pHalf = 0, topWorld = 0;
+
+      function rand(seed) {
+        const x = Math.sin(seed * 99991.7) * 43758.545;
+        return x - Math.floor(x);
+      }
+
+      // Multi-octave noise (~[-1.6, 1.6]) for the scatter.
+      function octaveNoise(t) {
+        return 1.1 * Math.sin(t * 0.7)
+             + 0.3 * Math.sin(t * 1.9 + 1.3)
+             + 0.2 * Math.sin(t * 4.7 + 2.7);
+      }
+
+      // Density 0..1 at a given world-y: sine -> *SHARP -> tanh -> scale to 0..1.
+      function densityAt(yw) {
+        const sig = Math.sin((yw / PERIOD) * TWO_PI);
+        const t = Math.tanh(sig * SHARP);
+        return (t + 1) / 2;
+      }
+
+      const blocks = [];
+      function makeBlock(strand, yWorld, density) {
+        const jitter = (rand(yWorld * 0.13 + strand * 7.7) - 0.5) * JITTER;
+        let live = true;
+        if (density <= CORE_THRESHOLD) {
+          const noise = octaveNoise(yWorld * NOISE_SCALE + strand * 4.1) * NOISE_AMOUNT;
+          const keepProb = density + KEEP_FLOOR + noise;
+          live = rand(yWorld * 0.53 + strand * 9.3) < keepProb;
+        }
+        return {
+          strand, yWorld, jitter,
+          colA: palA[Math.floor(rand(yWorld * 1.7 + 0.5) * palA.length)],
+          colB: palB[Math.floor(rand(yWorld * 2.3 + 0.9) * palB.length)],
+          live,
+        };
+      }
+
+      const particles = [];
+      function seedParticles() {
+        particles.length = 0;
+        const span = H + 120;
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+          const r1 = rand(i * 1.7 + 0.3);
+          const r2 = rand(i * 2.9 + 1.1);
+          const r3 = rand(i * 3.7 + 2.2);
+          const r4 = rand(i * 5.1 + 0.7);
+          particles.push({
+            cy: r2 * span,                    // staggered start
+            amp: pHalf * (0.55 + 0.45 * r4),  // up to the full unreduced range
+            wavelength: span * (1.6 + r3 * 1.9), // stretched -> slow sweep
+            phase: r1 * TWO_PI,
+            col: ACCENTS[Math.floor(r4 * ACCENTS.length)],
+            vy: 34 + r2 * 36,                 // faster than strands
+          });
+        }
+      }
+
+      function seed() {
+        blocks.length = 0;
+        const span = H + 120;
+        const positions = [];
+        let yw = 0;
+        while (yw < span) {
+          positions.push(yw);
+          const d = densityAt(yw);
+          const f = DMAX_GAP + (DMIN_GAP - DMAX_GAP) * d; // d=1 -> tight, d=0 -> void
+          yw += spacing * f;
+          yw += 0.0001;  // guard against a zero-gap lock if DMIN_GAP is ever 0
+        }
+        topWorld = yw;   // loop point -> seamless wrap
+        for (let k = 0; k < positions.length; k++) {
+          const p = positions[k];
+          const d = densityAt(p);
+          blocks.push(makeBlock(0, p, d));
+          blocks.push(makeBlock(1, p + spacing * DMIN_GAP * 0.5, d));
+        }
+      }
+
+      function resize() {
+        const r = cv.getBoundingClientRect();
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        W = Math.round(r.width);
+        H = Math.round(r.height);
+        cv.width = W * dpr;
+        cv.height = H * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        midX = W / 2 + X_SHIFT;
+        const ampBase = Math.min(W * 0.40, 188);
+        amp = ampBase * ampFactor;
+        pHalf = ampBase * 1.25;   // particles roam the wider, original span
+        seed();
+        seedParticles();
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      function roundRectPath(x, y, w, h, r) {
+        if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); return; }
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
+      }
+
+      let last = performance.now();
+      let offset = 0;
+      let ptime = 0;
+
+      function draw(now) {
+        const dt = Math.min((now - last) / 1000, 0.05);
+        last = now;
+        offset += fallSpeed * dt;
+        ptime += dt;
+        ctx.clearRect(0, 0, W, H);
+
+        for (const b of blocks) {
+          if (!b.live) continue;
+          let yScreen = b.yWorld + offset;
+          yScreen = ((yScreen % topWorld) + topWorld) % topWorld;
+          yScreen -= 60;
+          if (yScreen < -CELL || yScreen > H + CELL) continue;
+
+          const phaseWorld = b.yWorld + offset;
+          const phase = (phaseWorld / wavelength) * TWO_PI - offset * 0.004 * twist * 100 / fallSpeed;
+          let x, col, al;
+          if (b.strand === 0) {
+            const s = Math.sin(phase);
+            const depth = Math.cos(phase);
+            x = midX + s * amp + b.jitter;
+            col = b.colA;
+            al = ALPHA_FLOOR + (1 - ALPHA_FLOOR) * ((depth + 1) / 2);
+          } else {
+            // 2nd arm offset by ARM_PHASE so the helix isn't a perfect mirror.
+            const s = Math.sin(phase + ARM_PHASE);
+            const depth = Math.cos(phase + ARM_PHASE);
+            x = midX - s * amp + b.jitter;
+            col = b.colB;
+            al = ALPHA_FLOOR + (1 - ALPHA_FLOOR) * ((-depth + 1) / 2);
+          }
+
+          const fadeZone = 90;  // top/bottom fade-in distance in px
+          let edge = 1;
+          if (yScreen < fadeZone) edge = yScreen / fadeZone;
+          else if (yScreen > H - fadeZone) edge = (H - yScreen) / fadeZone;
+          edge = edge < 0 ? 0 : edge > 1 ? 1 : edge;
+
+          ctx.globalAlpha = al * edge;
+          ctx.fillStyle = col;
+          roundRectPath(x - CELL / 2, yScreen - CELL / 2, CELL, CELL, RADIUS);
+          ctx.fill();
+        }
+
+        const pSpan = H + 120;
+        for (const p of particles) {
+          const raw = (p.cy + ptime * p.vy) % pSpan;
+          const px = midX + p.amp * Math.sin(raw / p.wavelength * TWO_PI + p.phase);
+          let py = raw - 60;
+          if (py < -CELL || py > H + CELL) continue;
+          const fadeZone = 90;
+          let edge = 1;
+          if (py < fadeZone) edge = py / fadeZone;
+          else if (py > H - fadeZone) edge = (H - py) / fadeZone;
+          edge = edge < 0 ? 0 : edge > 1 ? 1 : edge;
+          ctx.globalAlpha = edge;
+          ctx.fillStyle = p.col;
+          roundRectPath(px - CELL / 2, py - CELL / 2, CELL, CELL, RADIUS);
+          ctx.fill();
+        }
+
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(draw);
+      }
+      requestAnimationFrame(draw);
+    })();
+  </script>
+</body>
+</html>
