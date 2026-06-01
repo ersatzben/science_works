@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Science Works — Image → Bitmap</title>
+  <style>
+    :root {
+      --bg: #f6f0ed;
+      --text: #66223b;
+      --theme: #eb3131;
+      --beige: #ebe5cf;
+      --almost-white: #faf8f6;
+      --border-grey: #ddcac9;
+
+      /* Home values mirror index.html's splash cell metrics. */
+      --home-cell: 14px;
+      --home-gap: 2px;
+      --home-radius: 2px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, sans-serif;
+      min-height: 100vh;
+    }
+
+    .nav {
+      height: 60px;
+      border-bottom: 3px solid var(--theme);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+    .nav h1 { margin: 0; font-family: serif; font-size: 20px; font-weight: 500; }
+    .nav .sub { color: var(--theme); font-size: 13px; }
+
+    main {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 24px;
+      padding: 24px;
+      max-width: 1280px;
+      margin: 0 auto;
+      align-items: start;
+    }
+
+    .sidebar { display: flex; flex-direction: column; gap: 22px; }
+
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.7;
+    }
+
+    /* ---- Source dropzone ---- */
+    .drop {
+      border: 1.5px dashed var(--border-grey);
+      border-radius: 8px;
+      padding: 18px;
+      text-align: center;
+      font-size: 13px;
+      cursor: pointer;
+      background: var(--almost-white);
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .drop.over { border-color: var(--theme); background: #fff; }
+    .drop .hint { opacity: 0.6; display: block; margin-top: 6px; font-size: 12px; }
+    .drop img { max-width: 100%; max-height: 120px; border-radius: 4px; margin-top: 8px; display: none; }
+
+    /* ---- Colour groups ---- */
+    .swatches {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .swatch {
+      aspect-ratio: 1;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      position: relative;
+    }
+    .swatch.in-ink   { border-color: var(--text); }
+    .swatch.in-bg    { border-color: var(--theme); }
+    .swatch .badge {
+      position: absolute;
+      top: -6px; right: -6px;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      font-size: 10px;
+      line-height: 16px;
+      text-align: center;
+      color: #fff;
+      font-weight: bold;
+    }
+    .swatch .badge.ink { background: var(--text); }
+    .swatch .badge.bg  { background: var(--theme); }
+
+    .group-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin: 14px 0 6px;
+    }
+    .group-head .lbl { font-size: 13px; font-weight: 600; }
+    .group-head .lbl small { font-weight: normal; opacity: 0.55; }
+
+    .stops { display: flex; flex-wrap: wrap; gap: 6px; min-height: 26px; align-items: center; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 3px 6px 3px 4px;
+      border: 1px solid var(--border-grey);
+      border-radius: 20px;
+      background: var(--almost-white);
+      font-size: 11px;
+      font-family: ui-monospace, monospace;
+    }
+    .chip .sw { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.15); }
+    .chip button { all: unset; cursor: pointer; opacity: 0.5; padding: 0 2px; }
+    .chip button:hover { opacity: 1; color: var(--theme); }
+    .chip .ord { all: unset; cursor: pointer; opacity: 0.4; font-size: 12px; }
+    .chip .ord:hover { opacity: 1; }
+    .empty-note { font-size: 11px; opacity: 0.5; font-style: italic; }
+
+    .mini-row { display: flex; gap: 8px; align-items: center; margin-top: 8px; flex-wrap: wrap; }
+    .mini-row input[type=color] {
+      width: 34px; height: 28px; padding: 0; border: 1px solid var(--border-grey);
+      border-radius: 4px; background: none; cursor: pointer;
+    }
+
+    .ramp-strip {
+      height: 18px; border-radius: 4px; margin-top: 10px;
+      border: 1px solid var(--border-grey);
+      background-image:
+        linear-gradient(45deg, #ccc 25%, transparent 25%),
+        linear-gradient(-45deg, #ccc 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #ccc 75%),
+        linear-gradient(-45deg, transparent 75%, #ccc 75%);
+      background-size: 10px 10px;
+      background-position: 0 0, 0 5px, 5px -5px, -5px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .ramp-strip > span { position: absolute; inset: 0; }
+
+    /* ---- Number / range controls ---- */
+    .ctl { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+    .ctl label { font-size: 12px; display: flex; justify-content: space-between; align-items: baseline; }
+    .ctl label .home { opacity: 0.45; font-size: 11px; }
+    .ctl label .val  { font-family: ui-monospace, monospace; opacity: 0.7; }
+    .ctl-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    input[type=number], select {
+      font-family: inherit; font-size: 13px; padding: 6px 8px;
+      border: 1px solid var(--text); border-radius: 4px;
+      background: var(--almost-white); color: var(--text); width: 100%;
+    }
+    input[type=range] { width: 100%; accent-color: var(--theme); }
+    .check { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+    .check input { width: 16px; height: 16px; accent-color: var(--theme); }
+
+    button.btn {
+      font-family: inherit; font-size: 13px; padding: 8px 10px;
+      background: var(--almost-white); color: var(--text);
+      border: 1px solid var(--text); border-radius: 4px; cursor: pointer;
+    }
+    button.btn:hover { background: var(--beige); }
+    button.btn.primary { background: var(--theme); color: #fff; border-color: var(--theme); }
+    button.btn.primary:hover { filter: brightness(1.06); }
+
+    /* ---- Stage / preview ---- */
+    .stage-wrap { display: flex; flex-direction: column; gap: 14px; }
+    .stage-bar { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; font-size: 12px; }
+    .stage-bar .dims { font-family: ui-monospace, monospace; opacity: 0.7; }
+    .stage {
+      padding: 24px;
+      border: 1px dashed var(--border-grey);
+      border-radius: 8px;
+      background: var(--bg);
+      overflow: auto;
+      display: flex;
+      justify-content: center;
+    }
+    .stage.checker {
+      background-image:
+        linear-gradient(45deg, #ddd 25%, transparent 25%),
+        linear-gradient(-45deg, #ddd 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #ddd 75%),
+        linear-gradient(-45deg, transparent 75%, #ddd 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+    }
+    #preview {
+      display: grid;
+      gap: var(--cell-gap, 2px);
+      grid-auto-rows: var(--cell-size, 14px);
+    }
+    .pc {
+      width: var(--cell-size, 14px);
+      height: var(--cell-size, 14px);
+      border-radius: var(--cell-radius, 2px);
+    }
+
+    .data-io {
+      display: flex; flex-direction: column; gap: 8px; margin-top: 8px;
+    }
+    .data-io .row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .status { font-size: 12px; opacity: 0.7; min-height: 16px; }
+    textarea {
+      width: 100%; min-height: 90px; font-family: ui-monospace, monospace;
+      font-size: 11px; padding: 8px; border: 1px solid var(--text);
+      border-radius: 4px; background: var(--almost-white); color: var(--text);
+      resize: vertical;
+    }
+    .divider { height: 1px; background: var(--border-grey); border: 0; margin: 4px 0; }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <h1>Science Works — Image → Bitmap</h1>
+    <span class="sub">load an image · recolour to brand tones</span>
+  </header>
+
+  <main>
+    <aside class="sidebar">
+      <!-- Source -->
+      <div class="panel">
+        <h2>Source image</h2>
+        <div class="drop" id="drop">
+          Click, drop, or paste an image
+          <span class="hint">PNG / JPG / WEBP / SVG</span>
+          <img id="thumb" alt="source preview" />
+        </div>
+        <input type="file" id="file" accept="image/*" hidden />
+      </div>
+
+      <!-- Colours -->
+      <div class="panel">
+        <h2>Colours</h2>
+        <div class="swatches" id="swatches"></div>
+
+        <div class="group-head">
+          <span class="lbl">Ink <small>(dark tones)</small></span>
+        </div>
+        <div class="stops" id="inkStops"></div>
+        <div class="mini-row">
+          <input type="color" id="inkPick" value="#66223b" />
+          <button class="btn" id="inkAdd" type="button">Add custom</button>
+        </div>
+
+        <div class="group-head">
+          <span class="lbl">Background <small>(light tones)</small></span>
+        </div>
+        <div class="stops" id="bgStops"></div>
+        <div class="mini-row">
+          <input type="color" id="bgPick" value="#f6f0ed" />
+          <button class="btn" id="bgAdd" type="button">Add custom</button>
+          <label class="check"><input type="checkbox" id="bgTransparent" /> Transparent</label>
+        </div>
+
+        <div class="ramp-strip" title="resulting light → dark ramp"><span id="rampFill"></span></div>
+      </div>
+
+      <!-- Tone -->
+      <div class="panel">
+        <h2>Tone mapping</h2>
+        <div class="ctl">
+          <label>Contrast <span class="val" id="contrastVal">1.00</span></label>
+          <input type="range" id="contrast" min="0.2" max="3" step="0.05" value="1" />
+        </div>
+        <div class="ctl">
+          <label>Brightness <span class="val" id="brightVal">0.00</span></label>
+          <input type="range" id="bright" min="-0.5" max="0.5" step="0.02" value="0" />
+        </div>
+        <div class="ctl">
+          <label>Levels (posterize) <span class="val" id="levelsVal">off</span></label>
+          <input type="range" id="levels" min="0" max="8" step="1" value="0" />
+        </div>
+        <label class="check" style="margin-bottom:8px;"><input type="checkbox" id="invert" /> Invert (light ink on dark bg)</label>
+        <label class="check"><input type="checkbox" id="dither" /> Ordered dither</label>
+      </div>
+
+      <!-- Geometry -->
+      <div class="panel">
+        <h2>Grid &amp; cells</h2>
+        <div class="ctl-row">
+          <div class="ctl">
+            <label>Columns</label>
+            <input type="number" id="cols" min="1" max="300" value="64" />
+          </div>
+          <div class="ctl">
+            <label>Rows</label>
+            <input type="number" id="rows" min="1" max="300" value="64" />
+          </div>
+        </div>
+        <label class="check" style="margin-bottom:12px;"><input type="checkbox" id="lockAspect" checked /> Lock rows to image aspect</label>
+        <div class="ctl-row">
+          <div class="ctl">
+            <label>Cell <span class="home">home 14</span></label>
+            <input type="number" id="cell" min="1" max="80" value="14" />
+          </div>
+          <div class="ctl">
+            <label>Gap <span class="home">home 2</span></label>
+            <input type="number" id="gap" min="0" max="40" value="2" />
+          </div>
+        </div>
+        <div class="ctl" style="max-width:50%;">
+          <label>Radius <span class="home">home 2</span></label>
+          <input type="number" id="radius" min="0" max="40" value="2" />
+        </div>
+      </div>
+    </aside>
+
+    <!-- Stage -->
+    <section class="stage-wrap">
+      <div class="stage-bar">
+        <span class="dims" id="dimsLabel">—</span>
+        <label class="check"><input type="checkbox" id="checker" /> Checker bg</label>
+      </div>
+      <div class="stage" id="stage">
+        <div id="preview" role="img" aria-label="bitmap preview"></div>
+      </div>
+
+      <div class="data-io">
+        <div class="row">
+          <button class="btn primary" id="exportPng" type="button">Export PNG</button>
+          <button class="btn" id="exportSvg" type="button">Export SVG</button>
+          <button class="btn" id="exportJson" type="button">Export cell JSON</button>
+          <div class="ctl" style="margin:0 0 0 auto; flex-direction:row; align-items:center; gap:6px;">
+            <label style="font-size:12px;">PNG scale</label>
+            <input type="number" id="pngScale" min="1" max="8" value="2" style="width:64px;" />
+          </div>
+        </div>
+        <hr class="divider" />
+        <div class="row">
+          <button class="btn" id="exportSplash" type="button">Build splash.json (snap to brand)</button>
+          <button class="btn" id="pushSplash" type="button">Push to homepage (localStorage)</button>
+        </div>
+        <div class="status" id="status">Load an image to begin.</div>
+        <textarea id="jsonArea" placeholder="Exported JSON / splash payload appears here."></textarea>
+      </div>
+    </section>
+  </main>
+
+  <script>
+  (function () {
+    'use strict';
+
+    // ---------------------------------------------------------------------
+    // Brand palette (index order = the splash contract; DO NOT reorder).
+    // ---------------------------------------------------------------------
+    const PALETTE = [
+      { name: 'empty',        hex: '#f6f0ed' }, // 0
+      { name: 'text',         hex: '#66223b' }, // 1
+      { name: 'theme',        hex: '#eb3131' }, // 2
+      { name: 'sage',         hex: '#00726b' }, // 3
+      { name: 'brightBlue',   hex: '#004ee6' }, // 4
+      { name: 'paleBlue',     hex: '#a3c0d7' }, // 5
+      { name: 'lightGreen',   hex: '#64b37b' }, // 6
+      { name: 'deepGreen',    hex: '#0e676a' }, // 7
+      { name: 'coral',        hex: '#f45e57' }, // 8
+      { name: 'beige',        hex: '#ebe5cf' }, // 9
+      { name: 'almostWhite',  hex: '#faf8f6' }, // 10
+      { name: 'purpleBlue',   hex: '#4b5cce' }, // 11
+      { name: 'darkestBrown', hex: '#440214' }, // 12
+      { name: 'opt1',         hex: '#3a3c7c' }, // 13
+      { name: 'opt2',         hex: '#72679b' }, // 14
+    ];
+
+    // ---------------------------------------------------------------------
+    // Colour maths: sRGB <-> OKLab, used for clean interpolation + nearest.
+    // ---------------------------------------------------------------------
+    function hexToRgb(hex) {
+      const h = hex.replace('#', '');
+      const n = h.length === 3
+        ? h.split('').map(c => c + c).join('')
+        : h;
+      return [
+        parseInt(n.slice(0, 2), 16),
+        parseInt(n.slice(2, 4), 16),
+        parseInt(n.slice(4, 6), 16),
+      ];
+    }
+    function rgbToHex(r, g, b) {
+      const t = v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0');
+      return '#' + t(r) + t(g) + t(b);
+    }
+    function srgbToLinear(c) { c /= 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }
+    function linearToSrgb(c) { const v = c <= 0.0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - 0.055; return Math.max(0, Math.min(255, v * 255)); }
+
+    function rgbToOklab(r, g, b) {
+      const lr = srgbToLinear(r), lg = srgbToLinear(g), lb = srgbToLinear(b);
+      const l = 0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb;
+      const m = 0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb;
+      const s = 0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb;
+      const l_ = Math.cbrt(l), m_ = Math.cbrt(m), s_ = Math.cbrt(s);
+      return [
+        0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_,
+        1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_,
+        0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_,
+      ];
+    }
+    function oklabToRgb(L, a, b) {
+      const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+      const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+      const s_ = L - 0.0894841775 * a - 1.2914855480 * b;
+      const l = l_ * l_ * l_, m = m_ * m_ * m_, s = s_ * s_ * s_;
+      return [
+        linearToSrgb(+4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s),
+        linearToSrgb(-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s),
+        linearToSrgb(-0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s),
+      ];
+    }
+    const PALETTE_LAB = PALETTE.map(p => { const [r, g, b] = hexToRgb(p.hex); return rgbToOklab(r, g, b); });
+
+    function nearestBrandIndex(r, g, b) {
+      const lab = rgbToOklab(r, g, b);
+      let best = 0, bestD = Infinity;
+      for (let i = 0; i < PALETTE_LAB.length; i++) {
+        const p = PALETTE_LAB[i];
+        const d = (lab[0] - p[0]) ** 2 + (lab[1] - p[1]) ** 2 + (lab[2] - p[2]) ** 2;
+        if (d < bestD) { bestD = d; best = i; }
+      }
+      return best;
+    }
+
+    // ---------------------------------------------------------------------
+    // State
+    // ---------------------------------------------------------------------
+    const state = {
+      img: null,            // HTMLImageElement (loaded)
+      imgAspect: 1,         // h / w
+      lum: null,            // Float32Array of base values (1 - luminance) per cell, pre-tone
+      lumCols: 0, lumRows: 0,
+      cells: null,          // [{r,g,b,a}] current rendered colours
+      ink: ['#66223b'],     // ordered ink stops (dark end)
+      bg: ['#f6f0ed'],      // ordered background stops (light end)
+      bgTransparent: false,
+    };
+
+    const $ = id => document.getElementById(id);
+
+    // ---------------------------------------------------------------------
+    // Ramp: ordered stop list runs light(0) -> dark(1).
+    //   [ background stops ... , ink stops ... ]
+    // alpha is 0 for the transparent light end, else 1.
+    // ---------------------------------------------------------------------
+    function buildRamp() {
+      const stops = [];
+      if (state.bgTransparent) {
+        // Anchor transparent end to the first ink hue so the fade is clean.
+        const anchorHex = state.ink[0] || '#66223b';
+        const [ar, ag, ab] = hexToRgb(anchorHex);
+        stops.push({ lab: rgbToOklab(ar, ag, ab), a: 0 });
+      }
+      state.bg.forEach(hex => { const [r, g, b] = hexToRgb(hex); stops.push({ lab: rgbToOklab(r, g, b), a: 1 }); });
+      state.ink.forEach(hex => { const [r, g, b] = hexToRgb(hex); stops.push({ lab: rgbToOklab(r, g, b), a: 1 }); });
+      if (stops.length === 0) stops.push({ lab: rgbToOklab(102, 34, 59), a: 1 });
+      if (stops.length === 1) stops.push(stops[0]); // degenerate -> flat
+      return stops;
+    }
+
+    function sampleRamp(stops, p) {
+      p = Math.max(0, Math.min(1, p));
+      const seg = p * (stops.length - 1);
+      let i = Math.floor(seg);
+      if (i >= stops.length - 1) i = stops.length - 2;
+      const f = seg - i;
+      const A = stops[i], B = stops[i + 1];
+      const L = A.lab[0] + (B.lab[0] - A.lab[0]) * f;
+      const a = A.lab[1] + (B.lab[1] - A.lab[1]) * f;
+      const b = A.lab[2] + (B.lab[2] - A.lab[2]) * f;
+      const [r, g, bb] = oklabToRgb(L, a, b);
+      return { r, g, b: bb, a: A.a + (B.a - A.a) * f };
+    }
+
+    // 4x4 Bayer matrix (normalised) for ordered dither.
+    const BAYER = [
+      [0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5],
+    ].map(row => row.map(v => v / 16));
+
+    // ---------------------------------------------------------------------
+    // Downsample source image -> base luminance per cell.
+    // ---------------------------------------------------------------------
+    function computeLuminance(cols, rows) {
+      const c = document.createElement('canvas');
+      c.width = cols; c.height = rows;
+      const ctx = c.getContext('2d');
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      // White matte so transparent source reads as "light" (-> background).
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, cols, rows);
+      ctx.drawImage(state.img, 0, 0, cols, rows);
+      const data = ctx.getImageData(0, 0, cols, rows).data;
+      const lum = new Float32Array(cols * rows);
+      for (let i = 0; i < cols * rows; i++) {
+        const r = data[i * 4], g = data[i * 4 + 1], b = data[i * 4 + 2];
+        const L = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        lum[i] = 1 - L; // 0 = light, 1 = dark
+      }
+      state.lum = lum; state.lumCols = cols; state.lumRows = rows;
+    }
+
+    // ---------------------------------------------------------------------
+    // Apply tone + ramp to cached luminance -> state.cells.
+    // ---------------------------------------------------------------------
+    function recolor() {
+      if (!state.lum) return;
+      const cols = state.lumCols, rows = state.lumRows;
+      const stops = buildRamp();
+      const contrast = parseFloat($('contrast').value);
+      const bright = parseFloat($('bright').value);
+      const levels = parseInt($('levels').value, 10);
+      const invert = $('invert').checked;
+      const dither = $('dither').checked;
+
+      const cells = new Array(cols * rows);
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          const i = y * cols + x;
+          let p = state.lum[i];
+          if (invert) p = 1 - p;
+          p = (p - 0.5) * contrast + 0.5 + bright;
+          p = Math.max(0, Math.min(1, p));
+          if (levels >= 2) {
+            if (dither) p += (BAYER[y & 3][x & 3] - 0.5) / (levels - 1);
+            p = Math.round(p * (levels - 1)) / (levels - 1);
+            p = Math.max(0, Math.min(1, p));
+          } else if (dither) {
+            p += (BAYER[y & 3][x & 3] - 0.5) * 0.12;
+            p = Math.max(0, Math.min(1, p));
+          }
+          cells[i] = sampleRamp(stops, p);
+        }
+      }
+      state.cells = cells;
+    }
+
+    // ---------------------------------------------------------------------
+    // DOM grid (rebuilt only on dimension/metric change).
+    // ---------------------------------------------------------------------
+    const previewEl = $('preview');
+    let cellEls = [];
+    let gridCols = 0, gridRows = 0;
+
+    function rebuildGrid(cols, rows) {
+      const cell = parseInt($('cell').value, 10);
+      const gap = parseInt($('gap').value, 10);
+      const radius = parseInt($('radius').value, 10);
+      previewEl.style.setProperty('--cell-size', cell + 'px');
+      previewEl.style.setProperty('--cell-gap', gap + 'px');
+      previewEl.style.setProperty('--cell-radius', radius + 'px');
+      previewEl.style.gridTemplateColumns = `repeat(${cols}, ${cell}px)`;
+
+      if (cols !== gridCols || rows !== gridRows) {
+        previewEl.innerHTML = '';
+        cellEls = new Array(cols * rows);
+        const frag = document.createDocumentFragment();
+        for (let i = 0; i < cols * rows; i++) {
+          const el = document.createElement('div');
+          el.className = 'pc';
+          frag.appendChild(el);
+          cellEls[i] = el;
+        }
+        previewEl.appendChild(frag);
+        gridCols = cols; gridRows = rows;
+      }
+      // pixel dims = cols*cell + (cols-1)*gap
+      const w = cols * cell + (cols - 1) * gap;
+      const h = rows * cell + (rows - 1) * gap;
+      $('dimsLabel').textContent = `${cols} × ${rows} cells · ${w} × ${h}px`;
+    }
+
+    function paintGrid() {
+      if (!state.cells) return;
+      for (let i = 0; i < state.cells.length; i++) {
+        const c = state.cells[i];
+        cellEls[i].style.background =
+          c.a >= 0.999 ? rgbToHex(c.r, c.g, c.b)
+                       : `rgba(${Math.round(c.r)},${Math.round(c.g)},${Math.round(c.b)},${c.a.toFixed(3)})`;
+      }
+    }
+
+    // ---------------------------------------------------------------------
+    // Full pipeline orchestration
+    // ---------------------------------------------------------------------
+    function currentDims() {
+      let cols = Math.max(1, parseInt($('cols').value, 10) || 1);
+      let rows = Math.max(1, parseInt($('rows').value, 10) || 1);
+      return { cols, rows };
+    }
+
+    function regenerate() { // image/dims changed: recompute everything
+      if (!state.img) return;
+      const { cols, rows } = currentDims();
+      computeLuminance(cols, rows);
+      rebuildGrid(cols, rows);
+      recolor();
+      paintGrid();
+    }
+    function restyle() { // only ramp/tone changed: reuse luminance
+      if (!state.lum) return;
+      recolor();
+      paintGrid();
+    }
+    function remetric() { // only cell metrics changed
+      const { cols, rows } = currentDims();
+      rebuildGrid(cols, rows);
+      paintGrid();
+    }
+
+    // ---------------------------------------------------------------------
+    // Brand swatch grid + colour group chips
+    // ---------------------------------------------------------------------
+    const swatchEls = [];
+    const swatchesEl = $('swatches');
+    PALETTE.forEach((p, i) => {
+      const el = document.createElement('div');
+      el.className = 'swatch';
+      el.style.background = p.hex;
+      el.title = `${p.name} — left-click: ink · right-click: background`;
+      el.addEventListener('click', () => { toggleStop('ink', p.hex); });
+      el.addEventListener('contextmenu', (e) => { e.preventDefault(); toggleStop('bg', p.hex); });
+      swatchesEl.appendChild(el);
+      swatchEls.push(el);
+    });
+
+    function toggleStop(group, hex) {
+      const arr = state[group];
+      const idx = arr.indexOf(hex);
+      if (idx >= 0) arr.splice(idx, 1); else arr.push(hex);
+      syncColours();
+      restyle();
+    }
+    function moveStop(group, idx, dir) {
+      const arr = state[group];
+      const j = idx + dir;
+      if (j < 0 || j >= arr.length) return;
+      [arr[idx], arr[j]] = [arr[j], arr[idx]];
+      syncColours();
+      restyle();
+    }
+
+    function renderChips(group, container) {
+      container.innerHTML = '';
+      const arr = state[group];
+      if (arr.length === 0) {
+        const n = document.createElement('span');
+        n.className = 'empty-note';
+        n.textContent = group === 'ink' ? 'pick at least one ink colour' : (state.bgTransparent ? 'transparent' : 'pick a background colour');
+        container.appendChild(n);
+        return;
+      }
+      arr.forEach((hex, i) => {
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+        chip.innerHTML =
+          `<button class="ord" title="move left" data-act="left">‹</button>` +
+          `<span class="sw" style="background:${hex}"></span>${hex}` +
+          `<button class="ord" title="move right" data-act="right">›</button>` +
+          `<button title="remove" data-act="rm">✕</button>`;
+        chip.querySelector('[data-act=rm]').onclick = () => toggleStop(group, hex);
+        chip.querySelector('[data-act=left]').onclick = () => moveStop(group, i, -1);
+        chip.querySelector('[data-act=right]').onclick = () => moveStop(group, i, +1);
+        container.appendChild(chip);
+      });
+    }
+
+    function syncColours() {
+      // swatch highlight badges
+      swatchEls.forEach((el, i) => {
+        const hex = PALETTE[i].hex;
+        const inInk = state.ink.includes(hex);
+        const inBg = state.bg.includes(hex);
+        el.classList.toggle('in-ink', inInk);
+        el.classList.toggle('in-bg', inBg);
+        el.querySelectorAll('.badge').forEach(b => b.remove());
+        if (inInk) { const b = document.createElement('span'); b.className = 'badge ink'; b.textContent = state.ink.indexOf(hex) + 1; el.appendChild(b); }
+        if (inBg) { const b = document.createElement('span'); b.className = 'badge bg'; b.textContent = 'B'; el.appendChild(b); }
+      });
+      renderChips('ink', $('inkStops'));
+      renderChips('bg', $('bgStops'));
+      renderRampStrip();
+    }
+
+    function renderRampStrip() {
+      const stops = buildRamp();
+      const N = 24;
+      const parts = [];
+      for (let i = 0; i < N; i++) {
+        const p = i / (N - 1);
+        const c = sampleRamp(stops, p);
+        const col = c.a >= 0.999 ? rgbToHex(c.r, c.g, c.b)
+          : `rgba(${Math.round(c.r)},${Math.round(c.g)},${Math.round(c.b)},${c.a.toFixed(2)})`;
+        parts.push(`${col} ${(p * 100).toFixed(1)}%`);
+      }
+      $('rampFill').style.background = `linear-gradient(90deg, ${parts.join(',')})`;
+    }
+
+    // ---------------------------------------------------------------------
+    // Image loading (file picker / drop / paste)
+    // ---------------------------------------------------------------------
+    function loadFile(file) {
+      if (!file || !file.type.startsWith('image/')) return;
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        state.img = img;
+        state.imgAspect = img.naturalHeight / img.naturalWidth;
+        const thumb = $('thumb');
+        thumb.src = url; thumb.style.display = 'inline-block';
+        if ($('lockAspect').checked) applyAspect();
+        regenerate();
+        setStatus(`Loaded ${img.naturalWidth}×${img.naturalHeight}. ${file.name || ''}`);
+      };
+      img.onerror = () => setStatus('Could not load that image.');
+      img.src = url;
+    }
+    function applyAspect() {
+      const cols = Math.max(1, parseInt($('cols').value, 10) || 1);
+      $('rows').value = Math.max(1, Math.round(cols * state.imgAspect));
+    }
+
+    const drop = $('drop');
+    drop.addEventListener('click', () => $('file').click());
+    $('file').addEventListener('change', e => loadFile(e.target.files[0]));
+    ['dragover', 'dragenter'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+    ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+    drop.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; loadFile(f); });
+    window.addEventListener('paste', e => {
+      const item = [...(e.clipboardData?.items || [])].find(it => it.type.startsWith('image/'));
+      if (item) loadFile(item.getAsFile());
+    });
+
+    // ---------------------------------------------------------------------
+    // Control wiring
+    // ---------------------------------------------------------------------
+    $('contrast').addEventListener('input', e => { $('contrastVal').textContent = (+e.target.value).toFixed(2); restyle(); });
+    $('bright').addEventListener('input', e => { $('brightVal').textContent = (+e.target.value).toFixed(2); restyle(); });
+    $('levels').addEventListener('input', e => { const v = +e.target.value; $('levelsVal').textContent = v < 2 ? 'off' : v; restyle(); });
+    $('invert').addEventListener('change', restyle);
+    $('dither').addEventListener('change', restyle);
+
+    $('cols').addEventListener('change', () => { if ($('lockAspect').checked && state.img) applyAspect(); regenerate(); });
+    $('rows').addEventListener('change', regenerate);
+    $('lockAspect').addEventListener('change', () => { if ($('lockAspect').checked && state.img) { applyAspect(); regenerate(); } });
+    ['cell', 'gap', 'radius'].forEach(id => $(id).addEventListener('change', remetric));
+
+    $('inkAdd').addEventListener('click', () => { const hex = $('inkPick').value; if (!state.ink.includes(hex)) state.ink.push(hex); syncColours(); restyle(); });
+    $('bgAdd').addEventListener('click', () => { const hex = $('bgPick').value; if (!state.bg.includes(hex)) state.bg.push(hex); syncColours(); restyle(); });
+    $('bgTransparent').addEventListener('change', e => { state.bgTransparent = e.target.checked; syncColours(); restyle(); });
+
+    $('checker').addEventListener('change', e => $('stage').classList.toggle('checker', e.target.checked));
+
+    function setStatus(msg) { $('status').textContent = msg; }
+
+    // ---------------------------------------------------------------------
+    // Exports
+    // ---------------------------------------------------------------------
+    function download(filename, blob) {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    function renderToCanvas(scale) {
+      const cols = gridCols, rows = gridRows;
+      const cell = parseInt($('cell').value, 10);
+      const gap = parseInt($('gap').value, 10);
+      const radius = parseInt($('radius').value, 10);
+      const w = cols * cell + (cols - 1) * gap;
+      const h = rows * cell + (rows - 1) * gap;
+      const c = document.createElement('canvas');
+      c.width = w * scale; c.height = h * scale;
+      const ctx = c.getContext('2d');
+      ctx.scale(scale, scale);
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          const cc = state.cells[y * cols + x];
+          if (cc.a <= 0.001) continue;
+          ctx.fillStyle = `rgba(${Math.round(cc.r)},${Math.round(cc.g)},${Math.round(cc.b)},${cc.a})`;
+          const px = x * (cell + gap), py = y * (cell + gap);
+          roundRect(ctx, px, py, cell, cell, Math.min(radius, cell / 2));
+          ctx.fill();
+        }
+      }
+      return c;
+    }
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
+
+    $('exportPng').addEventListener('click', () => {
+      if (!state.cells) return setStatus('Nothing to export yet.');
+      const scale = Math.max(1, parseInt($('pngScale').value, 10) || 1);
+      renderToCanvas(scale).toBlob(b => { download('bitmap.png', b); setStatus('Exported PNG.'); }, 'image/png');
+    });
+
+    $('exportSvg').addEventListener('click', () => {
+      if (!state.cells) return setStatus('Nothing to export yet.');
+      const cols = gridCols, rows = gridRows;
+      const cell = parseInt($('cell').value, 10);
+      const gap = parseInt($('gap').value, 10);
+      const radius = parseInt($('radius').value, 10);
+      const w = cols * cell + (cols - 1) * gap;
+      const h = rows * cell + (rows - 1) * gap;
+      let rects = '';
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          const cc = state.cells[y * cols + x];
+          if (cc.a <= 0.001) continue;
+          const fill = rgbToHex(cc.r, cc.g, cc.b);
+          const op = cc.a < 0.999 ? ` fill-opacity="${cc.a.toFixed(3)}"` : '';
+          rects += `<rect x="${x * (cell + gap)}" y="${y * (cell + gap)}" width="${cell}" height="${cell}" rx="${radius}" fill="${fill}"${op}/>`;
+        }
+      }
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${rects}</svg>`;
+      download('bitmap.svg', new Blob([svg], { type: 'image/svg+xml' }));
+      setStatus('Exported SVG.');
+    });
+
+    $('exportJson').addEventListener('click', () => {
+      if (!state.cells) return setStatus('Nothing to export yet.');
+      const cols = gridCols, rows = gridRows;
+      const hex = state.cells.map(c => c.a <= 0.001 ? null : rgbToHex(c.r, c.g, c.b));
+      const payload = {
+        type: 'sw.bitmap.v1',
+        cols, rows,
+        cell: {
+          size: parseInt($('cell').value, 10),
+          gap: parseInt($('gap').value, 10),
+          radius: parseInt($('radius').value, 10),
+        },
+        ink: state.ink, bg: state.bg, transparent: state.bgTransparent,
+        cells: hex, // row-major; null = transparent
+      };
+      const text = JSON.stringify(payload);
+      $('jsonArea').value = text;
+      download('bitmap.json', new Blob([text], { type: 'application/json' }));
+      setStatus(`Exported ${cols}×${rows} cell JSON.`);
+    });
+
+    // ---------------------------------------------------------------------
+    // Splash mode: sample the source across the real 6×3 matrix footprint,
+    // snap each cell to nearest brand index, skip the hero hole.
+    // Geometry mirrors index.html exactly.
+    // ---------------------------------------------------------------------
+    const SP = {
+      COLS: 12, ROWS: 11, MATRIX_COLS: 6, MATRIX_ROWS: 3,
+      CELL: 14, CELL_GAP: 2, GRID_GAP: 50,
+      HERO: new Set([7, 8, 9, 10]),
+    };
+    SP.GRID_W = SP.COLS * SP.CELL + (SP.COLS - 1) * SP.CELL_GAP;   // 190
+    SP.GRID_H = SP.ROWS * SP.CELL + (SP.ROWS - 1) * SP.CELL_GAP;   // 174
+    SP.COMP_W = SP.MATRIX_COLS * SP.GRID_W + (SP.MATRIX_COLS - 1) * SP.GRID_GAP; // 1390
+    SP.COMP_H = SP.MATRIX_ROWS * SP.GRID_H + (SP.MATRIX_ROWS - 1) * SP.GRID_GAP; // 622
+    SP.EDITABLE = [];
+    for (let i = 0; i < SP.MATRIX_COLS * SP.MATRIX_ROWS; i++) if (!SP.HERO.has(i)) SP.EDITABLE.push(i);
+
+    function buildSplashPayload() {
+      if (!state.img) { setStatus('Load an image first.'); return null; }
+      // Draw the source to cover the full composition footprint.
+      const c = document.createElement('canvas');
+      c.width = SP.COMP_W; c.height = SP.COMP_H;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, SP.COMP_W, SP.COMP_H);
+      // object-fit: cover
+      const ar = state.img.naturalWidth / state.img.naturalHeight;
+      const compAr = SP.COMP_W / SP.COMP_H;
+      let dw, dh, dx, dy;
+      if (ar > compAr) { dh = SP.COMP_H; dw = dh * ar; dx = (SP.COMP_W - dw) / 2; dy = 0; }
+      else { dw = SP.COMP_W; dh = dw / ar; dx = 0; dy = (SP.COMP_H - dh) / 2; }
+      ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(state.img, dx, dy, dw, dh);
+      const data = ctx.getImageData(0, 0, SP.COMP_W, SP.COMP_H).data;
+
+      const stops = buildRamp();
+      const contrast = parseFloat($('contrast').value);
+      const bright = parseFloat($('bright').value);
+      const levels = parseInt($('levels').value, 10);
+      const invert = $('invert').checked;
+
+      const sampleAvg = (x0, y0) => { // average a CELL×CELL block at (x0,y0)
+        let r = 0, g = 0, b = 0, n = 0;
+        for (let yy = 0; yy < SP.CELL; yy++) {
+          for (let xx = 0; xx < SP.CELL; xx++) {
+            const px = x0 + xx, py = y0 + yy;
+            if (px < 0 || py < 0 || px >= SP.COMP_W || py >= SP.COMP_H) continue;
+            const k = (py * SP.COMP_W + px) * 4;
+            r += data[k]; g += data[k + 1]; b += data[k + 2]; n++;
+          }
+        }
+        return n ? [r / n, g / n, b / n] : [255, 255, 255];
+      };
+
+      const grids = [];
+      for (let ei = 0; ei < SP.EDITABLE.length; ei++) {
+        const slot = SP.EDITABLE[ei];
+        const sc = slot % SP.MATRIX_COLS, sr = (slot / SP.MATRIX_COLS) | 0;
+        const ox = sc * (SP.GRID_W + SP.GRID_GAP);
+        const oy = sr * (SP.GRID_H + SP.GRID_GAP);
+        const grid = new Array(SP.COLS * SP.ROWS).fill(0);
+        for (let r = 0; r < SP.ROWS; r++) {
+          for (let cc = 0; cc < SP.COLS; cc++) {
+            const x0 = ox + cc * (SP.CELL + SP.CELL_GAP);
+            const y0 = oy + r * (SP.CELL + SP.CELL_GAP);
+            const [rr, gg, bb] = sampleAvg(x0, y0);
+            let p = 1 - (0.299 * rr + 0.587 * gg + 0.114 * bb) / 255;
+            if (invert) p = 1 - p;
+            p = (p - 0.5) * contrast + 0.5 + bright;
+            p = Math.max(0, Math.min(1, p));
+            if (levels >= 2) p = Math.max(0, Math.min(1, Math.round(p * (levels - 1)) / (levels - 1)));
+            const col = sampleRamp(stops, p);
+            grid[r * SP.COLS + cc] = col.a <= 0.4 ? 0 : nearestBrandIndex(col.r, col.g, col.b);
+          }
+        }
+        grids.push(grid);
+      }
+
+      return {
+        version: 1,
+        cols: SP.COLS, rows: SP.ROWS,
+        matrixCols: SP.MATRIX_COLS, matrixRows: SP.MATRIX_ROWS,
+        heroSlots: [...SP.HERO],
+        editableSlots: SP.EDITABLE,
+        palette: PALETTE,
+        grids,
+      };
+    }
+
+    $('exportSplash').addEventListener('click', () => {
+      const payload = buildSplashPayload();
+      if (!payload) return;
+      const text = JSON.stringify(payload, null, 2);
+      $('jsonArea').value = text;
+      download('splash.json', new Blob([text], { type: 'application/json' }));
+      setStatus('Built splash.json — save it to assets/pixel_art/splash.json to ship.');
+    });
+
+    $('pushSplash').addEventListener('click', () => {
+      const payload = buildSplashPayload();
+      if (!payload) return;
+      try {
+        localStorage.setItem('sw.pixelart.v1', JSON.stringify(payload));
+        setStatus('Pushed to localStorage (sw.pixelart.v1). Open index.html in another tab to see it.');
+      } catch (e) {
+        setStatus('localStorage write failed: ' + e.message);
+      }
+    });
+
+    // ---------------------------------------------------------------------
+    // Init
+    // ---------------------------------------------------------------------
+    syncColours();
+  })();
+  </script>
+</body>
+</html>

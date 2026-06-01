@@ -230,8 +230,11 @@
       width: 100%;
       height: 100%;
       min-height: 260px;
-      border-radius: 10px;
-      background: var(--beige) center / cover no-repeat;
+      background-color: transparent;
+      background-position: right center;   /* flush to the right edge */
+      background-size: contain;       /* show the whole pixel-art image, uncropped */
+      background-repeat: no-repeat;
+      image-rendering: pixelated;     /* crisp pixel art, no smoothing */
     }
 
     /* ---------- Prose ---------- */
@@ -312,6 +315,112 @@
     .footnotes li::marker { color: var(--theme); }
     .footnotes a { color: var(--theme); text-decoration: none; }
     .footnotes .fn-back { margin-left: 4px; font-weight: bold; }
+
+    /* ---------- Essay foot: Related work + Writers ---------- */
+    .essay-foot {
+      max-width: 930px;          /* ~25% wider than the ~706px text column */
+      margin: 0 auto;
+      padding: 0 24px 96px;
+      box-sizing: border-box;
+    }
+
+    /* Related work */
+    .related {
+      margin-bottom: 84px;
+      border: 1px solid var(--border-grey);
+      border-radius: 16px;
+      padding: 18px;
+    }
+    .related-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg);
+      border: 1px solid var(--border-grey);
+      border-radius: 12px;
+      padding: 14px 22px;
+      margin-bottom: 18px;
+    }
+    .related-label {
+      font-family: 'Copperplate', serif;
+      font-weight: normal;
+      font-size: 22px;
+      letter-spacing: 0.02em;
+      color: var(--text);
+    }
+    .related-viewall {
+      font-family: 'Roboto', sans-serif;
+      font-size: 15px;
+      color: var(--theme);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .related-viewall .arrow { transition: transform 0.2s ease; }
+    .related-viewall:hover { text-decoration: underline; }
+    .related-viewall:hover .arrow { transform: translateX(3px); }
+
+    .related-track {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .rel-card {
+      background: #fff;
+      border: 1px solid var(--border-grey);
+      border-radius: 12px;
+      overflow: hidden;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+    }
+    .rel-card-img { width: 100%; height: 150px; object-fit: cover; background: var(--beige); display: block; }
+    .rel-card-body { padding: 16px 18px 20px; }
+    .rel-tag {
+      font-family: 'Roboto', sans-serif; font-weight: 700; font-size: 11px;
+      letter-spacing: 0.03em; text-transform: uppercase; color: var(--theme); margin: 0 0 9px;
+    }
+    .rel-title {
+      font-family: 'Playfair Display', serif; font-weight: 600; font-size: 18px;
+      line-height: 1.2; color: var(--text); margin: 0 0 10px;
+    }
+    .rel-meta { font-family: 'Roboto', sans-serif; font-size: 12px; color: var(--text); opacity: 0.7; }
+
+    /* Writers */
+    .writers-heading {
+      font-family: 'Copperplate', serif;
+      font-weight: normal;
+      font-size: 22px;
+      letter-spacing: 0.02em;
+      color: var(--text);
+      margin: 0 0 26px;
+    }
+    .writer { display: flex; gap: 26px; align-items: center; margin-bottom: 32px; }
+    .writer:last-child { margin-bottom: 0; }
+    .writer-pic {
+      flex: 0 0 120px;
+      width: 120px;
+      height: 120px;
+      border-radius: 2px;
+      background: var(--beige) center / cover no-repeat;
+    }
+    .writer-text { flex: 1; min-width: 0; }
+    .writer-name {
+      font-family: 'Playfair Display', serif; font-weight: 600; font-size: 22px;
+      line-height: 1.15; color: var(--text); margin: 0 0 2px;
+    }
+    .writer-role {
+      font-family: 'Roboto', sans-serif; font-weight: 700; font-size: 16px;
+      color: var(--theme); margin: 0 0 12px;
+    }
+    .writer-bio {
+      font-family: 'Antique Olive', sans-serif; font-weight: 300; font-size: 14px;
+      line-height: 1.6; color: var(--text); margin: 0;
+    }
+    @media (max-width: 560px) {
+      .writer { flex-direction: column; gap: 16px; }
+    }
 
     /* ---------- Footer (shared) ---------- */
     .site-footer {
@@ -402,7 +511,7 @@
             <p class="contributors"><strong>Contributors:</strong> Sam Currie, Alex Chalmers, Alvin Djajadikerta, Charlie Harris</p>
           </div>
           <div class="title-pic">
-            <div class="img" role="img" aria-label="The First Step by František Kupka"></div>
+            <div class="img" role="img" aria-label="Essay illustration" style="background-image: url('assets/pixel_art/essay_images/essay_test.png');"></div>
           </div>
         </div>
       </div>
@@ -517,6 +626,63 @@
         </div>
       </div>
     </article>
+
+    <section class="essay-foot">
+      <!-- Related work -->
+      <div class="related">
+        <div class="related-head">
+          <span class="related-label">Related work</span>
+          <a class="related-viewall" href="writing.html">View all <span class="arrow">&rarr;</span></a>
+        </div>
+        <div class="related-track">
+          <a class="rel-card" href="#">
+            <img class="rel-card-img" src="assets/images/missions.webp" alt="" />
+            <div class="rel-card-body">
+              <p class="rel-tag">AI for Science</p>
+              <h3 class="rel-title">Designing AI for Disruptive Science</h3>
+              <p class="rel-meta">Alvin Djajadikerta &middot; 23 March 2026</p>
+            </div>
+          </a>
+          <a class="rel-card" href="#">
+            <img class="rel-card-img" src="assets/images/bucket1.jpg" alt="" />
+            <div class="rel-card-body">
+              <p class="rel-tag">Funding Reform</p>
+              <h3 class="rel-title">The three-bucket problem</h3>
+              <p class="rel-meta">Ben Johnson &middot; 18 November 2025</p>
+            </div>
+          </a>
+          <a class="rel-card" href="#">
+            <img class="rel-card-img" src="assets/images/bucket2.jpg" alt="" />
+            <div class="rel-card-body">
+              <p class="rel-tag">Funding Reform</p>
+              <h3 class="rel-title">The Bucket Stops Here</h3>
+              <p class="rel-meta">Ben Johnson &middot; 14 February 2026</p>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Writers -->
+      <div class="writers">
+        <h2 class="writers-heading">Writers</h2>
+        <div class="writer">
+          <div class="writer-pic" role="img" aria-label="Ben Johnson" style="background-image: url('assets/images/people/ben-johnson.jpg');"></div>
+          <div class="writer-text">
+            <h3 class="writer-name">Ben Johnson</h3>
+            <p class="writer-role">Co-Director</p>
+            <p class="writer-bio">Ben is Co-Director of Science Works. He is a former senior UK government adviser on science and R&amp;D, having advised multiple administrations, and co-author of national-level science policies including the UK R&amp;D Roadmap and UK Innovation Strategy. He was previously associate director at UKRI, has contributed to G7 open science frameworks, and builds data tools for research strategy. Ben is also Professor of Research and Innovation Policy at the University of Strathclyde.</p>
+          </div>
+        </div>
+        <div class="writer">
+          <div class="writer-pic" role="img" aria-label="Laura Ryan" style="background-image: url('assets/images/people/laura-ryan.jpg');"></div>
+          <div class="writer-text">
+            <h3 class="writer-name">Laura Ryan</h3>
+            <p class="writer-role">Co-Director</p>
+            <p class="writer-bio">Laura is Co-Director of Science Works. She was previously Senior Analyst in Science and Technology at the Tony Blair Institute, leading work on metascience, AI for science, and institutional models for R&amp;D, and is lead author of the Lovelace Disruptive Invention Labs report. Laura is co-founder of the Better Science Project and a former Cambridge neuroscientist with a PhD in the field.</p>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">
