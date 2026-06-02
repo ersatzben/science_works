@@ -92,6 +92,57 @@
       transition: border-color 0.15s ease;
     }
     .nav-links a:hover { border-color: var(--theme); }
+    .nav-toggle {
+      display: none;            /* shown on mobile only */
+      margin-left: auto;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      padding: 8px;
+      cursor: pointer;
+    }
+    .nav-toggle span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--theme);
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    @media (max-width: 720px) {
+      .nav-toggle { display: flex; }
+      .nav-links {
+        position: absolute;
+        top: 100%;             /* drop below the bar */
+        left: 0;
+        right: 0;
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        margin: 0;
+        padding: 6px 16px 14px;
+        background: var(--bg-secondary);
+        border-bottom: 2px solid var(--border-grey);
+      }
+      .nav.is-open .nav-links { display: flex; }
+      .nav-links a {
+        font-size: 18px;
+        padding: 12px 8px;
+        border: none;
+        border-radius: 0;
+      }
+      .nav-links a:hover { border: none; text-decoration: underline; }
+      /* hamburger morphs to an X when open */
+      .nav.is-open .nav-toggle span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+      .nav.is-open .nav-toggle span:nth-child(2) { opacity: 0; }
+      .nav.is-open .nav-toggle span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+      /* tighten the meta bar so it's less prominent on mobile */
+      .meta-bar { padding: 7px 14px; margin-bottom: 16px; gap: 12px; }
+      .bar-sep { margin: -7px 0; }   /* keep separators full height vs the new padding */
+    }
 
     /* ---------- Article shell ---------- */
     .article { padding: 44px 24px 96px; }
@@ -147,7 +198,49 @@
       line-height: 1.5;
       color: var(--text);
     }
-    .sn-num { color: var(--theme); font-weight: 700; margin-right: 4px; }
+    .sn-num { font-family: 'Antique Olive', sans-serif; color: var(--theme); font-weight: 700; margin-right: 4px; }
+
+    /* Collapsible aside (banked pattern — not currently used in the markup):
+       header bar with +/- toggle, --bg-secondary panel. */
+    .collapsible { margin: 28px 0; }
+    .collapsible-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-grey);
+      border-radius: 10px;
+      padding: 12px 18px;
+      cursor: pointer;
+      list-style: none;
+      font-family: 'Antique Olive', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text);
+    }
+    .collapsible-head::-webkit-details-marker { display: none; }
+    .collapsible-icon {
+      flex: 0 0 auto;
+      font-family: 'Roboto', sans-serif;
+      font-size: 22px;
+      line-height: 1;
+      color: var(--theme);
+    }
+    .collapsible-icon::before { content: '+'; }
+    .collapsible[open] .collapsible-icon::before { content: '\2212'; }   /* minus */
+    .collapsible[open] .collapsible-head {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+    .collapsible-body {
+      border: 1px solid var(--border-grey);
+      border-top: none;
+      border-radius: 0 0 10px 10px;
+      background: var(--bg-secondary);   /* marks the expanded region */
+      padding: 20px 22px;
+    }
+    .collapsible-body > p:last-child { margin-bottom: 0; }
 
     /* Top meta bar */
     .meta-bar {
@@ -165,10 +258,17 @@
     }
     .bar-item { color: var(--text); text-decoration: none; }
     .bar-item:hover { color: var(--theme); }
-    .bar-sep { width: 1px; height: 15px; background: var(--border-grey); flex: 0 0 auto; }
+    .bar-sep {
+      width: 1px;
+      align-self: stretch;     /* full height of the bar... */
+      margin: -12px 0;         /* ...including its vertical padding */
+      background: var(--border-grey);
+      flex: 0 0 auto;
+    }
     .bar-sep--right { margin-left: auto; }
-    .bar-download { color: var(--theme); font-weight: 500; }
-    .bar-download:hover { text-decoration: underline; color: var(--theme); }
+    .bar-download { color: var(--theme); font-weight: 500; display: inline-flex; align-items: center; }
+    .bar-download svg { display: block; }
+    .bar-download:hover { opacity: 0.65; }
 
     /* Title + metadata (left), picture (right) */
     .title-block {
@@ -211,6 +311,8 @@
       line-height: 1.6;
       color: var(--theme);
     }
+    .author a { color: inherit; text-decoration: none; }
+    .author a:hover { text-decoration: underline; }
     .pub-date {
       font-family: 'Roboto', sans-serif;
       font-size: 14px;
@@ -453,17 +555,31 @@
       .reading-main { padding-right: 0; }
       .article-head { max-width: 720px; }
       .title-block { padding-left: 0; }
+      /* Footnotes become tap-to-expand: marker is a chip, note hidden until tapped */
+      .sn-ref {
+        cursor: pointer;
+        vertical-align: baseline;
+        font-size: 0.8em;
+        background: var(--beige);
+        border-radius: 6px;
+        padding: 1px 6px;
+        margin: 0 1px;
+      }
+      .sn-ref.is-active { background: var(--theme); color: #fff; }
       .sidenote {
+        display: none;            /* revealed by tapping the marker */
         float: none; clear: none; width: auto;
         margin: 10px 0 18px;
         padding: 12px 16px;
         background: var(--almost-white);
-        border-left: 2px solid var(--theme);
         border-radius: 4px;
       }
+      .sidenote.is-open { display: block; }
     }
     @media (max-width: 860px) {
       .title-block { grid-template-columns: 1fr; gap: 28px; }
+      .article-head { margin-bottom: 18px; }   /* less whitespace before the essay */
+      .prose > h2:first-child { margin-top: 16px; }
     }
     @media (max-width: 640px) {
       .article-title { font-size: 32px; }
@@ -479,7 +595,10 @@
       <img class="logo-mark" src="assets/images/FINAL4.svg" alt="" />
       <span class="logo-text">SCIENCE WORKS</span>
     </a>
-    <nav class="nav-links">
+    <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav-links">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="nav-links" id="nav-links">
       <a href="about.html">About</a>
       <a href="index.html#projects">Projects</a>
       <a href="writing.html">Writing</a>
@@ -495,7 +614,7 @@
           <span class="bar-sep" aria-hidden="true"></span>
           <a class="bar-item" href="index.html#projects">AI for Science</a>
           <span class="bar-sep bar-sep--right" aria-hidden="true"></span>
-          <a class="bar-item bar-download" href="#">Download PDF</a>
+          <a class="bar-item bar-download" href="#" aria-label="Download PDF" title="Download PDF"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M12 3v10m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
         </div>
         <div class="title-block">
           <div class="title-col">
@@ -503,10 +622,10 @@
             <p class="article-subtitle">On the regrettable necessity of thinking carefully before spending public money</p>
             <div class="byline-authors">
               <div class="author-row">
-                <span class="author">Ben Johnson</span>
+                <span class="author"><a href="#writers">Ben Johnson</a></span>
                 <span class="pub-date">7 March 2026</span>
               </div>
-              <div class="author">Laura Ryan</div>
+              <div class="author"><a href="#writers">Laura Ryan</a></div>
             </div>
             <p class="contributors"><strong>Contributors:</strong> Sam Currie, Alex Chalmers, Alvin Djajadikerta, Charlie Harris</p>
           </div>
@@ -663,7 +782,7 @@
       </div>
 
       <!-- Writers -->
-      <div class="writers">
+      <div class="writers" id="writers">
         <h2 class="writers-heading">Writers</h2>
         <div class="writer">
           <div class="writer-pic" role="img" aria-label="Ben Johnson" style="background-image: url('assets/images/people/ben-johnson.jpg');"></div>
@@ -760,6 +879,43 @@
         document.fonts.ready.then(function () { buildCells(); update(); });
       }
       update();
+    })();
+
+    // ----- Mobile nav: hamburger toggle ---------------------------------
+    (function () {
+      const nav = document.querySelector('.nav');
+      const toggle = nav && nav.querySelector('.nav-toggle');
+      if (!toggle) return;
+      toggle.addEventListener('click', function () {
+        const open = nav.classList.toggle('is-open');
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+      nav.querySelectorAll('.nav-links a').forEach(function (a) {
+        a.addEventListener('click', function () {
+          nav.classList.remove('is-open');
+          toggle.setAttribute('aria-expanded', 'false');
+        });
+      });
+    })();
+
+    // ----- Footnotes: tap the marker to reveal the note (mobile) ---------
+    (function () {
+      const refs = document.querySelectorAll('.sn-ref');
+      refs.forEach(function (ref) {
+        ref.setAttribute('role', 'button');
+        ref.setAttribute('tabindex', '0');
+        function toggle() {
+          const note = ref.nextElementSibling;
+          if (note && note.classList.contains('sidenote')) {
+            note.classList.toggle('is-open');
+            ref.classList.toggle('is-active');
+          }
+        }
+        ref.addEventListener('click', toggle);
+        ref.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+        });
+      });
     })();
   </script>
 </body>
