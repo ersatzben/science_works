@@ -139,9 +139,8 @@
       .nav.is-open .nav-toggle span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
       .nav.is-open .nav-toggle span:nth-child(2) { opacity: 0; }
       .nav.is-open .nav-toggle span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-      /* tighten the meta bar so it's less prominent on mobile */
-      .meta-bar { padding: 7px 14px; margin-bottom: 16px; gap: 12px; }
-      .bar-sep { margin: -7px 0; }   /* keep separators full height vs the new padding */
+      /* less top space above the article */
+      .article { padding-top: 22px; }
     }
 
     /* ---------- Article shell ---------- */
@@ -247,7 +246,7 @@
       display: flex;
       align-items: center;
       gap: 16px;
-      background: #fff;
+      background: var(--bg-secondary);
       border: 1px solid var(--border-grey);
       border-radius: 10px;
       padding: 12px 22px;
@@ -265,10 +264,13 @@
       background: var(--border-grey);
       flex: 0 0 auto;
     }
-    .bar-sep--right { margin-left: auto; }
-    .bar-download { color: var(--theme); font-weight: 500; display: inline-flex; align-items: center; }
-    .bar-download svg { display: block; }
+    .bar-icon { color: var(--theme); display: inline-flex; align-items: center; }
+    .bar-icon svg { display: block; }
+    .bar-icon:hover { opacity: 0.65; }
+    .bar-push { margin-left: auto; }     /* push share + download to the right */
+    .bar-download { color: var(--theme); font-weight: 500; text-decoration: none; display: inline-flex; align-items: center; }
     .bar-download:hover { opacity: 0.65; }
+    .bar-dl-icon { display: none; }      /* desktop = text; mobile swaps to icon */
 
     /* Title + metadata (left), picture (right) */
     .title-block {
@@ -289,35 +291,46 @@
     .article-subtitle {
       font-family: 'Roboto', sans-serif;
       font-weight: 700;
-      font-size: 16px;
+      font-size: 20px;
       line-height: 1.45;
       color: var(--text);
       margin: 0 0 26px;
-      padding-right: 28%;            /* sits inside the title width — second-order */
+      padding-right: 25%;            /* sits inside the title width — second-order */
     }
-    .byline-authors { margin: 0; }
-    .author-row {
+    .byline {
       display: flex;
       justify-content: space-between;
-      align-items: baseline;
+      align-items: flex-end;
       gap: 16px;
-      padding-right: 28%;            /* keep the date in line with the subtitle edge */
+      padding-right: 25%;            /* date aligns with the subtitle edge (desktop) */
     }
+    .byline-authors {
+      margin: 0;
+      min-height: 3.2em;             /* always two lines tall */
+      display: flex;
+      align-items: flex-end;         /* names sit on the bottom row by default */
+      font-size: 18px;
+      line-height: 1.6;
+    }
+    .authors-line { min-width: 0; line-height: 1.6; }
     .author {
       font-family: 'Copperplate', serif;
       font-weight: normal;
       font-size: 18px;
       letter-spacing: 0.02em;
-      line-height: 1.6;
       color: var(--theme);
+      text-decoration: none;
+      white-space: nowrap;           /* a full name wraps as a unit */
     }
-    .author a { color: inherit; text-decoration: none; }
-    .author a:hover { text-decoration: underline; }
+    .author:hover { text-decoration: underline; }
+    .comma { color: var(--theme); }
     .pub-date {
       font-family: 'Roboto', sans-serif;
       font-size: 14px;
       color: var(--text);
       white-space: nowrap;
+      flex: 0 0 auto;
+      margin-bottom: 8px;
     }
     .contributors {
       font-family: 'Roboto', sans-serif;
@@ -350,7 +363,7 @@
     .prose p { margin: 0 0 24px; }
     .prose a {
       color: var(--theme);
-      font-weight: 700;
+      font-weight: 400;
       text-decoration: none;
     }
     .prose a:hover { text-decoration: underline; text-underline-offset: 2px; }
@@ -363,13 +376,13 @@
       margin: 54px 0 18px;
     }
     .prose h3 {
-      font-family: 'Antique Olive', sans-serif;
+      font-family: 'Playfair Display', serif;
       font-style: italic;
-      font-weight: bold;
-      font-size: 18px;
+      font-weight: 500;
+      font-size: 21px;
       line-height: 1.3;
       color: var(--theme);
-      margin: -10px 0 22px;     /* tuck under the h2 above */
+      margin: 8px 0 22px;       /* more space below the h2 above */
     }
     .prose blockquote {
       margin: 32px 0;
@@ -498,31 +511,51 @@
       color: var(--text);
       margin: 0 0 26px;
     }
-    .writer { display: flex; gap: 26px; align-items: center; margin-bottom: 32px; }
+    .writer {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      grid-template-areas: "pic head" "pic bio";
+      column-gap: 26px;
+      row-gap: 10px;
+      align-items: center;
+      margin-bottom: 32px;
+    }
     .writer:last-child { margin-bottom: 0; }
     .writer-pic {
-      flex: 0 0 120px;
+      grid-area: pic;
       width: 120px;
       height: 120px;
       border-radius: 2px;
       background: var(--beige) center / cover no-repeat;
     }
-    .writer-text { flex: 1; min-width: 0; }
+    .writer-head { grid-area: head; }
+    .writer-bio { grid-area: bio; }
     .writer-name {
       font-family: 'Playfair Display', serif; font-weight: 600; font-size: 22px;
       line-height: 1.15; color: var(--text); margin: 0 0 2px;
     }
     .writer-role {
       font-family: 'Roboto', sans-serif; font-weight: 700; font-size: 16px;
-      color: var(--theme); margin: 0 0 12px;
+      color: var(--theme); margin: 0;
     }
     .writer-bio {
       font-family: 'Antique Olive', sans-serif; font-weight: 300; font-size: 14px;
       line-height: 1.6; color: var(--text); margin: 0;
     }
-    @media (max-width: 560px) {
-      .writer { flex-direction: column; gap: 16px; }
+
+    /* Related mobile carousel nav (carets) — hidden on desktop */
+    .related-nav { display: none; }
+    .caret {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--border-grey);
+      background: var(--bg-secondary);
+      color: var(--theme);
+      font-size: 24px; line-height: 1;
+      cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
     }
+    .caret:active { background: var(--beige); }
 
     /* ---------- Footer (shared) ---------- */
     .site-footer {
@@ -580,12 +613,37 @@
       .title-block { grid-template-columns: 1fr; gap: 28px; }
       .article-head { margin-bottom: 18px; }   /* less whitespace before the essay */
       .prose > h2:first-child { margin-top: 16px; }
+      .meta-bar { padding: 8px 16px; margin-bottom: 22px; gap: 12px; }
+      .bar-sep { margin: -8px 0; }
+      .byline { padding-right: 0; }   /* date to the right of the title on mobile */
     }
     @media (max-width: 640px) {
       .article-title { font-size: 32px; }
-      .article-subtitle { font-size: 18px; }
+      .article-subtitle { font-size: 15px; line-height: 1.3; }
       .prose { font-size: 16px; }
       .prose h2 { font-size: 24px; }
+      .writer {
+        grid-template-columns: 88px 1fr;
+        grid-template-areas: "pic head" "bio bio";
+        column-gap: 16px;
+        row-gap: 12px;
+      }
+      .writer-pic { width: 88px; height: 88px; }
+    }
+    /* Placed after the base rules so these win on mobile (source order) */
+    @media (max-width: 720px) {
+      .bar-dl-text { display: none; }
+      .bar-dl-icon { display: block; }
+      .related-track {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: 12px;
+        scrollbar-width: none;
+      }
+      .related-track::-webkit-scrollbar { display: none; }
+      .rel-card { flex: 0 0 100%; scroll-snap-align: center; }
+      .related-nav { display: flex; justify-content: center; gap: 16px; margin-top: 16px; }
     }
   </style>
 </head>
@@ -613,19 +671,18 @@
           <a class="bar-item" href="writing.html">Essay</a>
           <span class="bar-sep" aria-hidden="true"></span>
           <a class="bar-item" href="index.html#projects">AI for Science</a>
-          <span class="bar-sep bar-sep--right" aria-hidden="true"></span>
-          <a class="bar-item bar-download" href="#" aria-label="Download PDF" title="Download PDF"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M12 3v10m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <a class="bar-icon bar-push" href="#" aria-label="Share on X" title="Share on X"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M18.24 2.25h3.31l-7.23 8.26L23 21.75h-6.66l-5.21-6.82-5.97 6.82H1.85l7.73-8.84L1.25 2.25h6.83l4.71 6.23 5.45-6.23zm-1.16 17.52h1.83L7.08 4.13H5.12L17.08 19.77z"/></svg></a>
+          <a class="bar-icon" href="#" aria-label="Share by email" title="Share by email"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm9 7.5 8-5.5H4l8 5.5zM4 8.2V18h16V8.2l-8 5.5-8-5.5z"/></svg></a>
+          <span class="bar-sep" aria-hidden="true"></span>
+          <a class="bar-item bar-download" href="#" aria-label="Download PDF" title="Download PDF"><span class="bar-dl-text">Download PDF</span><svg class="bar-dl-icon" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M12 3v10m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
         </div>
         <div class="title-block">
           <div class="title-col">
             <h1 class="article-title">How not to waste an AI for science mission</h1>
             <p class="article-subtitle">On the regrettable necessity of thinking carefully before spending public money</p>
-            <div class="byline-authors">
-              <div class="author-row">
-                <span class="author"><a href="#writers">Ben Johnson</a></span>
-                <span class="pub-date">7 March 2026</span>
-              </div>
-              <div class="author"><a href="#writers">Laura Ryan</a></div>
+            <div class="byline">
+              <p class="byline-authors"><span class="authors-line"><a class="author" href="#writers">Ben Johnson</a><span class="comma">,</span> <a class="author" href="#writers">Laura Ryan</a></span></p>
+              <span class="pub-date">7 March 2026</span>
             </div>
             <p class="contributors"><strong>Contributors:</strong> Sam Currie, Alex Chalmers, Alvin Djajadikerta, Charlie Harris</p>
           </div>
@@ -779,6 +836,10 @@
             </div>
           </a>
         </div>
+        <div class="related-nav" aria-hidden="true">
+          <button class="caret" type="button" data-dir="-1" aria-label="Previous">&lsaquo;</button>
+          <button class="caret" type="button" data-dir="1" aria-label="Next">&rsaquo;</button>
+        </div>
       </div>
 
       <!-- Writers -->
@@ -786,19 +847,19 @@
         <h2 class="writers-heading">Writers</h2>
         <div class="writer">
           <div class="writer-pic" role="img" aria-label="Ben Johnson" style="background-image: url('assets/images/people/ben-johnson.jpg');"></div>
-          <div class="writer-text">
+          <div class="writer-head">
             <h3 class="writer-name">Ben Johnson</h3>
             <p class="writer-role">Co-Director</p>
-            <p class="writer-bio">Ben is Co-Director of Science Works. He is a former senior UK government adviser on science and R&amp;D, having advised multiple administrations, and co-author of national-level science policies including the UK R&amp;D Roadmap and UK Innovation Strategy. He was previously associate director at UKRI, has contributed to G7 open science frameworks, and builds data tools for research strategy. Ben is also Professor of Research and Innovation Policy at the University of Strathclyde.</p>
           </div>
+          <p class="writer-bio">Ben is Co-Director of Science Works. He is a former senior UK government adviser on science and R&amp;D, having advised multiple administrations, and co-author of national-level science policies including the UK R&amp;D Roadmap and UK Innovation Strategy. He was previously associate director at UKRI, has contributed to G7 open science frameworks, and builds data tools for research strategy. Ben is also Professor of Research and Innovation Policy at the University of Strathclyde.</p>
         </div>
         <div class="writer">
           <div class="writer-pic" role="img" aria-label="Laura Ryan" style="background-image: url('assets/images/people/laura-ryan.jpg');"></div>
-          <div class="writer-text">
+          <div class="writer-head">
             <h3 class="writer-name">Laura Ryan</h3>
             <p class="writer-role">Co-Director</p>
-            <p class="writer-bio">Laura is Co-Director of Science Works. She was previously Senior Analyst in Science and Technology at the Tony Blair Institute, leading work on metascience, AI for science, and institutional models for R&amp;D, and is lead author of the Lovelace Disruptive Invention Labs report. Laura is co-founder of the Better Science Project and a former Cambridge neuroscientist with a PhD in the field.</p>
           </div>
+          <p class="writer-bio">Laura is Co-Director of Science Works. She was previously Senior Analyst in Science and Technology at the Tony Blair Institute, leading work on metascience, AI for science, and institutional models for R&amp;D, and is lead author of the Lovelace Disruptive Invention Labs report. Laura is co-founder of the Better Science Project and a former Cambridge neuroscientist with a PhD in the field.</p>
         </div>
       </div>
     </section>
@@ -914,6 +975,18 @@
         ref.addEventListener('click', toggle);
         ref.addEventListener('keydown', function (e) {
           if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+        });
+      });
+    })();
+    // ----- Related work: caret navigation (mobile carousel) -------------
+    (function () {
+      const track = document.querySelector('.related-track');
+      const nav = document.querySelector('.related-nav');
+      if (!track || !nav) return;
+      nav.querySelectorAll('.caret').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const dir = parseInt(btn.getAttribute('data-dir'), 10);
+          track.scrollBy({ left: dir * track.clientWidth, behavior: 'smooth' });
         });
       });
     })();
