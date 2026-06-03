@@ -53,7 +53,7 @@
       --deep-green: #0e676a;
       --coral: #f45e57;
       --beige: #ebe5cf;
-      --almost-white: #faf8f6;
+      --almost-white: #fffbf7;
       --purple-blue: #4b5cce;
       --darkest-brown: #440214;
 
@@ -71,6 +71,16 @@
       --cell-gap: 2px;
       --grid-cols: 12;
       --grid-rows: 11;
+
+      /* Small dot-matrix blocks (project cards, intro grid, reusable) */
+      --small-block-size: 10px;
+      --small-block-gap: 3px;
+      --small-block-radius: 2px;
+
+      /* Micro dot-matrix (signup image, reusable) — much smaller again */
+      --micro-block-size: 4px;
+      --micro-block-gap: 1px;
+      --micro-block-radius: 1px;
 
       /* Matrix metrics */
       --matrix-cols: 6;
@@ -161,14 +171,20 @@
     .section-label {
       font-family: 'Copperplate', serif;
       font-weight: normal;
-      font-size: 30px;
+      font-size: 28px;
       letter-spacing: 0.02em;
       color: var(--text);
-      margin: 0 0 28px;
+      margin: 0 0 15px;
     }
+    .section-label a { color: var(--theme); text-decoration: underline; text-underline-offset: 10px; text-decoration-thickness: 1px; }
+    .section-label a:hover { text-decoration: underline; text-decoration-thickness: 3px; }
 
     /* ---------- Spotlight: pinned intro (left) + scrolling projects (right) ---------- */
-    .spotlight { padding: 0 0 100px; }
+    .spotlight { 
+      padding: 70px 0 56px; 
+      background-color: var(--almost-white);
+    }
+
     .spotlight-grid {
       display: grid;
       grid-template-columns: minmax(280px, 1.5fr) 1.55fr;   /* intro col ~25% wider */
@@ -177,8 +193,28 @@
     }
     .spotlight-intro {
       position: sticky;
-      top: 90px;            /* clears the 60px sticky nav + breathing room */
+      top: 140px;                   /* sticky threshold — freezes 80px below viewport top (clears the 60px nav) */
+      margin-top: 70px;            /* initial gap before the intro */
       align-self: start;
+      padding-left: 70px; 
+      padding-right: 20px;
+    }
+    /* Decorative 7x2 dot grid, top-left of the intro. Anchored to the
+       container's top-left corner; nudge it anywhere (incl. outside the
+       container) with the margins below — negative values are fine. */
+    .intro-matrix {
+      position: absolute;
+      top: 0;
+      left: 0;
+      margin: -65px 0 0 -40px;      /* top right bottom left — move the grid with these */
+      display: grid;
+      grid-template-columns: repeat(7, var(--small-block-size));
+      grid-auto-rows: var(--small-block-size);
+      gap: var(--small-block-gap);
+    }
+    .intro-matrix span {
+      background: var(--border-grey);
+      border-radius: var(--small-block-radius);
     }
     .spotlight-intro h2 {
       font-family: 'Copperplate', serif;
@@ -190,7 +226,7 @@
     }
     .spotlight-intro p {
       font-family: 'Antique Olive', sans-serif;
-      font-size: 16px;
+      font-size: 15px;
       line-height: 1.6;
       color: var(--text);
       margin: 0 0 16px;
@@ -198,70 +234,136 @@
     }
     .spotlight-intro .hero-btn { margin-top: 8px; }
 
-    .projects { display: flex; flex-direction: column; gap: 22px; }
+    .projects { display: flex; flex-direction: column; gap: 22px; padding-right: 55px; }
     .project {
       display: flex;
       gap: 28px;
-      align-items: center;
-      background: var(--almost-white);
+      align-items: stretch;
+      background: var(--bg);
       border: 1px solid var(--border-grey);
-      border-radius: 12px;
-      padding: 26px 28px;
+      border-radius: 6px;
+      padding: 24px 24px;
       box-sizing: border-box;
     }
     .project-body { flex: 1; min-width: 0; }
     .project-title {
-      font-family: 'Playfair Display', serif;
+      font-family: 'Copperplate', serif;
       font-weight: 600;
-      font-size: 25px;
+      font-size: 22px;
       line-height: 1.15;
       color: var(--text);
       margin: 0 0 6px;
-    }
+    } 
     .project-sub {
-      font-family: 'Antique Olive', sans-serif;
+      font-family: 'Playfair Display', serif;
       font-weight: bold;
       font-size: 16px;
       letter-spacing: 0.01em;
-      color: var(--theme);
-      margin: 12px 0 6px;       /* match title→sub gap so body runs on from the subtitle */
+      line-height: 1.4;
+      color: var(--text);
+      margin: 0 0 12px;
     }
     .project-text {
       font-family: 'Antique Olive', sans-serif;
-      font-size: 15px;
+      font-size: 13px;
       line-height: 1.55;
       color: var(--text);
       margin: 0;
     }
-    .project-img {
-      flex: 0 0 150px;
-      width: 150px;
-      height: 150px;
-      border-radius: 8px;
-      background: var(--beige);   /* placeholder block */
-      object-fit: cover;
+    .project-detail {
+      border-left: 1px solid var(--border-grey);
+      padding-left: 16px;
+      margin-top: 12px;
     }
+    .project-more {
+      font-family: 'Roboto', sans-serif;
+      display: inline-block;
+      margin-top: 16px;
+      margin-left: 16px;
+      font-family: var(--button-text);
+      font-weight: 500;
+      font-size: 16px;
+      letter-spacing: 0.01em;
+      color: var(--theme);
+      text-decoration: none;
+    }
+    .project-more:hover { text-decoration: underline; }
+    .project-divider {
+      flex: 0 0 auto;
+      width: 1px;
+      align-self: stretch;
+      background: var(--border-grey);
+      margin: -24px 0;            /* extend to the card's top/bottom edges through the padding */
+    }
+    /* Procedural dot-matrix filling the card's right panel. The column count
+       fixes the panel width; the row count is computed in JS to fit the card
+       height in WHOLE cells, so differing card heights never slice a pixel.
+       One colour for now. */
+    .project-img {
+      flex: 0 0 auto;
+      align-self: stretch;              /* panel height = card content height */
+      --card-pix-cols: 11;              /* columns → drives the panel width */
+      --card-pix-cell: var(--small-block-size);   /* pixel size */
+      --card-pix-gap: var(--small-block-gap);      /* spacing between pixels */
+      --card-pix-color: var(--border-grey);   /* single fill colour for now */
+      width: calc(var(--card-pix-cols) * var(--card-pix-cell)
+                  + (var(--card-pix-cols) - 1) * var(--card-pix-gap));
+      display: grid;
+      grid-template-columns: repeat(var(--card-pix-cols), var(--card-pix-cell));
+      grid-auto-rows: var(--card-pix-cell);
+      gap: var(--card-pix-gap);
+      align-content: start;             /* pack pixels from the top down */
+      overflow: hidden;
+    }
+    .pix-cell { background: var(--card-pix-color); border-radius: var(--card-pix-radius, var(--small-block-radius)); }
 
     /* ---------- In Focus: one highlighted publication ---------- */
-    .infocus { padding: 30px 0 90px; }
+    .infocus { padding: 45px 0 45px; }
+    /* Fixed max width, left-aligned to the content-wrap's left edge. Room is
+       left to the right of the card for future content (tune width later). */
     .infocus-card {
+      position: relative;               /* contains the stretched whole-card link */
       display: flex;
       align-items: stretch;
-      min-height: 360px;
+      max-width: 860px;
+      min-height: 300px;
       background: var(--almost-white);
       border: 1px solid var(--border-grey);
       border-radius: 14px;
       overflow: hidden;
+      cursor: pointer;
     }
-    .infocus-img {
-      flex: 0 0 44%;
-      background-size: cover;
-      background-position: center;
-      background-color: var(--beige);   /* shows if the image is missing */
+    /* 2px red edge on hover via an inset ring (border stays 1px → no layout shift, no animation). */
+    .infocus-card:hover {
+      border-color: var(--theme);
+      box-shadow: inset 0 0 0 1px var(--theme);
+    }
+    /* Stretched link covers the whole card; author links sit above it. */
+    .infocus-link { position: absolute; inset: 0; z-index: 1; }
+    /* Picture replaced by a whole-cell dot grid (filled by the shared JS),
+       with a margin of card-background around the pixels. */
+    .infocus-pix {
+      flex: 0 0 auto;
+      align-self: center;               /* stay vertically centred if the card grows */
+      margin: 24px;                     /* whitespace around the pixels */
+      --card-pix-cols: 24;              /* exact column count */
+      --card-pix-rows: 16;              /* exact row count */
+      --card-pix-cell: var(--cell-size);     /* hero grid size (14px) */
+      --card-pix-gap: var(--cell-gap);       /* hero grid spacing (2px) */
+      --card-pix-radius: var(--cell-radius); /* hero grid radius (2px) */
+      --card-pix-color: var(--border-grey);
+      width: calc(var(--card-pix-cols) * var(--card-pix-cell)
+                  + (var(--card-pix-cols) - 1) * var(--card-pix-gap));
+      display: grid;
+      grid-template-columns: repeat(var(--card-pix-cols), var(--card-pix-cell));
+      grid-auto-rows: var(--card-pix-cell);
+      gap: var(--card-pix-gap);
+      overflow: hidden;
     }
     .infocus-meta {
       flex: 1;
-      padding: 44px 48px;
+      min-width: 0;
+      padding: 0px 36px 0px 4px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -272,46 +374,80 @@
       font-size: 13px;
       letter-spacing: 0.04em;
       text-transform: uppercase;
-      color: var(--theme);
-      margin: 0 0 14px;
+      color: var(--text);
+      margin: 2px 0 18px;
     }
     .infocus-title {
       font-family: 'Playfair Display', serif;
-      font-weight: 600;
-      font-size: 34px;
+      font-weight: 300;
+      font-size: 26px;
       line-height: 1.12;
       color: var(--text);
+      margin: 0 0 12px;
+    }
+    .infocus-authors {
+      font-family: 'Roboto', sans-serif;
+      font-weight: bold;
+      font-size: 17px;
+      color: var(--theme);
       margin: 0 0 14px;
     }
+    .infocus-authors a { color: var(--theme); text-decoration: none; position: relative; z-index: 2; }
+    .infocus-authors a:hover { text-decoration: underline; }
+    .infocus-authors .sep { color: var(--theme); }
     .infocus-sub {
       font-family: 'Antique Olive', sans-serif;
-      font-size: 17px;
+      font-size: 13px;
       line-height: 1.5;
       color: var(--text);
-      margin: 0 0 18px;
-      max-width: 520px;
+      margin: 0 0 6px;
     }
-    .infocus-byline {
+    .infocus-foot {
+      display: flex;
+      gap: 40px;                        /* the gap between Date and Essay */
       font-family: 'Antique Olive', sans-serif;
-      font-size: 14px;
+      font-size: 13px;
       color: var(--text);
-      opacity: 0.85;
-      margin: 0 0 24px;
+      margin: 0;
     }
-    .infocus-byline a { color: var(--theme); font-weight: bold; text-decoration: none; }
-    .infocus-byline a:hover { text-decoration: underline; }
 
     /* ---------- Latest reports carousel ---------- */
-    .reports { padding: 30px 0 110px; }
+    .reports { padding: 0 0 110px; }
+    .reports-box {
+      position: relative;               /* anchors the overlaid arrows */
+      border: 1px solid var(--border-grey);
+      border-radius: 14px;
+      padding: 28px 28px 18px;
+    }
     .reports-head {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 26px;
+      gap: 16px;
+      margin-bottom: 18px;
     }
     .reports-head .section-label { margin: 0; }
-    .carousel-arrows { display: flex; gap: 10px; }
+    .reports-viewall {
+      font-family: var(--button-text);
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--theme);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .reports-viewall:hover { text-decoration: underline; }
+    /* Arrows overlaid on the left/right edges of the cards, vertically centred. */
+    /* Wrapper generates no box; the buttons position themselves against
+       reports-box directly. */
+    .carousel-arrows { display: contents; }
+    /* Each arrow is pinned to its edge BY ROLE (data-dir), so prev is always
+       left and next always right — independent of DOM/flex order. Only the
+       42px buttons intercept pointers, so the gap between them stays draggable. */
     .carousel-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 3;
       width: 42px;
       height: 42px;
       border-radius: 50%;
@@ -324,11 +460,14 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      transition: background-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.12);   /* lift off the cards underneath */
+      transition: background-color 0.15s ease, color 0.15s ease;
     }
+    .carousel-arrow[data-dir="-1"] { left: 10px; }    /* prev: always the left edge */
+    .carousel-arrow[data-dir="1"]  { right: 10px; }   /* next: always the right edge */
     .carousel-arrow:hover { background: var(--theme); color: #fff; }
-    .carousel-arrow:disabled { opacity: 0.3; cursor: default; }
-    .carousel-arrow:disabled:hover { background: #fff; color: var(--theme); }
+    /* Hidden (not just dimmed) at the corresponding end. */
+    .carousel-arrow:disabled { visibility: hidden; }
     .carousel-track {
       display: flex;
       gap: 20px;
@@ -342,46 +481,63 @@
     .carousel-track::-webkit-scrollbar { display: none; }
     .carousel-track.dragging { cursor: grabbing; scroll-behavior: auto; }
     .report-card {
-      flex: 0 0 300px;
+      position: relative;               /* contains the stretched whole-card link */
+      flex: 0 0 212px;                  /* narrower; = 14-col grid (179px) + 2*16 padding */
       scroll-snap-align: start;
       background: var(--almost-white);
       border: 1px solid var(--border-grey);
       border-radius: 12px;
       overflow: hidden;
-      text-decoration: none;
+      padding: 16px;
+      box-sizing: border-box;
       display: flex;
       flex-direction: column;
     }
-    .report-card-img {
-      width: 100%;
-      height: 168px;
-      object-fit: cover;
-      background: var(--beige);
-      display: block;
+    .report-card-link { position: absolute; inset: 0; z-index: 1; }   /* whole card clickable */
+    /* Pixel-art image: fixed 14x12 grid at the small block size, filled by the shared JS. */
+    .report-card-pix {
+      --card-pix-cols: 14;
+      --card-pix-rows: 12;
+      --card-pix-cell: var(--small-block-size);
+      --card-pix-gap: var(--small-block-gap);
+      --card-pix-radius: var(--small-block-radius);
+      --card-pix-color: var(--border-grey);
+      width: calc(var(--card-pix-cols) * var(--card-pix-cell)
+                  + (var(--card-pix-cols) - 1) * var(--card-pix-gap));
+      display: grid;
+      grid-template-columns: repeat(var(--card-pix-cols), var(--card-pix-cell));
+      grid-auto-rows: var(--card-pix-cell);
+      gap: var(--card-pix-gap);
+      margin-bottom: 16px;
     }
-    .report-card-body { padding: 18px 20px 22px; }
-    .report-tag {
-      font-family: 'Antique Olive', sans-serif;
-      font-weight: bold;
-      font-size: 12px;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-      color: var(--theme);
-      margin: 0 0 10px;
-    }
+    .report-card-body { flex: 1; display: flex; flex-direction: column; }
     .report-title {
       font-family: 'Playfair Display', serif;
       font-weight: 600;
-      font-size: 19px;
+      font-size: 18px;
       line-height: 1.2;
       color: var(--text);
-      margin: 0 0 12px;
+      margin: 0 0 10px;
     }
-    .report-meta {
+    /* Authors styled like the In Focus card: red links, red comma separator. */
+    .report-authors {
       font-family: 'Antique Olive', sans-serif;
       font-size: 13px;
+      margin: 0 0 12px;
+    }
+    .report-authors a { color: var(--theme); text-decoration: none; position: relative; z-index: 2; }
+    .report-authors a:hover { text-decoration: underline; }
+    .report-authors .sep { color: var(--theme); }
+    /* Date (left) and type (right, e.g. "Essay"), pinned to the bottom of the card. */
+    .report-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      font-family: 'Antique Olive', sans-serif;
+      font-size: 12px;
       color: var(--text);
-      opacity: 0.75;
+      margin: auto 0 0;          /* top:auto pushes it to the card bottom */
     }
 
     .logo {
@@ -480,20 +636,46 @@
     }
 
     /* ---------- Footer ---------- */
+    /* Footer: pixel band (top) + signup form (middle) + dark bottom band. */
     .site-footer {
-      height: 60px;  /* was 80px band; reduced by 20px, no border */
-      background: var(--beige);
+      min-height: 300px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 2;
+      flex-shrink: 0;
+    }
+    /* 1) Full-width band of hero-sized pixels, 4 rows deep (columns filled by JS). */
+    .footer-pixels {
+      --card-pix-color: var(--almost-white);
+      --card-pix-radius: var(--small-block-radius);
+      display: grid;
+      grid-auto-rows: var(--small-block-size);
+      gap: var(--small-block-gap);
+      justify-content: center;     /* centre the row of cells; remainder splits both sides */
+      padding: 18px 0;
+    }
+    /* 2) Mailing-list signup — markup supplied later; fills the middle for now. */
+    .footer-signup {
+      flex: 1;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0 40px;
+      display: flex;
+      align-items: center;        /* vertical-centre the box in the band */
+      justify-content: flex-end;  /* push the box to the right of the viewport */
+    }
+    /* 3) Bottom band: solid dark brown, white text. */
+    .footer-bottom {
+      background: var(--darkest-brown);
+      color: #fff;
       box-sizing: border-box;
       display: flex;
       align-items: center;
       padding: 0 24px;
+      min-height: 60px;
       font-family: 'Antique Olive', sans-serif;
       font-size: 13px;
-      color: var(--text);
-      /* When used inside #work: stay above the shelf bg and don't shrink. */
-      position: relative;
-      z-index: 2;
-      flex-shrink: 0;
     }
     .footer-inner {
       width: 100%;
@@ -501,15 +683,32 @@
       align-items: center;
       gap: 22px;
     }
-    .footer-copy { opacity: 0.7; }
+    .footer-copy {
+      text-align: left;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      line-height: 1.3;
+      opacity: 0.75;
+    }
+    /* Right-hand group: policy links + copyright, pushed to the far right. */
+    .footer-end {
+      margin-left: auto;          /* the "big space" between socials and this group */
+      display: flex;
+      align-items: center;
+      gap: 40px;                  /* spacing between the four right-hand items */
+    }
+    .footer-policies { display: flex; gap: 40px; }
     .footer-link {
-      color: var(--text);
+      color: #fff;
       text-decoration: none;
-      opacity: 0.7;
+      opacity: 0.75;
+      display: inline-block;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      line-height: 1.3;
     }
     .footer-link:hover { opacity: 1; text-decoration: underline; }
     .footer-socials {
-      margin-left: auto;
       display: flex;
       align-items: center;
       gap: 14px;
@@ -518,18 +717,297 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 22px;
-      height: 22px;
-      color: var(--text);
-      opacity: 0.65;
+      width: 30px;
+      height: 30px;
+      color: #fff;
+      opacity: 0.7;
       transition: opacity 0.15s ease;
     }
     .footer-socials a:hover { opacity: 1; }
     .footer-socials svg {
-      width: 16px;
-      height: 16px;
+      width: 22px;
+      height: 22px;
       fill: currentColor;
       display: block;
+    }
+
+    /* ---- Brevo mailing-list signup (lifted from science_works_2) ---- */
+    /* Tokens the lifted form expects; remap to brand tokens when tweaking. */
+    #signup { --red: var(--theme); --text-muted: #888; --placeholder: #ccc; }
+    #signup {
+      margin-top: -14px;
+      margin-right: -20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: 'Roboto', sans-serif;
+    }
+    .sib-form {
+      padding: 0 0;
+    }
+
+    #signup #sib-form-container,
+    #signup #sib-container {
+      background: transparent;
+      border: none;
+      padding: 0;
+      max-width: none;
+      text-align: center;
+    }
+    #signup h3 {
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--theme);
+      margin-bottom: 8px;
+      letter-spacing: 0.02em;
+      text-align: center;
+    }
+    #signup form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #signup .sib-form-block {
+      padding: 0;
+    }
+    #signup .form__entry {
+      margin: 0;
+    }
+    #signup .form__label-row {
+      display: block;
+    }
+    #signup .entry__field {
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      margin: 0;
+      overflow: visible;
+    }
+    #signup .email-row {
+      display: flex;
+    }
+    #signup input.input[type="email"],
+    #signup input.input#EMAIL {
+      font-family: 'Roboto', sans-serif;
+      font-size: 13px;
+      padding: 0 12px;
+      border: 1.5px solid var(--theme);
+      border-right: none;
+      border-radius: 0;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      width: 200px;
+      height: 32px;
+      box-sizing: border-box;
+      box-shadow: none;
+      background-image: none;
+      flex-grow: 0;
+    }
+    #signup input.input#EMAIL::placeholder {
+      color: var(--placeholder);
+      text-align: left;
+      font-family: 'Roboto', sans-serif;
+    }
+    #signup button[type="submit"].sib-form-block__button {
+      font-family: 'Roboto', sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      padding: 0 12px;
+      border: 1.5px solid var(--theme);
+      border-radius: 0;
+      background: var(--theme);
+      color: var(--bg);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      width: auto;
+      height: 32px;
+      min-height: 0;
+      box-sizing: border-box;
+      text-align: center;
+      text-transform: none;
+      letter-spacing: 0;
+      box-shadow: none;
+    }
+    #signup button[type="submit"] svg {
+      width: 14px;
+      height: 14px;
+      fill: var(--bg);
+      animation: sib-spin 0.8s linear infinite;
+    }
+    #signup button[type="submit"] svg.sib-hide-loader-icon {
+      display: none;
+      animation: none;
+    }
+    #signup .btn-arrow {
+      display: inline-block;
+    }
+    #signup button[type="submit"].sib-form-block__button-disabled .btn-arrow {
+      display: none;
+    }
+    @keyframes sib-spin {
+      to { transform: rotate(360deg); }
+    }
+    #signup .sib-optin {
+      margin-top: 8px;
+    }
+    #signup .entry__choice {
+      margin: 0;
+      padding-left: 0;
+      text-indent: 0;
+      white-space: normal;
+      overflow: visible;
+    }
+    #signup .entry__choice > label {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.3;
+      max-width: 240px;
+      cursor: pointer;
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+    }
+    #signup .entry__choice > label > span:last-child {
+      font-family: 'Roboto', sans-serif !important;
+      font-size: 11px !important;
+      color: var(--text-muted) !important;
+      text-align: left;
+    }
+    #signup .entry__choice > label > span:last-child p {
+      margin: 0;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    #signup input[type="checkbox"]#GDPR_ACCEPTED {
+      position: static;
+      opacity: 1;
+      pointer-events: auto;
+      appearance: none;
+      -webkit-appearance: none;
+      width: 13px;
+      height: 13px;
+      border: 1.5px solid var(--red);
+      border-radius: 0;
+      background: transparent;
+      cursor: pointer;
+      flex-shrink: 0;
+      margin: 1px 0 0 0;
+      padding: 0;
+      box-shadow: none;
+    }
+    #signup input[type="checkbox"]#GDPR_ACCEPTED:checked {
+      background-color: var(--red);
+      background-image: var(--gdpr-tick-svg);
+      background-position: center;
+      background-size: 9px;
+      background-repeat: no-repeat;
+    }
+    #signup .checkbox.checkbox_tick_positive,
+    #signup .gdpr-tick {
+      display: none !important;
+    }
+    #signup .sib-form-message-panel {
+      display: none;
+      font-family: 'Roboto', sans-serif;
+      font-size: 13px;
+      padding: 8px 12px;
+      margin-bottom: 8px;
+      max-width: 260px;
+      text-align: center;
+      background: transparent;
+      border-radius: 0;
+    }
+    #signup .sib-form-message-panel.sib-form-message-panel--active {
+      display: block;
+    }
+    #signup #success-message {
+      color: var(--red);
+      border: none;
+      padding: 16px 0;
+      font-size: 14px;
+      max-width: none;
+    }
+    #signup #error-message {
+      color: var(--red);
+      border: 1.5px solid var(--red);
+    }
+    /* When success is shown, hide the form so success replaces it */
+    #signup #success-message.sib-form-message-panel--active ~ #sib-container {
+      display: none;
+    }
+    #signup .sib-form-message-panel__text {
+      padding: 0;
+    }
+    #signup .sib-form-message-panel .sib-icon {
+      display: none;
+    }
+    #signup .sib-form-message-panel__inner-text {
+      font-family: 'Roboto', sans-serif;
+      font-size: inherit;
+    }
+    #signup .entry__error {
+      display: block;
+      font-family: 'Roboto', sans-serif;
+      font-size: 11px;
+      margin-top: 4px;
+      color: var(--red);
+    }
+    #signup .entry__error:empty {
+      display: none;
+    }
+    @keyframes gdpr-shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-3px); }
+      40% { transform: translateX(3px); }
+      60% { transform: translateX(-3px); }
+      80% { transform: translateX(3px); }
+    }
+    #signup input[type="checkbox"]#GDPR_ACCEPTED.gdpr-shake {
+      animation: gdpr-shake 0.4s ease-in-out;
+    }
+    #signup .input--hidden {
+      display: none;
+    }
+
+    /* ---- Our styling: red box, fixed height, copperplate left-aligned title ---- */
+    #signup {
+      height: 145px;                /* fixed — the form's occasional messages must not change it */
+      box-sizing: border-box;
+      flex-direction: row;          /* form on the left, image on the right */
+      align-items: center;
+      justify-content: center;      /* keep content vertically centred */
+      gap: 30px;
+      padding: 0 20px;
+      border: 2px solid var(--theme);
+      border-radius: 6px;
+      overflow: hidden;             /* clip any message-driven height change; no overflow */
+    }
+    /* Image slot: 24x24 micro-pixel grid, filled by the shared JS. */
+    .signup-pix {
+      flex: 0 0 auto;
+      --card-pix-cols: 24;
+      --card-pix-rows: 22;
+      --card-pix-cell: var(--micro-block-size);
+      --card-pix-gap: var(--micro-block-gap);
+      --card-pix-radius: var(--micro-block-radius);
+      --card-pix-color: var(--theme);
+      width: calc(var(--card-pix-cols) * var(--card-pix-cell)
+                  + (var(--card-pix-cols) - 1) * var(--card-pix-gap));
+      display: grid;
+      grid-template-columns: repeat(var(--card-pix-cols), var(--card-pix-cell));
+      grid-auto-rows: var(--card-pix-cell);
+      gap: var(--card-pix-gap);
+    }
+    #signup h3 {
+      font-family: 'Copperplate', serif;
+      align-self: flex-start;       /* left-align the title with the form */
+      text-align: left;
     }
 
     .stage {
@@ -745,8 +1223,8 @@
       .content-wrap { padding: 0 18px; }
       .section-label { font-size: 24px; margin-bottom: 20px; }
 
-      .spotlight { padding: 30px 0 56px; 
-      background-color: #fffbf7;
+      .spotlight {  
+        
       }
 
       .spotlight-intro h2 {
@@ -765,12 +1243,11 @@
 
       .infocus { padding: 14px 0 56px; }
       .infocus-card { flex-direction: column; min-height: 0; }
-      .infocus-img { flex: 0 0 auto; width: 100%; height: 200px; }
       .infocus-meta { padding: 22px 22px 26px; }
       .infocus-title { font-size: 26px; }
 
       .reports { padding: 14px 0 64px; }
-      .reports-head .carousel-arrows { display: none; }
+      .carousel-arrows { display: none; }
       .carousel-track { flex-direction: column; overflow: visible; gap: 14px; }
       .report-card { flex: 0 0 auto; width: 100%; }
     }
@@ -829,53 +1306,74 @@
   <section class="spotlight" id="projects">
     <div class="content-wrap spotlight-grid">
       <div class="spotlight-intro">
+        <div class="intro-matrix" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
         <h2>Britain needs a metascientific revolution.</h2>
-        <p>For centuries, Britain's place in the world has been underwritten by the creativity of its laboratories, workshops, and universities. Today, that imagination is running into the limits of institutions built for another era. We've lost much of the freedom and vitality that once defined British science, while also failing to take advantage of the possibilities of our technological age. Instead, we incrementally tweak inherited structures unfit for a world defined by winner-takes-most global competition, and, critically, AI.</p> 
-        <p>Britain has deep reservoirs of talent, globally trusted universities, and a culture of serious rigour. But the systems that fund and govern research move slowly and with too little insight and purpose. Discovery is tangled in crude metrics, bureaucracy, and misaligned incentives; our institutions are struggling; and public science lags behind the private frontier.</p>
+        <p>The UK's place in the world has long been underwritten by the creativity of its laboratories, workshops, and universities. Today that imagination is running into the limits of institutions built for another era. We've lost much of the freedom that once defined British science, and failed to seize the possibilities of our technological age.</p> 
+        <p>We have deep talent, trusted universities, and a culture of rigour. But the systems that fund and govern research move slowly, tangled in crude metrics and misaligned incentives, while public science lags behind the private frontier.</p>
         <p>Science Works exists to change that.</p>
         <a class="hero-btn hero-btn--primary" href="writing.html">Explore Our Work</a>
       </div>
       <div class="spotlight-main">
-        <h2 class="section-label">Featured Projects</h2>
+        <h2 class="section-label"><a href="projects.html">featured projects</a></h2>
         <div class="projects">
         <article class="project">
           <div class="project-body">
             <h3 class="project-title">Institutional Dynamism</h3>
-            <p class="project-sub">The UK&rsquo;s research ecosystem is unusually homogeneous and slow to evolve</p>
-            <p class="project-text">In other countries, R&amp;D is spread across a much wider range of institutional forms. We want to inject diversity and dynamism into the sector &ndash; mapping the institutional models available to funders and policymakers, strengthening the state&rsquo;s capacity to assess and support proposals for new organisations, and incubating new organisational forms where we are best placed to do so.</p>
+            <div class="project-detail">
+              <p class="project-sub">The UK&rsquo;s research ecosystem is unusually homogeneous and slow to evolve</p>
+              <p class="project-text">In other countries, R&amp;D is spread across a much wider range of institutional forms. We want to inject diversity and dynamism into the sector &ndash; mapping the institutional models available to funders and policymakers, strengthening the state&rsquo;s capacity to assess and support proposals for new organisations, and incubating new organisational forms where we are best placed to do so.</p>
+            </div>
+            <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
+          <div class="project-divider" aria-hidden="true"></div>
           <div class="project-img" aria-hidden="true"></div>
         </article>
         <article class="project">
           <div class="project-body">
             <h3 class="project-title">AI and Science</h3>
-            <p class="project-sub">Artificial intelligence is poised to change what it means to be a scientist</p>
-            <p class="project-text">But the UK risks compounding existing dysfunctions rather than unlocking the gains: much of the scientific record remains invisible, research software is undervalued, and the infrastructure for AI-enabled discovery is unevenly available. We are developing an ambitious British agenda for AI in science &ndash; covering data, software, automation, and the institutional changes needed to make them count.</p>
+            <div class="project-detail">
+              <p class="project-sub">Artificial intelligence is poised to change what it means to be a scientist</p>
+              <p class="project-text">But the UK risks compounding existing dysfunctions rather than unlocking the gains: much of the scientific record remains invisible, research software is undervalued, and the infrastructure for AI-enabled discovery is unevenly available. We are developing an ambitious British agenda for AI in science &ndash; covering data, software, automation, and the institutional changes needed to make them count.</p>
+            </div>
+            <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
+          <div class="project-divider" aria-hidden="true"></div>
           <div class="project-img" aria-hidden="true"></div>
         </article>
         <article class="project">
           <div class="project-body">
             <h3 class="project-title">The Research Economy</h3>
-            <p class="project-sub">The UK funds research without a clear picture of its real costs and trade-offs</p>
-            <p class="project-text">We bring quantitative and qualitative analysis to bear on the research base: highlighting the hidden costs, frictions, trade-offs, and cross-subsidies that underpin the economics of institutions and the architecture of national R&amp;D spending. We pair this with detailed mapping of the system&rsquo;s structure, and with practical work on the design of funding and assessment, pushing for a system that is less bureaucratic, more honest, and more dynamic.</p>
+            <div class="project-detail">
+              <p class="project-sub">The UK funds research without a clear picture of its real costs and trade-offs</p>
+              <p class="project-text">We bring quantitative and qualitative analysis to bear on the research base: highlighting the hidden costs, frictions, trade-offs, and cross-subsidies that underpin the economics of institutions and the architecture of national R&amp;D spending. We pair this with detailed mapping of the system&rsquo;s structure, and with practical work on the design of funding and assessment, pushing for a system that is less bureaucratic, more honest, and more dynamic.</p>
+            </div>
+            <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
+          <div class="project-divider" aria-hidden="true"></div>
           <div class="project-img" aria-hidden="true"></div>
         </article>
         <article class="project">
           <div class="project-body">
             <h3 class="project-title">Software for Science</h3>
-            <p class="project-sub">The future of research is digital&mdash;and we need to adapt</p>
-            <p class="project-text">Scientists lack modern and interoperable software tools for undertaking research in the age of intelligence. The research software engineer is a forgotten role without a clear career path. Much of the research process remains analogue; there is a lack of a well-functioning market for software; open tools are poorly maintained. We are building and testing new software tools to address this gap, while working on the incentives that will allow software to flourish.</p>
+            <div class="project-detail">
+              <p class="project-sub">The future of research is digital&mdash;and we need to adapt</p>
+              <p class="project-text">Scientists lack modern and interoperable software tools for undertaking research in the age of intelligence. The research software engineer is a forgotten role without a clear career path. Much of the research process remains analogue; there is a lack of a well-functioning market for software; open tools are poorly maintained. We are building and testing new software tools to address this gap, while working on the incentives that will allow software to flourish.</p>
+            </div>
+            <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
+          <div class="project-divider" aria-hidden="true"></div>
           <div class="project-img" aria-hidden="true"></div>
         </article>
         <article class="project">
           <div class="project-body">
             <h3 class="project-title">The Story of British Science</h3>
-            <p class="project-sub">Scientific progress requires public confidence and political willpower</p>
-            <p class="project-text">Neither is guaranteed to endure over the coming decade. The UK currently lacks a compelling, forward-looking story about what its scientific and technological future could be. We want to help develop and articulate an account of British scientific renewal that can resonate across the political spectrum.</p>
+            <div class="project-detail">
+              <p class="project-sub">Scientific progress requires public confidence and political willpower</p>
+              <p class="project-text">Neither is guaranteed to endure over the coming decade. The UK currently lacks a compelling, forward-looking story about what its scientific and technological future could be. We want to help develop and articulate an account of British scientific renewal that can resonate across the political spectrum.</p>
+            </div>
+            <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
+          <div class="project-divider" aria-hidden="true"></div>
           <div class="project-img" aria-hidden="true"></div>
         </article>
         </div>
@@ -886,15 +1384,15 @@
   <!-- 3. In Focus: one highlighted publication -->
   <section class="infocus">
     <div class="content-wrap">
-      <h2 class="section-label">In Focus</h2>
       <div class="infocus-card">
-        <div class="infocus-img" role="img" aria-label="How not to waste an AI for science mission" style="background-image: url('assets/images/missions.webp');"></div>
+        <a class="infocus-link" href="essay.html" aria-label="How not to waste an AI for science mission"></a>
+        <div class="infocus-pix" aria-hidden="true"></div>
         <div class="infocus-meta">
-          <p class="infocus-tag">AI for Science</p>
+          <p class="infocus-tag">In Focus</p>
           <h3 class="infocus-title">How not to waste an AI for science mission</h3>
-          <p class="infocus-sub">On the regrettable necessity of thinking carefully before spending public money.</p>
-          <p class="infocus-byline">By <a href="#">Ben Johnson</a> &amp; <a href="#">Laura Ryan</a> &middot; 7 March 2026</p>
-          <a class="hero-btn hero-btn--primary" href="essay.html">Read</a>
+          <p class="infocus-authors"><a href="#">Ben Johnson</a><span class="sep">,</span> <a href="#">Laura Ryan</a></p>
+          <p class="infocus-sub">The government's proposed AI for Science missions will only succeed with rigorous selection criteria and proper delivery thinking. Vague, poorly-governed missions would waste public money and damage the credibility of ambitious state action.</p>
+          <p class="infocus-foot"><span class="infocus-date">7 March 2026</span><span class="infocus-type">Essay</span></p>
         </div>
       </div>
     </div>
@@ -904,61 +1402,181 @@
   <section class="reports">
     <div class="content-wrap">
       <div class="reports-head">
-        <h2 class="section-label">Latest Reports</h2>
+        <h2 class="section-label"><a href="writing.html">latest from science works</a></h2>
+        <a class="reports-viewall" href="writing.html">View all &rarr;</a>
+      </div>
+      <div class="reports-box">
+      <div class="carousel-track">
+                <div class="report-card">
+          <a class="report-card-link" href="#" aria-label="Designing AI for Disruptive Science"></a>
+          <div class="report-card-pix" aria-hidden="true"></div>
+          <div class="report-card-body">
+            <h3 class="report-title">Designing AI for Disruptive Science</h3>
+            <p class="report-authors"><a href="#">Alvin Djajadikerta</a></p>
+            <p class="report-foot"><span class="report-date">23 March 2026</span><span class="report-type">Essay</span></p>
+          </div>
+        </div>
+                <div class="report-card">
+          <a class="report-card-link" href="#" aria-label="The Bucket Stops Here"></a>
+          <div class="report-card-pix" aria-hidden="true"></div>
+          <div class="report-card-body">
+            <h3 class="report-title">The Bucket Stops Here</h3>
+            <p class="report-authors"><a href="#">Ben Johnson</a></p>
+            <p class="report-foot"><span class="report-date">14 February 2026</span><span class="report-type">Essay</span></p>
+          </div>
+        </div>
+                <div class="report-card">
+          <a class="report-card-link" href="#" aria-label="The three-bucket problem"></a>
+          <div class="report-card-pix" aria-hidden="true"></div>
+          <div class="report-card-body">
+            <h3 class="report-title">The three-bucket problem</h3>
+            <p class="report-authors"><a href="#">Ben Johnson</a></p>
+            <p class="report-foot"><span class="report-date">18 November 2025</span><span class="report-type">Essay</span></p>
+          </div>
+        </div>
+                <div class="report-card">
+          <a class="report-card-link" href="#" aria-label="The Counter-Reformation of science"></a>
+          <div class="report-card-pix" aria-hidden="true"></div>
+          <div class="report-card-body">
+            <h3 class="report-title">The Counter-Reformation of science</h3>
+            <p class="report-authors"><a href="#">Ben Johnson</a></p>
+            <p class="report-foot"><span class="report-date">1 September 2025</span><span class="report-type">Essay</span></p>
+          </div>
+        </div>
+      </div>
         <div class="carousel-arrows">
           <button class="carousel-arrow" data-dir="-1" type="button" aria-label="Previous reports">&larr;</button>
           <button class="carousel-arrow" data-dir="1" type="button" aria-label="Next reports">&rarr;</button>
         </div>
       </div>
-      <div class="carousel-track">
-        <a class="report-card" href="#">
-          <img class="report-card-img" src="assets/images/counter.jpg" alt="" />
-          <div class="report-card-body">
-            <p class="report-tag">AI for Science</p>
-            <h3 class="report-title">Designing AI for Disruptive Science</h3>
-            <p class="report-meta">Alvin Djajadikerta &middot; 23 March 2026</p>
-          </div>
-        </a>
-        <a class="report-card" href="#">
-          <img class="report-card-img" src="assets/images/bucket2.jpg" alt="" />
-          <div class="report-card-body">
-            <p class="report-tag">Funding Reform</p>
-            <h3 class="report-title">The Bucket Stops Here</h3>
-            <p class="report-meta">Ben Johnson &middot; 14 February 2026</p>
-          </div>
-        </a>
-        <a class="report-card" href="#">
-          <img class="report-card-img" src="assets/images/bucket1.jpg" alt="" />
-          <div class="report-card-body">
-            <p class="report-tag">Funding Reform</p>
-            <h3 class="report-title">The three-bucket problem</h3>
-            <p class="report-meta">Ben Johnson &middot; 18 November 2025</p>
-          </div>
-        </a>
-        <a class="report-card" href="#">
-          <img class="report-card-img" src="assets/images/missions.webp" alt="" />
-          <div class="report-card-body">
-            <p class="report-tag">The Story of British Science &amp; Technology</p>
-            <h3 class="report-title">The Counter-Reformation of science</h3>
-            <p class="report-meta">Ben Johnson &middot; 1 September 2025</p>
-          </div>
-        </a>
-      </div>
     </div>
   </section>
 
   <footer class="site-footer">
+    <div class="footer-pixels" aria-hidden="true"></div>
+    <div class="footer-signup">
+  <div id="signup" class="sib-form">
+    <div id="sib-form-container" class="sib-form-container">
+      <div id="error-message" class="sib-form-message-panel">
+        <div class="sib-form-message-panel__text sib-form-message-panel__text--center">
+          <span class="sib-form-message-panel__inner-text">Something went wrong — try again.</span>
+        </div>
+      </div>
+      <div id="success-message" class="sib-form-message-panel">
+        <div class="sib-form-message-panel__text sib-form-message-panel__text--center">
+          <span class="sib-form-message-panel__inner-text">Thanks for subscribing!</span>
+        </div>
+      </div>
+      <div id="sib-container" class="sib-container--large sib-container--vertical">
+        <h3>Keep up with our work</h3>
+        <form id="sib-form" method="POST" action="https://02b7cd5d.sibforms.com/serve/MUIFAJZ2eGNQzP0fGOsdltQtijRH1_hQcf_201A1U1qBQOWLgR7qRj244ABWg5NLG5B6Rm1V-_xpC6-BuGPXst4EnyRgaXSpNPTg1A4LsUjNRkKK6WPYxiFAn-4vrviBP6pLhkfhwy9WGTeIp_c4mMpFJ7abXlKWzVWumXm-dGtig8AfnEVxT13RhIw76k1FbHXRB78e0PzuS7F_Sw==" data-type="subscription">
+          <div class="sib-input sib-form-block">
+            <div class="form__entry entry_block">
+              <div class="form__label-row">
+                <div class="entry__field email-row">
+                  <input class="input" type="email" id="EMAIL" name="EMAIL" autocomplete="off" placeholder="Email address" data-required="true" required />
+                  <button class="sib-form-block__button sib-form-block__button-with-loader" form="sib-form" type="submit">
+                    <svg class="icon clickable__icon progress-indicator__icon sib-hide-loader-icon" viewBox="0 0 512 512" aria-hidden="true">
+                      <path d="M460.116 373.846l-20.823-12.022c-5.541-3.199-7.54-10.159-4.663-15.874 30.137-59.886 28.343-131.652-5.386-189.946-33.641-58.394-94.896-95.833-161.827-99.676C261.028 55.961 256 50.751 256 44.352V20.309c0-6.904 5.808-12.337 12.703-11.982 83.556 4.306 160.163 50.864 202.11 123.677 42.063 72.696 44.079 162.316 6.031 236.832-3.14 6.148-10.75 8.461-16.728 5.01z"/>
+                    </svg>
+                    <span class="btn-arrow">&#x2192;</span>
+                  </button>
+                </div>
+              </div>
+              <label class="entry__error entry__error--primary"></label>
+            </div>
+          </div>
+          <div class="sib-optin sib-form-block">
+            <div class="form__entry entry_mcq">
+              <div class="form__label-row">
+                <div class="entry__choice">
+                  <label>
+                    <input type="checkbox" value="1" id="GDPR_ACCEPTED" name="GDPR_ACCEPTED" required />
+                    <span class="gdpr-tick"></span>
+                    <span><p>I agree to receive occasional emails from Science Works</p></span>
+                  </label>
+                </div>
+              </div>
+              <label class="entry__error entry__error--primary"></label>
+            </div>
+          </div>
+          <input type="text" name="email_address_check" value="" class="input--hidden" />
+          <input type="hidden" name="locale" value="en" />
+        </form>
+      </div>
+    </div>
+    <div class="signup-pix" aria-hidden="true"></div>
+  </div>
+    </div>
+    <div class="footer-bottom">
     <div class="footer-inner">
-      <span class="footer-copy">&copy; Science Works 2026.</span>
-      <a class="footer-link" href="cookies.html">Cookies Policy</a>
-      <a class="footer-link" href="privacy.html">Privacy Policy</a>
       <div class="footer-socials">
         <a href="#" aria-label="LinkedIn" title="LinkedIn"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43A2.06 2.06 0 1 1 5.34 3.3a2.06 2.06 0 0 1 0 4.13zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg></a>
         <a href="#" aria-label="X (Twitter)" title="X"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M18.24 2.25h3.31l-7.23 8.26L23 21.75h-6.66l-5.21-6.82-5.97 6.82H1.85l7.73-8.84L1.25 2.25h6.83l4.71 6.23 5.45-6.23zm-1.16 17.52h1.83L7.08 4.13H5.12L17.08 19.77z"/></svg></a>
         <a href="#" aria-label="Bluesky" title="Bluesky"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 10.8C10.91 8.69 7.95 4.75 5.2 2.8 2.57.94 1.56 1.27.9 1.57.14 1.91 0 3.08 0 3.77c0 .69.38 5.65.62 6.48.82 2.73 3.71 3.66 6.38 3.36-3.91.58-7.38 2.01-2.83 7.08 5.01 5.19 6.87-1.11 7.82-4.31.95 3.2 2.05 9.27 7.73 4.31 4.27-4.31 1.17-6.5-2.74-7.08 2.67.3 5.57-.63 6.38-3.36.25-.83.62-5.79.62-6.48 0-.69-.14-1.86-.9-2.21-.66-.3-1.66-.62-4.3 1.24C16.05 4.75 13.09 8.69 12 10.8z"/></svg></a>
       </div>
+      <div class="footer-end">
+        <nav class="footer-policies">
+          <a class="footer-link" href="cookies.html">Cookies<br>Policy</a>
+          <a class="footer-link" href="privacy.html">Privacy<br>Policy</a>
+          <a class="footer-link" href="terms.html">Terms &amp;<br>Conditions</a>
+        </nav>
+        <span class="footer-copy">&copy; 2026 Science<br>Works Ltd.</span>
+      </div>
+    </div>
     </div>
   </footer>
+
+  <!-- Brevo mailing-list signup scripts (lifted from science_works_2) -->
+  <script>
+    window.REQUIRED_CODE_ERROR_MESSAGE = 'Please choose a country code';
+    window.LOCALE = 'en';
+    window.EMAIL_INVALID_MESSAGE = window.SMS_INVALID_MESSAGE = 'The information provided is invalid. Please review the field format and try again.';
+    window.REQUIRED_ERROR_MESSAGE = 'This field cannot be left blank.';
+    window.GENERIC_INVALID_MESSAGE = 'The information provided is invalid. Please review the field format and try again.';
+    window.INVALID_NUMBER = 'The information provided is invalid. Please review the field format and try again.';
+    window.INVALID_DATE = 'Please enter a valid date';
+    window.REQUIRED_MULTISELECT_MESSAGE = 'Please select at least 1 option';
+    window.translation = {
+      common: {
+        selectedList: '{quantity} list selected',
+        selectedLists: '{quantity} lists selected',
+        selectedOption: '{quantity} selected',
+        selectedOptions: '{quantity} selected',
+      }
+    };
+    var AUTOHIDE = Boolean(0);
+  </script>
+  <script defer src="https://sibforms.com/forms/end-form/build/main.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+      const tickSvg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M3 8.5 L6.5 12 L13 4.5' stroke='${bg}' stroke-width='2.5' fill='none' stroke-linecap='square'/></svg>`;
+      document.documentElement.style.setProperty('--gdpr-tick-svg', `url("data:image/svg+xml,${encodeURIComponent(tickSvg)}")`);
+
+      const form = document.getElementById('sib-form');
+      const gdpr = document.getElementById('GDPR_ACCEPTED');
+      if (!form || !gdpr) return;
+      const errorLabel = gdpr.closest('.form__entry').querySelector('.entry__error');
+      form.addEventListener('submit', (e) => {
+        if (!gdpr.checked) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          if (errorLabel) errorLabel.textContent = 'Please confirm consent to subscribe.';
+          gdpr.classList.remove('gdpr-shake');
+          void gdpr.offsetWidth;
+          gdpr.classList.add('gdpr-shake');
+          gdpr.focus();
+        } else if (errorLabel) {
+          errorLabel.textContent = '';
+        }
+      }, true);
+      gdpr.addEventListener('animationend', () => gdpr.classList.remove('gdpr-shake'));
+      gdpr.addEventListener('change', () => {
+        if (gdpr.checked && errorLabel) errorLabel.textContent = '';
+      });
+    });
+  </script>
 
   <script>
     (function () {
@@ -1253,6 +1871,47 @@
       window.SW.loadArt().then(render);
     })();
 
+    // ----- Spotlight cards: fill each right panel with a whole-cell dot grid -
+    (function () {
+      const panels = document.querySelectorAll('.project-img, .infocus-pix, .report-card-pix');
+      if (!panels.length) return;
+
+      function fill(el) {
+        const cs = getComputedStyle(el);
+        const cols = parseInt(cs.getPropertyValue('--card-pix-cols'), 10) || 11;
+        const cell = parseFloat(cs.getPropertyValue('--card-pix-cell')) || 10;
+        const gap  = parseFloat(cs.getPropertyValue('--card-pix-gap'))  || 3;
+        const fixedRows = parseInt(cs.getPropertyValue('--card-pix-rows'), 10);
+        // Fixed row count if declared; otherwise fit whole rows to the height
+        // (last partial cell dropped, never sliced).
+        const rows = fixedRows > 0
+          ? fixedRows
+          : Math.max(0, Math.floor((el.clientHeight + gap) / (cell + gap)));
+        const need = rows * cols;
+        let have = el.childElementCount;
+        if (have === need) return;
+        while (el.childElementCount > need) el.removeChild(el.lastChild);
+        if (have < need) {
+          const frag = document.createDocumentFragment();
+          for (let i = have; i < need; i++) {
+            const c = document.createElement('div');
+            c.className = 'pix-cell';
+            frag.appendChild(c);
+          }
+          el.appendChild(frag);
+        }
+      }
+
+      // Re-fill whenever a panel's height changes (font load, reflow, resize).
+      const ro = new ResizeObserver(function (entries) {
+        for (const e of entries) fill(e.target);
+      });
+      panels.forEach(function (el) { fill(el); ro.observe(el); });
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(function () { panels.forEach(fill); });
+      }
+    })();
+
     // ----- Latest reports carousel: arrow controls + drag-to-scroll ------
     (function () {
       const track = document.querySelector('.carousel-track');
@@ -1265,14 +1924,21 @@
         return card ? card.getBoundingClientRect().width + 20 : 320;
       }
       function updateArrows() {
-        const max = track.scrollWidth - track.clientWidth - 1;
-        if (prev) prev.disabled = track.scrollLeft <= 0;
-        if (next) next.disabled = track.scrollLeft >= max;
+        // Tolerance band: scroll-snap + the track's 2px padding leave "home" a
+        // few px off 0 (and likewise at the far end), so an exact test misses.
+        // 8px is comfortably under a card width, so it never misfires mid-scroll.
+        const EDGE = 8;
+        const max = track.scrollWidth - track.clientWidth;
+        if (prev) prev.disabled = track.scrollLeft <= EDGE;
+        if (next) next.disabled = track.scrollLeft >= max - EDGE;
       }
       if (prev) prev.addEventListener('click', function () { track.scrollBy({ left: -stepWidth(), behavior: 'smooth' }); });
       if (next) next.addEventListener('click', function () { track.scrollBy({ left: stepWidth(), behavior: 'smooth' }); });
       track.addEventListener('scroll', updateArrows, { passive: true });
       window.addEventListener('resize', updateArrows);
+      window.addEventListener('load', updateArrows);
+      // Re-check once card images load and reflow the track width.
+      if (window.ResizeObserver) new ResizeObserver(updateArrows).observe(track);
       updateArrows();
 
       // Drag / swipe to scroll.
@@ -1296,6 +1962,130 @@
       track.addEventListener('click', function (e) {
         if (moved) { e.preventDefault(); e.stopPropagation(); }
       }, true);
+    })();
+
+    // ----- Signup image: paint the 24x22 micro grid from its art --------
+    (function () {
+      const grid = document.querySelector('.signup-pix');
+      if (!grid) return;
+      const ART = [
+        '111111111111111111111111',
+        '111111111111100011111111',
+        '111111111110000001111111',
+        '111111111100000000111111',
+        '111111111100000000111111',
+        '111111111110000001111111',
+        '111111111110000011111111',
+        '111111111110001111111111',
+        '111111111111111110011111',
+        '111111111110001110011111',
+        '111111110101000111111111',
+        '111111110100000101111111',
+        '111111100100000111111111',
+        '111000000110001111111111',
+        '110000000011110000111111',
+        '110000000111111000001111',
+        '110000000111011000000111',
+        '110000000111111000000011',
+        '111000001111111000000011',
+        '111110011111111100000111',
+        '111111111111111110001111',
+        '111111111111111111111111'
+      ];
+      const RED = 'var(--theme)', WHITE = 'var(--almost-white)';
+      const frag = document.createDocumentFragment();
+      for (let r = 0; r < ART.length; r++) {
+        const row = ART[r];
+        for (let c = 0; c < row.length; c++) {
+          const cell = document.createElement('div');
+          cell.className = 'pix-cell';
+          cell.style.background = row[c] === '1' ? RED : WHITE;
+          frag.appendChild(cell);
+        }
+      }
+      grid.appendChild(frag);
+    })();
+
+    // ----- Footer pixel band: faint grid with coloured sprite patches ----
+    (function () {
+      const band = document.querySelector('.footer-pixels');
+      if (!band) return;
+      const ROWS = 4;
+
+      // Motif painted into the band at intervals. Digits map to palette
+      // colours below; 0 leaves the faint base cell ("white").
+      const SPRITE = [
+        '113222223113',
+        '033331334143',
+      ];
+      const COLOURS = {
+        '1': 'var(--beige)',
+        '2': 'var(--bright-blue)',
+        '3': 'var(--theme)',
+        '4': 'var(--pale-blue)',
+      };
+      const SPRITE_W = SPRITE[0].length;
+      const START = 10;                  // first sprite's left column
+      const GAP = 15;                    // empty columns between sprites
+      const PERIOD = SPRITE_W + GAP;     // start-to-start step
+
+      function paint(cols) {
+        const cells = band.children;
+        for (let i = 0; i < cells.length; i++) cells[i].style.background = '';
+        let k = 0;
+        for (let c0 = START; c0 + SPRITE_W <= cols; c0 += PERIOD, k++) {
+          const rOff = (k % 2) ? 2 : 0;   // top two rows, then bottom two, alternating
+          for (let r = 0; r < SPRITE.length; r++) {
+            for (let c = 0; c < SPRITE_W; c++) {
+              const colour = COLOURS[SPRITE[r][c]];
+              if (!colour) continue;
+              const cell = cells[(rOff + r) * cols + (c0 + c)];
+              if (cell) cell.style.background = colour;
+            }
+          }
+        }
+      }
+
+      function fill() {
+        const cs = getComputedStyle(band);
+        const cell = parseFloat(cs.getPropertyValue('--small-block-size')) || 10;
+        const gap  = parseFloat(cs.getPropertyValue('--small-block-gap'))  || 3;
+        const cols = Math.max(1, Math.floor((band.clientWidth + gap) / (cell + gap)));
+        band.style.gridTemplateColumns = 'repeat(' + cols + ', var(--small-block-size))';
+        const need = cols * ROWS;
+        while (band.childElementCount > need) band.removeChild(band.lastChild);
+        const frag = document.createDocumentFragment();
+        for (let i = band.childElementCount; i < need; i++) {
+          const c = document.createElement('div');
+          c.className = 'pix-cell';
+          frag.appendChild(c);
+        }
+        band.appendChild(frag);
+        paint(cols);
+      }
+      if (window.ResizeObserver) new ResizeObserver(fill).observe(band);
+      else window.addEventListener('resize', fill);
+      fill();
+    })();
+
+    // ----- Intro matrix: colour the 7x2 decorative grid from a motif ----
+    (function () {
+      const grid = document.querySelector('.intro-matrix');
+      if (!grid) return;
+      const MOTIF = '1335513' + '5122403';   // 7 cols x 2 rows, row-major
+      const COLOURS = {
+        '0': 'var(--almost-white)',
+        '1': 'var(--beige)',
+        '2': 'var(--bright-blue)',
+        '3': 'var(--theme)',
+        '4': 'var(--pale-blue)',
+        '5': 'var(--coral)',
+      };
+      const spans = grid.children;
+      for (let i = 0; i < spans.length && i < MOTIF.length; i++) {
+        const c = COLOURS[MOTIF[i]];
+        if (c) spans[i].style.background = c;
+      }
     })();
 
     // ----- Mobile nav: hamburger toggle ---------------------------------
