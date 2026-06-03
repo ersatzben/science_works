@@ -134,6 +134,24 @@
       transition: border-color 0.15s ease;
     }
     .nav-links a:hover { border-color: var(--theme); }
+    .nav-toggle {
+      display: none;            /* shown on mobile only */
+      margin-left: auto;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      padding: 8px;
+      cursor: pointer;
+    }
+    .nav-toggle span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--theme);
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
 
     .section-heading {
       font-family: 'Copperplate', serif;
@@ -378,6 +396,32 @@
       .cards-grid { grid-template-columns: 1fr; }
       .card-photo { width: 150px; height: 170px; }
       .card-headinfo { height: 170px; }
+      .nav-toggle { display: flex; }
+      .nav-links {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        margin: 0;
+        padding: 6px 16px 14px;
+        background: var(--bg-secondary);
+        border-bottom: 2px solid var(--border-grey);
+      }
+      .nav.is-open .nav-links { display: flex; }
+      .nav-links a {
+        font-size: 18px;
+        padding: 12px 8px;
+        border: none;
+        border-radius: 0;
+      }
+      .nav-links a:hover { border: none; text-decoration: underline; }
+      .nav.is-open .nav-toggle span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+      .nav.is-open .nav-toggle span:nth-child(2) { opacity: 0; }
+      .nav.is-open .nav-toggle span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
     }
   </style>
 </head>
@@ -387,7 +431,10 @@
       <img class="logo-mark" src="assets/images/FINAL4.svg" alt="" />
       <span class="logo-text">SCIENCE WORKS</span>
     </a>
-    <nav class="nav-links">
+    <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav-links">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="nav-links" id="nav-links">
       <a href="about.html">About</a>
       <a href="index.html#projects">Projects</a>
       <a href="index.html#writing">Writing</a>
@@ -937,6 +984,23 @@
       });
 
       render('team');
+    })();
+
+    // ----- Mobile nav: hamburger toggle ---------------------------------
+    (function () {
+      const nav = document.querySelector('.nav');
+      const toggle = nav && nav.querySelector('.nav-toggle');
+      if (!toggle) return;
+      toggle.addEventListener('click', function () {
+        const open = nav.classList.toggle('is-open');
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+      nav.querySelectorAll('.nav-links a').forEach(function (a) {
+        a.addEventListener('click', function () {
+          nav.classList.remove('is-open');
+          toggle.setAttribute('aria-expanded', 'false');
+        });
+      });
     })();
   </script>
 </body>
