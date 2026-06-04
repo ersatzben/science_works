@@ -330,7 +330,8 @@
 
       <div class="data-io">
         <div class="row">
-          <button class="btn primary" id="exportPng" type="button">Export PNG</button>
+          <button class="btn primary" id="exportRecipe" type="button">Export settings recipe</button>
+          <button class="btn" id="exportPng" type="button">Export PNG</button>
           <button class="btn" id="exportSvg" type="button">Export SVG</button>
           <button class="btn" id="exportJson" type="button">Export cell JSON</button>
           <div class="ctl" style="margin:0 0 0 auto; flex-direction:row; align-items:center; gap:6px;">
@@ -437,6 +438,8 @@
     const state = {
       img: null,            // HTMLImageElement (loaded)
       imgAspect: 1,         // h / w
+      filename: '',         // source file name (for the recipe contract)
+      imgW: 0, imgH: 0,     // source natural dimensions
       lum: null,            // Float32Array of base values (1 - luminance) per cell, pre-tone
       lumCols: 0, lumRows: 0,
       cells: null,          // [{r,g,b,a}] current rendered colours
@@ -715,6 +718,9 @@
       img.onload = () => {
         state.img = img;
         state.imgAspect = img.naturalHeight / img.naturalWidth;
+        state.filename = file.name || '';
+        state.imgW = img.naturalWidth;
+        state.imgH = img.naturalHeight;
         const thumb = $('thumb');
         thumb.src = url; thumb.style.display = 'inline-block';
         if ($('lockAspect').checked) applyAspect();
@@ -854,6 +860,64 @@
       $('jsonArea').value = text;
       download('bitmap.json', new Blob([text], { type: 'application/json' }));
       setStatus(`Exported ${cols}×${rows} cell JSON.`);
+    });
+
+    // ---------------------------------------------------------------------
+    // Settings recipe: everything the website needs to re-render the dot
+    // matrix from the ORIGINAL source file. No per-cell data — the renderer
+    // re-runs the same pipeline (luminance -> tone -> OKLab ramp -> grid).
+    // ---------------------------------------------------------------------
+    function buildRecipe() {
+      const { cols, rows } = currentDims();
+      const levels = parseInt($('levels').value, 10);
+      return {
+        type: 'sw.recipe.v1',
+        image: {
+          filename: state.filename,           // match this against the source file
+          naturalWidth: state.imgW,
+          naturalHeight: state.imgH,
+          aspect: state.imgH && state.imgW ? state.imgH / state.imgW : null, // h / w
+        },
+        colours: {
+          ink: state.ink.slice(),             // dark end, in order of preference
+          background: state.bg.slice(),        // light end, in order of preference
+          transparent: state.bgTransparent,    // light end fades to alpha 0 when true
+        },
+        tone: {
+          contrast: parseFloat($('contrast').value),
+          brightness: parseFloat($('bright').value),
+          levels: levels >= 2 ? levels : 0,    // 0 = posterize off
+          invert: $('invert').checked,
+          dither: $('dither').checked,
+        },
+        grid: {
+          cols, rows,
+          lockAspect: $('lockAspect').checked,
+        },
+        cell: {
+          size: parseInt($('cell').value, 10),
+          gap: parseInt($('gap').value, 10),
+          radius: parseInt($('radius').value, 10),
+        },
+        // Pipeline contract — the renderer must reproduce these to match.
+        render: {
+          colorSpace: 'oklab',                 // ramp interpolation space
+          matte: '#ffffff',                    // transparent source composited on white
+          luminance: 'rec601',                 // L = 0.299R + 0.587G + 0.114B
+          dither: 'bayer4x4',                  // ordered 4×4 Bayer matrix
+          rampOrder: 'lightToDark',            // [transparent?, ...background, ...ink]
+        },
+      };
+    }
+
+    $('exportRecipe').addEventListener('click', () => {
+      if (!state.img) return setStatus('Load an image first.');
+      const recipe = buildRecipe();
+      const text = JSON.stringify(recipe, null, 2);
+      $('jsonArea').value = text;
+      const base = (state.filename || 'recipe').replace(/\.[^.]+$/, '');
+      download(base + '.recipe.json', new Blob([text], { type: 'application/json' }));
+      setStatus(`Exported settings recipe for ${state.filename || '(unnamed)'}.`);
     });
 
     // ---------------------------------------------------------------------

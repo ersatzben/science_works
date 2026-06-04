@@ -1,0 +1,33 @@
+<header class="nav">
+  <a class="logo" href="/" aria-label="Science Works home">
+    <img class="logo-mark" src="/assets/images/FINAL4.svg" alt="" />
+    <span class="logo-text">SCIENCE WORKS</span>
+  </a>
+  <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav-links">
+    <span></span><span></span><span></span>
+  </button>
+  <nav class="nav-links" id="nav-links">
+    <a href="/about">About</a>
+    <a href="/#projects">Projects</a>
+    <a href="/writing">Writing</a>
+    <a href="/contact">Contact</a>
+  </nav>
+</header>
+
+<script is:inline>
+    (function () {
+      const nav = document.querySelector('.nav');
+      const toggle = nav && nav.querySelector('.nav-toggle');
+      if (!toggle) return;
+      toggle.addEventListener('click', function () {
+        const open = nav.classList.toggle('is-open');
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+      nav.querySelectorAll('.nav-links a').forEach(function (a) {
+        a.addEventListener('click', function () {
+          nav.classList.remove('is-open');
+          toggle.setAttribute('aria-expanded', 'false');
+        });
+      });
+    })();
+</script>

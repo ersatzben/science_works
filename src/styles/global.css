@@ -1,0 +1,757 @@
+/* Shared foundation: fonts, tokens, base. Ported from index.html. */
+    @font-face {
+      font-family: 'Antique Olive';
+      src: url('/assets/fonts/antique-olive-std/Antique-Olive-Std-Roman_3869.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Antique Olive';
+      src: url('/assets/fonts/antique-olive-std/Antique-Olive-Std-Bold_3863.ttf') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Antique Olive';
+      src: url('/assets/fonts/antique-olive-std/Antique-Olive-Std-Light_3866.ttf') format('truetype');
+      font-weight: 300;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Copperplate';
+      src: url('/assets/fonts/Copperplate30.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Copperplate';
+      src: url('/assets/fonts/Copperplate30.otf') format('opentype');
+      font-weight: bold;
+      font-style: normal;
+      font-display: swap;
+    }
+    :root {
+      /* Primary */
+      --bg: #f6f0ed;
+      --text: #66223b;
+      --theme: #eb3131;
+
+      /* Secondary */
+      --bg-secondary: #f9f3ee;
+      --sage: #00726b;
+      --bright-blue: #004ee6;
+      --pale-blue: #a3c0d7;
+      --light-green: #64b37b;
+
+      /* Tertiary */
+      --deep-green: #0e676a;
+      --coral: #f45e57;
+      --beige: #ebe5cf;
+      --almost-white: #fffbf7;
+      --purple-blue: #4b5cce;
+      --darkest-brown: #440214;
+
+      /* Optional */
+      --opt-1: #3a3c7c;
+      --opt-2: #72679b;
+
+      /* UI */
+      --border-grey: #ddcac9;   /* horizontal lines & borders */
+      --button-text: 'Roboto', sans-serif;
+
+      /* Cell metrics */
+      --cell-size: 14px;
+      --cell-radius: 2px;
+      --cell-gap: 2px;
+      --grid-cols: 12;
+      --grid-rows: 11;
+
+      /* Small dot-matrix blocks (project cards, intro grid, reusable) */
+      --small-block-size: 10px;
+      --small-block-gap: 3px;
+      --small-block-radius: 2px;
+
+      /* Micro dot-matrix (signup image, reusable) — much smaller again */
+      --micro-block-size: 4px;
+      --micro-block-gap: 1px;
+      --micro-block-radius: 1px;
+
+      /* Matrix metrics */
+      --matrix-cols: 6;
+      --matrix-rows: 3;
+      --matrix-gap: 50px;
+
+      /* One grid is 12*14 + 11*2 = 190px wide, 11*14 + 10*2 = 174px tall */
+      --grid-w: 190px;
+      --grid-h: 174px;
+
+      /* Full composition: 6*190 + 5*50 = 1390w, 3*174 + 2*50 = 622h */
+      --composition-w: 1390px;
+      --composition-h: 622px;
+
+      /* Hero text box = exactly four horizontal grids: 4*190 + 3*50 = 910px wide, 174px tall */
+      --hero-w: 910px;
+      --hero-h: 174px;
+
+      /* Set by JS on resize; clamp at 1 (no upscaling beyond natural size). */
+      --scale: 1;
+      /* Horizontal viewport padding budget used in the scale calculation. */
+      --viewport-pad: 100px;
+    }
+
+    html {
+      scroll-padding-top: 63px;     /* nav height + 1px border so anchors clear the nav */
+      scroll-behavior: smooth;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow-x: clip;   /* lock the viewport horizontally (clip, so sticky still works) */
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-family: system-ui, sans-serif;
+    }
+
+    .nav {
+      height: 60px;
+      background: var(--bg-secondary);
+      border-bottom: 2px solid var(--border-grey);
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+/* ---- Header (logo, nav links, hamburger + mobile) ---- */
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--theme);
+      text-decoration: none;
+    }
+    .logo-mark {
+      height: 22px;
+      margin-left: 10px;
+      width: auto;
+      display: block;
+    }
+    .logo-text {
+      font-family: 'Antique Olive', sans-serif;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: -0.08em;
+      margin-left: -5px;
+      font-size: 24px;
+      line-height: 1;
+      white-space: nowrap;
+      /* Optical-centering nudge — uppercase glyphs sit high in the line box. */
+      transform: translateY(2px);
+    }
+
+    .nav-links {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-right: 16px;
+    }
+    .nav-links a {
+      font-family: 'Roboto', sans-serif;
+      font-weight: normal;
+      color: var(--theme);
+      text-decoration: none;
+      font-size: 17px;
+      line-height: 1;
+      padding: 8px 14px;
+      border: 1.5px solid transparent;   /* always present so hover doesn't shift layout */
+      border-radius: 8px;
+      transition: border-color 0.15s ease;
+    }
+    .nav-links a:hover {
+      border-color: var(--theme);
+    }
+    .nav-toggle {
+      display: none;            /* shown on mobile only */
+      margin-left: auto;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      padding: 8px;
+      cursor: pointer;
+    }
+    .nav-toggle span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--theme);
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+    @media (max-width: 720px) {
+      /* Smaller, tighter mobile header. */
+      .nav { padding: 0 14px; }
+      .logo-mark { height: 18px; margin-left: 0; }   /* smaller + flush to the left edge */
+      .logo-text { font-size: 20px; }
+      .nav-toggle { display: flex; padding: 6px; }    /* smaller hit area, tighter to the right */
+      .nav-toggle span { width: 20px; }               /* shorter bars */
+      .nav-links {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        margin: 0;
+        padding: 6px 16px 14px;
+        background: var(--bg-secondary);
+        border-bottom: 2px solid var(--border-grey);
+      }
+      .nav.is-open .nav-links { display: flex; }
+      .nav-links a {
+        font-size: 18px;
+        padding: 12px 8px;
+        border: none;
+        border-radius: 0;
+      }
+      .nav-links a:hover { border: none; text-decoration: underline; }
+      .nav.is-open .nav-toggle span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+      .nav.is-open .nav-toggle span:nth-child(2) { opacity: 0; }
+      .nav.is-open .nav-toggle span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    }
+
+/* ---- Shared pixel cell ---- */
+    .pix-cell { background: var(--card-pix-color); border-radius: var(--card-pix-radius, var(--small-block-radius)); }
+
+    /* ---------- Footer ---------- */
+    /* Footer: pixel band (top) + signup form (middle) + dark bottom band. */
+    .site-footer {
+      min-height: 300px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 2;
+      flex-shrink: 0;
+    }
+    /* 1) Full-width band of hero-sized pixels, 4 rows deep (columns filled by JS). */
+    .footer-pixels {
+      --card-pix-color: var(--almost-white);
+      --card-pix-radius: var(--small-block-radius);
+      display: grid;
+      grid-auto-rows: var(--small-block-size);
+      gap: var(--small-block-gap);
+      justify-content: center;     /* centre the row of cells; remainder splits both sides */
+      padding: 18px 0;
+    }
+    /* 2) Mailing-list signup — markup supplied later; fills the middle for now. */
+    .footer-signup {
+      flex: 1;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0 40px;
+      display: flex;
+      align-items: center;        /* vertical-centre the box in the band */
+      justify-content: flex-end;  /* push the box to the right of the viewport */
+    }
+    /* 3) Bottom band: solid dark brown, white text. */
+    .footer-bottom {
+      background: var(--darkest-brown);
+      color: #fff;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      min-height: 60px;
+      font-family: 'Antique Olive', sans-serif;
+      font-size: 13px;
+    }
+    .footer-inner {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 22px;
+    }
+    .footer-copy {
+      text-align: left;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      line-height: 1.3;
+      opacity: 0.75;
+    }
+    /* Right-hand group: policy links + copyright, pushed to the far right. */
+    .footer-end {
+      margin-left: auto;          /* the "big space" between socials and this group */
+      display: flex;
+      align-items: center;
+      gap: 40px;                  /* spacing between the four right-hand items */
+    }
+    .footer-policies { display: flex; gap: 40px; }
+    .footer-link {
+      color: #fff;
+      text-decoration: none;
+      opacity: 0.75;
+      display: inline-block;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      line-height: 1.3;
+    }
+    .footer-link:hover { opacity: 1; text-decoration: underline; }
+    .footer-socials {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .footer-socials a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      color: #fff;
+      opacity: 0.7;
+      transition: opacity 0.15s ease;
+    }
+    .footer-socials a:hover { opacity: 1; }
+    .footer-socials svg {
+      width: 22px;
+      height: 22px;
+      fill: currentColor;
+      display: block;
+    }
+
+    /* ---- Brevo mailing-list signup (lifted from science_works_2) ---- */
+    /* Tokens the lifted form expects; remap to brand tokens when tweaking. */
+    #signup { --red: var(--theme); --text-muted: #888; --placeholder: #ccc; }
+    #signup {
+      margin-top: -14px;
+      margin-right: -20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: 'Roboto', sans-serif;
+    }
+    .sib-form {
+      padding: 0 0;
+    }
+
+    #signup #sib-form-container,
+    #signup #sib-container {
+      background: transparent;
+      border: none;
+      padding: 0;
+      max-width: none;
+      text-align: center;
+    }
+    #signup h3 {
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--theme);
+      margin-bottom: 8px;
+      letter-spacing: 0.02em;
+      text-align: center;
+    }
+    #signup form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #signup .sib-form-block {
+      padding: 0;
+    }
+    #signup .form__entry {
+      margin: 0;
+    }
+    #signup .form__label-row {
+      display: block;
+    }
+    #signup .entry__field {
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      margin: 0;
+      overflow: visible;
+    }
+    #signup .email-row {
+      display: flex;
+    }
+    #signup input.input[type="email"],
+    #signup input.input#EMAIL {
+      font-family: 'Roboto', sans-serif;
+      font-size: 13px;
+      padding: 0 12px;
+      border: 1.5px solid var(--theme);
+      border-right: none;
+      border-radius: 0;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      width: 200px;
+      height: 32px;
+      box-sizing: border-box;
+      box-shadow: none;
+      background-image: none;
+      flex-grow: 0;
+    }
+    #signup input.input#EMAIL::placeholder {
+      color: var(--placeholder);
+      text-align: left;
+      font-family: 'Roboto', sans-serif;
+    }
+    #signup button[type="submit"].sib-form-block__button {
+      font-family: 'Roboto', sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      padding: 0 12px;
+      border: 1.5px solid var(--theme);
+      border-radius: 0;
+      background: var(--theme);
+      color: var(--bg);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      width: auto;
+      height: 32px;
+      min-height: 0;
+      box-sizing: border-box;
+      text-align: center;
+      text-transform: none;
+      letter-spacing: 0;
+      box-shadow: none;
+    }
+    #signup button[type="submit"] svg {
+      width: 14px;
+      height: 14px;
+      fill: var(--bg);
+      animation: sib-spin 0.8s linear infinite;
+    }
+    #signup button[type="submit"] svg.sib-hide-loader-icon {
+      display: none;
+      animation: none;
+    }
+    #signup .btn-arrow {
+      display: inline-block;
+    }
+    #signup button[type="submit"].sib-form-block__button-disabled .btn-arrow {
+      display: none;
+    }
+    @keyframes sib-spin {
+      to { transform: rotate(360deg); }
+    }
+    #signup .sib-optin {
+      margin-top: 8px;
+    }
+    #signup .entry__choice {
+      margin: 0;
+      padding-left: 0;
+      text-indent: 0;
+      white-space: normal;
+      overflow: visible;
+    }
+    #signup .entry__choice > label {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.3;
+      max-width: 240px;
+      cursor: pointer;
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+    }
+    #signup .entry__choice > label > span:last-child {
+      font-family: 'Roboto', sans-serif !important;
+      font-size: 11px !important;
+      color: var(--text-muted) !important;
+      text-align: left;
+    }
+    #signup .entry__choice > label > span:last-child p {
+      margin: 0;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    #signup input[type="checkbox"]#GDPR_ACCEPTED {
+      position: static;
+      opacity: 1;
+      pointer-events: auto;
+      appearance: none;
+      -webkit-appearance: none;
+      width: 13px;
+      height: 13px;
+      border: 1.5px solid var(--red);
+      border-radius: 0;
+      background: transparent;
+      cursor: pointer;
+      flex-shrink: 0;
+      margin: 1px 0 0 0;
+      padding: 0;
+      box-shadow: none;
+    }
+    #signup input[type="checkbox"]#GDPR_ACCEPTED:checked {
+      background-color: var(--red);
+      background-image: var(--gdpr-tick-svg);
+      background-position: center;
+      background-size: 9px;
+      background-repeat: no-repeat;
+    }
+    #signup .checkbox.checkbox_tick_positive,
+    #signup .gdpr-tick {
+      display: none !important;
+    }
+    #signup .sib-form-message-panel {
+      display: none;
+      font-family: 'Roboto', sans-serif;
+      font-size: 13px;
+      padding: 8px 12px;
+      margin-bottom: 8px;
+      max-width: 260px;
+      text-align: center;
+      background: transparent;
+      border-radius: 0;
+    }
+    #signup .sib-form-message-panel.sib-form-message-panel--active {
+      display: block;
+    }
+    #signup #success-message {
+      color: var(--red);
+      border: none;
+      padding: 16px 0;
+      font-size: 14px;
+      max-width: none;
+    }
+    #signup #error-message {
+      color: var(--red);
+      border: 1.5px solid var(--red);
+    }
+    /* When success is shown, hide the form so success replaces it */
+    #signup #success-message.sib-form-message-panel--active ~ #sib-container {
+      display: none;
+    }
+    #signup .sib-form-message-panel__text {
+      padding: 0;
+    }
+    #signup .sib-form-message-panel .sib-icon {
+      display: none;
+    }
+    #signup .sib-form-message-panel__inner-text {
+      font-family: 'Roboto', sans-serif;
+      font-size: inherit;
+    }
+    #signup .entry__error {
+      display: block;
+      font-family: 'Roboto', sans-serif;
+      font-size: 11px;
+      margin-top: 4px;
+      color: var(--red);
+    }
+    #signup .entry__error:empty {
+      display: none;
+    }
+    @keyframes gdpr-shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-3px); }
+      40% { transform: translateX(3px); }
+      60% { transform: translateX(-3px); }
+      80% { transform: translateX(3px); }
+    }
+    #signup input[type="checkbox"]#GDPR_ACCEPTED.gdpr-shake {
+      animation: gdpr-shake 0.4s ease-in-out;
+    }
+    #signup .input--hidden {
+      display: none;
+    }
+
+    /* ---- Our styling: red box, fixed height, copperplate left-aligned title ---- */
+    #signup {
+      height: 145px;                /* fixed — the form's occasional messages must not change it */
+      box-sizing: border-box;
+      flex-direction: row;          /* form on the left, image on the right */
+      align-items: center;
+      justify-content: center;      /* keep content vertically centred */
+      gap: 30px;
+      padding: 0 20px;
+      border: 2px solid var(--theme);
+      border-radius: 6px;
+      overflow: hidden;             /* clip any message-driven height change; no overflow */
+    }
+    /* Image slot: 24x24 micro-pixel grid, filled by the shared JS. */
+    .signup-pix {
+      flex: 0 0 auto;
+      --card-pix-cols: 24;
+      --card-pix-rows: 22;
+      --card-pix-cell: var(--micro-block-size);
+      --card-pix-gap: var(--micro-block-gap);
+      --card-pix-radius: var(--micro-block-radius);
+      --card-pix-color: var(--theme);
+      width: calc(var(--card-pix-cols) * var(--card-pix-cell)
+                  + (var(--card-pix-cols) - 1) * var(--card-pix-gap));
+      display: grid;
+      grid-template-columns: repeat(var(--card-pix-cols), var(--card-pix-cell));
+      grid-auto-rows: var(--card-pix-cell);
+      gap: var(--card-pix-gap);
+    }
+    #signup h3 {
+      font-family: 'Copperplate', serif;
+      align-self: flex-start;       /* left-align the title with the form */
+      text-align: left;
+    }
+
+    .stage {
+      min-height: calc(100vh - 63px);
+      display: flex;
+      align-items: center;          /* vertically centre the composition in the hero */
+      justify-content: center;
+      padding: var(--matrix-gap);
+      box-sizing: border-box;
+    }
+
+    /* Outer box reserves space at scaled dimensions so the page lays out cleanly. */
+    .scaler {
+      width: calc(var(--composition-w) * var(--scale));
+      height: calc(var(--composition-h) * var(--scale));
+    }
+
+    /* Inner composition is always its natural size; transform scales it visually. */
+    .matrix-wrap {
+      position: relative;
+      width: var(--composition-w);
+      height: var(--composition-h);
+      transform: scale(var(--scale));
+      transform-origin: top left;
+    }
+
+    .matrix {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--matrix-gap);
+      width: var(--composition-w);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(var(--grid-cols), var(--cell-size));
+      grid-template-rows: repeat(var(--grid-rows), var(--cell-size));
+      gap: var(--cell-gap);
+      width: var(--grid-w);
+      height: var(--grid-h);
+      flex: 0 0 auto;
+    }
+
+    .cell {
+      width: var(--cell-size);
+      height: var(--cell-size);
+      border-radius: var(--cell-radius);
+      background: var(--beige);
+      position: relative;
+    }
+    /* Theme-red hover overlay; instant on hover-in, 0.5s fade-out on hover-off. */
+    .cell::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--theme);
+      border-radius: inherit;
+      opacity: 0;
+      transition: opacity 1.5s ease;
+      pointer-events: none;
+    }
+    .cell:hover::after {
+      opacity: 1;
+      transition: opacity 0s;
+    }
+
+    .hero-box {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      /* Extend beyond the four-block gap it sits in; still centred via the
+         top/left 50% + translate(-50%, -50%) above. */
+      width: calc(var(--hero-w) + 20px);
+      height: calc(var(--hero-h) + 50px);
+      background: transparent;
+      border: 1px solid var(--border-grey);
+      border-radius: 5px;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 50px;
+      box-sizing: border-box;
+      font-family: 'Copperplate', serif;
+      font-weight: 700;
+      font-size: 42px;
+      line-height: 1.0;
+      letter-spacing: 0;
+      text-align: center;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .hero-box .line-2 { font-size: 0.9em; }
+
+    /* Hero buttons, side by side under the text. */
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 14px;
+      pointer-events: auto;   /* hero-box is pointer-events:none — re-enable here */
+    }
+    .hero-btn {
+      font-family: var(--button-text);
+      font-weight: normal;
+      font-size: 13px;
+      letter-spacing: 0;
+      line-height: 1;
+      text-decoration: none;
+      box-sizing: border-box;
+      width: 140px;            /* equalised, ~20% narrower */
+      padding: 6px 12px;       /* ~20% shorter */
+      text-align: center;
+      border-radius: 5px;
+      border: 1.5px solid var(--theme);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+    /* White on red → inverts to red on white on hover. */
+    .hero-btn--primary {
+      background: var(--theme);
+      color: #fff;
+    }
+    .hero-btn--primary:hover {
+      background: #fff;
+      color: var(--theme);
+    }
+    /* Red on white (red outline) → inverts to white on red on hover. */
+    .hero-btn--secondary {
+      background: #fff;
+      color: var(--theme);
+    }
+    .hero-btn--secondary:hover {
+      background: var(--theme);
+      color: #fff;
+    }
+
+/* ---- Footer mobile overrides (ported from index.html @media 600) ---- */
+@media (max-width: 600px) {
+  .footer-signup { padding: 10px; margin: 0; display: block; }
+  #signup.sib-form { margin: -14px 0 0; }
+  .signup-pix { display: none; }
+  .footer-bottom { padding: 0 8px; }
+  .footer-end { font-size: 8px; gap: 16px; }
+  .footer-policies { gap: 16px; }
+}

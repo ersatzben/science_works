@@ -1,0 +1,111 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const all = (await getCollection('writing'))
+  .filter((e) => !e.data.draft)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const featured = all.find((e) => e.data.featured) ?? all[0];
+const rest = all.filter((e) => e !== featured);
+const fmt = (d) => d.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
+const label = (t) => (t === 'report' ? 'Report' : 'Essay');
+---
+<BaseLayout title="Writing — Science Works">
+  <main class="writing-index">
+    <h1 class="wi-heading">Writing</h1>
+
+    {featured && (
+      <a class="wi-featured" href={`/writing/${featured.id}`}>
+        {featured.data.illustration
+          ? <div class="wi-feat-img" role="img" aria-label="" style={`background-image: url('${featured.data.illustration}')`}></div>
+          : <div class="wi-pix wi-feat-pix" aria-hidden="true"></div>}
+        <div class="wi-feat-meta">
+          <p class="wi-eyebrow">{featured.data.programme} &middot; {label(featured.data.type)}</p>
+          <h2 class="wi-feat-title">{featured.data.title}</h2>
+          {(featured.data.summary ?? featured.data.subtitle) && <p class="wi-feat-sub">{featured.data.summary ?? featured.data.subtitle}</p>}
+          <p class="wi-meta">{featured.data.authors.join(', ')} &middot; {fmt(featured.data.date)}</p>
+        </div>
+      </a>
+    )}
+
+    {rest.length > 0 && (
+      <div class="wi-grid">
+        {rest.map((e) => (
+          <a class="wi-card" href={`/writing/${e.id}`}>
+            {e.data.illustration
+              ? <div class="wi-card-img" role="img" aria-label="" style={`background-image: url('${e.data.illustration}')`}></div>
+              : <div class="wi-pix wi-card-pix" aria-hidden="true"></div>}
+            <div class="wi-card-body">
+              <p class="wi-eyebrow">{e.data.programme} &middot; {label(e.data.type)}</p>
+              <h3 class="wi-card-title">{e.data.title}</h3>
+              <p class="wi-meta">{e.data.authors.join(', ')} &middot; {fmt(e.data.date)}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    )}
+  </main>
+
+  <style is:global>
+    .writing-index { max-width: 1100px; margin: 0 auto; padding: 56px 40px 96px; }
+    .wi-heading { font-family: 'Copperplate', serif; font-weight: normal; font-size: 44px; letter-spacing: 0.02em; color: var(--text); margin: 0 0 32px; }
+    .wi-eyebrow { font-family: var(--button-text); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; font-size: 12px; color: var(--theme); margin: 0 0 10px; }
+    .wi-meta { font-family: 'Antique Olive', sans-serif; font-size: 13px; color: var(--text); opacity: 0.8; margin: 0; }
+
+    /* Featured (In Focus style) */
+    .wi-featured { position: relative; display: flex; align-items: stretch; gap: 30px; background: var(--almost-white); border: 1px solid var(--border-grey); border-radius: 14px; overflow: hidden; padding: 30px; margin: 0 0 48px; text-decoration: none; color: var(--text); }
+    .wi-featured:hover { border-color: var(--theme); box-shadow: inset 0 0 0 1px var(--theme); }
+    .wi-feat-img { flex: 0 0 320px; align-self: center; aspect-ratio: 3 / 2; border-radius: 6px; background-size: contain; background-position: center; background-repeat: no-repeat; image-rendering: pixelated; }
+    .wi-feat-pix { flex: 0 0 auto; align-self: center; width: 320px; --card-pix-rows: 16; }
+    .wi-feat-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+    .wi-feat-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 32px; line-height: 1.12; color: var(--text); margin: 0 0 12px; }
+    .wi-feat-sub { font-family: 'Playfair Display', serif; font-style: italic; font-size: 17px; color: var(--text); margin: 0 0 14px; }
+
+    /* Grid */
+    .wi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 28px; }
+    .wi-card { position: relative; display: flex; flex-direction: column; background: var(--almost-white); border: 1px solid var(--border-grey); border-radius: 10px; overflow: hidden; padding: 16px; text-decoration: none; color: var(--text); }
+    .wi-card:hover { border-color: var(--theme); box-shadow: inset 0 0 0 1px var(--theme); }
+    .wi-card-img { aspect-ratio: 3 / 2; border-radius: 4px; margin-bottom: 14px; background-size: cover; background-position: center; image-rendering: pixelated; }
+    .wi-card-pix { margin-bottom: 14px; --card-pix-rows: 8; }
+    .wi-card-body { display: flex; flex-direction: column; flex: 1; }
+    .wi-card-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 19px; line-height: 1.2; color: var(--text); margin: 0 0 10px; }
+    .wi-card .wi-meta { margin-top: auto; }
+
+    /* Dot-grid panels (cols computed from width by JS; rows fixed via --card-pix-rows) */
+    .wi-pix { --card-pix-cell: var(--small-block-size); --card-pix-gap: var(--small-block-gap); --card-pix-radius: var(--small-block-radius); --card-pix-color: var(--border-grey); display: grid; grid-auto-rows: var(--card-pix-cell); gap: var(--card-pix-gap); justify-content: center; }
+
+    @media (max-width: 720px) {
+      .writing-index { padding: 40px 18px 72px; }
+      .wi-heading { font-size: 32px; }
+      .wi-featured { flex-direction: column; gap: 18px; padding: 18px; }
+      .wi-feat-img, .wi-feat-pix { flex: none; width: 100%; aspect-ratio: 16 / 9; }
+      .wi-feat-title { font-size: 24px; }
+      .wi-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+
+  <script is:inline>
+    (function () {
+      const panels = document.querySelectorAll('.wi-pix');
+      if (!panels.length) return;
+      function fill(el) {
+        const cs = getComputedStyle(el);
+        const cell = parseFloat(cs.getPropertyValue('--card-pix-cell')) || 10;
+        const gap  = parseFloat(cs.getPropertyValue('--card-pix-gap'))  || 3;
+        const rows = parseInt(cs.getPropertyValue('--card-pix-rows'), 10) || 6;
+        const cols = Math.max(1, Math.floor((el.clientWidth + gap) / (cell + gap)));
+        el.style.gridTemplateColumns = 'repeat(' + cols + ', var(--card-pix-cell))';
+        const need = cols * rows;
+        if (el.childElementCount === need) return;
+        while (el.childElementCount > need) el.removeChild(el.lastChild);
+        const frag = document.createDocumentFragment();
+        for (let i = el.childElementCount; i < need; i++) {
+          const c = document.createElement('div'); c.className = 'pix-cell'; frag.appendChild(c);
+        }
+        el.appendChild(frag);
+      }
+      const ro = new ResizeObserver(function (es) { for (const e of es) fill(e.target); });
+      panels.forEach(function (el) { fill(el); ro.observe(el); });
+    })();
+  </script>
+</BaseLayout>
