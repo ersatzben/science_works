@@ -112,6 +112,7 @@
     html, body {
       margin: 0;
       padding: 0;
+      overflow-x: clip;   /* lock the viewport horizontally (clip, so sticky still works) */
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
@@ -176,8 +177,8 @@
       color: var(--text);
       margin: 0 0 15px;
     }
-    .section-label a { color: var(--theme); text-decoration: underline; text-underline-offset: 10px; text-decoration-thickness: 1px; }
-    .section-label a:hover { text-decoration: underline; text-decoration-thickness: 3px; }
+    .section-label a { color: var(--theme); text-decoration: none; border-bottom: 1px solid var(--theme); padding: 0 0 3px;}
+    .section-label a:hover { border-bottom-width: 3px; }
 
     /* ---------- Spotlight: pinned intro (left) + scrolling projects (right) ---------- */
     .spotlight { 
@@ -216,6 +217,8 @@
       background: var(--border-grey);
       border-radius: var(--small-block-radius);
     }
+    .intro-eyebrow { display: none; }   /* mobile-only (shown in the 600px query) */
+    .intro-pic { display: none; }       /* mobile-only (shown in the 600px query) */
     .spotlight-intro h2 {
       font-family: 'Copperplate', serif;
       font-weight: normal;
@@ -245,7 +248,7 @@
       padding: 24px 24px;
       box-sizing: border-box;
     }
-    .project-body { flex: 1; min-width: 0; }
+    .project-body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
     .project-title {
       font-family: 'Copperplate', serif;
       font-weight: 600;
@@ -273,12 +276,14 @@
     .project-detail {
       border-left: 1px solid var(--border-grey);
       padding-left: 16px;
-      margin-top: 12px;
+      margin-top: 0px;
+      padding-bottom: 8px;
     }
     .project-more {
       font-family: 'Roboto', sans-serif;
       display: inline-block;
-      margin-top: 16px;
+      align-self: flex-start;   /* content-width within the flex column */
+      margin-top: auto;         /* push to the bottom of the card */
       margin-left: 16px;
       font-family: var(--button-text);
       font-weight: 500;
@@ -1221,36 +1226,109 @@
 
       /* ----- rest of the homepage, reformatted for phones ----- */
       .content-wrap { padding: 0 18px; }
-      .section-label { font-size: 24px; margin-bottom: 20px; }
+      .section-label { font-size: 22px; margin-bottom: 16px; }
 
-      .spotlight {  
-        
+      .spotlight {
+        padding-top: 40px; 
+        padding-bottom: 20px;
+        }
+
+      .spotlight-intro {  
+        margin: 0; 
+        padding: 0 10px 0;
+      }
+
+      .spotlight-intro .intro-eyebrow {
+        display: block;
+        font-family: var(--button-text);
+        font-weight: 500;
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--theme);
+        margin: 0 0 12px;
+      }
+
+      /* Picture floated top-right; heading + paragraphs flow around it. */
+      .intro-pic {
+        display: block;
+        float: right;
+        width: 44%;
+        aspect-ratio: 5 / 4;
+        background: var(--border-grey);   /* grey placeholder box */
+        border-radius: 4px;
+        margin: 0 0 10px 16px;            /* gap below + left of the wrapping text */
       }
 
       .spotlight-intro h2 {
-        font-size: 22px;
+        font-size: 20px;
         letter-spacing: 0.02em;
         color: var(--text);
-        margin: 0 0 20px;
+        margin: 0 0 14px;
       }
 
       .spotlight-intro p { font-size: 12px; }
 
-      .project { gap: 16px; padding: 18px; }
-      .project-img { flex: 0 0 92px; width: 92px; height: 92px; }
-      .project-title { font-size: 21px; }
-      .project-sub { font-size: 15px; }
+      /* Projects become a horizontal, swipeable carousel on mobile. */
+      .spotlight-main { min-width: 0; }   /* let the grid item shrink so the carousel can overflow-scroll instead of stretching the column */
+      .projects {
+        flex-direction: row;
+        gap: 14px;
+        padding: 2px 0 14px;            /* content-wrap already insets 18px each side */
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+      }
+      .projects::-webkit-scrollbar { display: none; }
+      .project {
+        flex: 0 0 90%;                  /* one card per view, next card peeks */
+        scroll-snap-align: start;
+        gap: 16px;
+        padding: 15px;
+      }
+      .project-img { --card-pix-cols: 8; }   /* narrower dot strip to fit the card */
+      .project-title { font-size: 16px; }
+      .project-detail { padding-left: 7px;}
+      .project-sub { font-size: 13px; }
+      .project-text { font-size: 10px; }
+      .project-more { margin-top: auto; margin-left: 0; font-size: 12px; }
+      .project-divider { margin: -16px 0; }
+      .hidden { display: none;}
 
-      .infocus { padding: 14px 0 56px; }
-      .infocus-card { flex-direction: column; min-height: 0; }
-      .infocus-meta { padding: 22px 22px 26px; }
-      .infocus-title { font-size: 26px; }
+      .infocus { padding: 24px 0 24px; background-color: var(--theme);}
+      .infocus-card { flex-direction: column; min-height: 0; border-radius: 0; }
+      .infocus-meta { padding: 22px 22px 10px; }
+      .infocus-tag { margin: 0 0 10px; }
+      .infocus-title { font-size: 22px; }
+      .infocus-authors { font-size: 14px; }
+      .infocus-sub { font-size: 13px; margin-bottom: 14px; }
+      .infocus-foot { font-size: 12px;}
+      .infocus-pix { margin: 0; } 
 
-      .reports { padding: 14px 0 64px; }
+      .reports { padding: 14px 0 24px; }
+      .reports-box { padding: 10px; border-radius: 8px; }
+      .reports-head .section-label {  }
+      .reports-viewall {display: none;}
+
       .carousel-arrows { display: none; }
-      .carousel-track { flex-direction: column; overflow: visible; gap: 14px; }
-      .report-card { flex: 0 0 auto; width: 100%; }
+      /* Horizontal swipe carousel on mobile (like the projects carousel);
+         cards keep their 212px design width so the dot grid still fills them. */
+      .carousel-track { scroll-snap-type: x mandatory; gap: 14px; padding: 4px 0 4px;}
+
+
+      .footer-pixels { }
+      .footer-signup { padding: 10px; margin: 0; display: block; }
+      #signup.sib-form {margin: -14px 0 0; }
+      .signup-pix { display: none; }
+
+      .footer-bottom {padding: 0 8px; }
+      .footer-end { font-size: 8px; gap: 16px; }
+      .footer-policies { gap: 16px; }
+      .footer-copy { }
     }
+     
+
     @media (max-width: 900px) {
       .spotlight-grid { grid-template-columns: 1fr; gap: 34px; }
       .spotlight-intro { position: static; top: auto; }
@@ -1307,6 +1385,8 @@
     <div class="content-wrap spotlight-grid">
       <div class="spotlight-intro">
         <div class="intro-matrix" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="intro-pic" aria-hidden="true"></div>
+        <p class="intro-eyebrow">Science Works</p>
         <h2>Britain needs a metascientific revolution.</h2>
         <p>The UK's place in the world has long been underwritten by the creativity of its laboratories, workshops, and universities. Today that imagination is running into the limits of institutions built for another era. We've lost much of the freedom that once defined British science, and failed to seize the possibilities of our technological age.</p> 
         <p>We have deep talent, trusted universities, and a culture of rigour. But the systems that fund and govern research move slowly, tangled in crude metrics and misaligned incentives, while public science lags behind the private frontier.</p>
@@ -1321,7 +1401,7 @@
             <h3 class="project-title">Institutional Dynamism</h3>
             <div class="project-detail">
               <p class="project-sub">The UK&rsquo;s research ecosystem is unusually homogeneous and slow to evolve</p>
-              <p class="project-text">In other countries, R&amp;D is spread across a much wider range of institutional forms. We want to inject diversity and dynamism into the sector &ndash; mapping the institutional models available to funders and policymakers, strengthening the state&rsquo;s capacity to assess and support proposals for new organisations, and incubating new organisational forms where we are best placed to do so.</p>
+              <p class="project-text"><span class="hidden">In other countries, R&amp;D is spread across a much wider range of institutional forms. </span>We want to inject diversity and dynamism into the sector &ndash; mapping <span class="hidden">the </span>institutional models<span class="hidden"> available to funders and policymakers</span>, strengthening <span class="hidden">the </span>state<span class="hidden">&rsquo;s</span> capacity<span class="hidden"> to assess and support proposals for new organisations</span>, and incubating new organisational forms<span class="hidden"> where we are best placed to do so</span>.</p>
             </div>
             <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
@@ -1333,7 +1413,7 @@
             <h3 class="project-title">AI and Science</h3>
             <div class="project-detail">
               <p class="project-sub">Artificial intelligence is poised to change what it means to be a scientist</p>
-              <p class="project-text">But the UK risks compounding existing dysfunctions rather than unlocking the gains: much of the scientific record remains invisible, research software is undervalued, and the infrastructure for AI-enabled discovery is unevenly available. We are developing an ambitious British agenda for AI in science &ndash; covering data, software, automation, and the institutional changes needed to make them count.</p>
+              <p class="project-text"><span class="hidden">But the UK risks compounding existing dysfunctions rather than unlocking the gains: much of the scientific record remains invisible, research software is undervalued, and the infrastructure for AI-enabled discovery is unevenly available. </span>We are developing an ambitious British agenda for AI in science &ndash; covering data, software, automation, and <span class="hidden">the </span>institutional changes<span class="hidden"> needed to make them count</span>.</p>
             </div>
             <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
@@ -1345,7 +1425,7 @@
             <h3 class="project-title">The Research Economy</h3>
             <div class="project-detail">
               <p class="project-sub">The UK funds research without a clear picture of its real costs and trade-offs</p>
-              <p class="project-text">We bring quantitative and qualitative analysis to bear on the research base: highlighting the hidden costs, frictions, trade-offs, and cross-subsidies that underpin the economics of institutions and the architecture of national R&amp;D spending. We pair this with detailed mapping of the system&rsquo;s structure, and with practical work on the design of funding and assessment, pushing for a system that is less bureaucratic, more honest, and more dynamic.</p>
+              <p class="project-text">We bring quantitative and qualitative analysis to bear on the research base<span class="hidden">: highlighting the hidden costs, frictions, trade-offs, and cross-subsidies that underpin the economics of institutions and the architecture of national R&amp;D spending. We pair this with detailed mapping of the system&rsquo;s structure, and with practical work on the design of funding and assessment</span>, pushing for a system that is less bureaucratic, more honest, and more dynamic.</p>
             </div>
             <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
@@ -1357,7 +1437,7 @@
             <h3 class="project-title">Software for Science</h3>
             <div class="project-detail">
               <p class="project-sub">The future of research is digital&mdash;and we need to adapt</p>
-              <p class="project-text">Scientists lack modern and interoperable software tools for undertaking research in the age of intelligence. The research software engineer is a forgotten role without a clear career path. Much of the research process remains analogue; there is a lack of a well-functioning market for software; open tools are poorly maintained. We are building and testing new software tools to address this gap, while working on the incentives that will allow software to flourish.</p>
+              <p class="project-text"><span class="hidden">Scientists lack modern and interoperable software tools for undertaking research in the age of intelligence. The research software engineer is a forgotten role without a clear career path. Much of the research process remains analogue; there is a lack of a well-functioning market for software; open tools are poorly maintained. </span>We are building and testing new software tools <span class="hidden">to address this gap, </span>while working on the incentives that will allow software to flourish.</p>
             </div>
             <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
@@ -1369,7 +1449,7 @@
             <h3 class="project-title">The Story of British Science</h3>
             <div class="project-detail">
               <p class="project-sub">Scientific progress requires public confidence and political willpower</p>
-              <p class="project-text">Neither is guaranteed to endure over the coming decade. The UK currently lacks a compelling, forward-looking story about what its scientific and technological future could be. We want to help develop and articulate an account of British scientific renewal that can resonate across the political spectrum.</p>
+              <p class="project-text">Neither is guaranteed to endure over the coming decade. <span class="hidden">The UK currently lacks a compelling, forward-looking story about what its scientific and technological future could be. </span>We want to help develop and articulate an account of British scientific renewal that can resonate<span class="hidden"> across the political spectrum</span>.</p>
             </div>
             <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
@@ -1944,6 +2024,7 @@
       // Drag / swipe to scroll.
       let down = false, startX = 0, startLeft = 0, moved = false;
       track.addEventListener('pointerdown', function (e) {
+        if (e.pointerType !== 'mouse') return;   // touch/pen use native scroll (no manual drag)
         down = true; moved = false;
         startX = e.clientX; startLeft = track.scrollLeft;
         track.classList.add('dragging');
