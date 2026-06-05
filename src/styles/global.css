@@ -83,15 +83,17 @@
       /* Matrix metrics */
       --matrix-cols: 6;
       --matrix-rows: 3;
-      --matrix-gap: 50px;
+      --matrix-gap: 50px;          /* horizontal gap between columns */
+      --matrix-row-gap: 56px;      /* vertical gap between rows (70 − 2×cell, for the taller 6/11 boxes) */
 
       /* One grid is 12*14 + 11*2 = 190px wide, 11*14 + 10*2 = 174px tall */
       --grid-w: 190px;
       --grid-h: 174px;
 
-      /* Full composition: 6*190 + 5*50 = 1390w, 3*174 + 2*50 = 622h */
+      /* Full composition: 6*190 + 5*50 = 1390w.
+         Height: row0 174 + gap 42 + row1 206 (tall) + gap 42 + row2 174 = 638h */
       --composition-w: 1390px;
-      --composition-h: 622px;
+      --composition-h: 638px;
 
       /* Hero text box = exactly four horizontal grids: 4*190 + 3*50 = 910px wide, 174px tall */
       --hero-w: 910px;

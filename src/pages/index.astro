@@ -293,7 +293,9 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
     /* Homepage scrolls continuously (no snap); the hero stage fills the
        viewport and simply scrolls away. */
     .stage {
-      min-height: calc(100vh - 63px);
+      width: 100%;
+      aspect-ratio: 15 / 8;         /* hero height tracks width → content below reveals at narrow widths */
+      overflow: hidden;
       display: flex;
       align-items: center;          /* vertically centre the composition in the hero */
       justify-content: center;
@@ -319,7 +321,8 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
     .matrix {
       display: flex;
       flex-wrap: wrap;
-      gap: var(--matrix-gap);
+      align-items: center;                             /* centre each row → tall boxes grow up & down */
+      gap: var(--matrix-row-gap) var(--matrix-gap);   /* row-gap (vertical) / column-gap (horizontal) */
       width: var(--composition-w);
     }
 
@@ -331,6 +334,11 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
       width: var(--grid-w);
       height: var(--grid-h);
       flex: 0 0 auto;
+    }
+    /* Boxes 6 & 11: two extra rows (random caps top & bottom). */
+    .grid--tall {
+      grid-template-rows: repeat(13, var(--cell-size));
+      height: calc(13 * var(--cell-size) + 12 * var(--cell-gap));
     }
 
     .cell {
@@ -359,7 +367,7 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
 
       .hero-box {
       position: absolute;
-      top: 50%;
+      top: 52%;
       left: 50%;
       transform: translate(-50%, -50%);
       /* Extend beyond the four-block gap it sits in; still centred via the
@@ -379,7 +387,7 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
       font-family: 'Copperplate', serif;
       font-weight: 700;
       font-size: 42px;
-      line-height: 1.0;
+      line-height: 1.1;
       letter-spacing: 0;
       text-align: center;
       z-index: 10;
@@ -410,16 +418,20 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
       border: 1.5px solid var(--theme);
       cursor: pointer;
       white-space: nowrap;
-      transition: background-color 0.15s ease, color 0.15s ease;
+      transition: transform 0.14s ease, box-shadow 0.14s ease, background-color 0.15s ease, color 0.15s ease;
     }
+    /* Hover: a small lift with a soft shadow; clicking presses it back down. */
+    .hero-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(68, 2, 20, 0.16); }
+    .hero-btn:active { transform: translateY(0); box-shadow: 0 1px 3px rgba(68, 2, 20, 0.16); }
     /* White on red → inverts to red on white on hover. */
     .hero-btn--primary {
       background: var(--theme);
       color: #fff;
     }
     .hero-btn--primary:hover {
-      background: #fff;
-      color: var(--theme);
+      /* background: #fff;
+      color: var(--theme); */
+      
     }
     /* Red on white (red outline) → inverts to white on red on hover. */
     .hero-btn--secondary {
@@ -427,8 +439,8 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
       color: var(--theme);
     }
     .hero-btn--secondary:hover {
-      background: var(--theme);
-      color: #fff;
+      /* background: var(--beige);
+      color: #fff; */
     }
     .section-inner {
       max-width: 800px;
@@ -1089,11 +1101,16 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
       // grids[i].el                -> grid container
       const grids = [];
 
-      function buildGrid() {
+      // Boxes 6 & 11 (the ends of the middle row, flanking the hero text) are two
+      // rows taller — an extra random-coloured row on the top and the bottom.
+      const TALL_SLOTS = new Set([6, 11]);
+      const TALL_ROWS = 13;
+
+      function buildGrid(rows) {
         const gridEl = document.createElement('div');
-        gridEl.className = 'grid';
+        gridEl.className = rows > ROWS ? 'grid grid--tall' : 'grid';
         const cells = [];
-        for (let r = 0; r < ROWS; r++) {
+        for (let r = 0; r < rows; r++) {
           const rowArr = [];
           for (let c = 0; c < COLS; c++) {
             const el = document.createElement('div');
@@ -1105,11 +1122,11 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
           }
           cells.push(rowArr);
         }
-        return { el: gridEl, cells };
+        return { el: gridEl, cells, rows, total: rows * COLS };
       }
 
       for (let i = 0; i < GRID_COUNT; i++) {
-        const g = buildGrid();
+        const g = buildGrid(TALL_SLOTS.has(i) ? TALL_ROWS : ROWS);
         g.el.dataset.index = i;
         matrixEl.appendChild(g.el);
         grids.push(g);
@@ -1160,17 +1177,36 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
 
       // Per-slot current cell data (palette indices). Mutated by swaps so
       // each pair oscillates between its two states over time.
-      const slotData = grids.map(() => new Array(TOTAL_CELLS).fill(0));
+      const slotData = grids.map((g) => new Array(g.total).fill(0));
+
+      // Random brand-palette colour (indices 1..N, skipping 0 = empty/bg).
+      function randomColorIndex() {
+        return 1 + ((Math.random() * (ART_PALETTE.length - 1)) | 0);
+      }
+      // Fill the top and bottom rows of a tall grid with random colours.
+      function fillCapsRandom(i) {
+        const total = grids[i].total;
+        for (let c = 0; c < COLS; c++) {
+          slotData[i][c] = randomColorIndex();
+          slotData[i][total - COLS + c] = randomColorIndex();
+        }
+      }
 
       function ingestArt(art) {
         for (let i = 0; i < grids.length; i++) {
-          slotData[i] = new Array(TOTAL_CELLS).fill(0);
+          slotData[i] = new Array(grids[i].total).fill(0);
+          if (grids[i].rows > ROWS) fillCapsRandom(i);
         }
         if (!art?.grids || art.grids.length !== EDITABLE_SLOTS.length) return;
         for (let ei = 0; ei < EDITABLE_SLOTS.length; ei++) {
+          const slot = EDITABLE_SLOTS[ei];
           const data = art.grids[ei];
-          if (Array.isArray(data) && data.length === TOTAL_CELLS) {
-            slotData[EDITABLE_SLOTS[ei]] = data.slice();
+          if (!Array.isArray(data) || data.length !== TOTAL_CELLS) continue;
+          if (grids[slot].rows > ROWS) {
+            // The 11-row art sits in the middle; the random top/bottom rows stay.
+            for (let k = 0; k < TOTAL_CELLS; k++) slotData[slot][COLS + k] = data[k];
+          } else {
+            slotData[slot] = data.slice();
           }
         }
       }
@@ -1178,7 +1214,8 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
       function renderSlot(slotIdx) {
         const data = slotData[slotIdx];
         const cells = grids[slotIdx].cells;
-        for (let i = 0; i < TOTAL_CELLS; i++) {
+        const total = grids[slotIdx].total;
+        for (let i = 0; i < total; i++) {
           const r = (i / COLS) | 0;
           const c = i % COLS;
           cells[r][c].style.background = ART_PALETTE[data[i]] || ART_PALETTE[0];
@@ -1214,7 +1251,10 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
       }
 
       // ----- Pair selection --------------------------------------------
-      const FIXED_PAIRS = [[0, 12], [5, 17]];
+      // Fixed couples swap only with each other (and are excluded from the
+      // random pairing below). [6, 11] are the two ends of the middle row,
+      // flanking the hero text.
+      const FIXED_PAIRS = [[0, 12], [5, 17], [6, 11]];
 
       function buildPairs() {
         const used = new Set(FIXED_PAIRS.flat());
@@ -1248,7 +1288,8 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
       }
 
       function dissolveSwap(a, b, gen) {
-        for (let i = 0; i < TOTAL_CELLS; i++) {
+        const total = grids[a].total;   // a and b always share a size (pairs are like-sized)
+        for (let i = 0; i < total; i++) {
           const delay = Math.random() * DISSOLVE_MS;
           setTimeout(() => {
             if (gen !== animGen) return;
@@ -1296,14 +1337,22 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
 
       // Proportional scaling: shrink the whole composition when the viewport
       // is narrower than its natural width. Mobile layout (fewer grids) TBD.
+      // Composition's natural footprint (6×3 grids). The .stage is now an
+      // aspect-ratio box; fit the composition inside it (contain) so it scales
+      // with the box as the window width changes.
       const NATURAL_W = 1390;
-      const VIEWPORT_PAD = 100;
+      const NATURAL_H = 638;
       function updateScale() {
-        const available = window.innerWidth - VIEWPORT_PAD;
-        const scale = Math.min(1, available / NATURAL_W);
+        const stage = document.querySelector('.stage');
+        if (!stage) return;
+        const cs = getComputedStyle(stage);
+        const availW = stage.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+        const availH = stage.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+        const scale = Math.max(0, Math.min(availW / NATURAL_W, availH / NATURAL_H));
         document.documentElement.style.setProperty('--scale', scale);
       }
       window.addEventListener('resize', updateScale);
+      if (window.ResizeObserver) new ResizeObserver(updateScale).observe(document.querySelector('.stage') || document.body);
       updateScale();
 
       // Expose for console tinkering / future modules.
