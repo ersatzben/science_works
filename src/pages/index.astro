@@ -134,55 +134,81 @@ import { getCover } from '../lib/covers.js';
   <!-- 4. Latest reports carousel -->
   <section class="reports">
     <div class="content-wrap">
-      <div class="reports-head">
-        <h2 class="section-label"><a href="/writing">latest from science works</a></h2>
-        <a class="reports-viewall" href="/writing">View all &rarr;</a>
-      </div>
+      
       <div class="reports-box-wrapper">
+        
         <div class="reports-box">
-          <div class="carousel-track">
-                  <div class="report-card">
-            <a class="report-card-link" href="/writing/designing-ai-for-disruptive-science" aria-label="Designing AI for Disruptive Science"></a>
-            <div class="report-card-art" aria-hidden="true"><GridArt bitmap={getCover('designing-ai-for-disruptive-science')} aspect={14 / 12} /></div>
-            <div class="report-card-body">
-              <h3 class="report-title">Designing AI for Disruptive Science</h3>
-              <p class="report-authors"><a href="#">Alvin Djajadikerta</a></p>
-              <p class="report-foot"><span class="report-date">23 March 2026</span><span class="report-type">Essay</span></p>
-            </div>
-          </div>
-                  <div class="report-card">
-            <a class="report-card-link" href="/writing/the-bucket-stops-here" aria-label="The Bucket Stops Here"></a>
-            <div class="report-card-art" aria-hidden="true"><GridArt bitmap={getCover('the-bucket-stops-here')} aspect={14 / 12} /></div>
-            <div class="report-card-body">
-              <h3 class="report-title">The Bucket Stops Here</h3>
-              <p class="report-authors"><a href="#">Ben Johnson</a></p>
-              <p class="report-foot"><span class="report-date">14 February 2026</span><span class="report-type">Essay</span></p>
-            </div>
-          </div>
-                  <div class="report-card">
-            <a class="report-card-link" href="/writing/the-three-bucket-problem" aria-label="The three-bucket problem"></a>
-            <div class="report-card-art" aria-hidden="true"><GridArt bitmap={getCover('the-three-bucket-problem')} aspect={14 / 12} /></div>
-            <div class="report-card-body">
-              <h3 class="report-title">The three-bucket problem</h3>
-              <p class="report-authors"><a href="#">Ben Johnson</a></p>
-              <p class="report-foot"><span class="report-date">18 November 2025</span><span class="report-type">Essay</span></p>
-            </div>
-          </div>
-                  <div class="report-card">
-            <a class="report-card-link" href="/writing/the-counter-reformation-of-science" aria-label="The Counter-Reformation of science"></a>
-            <div class="report-card-art" aria-hidden="true"><GridArt bitmap={getCover('the-counter-reformation-of-science')} aspect={14 / 12} /></div>
-            <div class="report-card-body">
-              <h3 class="report-title">The Counter-Reformation of science</h3>
-              <p class="report-authors"><a href="#">Ben Johnson</a></p>
-              <p class="report-foot"><span class="report-date">1 September 2025</span><span class="report-type">Essay</span></p>
-            </div>
-          </div>
+          <div class="reports-head">
+          <h2 class="reports-head-label">Latest from Science Works</h2>
+          <a class="reports-viewall" href="/writing">View all &rarr;</a>
         </div>
-      </div>
+          <div class="carousel-track">
+            <div class="report-card">
+              <a class="report-card-link" href="/writing/designing-ai-for-disruptive-science" aria-label="Designing AI for Disruptive Science"></a>
+              <div class="report-card-art" aria-hidden="true"><GridArt bitmap={getCover('designing-ai-for-disruptive-science')} aspect={12 / 12} /></div>
+              <div class="report-card-body">
+                <h3 class="report-title">Designing AI for Disruptive Science</h3>
+                <p class="report-authors"><a href="#">Alvin Djajadikerta</a></p>
+                <p class="report-sub">Why scaling AI won’t automatically lead to paradigm shifts</p>
+                <p class="report-foot"><span class="report-date">23 March 2026</span><span class="report-type">Essay</span></p>
+              </div>
+            </div>
+            <div class="report-card">
+              <a class="report-card-link" href="/writing/how-not-to-waste-an-ai-for-science-mission" aria-label="How not to waste an AI for science mission"></a>
+              <div class="report-card-art" aria-hidden="true"><GridArt bitmap={getCover('how-not-to-waste-an-ai-for-science-mission')} aspect={12 / 12} /></div>
+              <div class="report-card-body">
+                <h3 class="report-title">How not to waste an AI for science mission</h3>
+                <p class="report-authors"><a href="#">Ben Johnson</a>, <a href="#">Laura Ryan</a></p>
+                <p class="report-sub">On the regrettable necessity of thinking carefully before spending public money</p>
+                <p class="report-foot"><span class="report-date">7 March 2026</span><span class="report-type">Essay</span></p>
+              </div>
+            </div>
+            <div class="report-card">
+              <a class="report-card-link" href="/writing/the-bucket-stops-here" aria-label="The Bucket Stops Here"></a>
+              <div class="report-card-art" aria-hidden="true"><GridArt bitmap={getCover('the-bucket-stops-here')} aspect={12 / 12} /></div>
+              <div class="report-card-body">
+                <h3 class="report-title">The Bucket Stops Here</h3>
+                <p class="report-authors"><a href="#">Ben Johnson</a></p>
+                <p class="report-sub">UKRI’s new funding framework takes a stab at classifying budgets – but doesn’t yet govern research</p>
+                <p class="report-foot"><span class="report-date">14 February 2026</span><span class="report-type">Essay</span></p>
+              </div>
+            </div>
+            <div class="report-card">
+              <a class="report-card-link" href="/writing/the-three-bucket-problem" aria-label="The three-bucket problem"></a>
+              <div class="report-card-art" aria-hidden="true"><GridArt bitmap={getCover('the-three-bucket-problem')} aspect={12 / 12} /></div>
+              <div class="report-card-body">
+                <h3 class="report-title">The three-bucket problem</h3>
+                <p class="report-authors"><a href="#">Ben Johnson</a></p>
+                <p class="report-sub">Ten tests for the UK’s new R&amp;D funding framework</p>
+                <p class="report-foot"><span class="report-date">18 November 2025</span><span class="report-type">Essay</span></p>
+              </div>
+            </div>
+            <div class="report-card">
+              <a class="report-card-link" href="/writing/the-three-bucket-problem" aria-label="The three-bucket problem"></a>
+              <div class="report-card-art" aria-hidden="true"><GridArt bitmap={getCover('the-three-bucket-problem')} aspect={12 / 12} /></div>
+              <div class="report-card-body">
+                <h3 class="report-title">The three-bucket problem</h3>
+                <p class="report-authors"><a href="#">Ben Johnson</a></p>
+                <p class="report-sub">Ten tests for the UK’s new R&amp;D funding framework</p>
+                <p class="report-foot"><span class="report-date">18 November 2025</span><span class="report-type">Essay</span></p>
+              </div>
+            </div>
+            <div class="report-card">
+              <a class="report-card-link" href="/writing/the-counter-reformation-of-science" aria-label="The Counter-Reformation of science"></a>
+              <div class="report-card-art" aria-hidden="true"><GridArt bitmap={getCover('the-counter-reformation-of-science')} aspect={12 / 12} /></div>
+              <div class="report-card-body">
+                <h3 class="report-title">The Counter-Reformation of science</h3>
+                <p class="report-authors"><a href="#">Ben Johnson</a></p>
+                <p class="report-sub">British research has perfected discipline and outsourced magnificence. The fix is demonstration statecraft, to pair theatre with delivery.</p>
+                <p class="report-foot"><span class="report-date">1 September 2025</span><span class="report-type">Essay</span></p>
+              </div>
+            </div>
+          </div>
         <div class="carousel-arrows">
           <button class="carousel-arrow" data-dir="-1" type="button" aria-label="Previous reports">&larr;</button>
           <button class="carousel-arrow" data-dir="1" type="button" aria-label="Next reports">&rarr;</button>
         </div>
+      </div>
       </div>
     </div>
   </section>
@@ -220,7 +246,7 @@ import { getCover } from '../lib/covers.js';
        Homepage content sections (continuous scroll, IFP-style)
        =================================================================== */
     .content-wrap {
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 0 auto;
       padding: 0 40px;
       box-sizing: border-box;
@@ -253,7 +279,7 @@ import { getCover } from '../lib/covers.js';
       top: 140px;                   /* sticky threshold — freezes 80px below viewport top (clears the 60px nav) */
       margin-top: 70px;            /* initial gap before the intro */
       align-self: start;
-      padding-left: 70px; 
+      padding-left: 0px; 
       padding-right: 20px;
     }
     /* Decorative 7x2 dot grid, top-left of the intro. Anchored to the
@@ -263,7 +289,7 @@ import { getCover } from '../lib/covers.js';
       position: absolute;
       top: 0;
       left: 0;
-      margin: -65px 0 0 -40px;      /* top right bottom left — move the grid with these */
+      margin: -65px 0 0 -100px;      /* top right bottom left — move the grid with these */
       display: grid;
       grid-template-columns: repeat(7, var(--small-block-size));
       grid-auto-rows: var(--small-block-size);
@@ -285,15 +311,16 @@ import { getCover } from '../lib/covers.js';
     }
     .spotlight-intro p {
       font-family: 'Antique Olive', sans-serif;
-      font-size: 15px;
-      line-height: 1.6;
+      font-weight: 300; 
+      font-size: 17px;
+      line-height: 1.5;
       color: var(--text);
       margin: 0 0 16px;
       max-width: 520px;     /* use the now-wider column */
     }
     .spotlight-intro .hero-btn { margin-top: 8px; }
 
-    .projects { display: flex; flex-direction: column; gap: 22px; padding-right: 55px; }
+    .projects { display: flex; flex-direction: column; gap: 22px; padding-right: 0px; }
     .project {
       display: flex;
       gap: 28px;
@@ -324,8 +351,9 @@ import { getCover } from '../lib/covers.js';
     }
     .project-text {
       font-family: 'Antique Olive', sans-serif;
-      font-size: 13px;
-      line-height: 1.55;
+      font-weight: 300; 
+      font-size: 14px;
+      line-height: 1.4;
       color: var(--text);
       margin: 0;
     }
@@ -431,7 +459,7 @@ import { getCover } from '../lib/covers.js';
       justify-content: center;
     }
     .infocus-tag {
-      font-family: 'Antique Olive', sans-serif;
+      font-family: 'Roboto', sans-serif;
       font-weight: bold;
       font-size: 13px;
       letter-spacing: 0.04em;
@@ -459,10 +487,11 @@ import { getCover } from '../lib/covers.js';
     .infocus-authors .sep { color: var(--theme); }
     .infocus-sub {
       font-family: 'Antique Olive', sans-serif;
-      font-size: 13px;
-      line-height: 1.5;
+      font-weight: 300; 
+      font-size: 14px;
+      line-height: 1.3;
       color: var(--text);
-      margin: 0 0 6px;
+      margin: 0 0 13px;
     }
     .infocus-foot {
       display: flex;
@@ -476,12 +505,13 @@ import { getCover } from '../lib/covers.js';
     /* ---------- Latest reports carousel ---------- */
     .reports { padding: 0 0 40px; }
 
-    .reports-box-wrapper { padding: 0 30px; }
+    .reports-box-wrapper { padding: 0 30px;  }
     .reports-box {
       position: relative;               /* anchors the overlaid arrows */
-      border: 1px solid var(--border-grey);
-      border-radius: 14px;
-      padding: 28px 28px 18px;
+      border: 1.5px solid var(--border-grey);
+      border-radius: 8px;
+      padding: 20px 20px 18px;
+      background-color: var(--bg-secondary);
     }
     .reports-head {
       display: flex;
@@ -489,8 +519,11 @@ import { getCover } from '../lib/covers.js';
       align-items: center;
       gap: 16px;
       margin-bottom: 18px;
+      border: 1px solid var(--border-grey);
+      border-radius: 8px; 
+      padding: 8px; 
     }
-    .reports-head .section-label { margin: 0; }
+    .reports-head .reports-head-label { margin: 0; font-family: 'Copperplate', sans-serif; font-weight: 500; margin-left: 5px; margin-top: 4px; }
     .reports-viewall {
       font-family: var(--button-text);
       font-weight: 500;
@@ -498,6 +531,7 @@ import { getCover } from '../lib/covers.js';
       color: var(--theme);
       text-decoration: none;
       white-space: nowrap;
+      padding-right: 10px; 
     }
     .reports-viewall:hover { text-decoration: underline; }
     /* Arrows overlaid on the left/right edges of the cards, vertically centred. */
@@ -534,7 +568,7 @@ import { getCover } from '../lib/covers.js';
     .carousel-arrow:disabled { visibility: hidden; }
     .carousel-track {
       display: flex;
-      gap: 20px;
+      gap: 10px;
       overflow-x: auto;
       scroll-snap-type: x proximity;
       scroll-behavior: smooth;
@@ -546,11 +580,11 @@ import { getCover } from '../lib/covers.js';
     .carousel-track.dragging { cursor: grabbing; scroll-behavior: auto; }
     .report-card {
       position: relative;               /* contains the stretched whole-card link */
-      flex: 0 0 212px;                  /* narrower; = 14-col grid (179px) + 2*16 padding */
+      flex: 0 0 230px;                  /* narrower; = 14-col grid (179px) + 2*16 padding */
       scroll-snap-align: start;
       background: var(--almost-white);
       border: 1px solid var(--border-grey);
-      border-radius: 12px;
+      border-radius: 8px;
       overflow: hidden;
       padding: 16px;
       box-sizing: border-box;
@@ -587,7 +621,7 @@ import { getCover } from '../lib/covers.js';
     }
     /* Authors styled like the In Focus card: red links, red comma separator. */
     .report-authors {
-      font-family: 'Antique Olive', sans-serif;
+      font-family: 'Copperplate', serif;
       font-size: 13px;
       margin: 0 0 12px;
     }
@@ -595,6 +629,8 @@ import { getCover } from '../lib/covers.js';
     .report-authors a:hover { text-decoration: underline; }
     .report-authors .sep { color: var(--theme); }
     /* Date (left) and type (right, e.g. "Essay"), pinned to the bottom of the card. */
+
+    .report-sub { font-family: 'Antique Olive', sans-serif; font-weight: 300; font-size: 12px; color: var(--text); position: relative; margin: 0 0 16px; line-height: 1.3; }
     .report-foot {
       display: flex;
       justify-content: space-between;
@@ -723,7 +759,7 @@ import { getCover } from '../lib/covers.js';
         margin: 0 0 14px;
       }
 
-      .spotlight-intro p { font-size: 12px; }
+      .spotlight-intro p { font-size: 14px; }
 
       /* Projects become a horizontal, swipeable carousel on mobile. */
       .spotlight-main { min-width: 0; }   /* let the grid item shrink so the carousel can overflow-scroll instead of stretching the column */
@@ -747,7 +783,7 @@ import { getCover } from '../lib/covers.js';
       .project-title { font-size: 16px; }
       .project-detail { padding-left: 7px;}
       .project-sub { font-size: 13px; }
-      .project-text { font-size: 10px; }
+      .project-text { font-size: 13px; }
       .project-more { margin-top: auto; margin-left: 0; font-size: 12px; }
       .project-divider { margin: -16px 0; }
       .hidden { display: none;}
@@ -758,14 +794,15 @@ import { getCover } from '../lib/covers.js';
       .infocus-tag { margin: 0 0 10px; }
       .infocus-title { font-size: 22px; }
       .infocus-authors { font-size: 14px; }
-      .infocus-sub { font-size: 13px; margin-bottom: 14px; }
+      .infocus-sub { font-size: 14px; margin-bottom: 14px; }
       .infocus-foot { font-size: 12px;}
       .infocus-pix { margin: 0; }
       .infocus-art { flex: none; width: 100%; margin: 0; }
 
       .reports { padding: 14px 0 24px; }
       .reports-box { padding: 10px; border-radius: 8px; }
-      .reports-head .section-label {  }
+      .reports-box-wrapper { padding: 0; }
+      .reports-head .reports-head-label {  }
       .reports-viewall {display: none;}
 
       .carousel-arrows { display: none; }
