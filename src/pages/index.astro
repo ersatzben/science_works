@@ -2,6 +2,8 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import GridArt from '../components/GridArt.astro';
 import { getCover } from '../lib/covers.js';
+import quotes from '../data/quotes.json';
+const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
 ---
 <BaseLayout title="Science Works">
   <section id="splash">
@@ -117,9 +119,10 @@ import { getCover } from '../lib/covers.js';
   <!-- 3. In Focus: one highlighted publication -->
   <section class="infocus">
     <div class="content-wrap">
+     <div class="infocus-row">
       <div class="infocus-card">
         <a class="infocus-link" href="/writing/how-not-to-waste-an-ai-for-science-mission" aria-label="How not to waste an AI for science mission"></a>
-        <div class="infocus-art" aria-hidden="true"><GridArt bitmap={getCover('how-not-to-waste-an-ai-for-science-mission')} aspect={3 / 2} /></div>
+        <div class="infocus-art" id="infocus-art" aria-hidden="true"><GridArt bitmap={ifCover} /></div>
         <div class="infocus-meta">
           <p class="infocus-tag">In Focus</p>
           <h3 class="infocus-title">How not to waste an AI for science mission</h3>
@@ -128,8 +131,81 @@ import { getCover } from '../lib/covers.js';
           <p class="infocus-foot"><span class="infocus-date">7 March 2026</span><span class="infocus-type">Essay</span></p>
         </div>
       </div>
+
+      <figure class="quote-box">
+        <div class="quote-top">
+          <span class="quote-mark" aria-hidden="true">&ldquo;</span>
+          <span class="quote-rule" aria-hidden="true"></span>
+        </div>
+        <div class="quote-content">
+          <blockquote class="quote-text">{(Array.isArray(quotes[0].text) ? quotes[0].text : [quotes[0].text]).map((p) => <p class="quote-para">{p}</p>)}</blockquote>
+          <figcaption class="quote-author">{quotes[0].author}</figcaption>
+        </div>
+      </figure>
+     </div>
     </div>
   </section>
+
+  <script define:vars={{ IF_COLS: ifCover.cols, IF_ROWS: ifCover.rows, IF_SIZE: ifCover.cell?.size ?? 14, IF_GAP: ifCover.cell?.gap ?? 2 }}>
+    (function () {
+      // Fill the In Focus card height with WHOLE cells: keep all rows, scale so
+      // they fill the box height, then show however many whole columns fit the
+      // width (centre-cropped). Re-runs as the card grows/shrinks with the quote.
+      var box = document.getElementById('infocus-art');
+      if (!box) return;
+      var svg = box.querySelector('svg');
+      if (!svg) return;
+      var pitch = IF_SIZE + IF_GAP;
+      var hNat = IF_ROWS * pitch - IF_GAP;          // native height of all rows
+      function render() {
+        var W = box.clientWidth, H = box.clientHeight;
+        if (!W || !H) return;
+        var scale = H / hNat;                        // all rows fill the height
+        var visCols = Math.floor((W / scale + IF_GAP) / pitch);   // whole columns that fit the width
+        visCols = Math.max(1, Math.min(IF_COLS, visCols));
+        var startCol = Math.floor((IF_COLS - visCols) / 2);
+        var vbW = visCols * pitch - IF_GAP;
+        svg.setAttribute('viewBox', (startCol * pitch) + ' 0 ' + vbW + ' ' + hNat);
+        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        svg.style.width = (vbW * scale) + 'px';
+        svg.style.height = H + 'px';
+        svg.style.margin = '0 auto';                 // centre the column window
+      }
+      if (window.ResizeObserver) new ResizeObserver(render).observe(box);
+      else window.addEventListener('resize', render);
+      render();
+    })();
+  </script>
+
+  <script define:vars={{ swQuotes: quotes, ROTATE_MS: 12000 }}>
+    (function () {
+      if (!Array.isArray(swQuotes) || swQuotes.length < 2) return;   // single quote → static
+      var content = document.querySelector('.quote-content');
+      var textEl = document.querySelector('.quote-text');
+      var authorEl = document.querySelector('.quote-author');
+      if (!content || !textEl || !authorEl) return;
+      function renderText(text) {
+        var paras = Array.isArray(text) ? text : [text];
+        textEl.innerHTML = '';
+        paras.forEach(function (p) {
+          var pe = document.createElement('p');
+          pe.className = 'quote-para';
+          pe.textContent = p;
+          textEl.appendChild(pe);
+        });
+      }
+      var FADE = 450, i = 0;
+      setInterval(function () {
+        i = (i + 1) % swQuotes.length;
+        content.style.opacity = '0';
+        setTimeout(function () {
+          renderText(swQuotes[i].text);
+          authorEl.textContent = swQuotes[i].author;
+          content.style.opacity = '1';
+        }, FADE);
+      }, ROTATE_MS);
+    })();
+  </script>
 
   <!-- 4. Latest reports carousel -->
   <section class="reports">
@@ -216,7 +292,144 @@ import { getCover } from '../lib/covers.js';
 <style is:global>
     /* Homepage scrolls continuously (no snap); the hero stage fills the
        viewport and simply scrolls away. */
+    .stage {
+      min-height: calc(100vh - 63px);
+      display: flex;
+      align-items: center;          /* vertically centre the composition in the hero */
+      justify-content: center;
+      padding: var(--matrix-gap);
+      padding-top: 0;
+      box-sizing: border-box;
+    }
 
+    /* Outer box reserves space at scaled dimensions so the page lays out cleanly. */
+    .scaler {
+      width: calc(var(--composition-w) * var(--scale));
+      height: calc(var(--composition-h) * var(--scale));
+    }
+
+        .matrix-wrap {
+      position: relative;
+      width: var(--composition-w);
+      height: var(--composition-h);
+      transform: scale(var(--scale));
+      transform-origin: top left;
+    }
+
+    .matrix {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--matrix-gap);
+      width: var(--composition-w);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(var(--grid-cols), var(--cell-size));
+      grid-template-rows: repeat(var(--grid-rows), var(--cell-size));
+      gap: var(--cell-gap);
+      width: var(--grid-w);
+      height: var(--grid-h);
+      flex: 0 0 auto;
+    }
+
+    .cell {
+      width: var(--cell-size);
+      height: var(--cell-size);
+      border-radius: var(--cell-radius);
+      background: var(--beige);
+      position: relative;
+    }
+    /* Theme-red hover overlay; instant on hover-in, 0.5s fade-out on hover-off. */
+    .cell::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--theme);
+      border-radius: inherit;
+      opacity: 0;
+      transition: opacity 1.5s ease;
+      pointer-events: none;
+    }
+    .cell:hover::after {
+      opacity: 1;
+      transition: opacity 0s;
+    }
+
+
+      .hero-box {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      /* Extend beyond the four-block gap it sits in; still centred via the
+         top/left 50% + translate(-50%, -50%) above. */
+      width: calc(var(--hero-w) + 20px);
+      height: calc(var(--hero-h) + 50px);
+      /* background: transparent; */
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-grey);
+      border-radius: 5px;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 50px;
+      box-sizing: border-box;
+      font-family: 'Copperplate', serif;
+      font-weight: 700;
+      font-size: 42px;
+      line-height: 1.0;
+      letter-spacing: 0;
+      text-align: center;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .hero-box .line-2 { font-size: 0.9em; }
+
+    /* Hero buttons, side by side under the text. */
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 14px;
+      pointer-events: auto;   /* hero-box is pointer-events:none — re-enable here */
+    }
+    .hero-btn {
+      font-family: var(--button-text);
+      font-weight: normal;
+      font-size: 13px;
+      letter-spacing: 0;
+      line-height: 1;
+      text-decoration: none;
+      box-sizing: border-box;
+      width: 120px;            /* equalised, ~20% narrower */
+      padding: 6px 6px;       /* ~20% shorter */
+      text-align: center;
+      border-radius: 5px;
+      border: 1.5px solid var(--theme);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+    /* White on red → inverts to red on white on hover. */
+    .hero-btn--primary {
+      background: var(--theme);
+      color: #fff;
+    }
+    .hero-btn--primary:hover {
+      background: #fff;
+      color: var(--theme);
+    }
+    /* Red on white (red outline) → inverts to white on red on hover. */
+    .hero-btn--secondary {
+      background: #fff;
+      color: var(--theme);
+    }
+    .hero-btn--secondary:hover {
+      background: var(--theme);
+      color: #fff;
+    }
     .section-inner {
       max-width: 800px;
       padding: 80px 50px;
@@ -406,7 +619,30 @@ import { getCover } from '../lib/covers.js';
     }
 
     /* ---------- In Focus: one highlighted publication ---------- */
-    .infocus { padding: 45px 0 45px; }
+    .infocus { padding: 45px 0 35px; }
+    /* In Focus row: card (left) + rotating quote box (right), equal height. */
+    .infocus-row { display: flex; gap: 24px; align-items: stretch; }
+    .infocus-row .infocus-card { flex: 0 1 860px; }
+    .quote-box {
+      flex: 1 1 300px; min-width: 0; box-sizing: border-box; margin: 0;
+      display: flex; flex-direction: column;
+      background: var(--almost-white); border: 1px solid var(--border-grey); border-radius: 6px;
+      padding: 22px 28px 20px;
+    }
+    .quote-top { display: flex; align-items: center; gap: 14px; margin: -20px 0 14px; }
+    .quote-mark { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 70px; line-height: 1; color: var(--theme); margin-top: 9px; margin-left: -2px; }
+    .quote-rule { flex: 1; height: 1px; background: var(--theme); margin-right: 5px; }
+    .quote-content { flex: 1; display: flex; flex-direction: column; transition: opacity 0.45s ease; margin-top: -32px; padding-left: 5px; }
+    .quote-text { --quote-para-gap: 12px; flex: 1; font-family: 'Playfair Display', serif; font-weight: 400; font-size: 16px; line-height: 1.45; color: var(--theme); text-align: left; margin: 0; }
+    .quote-para { margin: 0 0 var(--quote-para-gap); }   /* tune --quote-para-gap above to change paragraph spacing */
+    .quote-para:last-child { margin-bottom: 0; }
+    .quote-author { align-self: flex-end; font-family: 'Copperplate', serif; font-weight: normal; font-style: normal; font-size: 14px; letter-spacing: 0.02em; color: var(--theme); margin: 16px 0 0; text-align: right; }
+
+    @media (max-width: 1000px) {
+      .infocus-row { flex-direction: column; }
+      .infocus-row .infocus-card { flex: none; width: 100%; max-width: 860px; }
+      .quote-box { display: none; }   /* desktop-only — only suits sitting beside the In Focus card */
+    }
     /* Fixed max width, left-aligned to the content-wrap's left edge. Room is
        left to the right of the card for future content (tune width later). */
     .infocus-card {
@@ -417,7 +653,7 @@ import { getCover } from '../lib/covers.js';
       min-height: 300px;
       background: var(--almost-white);
       border: 1px solid var(--border-grey);
-      border-radius: 14px;
+      border-radius: 6px;
       overflow: hidden;
       cursor: pointer;
     }
@@ -449,14 +685,15 @@ import { getCover } from '../lib/covers.js';
       overflow: hidden;
     }
     /* Grid-art cover: occupies the same left slot as the dot grid it replaces. */
-    .infocus-art { flex: 0 0 360px; align-self: center; margin: 20px; }
+    .infocus-art { flex: 0 0 360px; align-self: stretch; margin: 20px; overflow: hidden; }
+    .infocus-art svg { display: block; }
     .infocus-meta {
       flex: 1;
       min-width: 0;
-      padding: 0px 36px 0px 4px;
+      padding: 24px 36px 24px 4px;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;     /* top-align the text… */
     }
     .infocus-tag {
       font-family: 'Roboto', sans-serif;
@@ -476,7 +713,7 @@ import { getCover } from '../lib/covers.js';
       margin: 0 0 12px;
     }
     .infocus-authors {
-      font-family: 'Roboto', sans-serif;
+      font-family: 'Copperplate', serif;
       font-weight: bold;
       font-size: 17px;
       color: var(--theme);
@@ -499,7 +736,7 @@ import { getCover } from '../lib/covers.js';
       font-family: 'Antique Olive', sans-serif;
       font-size: 13px;
       color: var(--text);
-      margin: 0;
+      margin: auto 0 0;                 /* …but push the date/essay line to the bottom */
     }
 
     /* ---------- Latest reports carousel ---------- */
@@ -509,7 +746,7 @@ import { getCover } from '../lib/covers.js';
     .reports-box {
       position: relative;               /* anchors the overlaid arrows */
       border: 1.5px solid var(--border-grey);
-      border-radius: 8px;
+      border-radius: 6px;
       padding: 20px 20px 18px;
       background-color: var(--bg-secondary);
     }
@@ -520,7 +757,7 @@ import { getCover } from '../lib/covers.js';
       gap: 16px;
       margin-bottom: 18px;
       border: 1px solid var(--border-grey);
-      border-radius: 8px; 
+      border-radius: 6px; 
       padding: 8px; 
     }
     .reports-head .reports-head-label { margin: 0; font-family: 'Copperplate', sans-serif; font-weight: 500; margin-left: 5px; margin-top: 4px; }
@@ -584,7 +821,7 @@ import { getCover } from '../lib/covers.js';
       scroll-snap-align: start;
       background: var(--almost-white);
       border: 1px solid var(--border-grey);
-      border-radius: 8px;
+      border-radius: 6px;
       overflow: hidden;
       padding: 16px;
       box-sizing: border-box;
@@ -797,10 +1034,10 @@ import { getCover } from '../lib/covers.js';
       .infocus-sub { font-size: 14px; margin-bottom: 14px; }
       .infocus-foot { font-size: 12px;}
       .infocus-pix { margin: 0; }
-      .infocus-art { flex: none; width: 100%; margin: 0; }
+      .infocus-art { flex: none; width: 100%; margin: 0; aspect-ratio: 3 / 2; }   /* stacked: needs an explicit height for the cover SVG */
 
       .reports { padding: 14px 0 24px; }
-      .reports-box { padding: 10px; border-radius: 8px; }
+      .reports-box { padding: 10px; border-radius: 6px; }
       .reports-box-wrapper { padding: 0; }
       .reports-head .reports-head-label {  }
       .reports-viewall {display: none;}

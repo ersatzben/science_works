@@ -1,0 +1,105 @@
+---
+// Cookie consent. Google Analytics loads ONLY after the visitor clicks Accept
+// (UK PECR requires prior consent for analytics cookies). The choice is stored
+// in localStorage; dismissing (×) counts as Decline and we don't re-ask.
+// The Cookies page reopens this via window.swCookie.open().
+---
+<div class="cc" id="cookie-consent" role="region" aria-label="Cookie consent" hidden>
+  <button class="cc-close" id="cc-close" type="button" aria-label="Dismiss (decline)">&times;</button>
+  <p class="cc-text">We'd like to set <strong>analytics cookies</strong> to understand how the site is used — nothing else. <a href="/cookies">Cookies Policy</a></p>
+  <div class="cc-actions">
+    <button class="cc-btn cc-accept" id="cc-accept" type="button">Accept</button>
+    <button class="cc-btn cc-decline" id="cc-decline" type="button">Decline</button>
+  </div>
+</div>
+
+<style>
+  .cc {
+    position: fixed; right: 20px; bottom: 20px; z-index: 200;
+    width: 320px; max-width: calc(100vw - 40px);
+    background: var(--almost-white); border: 1px solid var(--border-grey); border-radius: 4px;
+    box-shadow: 0 8px 28px rgba(68, 2, 20, 0.16);
+    padding: 16px 18px;
+    font-family: 'Antique Olive', sans-serif;
+  }
+  .cc[hidden] { display: none; }
+  .cc-close {
+    position: absolute; top: 7px; right: 9px;
+    background: none; border: none; cursor: pointer;
+    font-size: 18px; line-height: 1; color: var(--text); opacity: 0.45; padding: 4px;
+  }
+  .cc-close:hover { opacity: 1; }
+  .cc-text { margin: 0 0 14px; font-weight: 300; font-size: 13px; line-height: 1.5; color: var(--text); padding-right: 12px; }
+  .cc-text strong { font-weight: 600; }
+  .cc-text a { color: var(--theme); text-decoration: underline; text-underline-offset: 2px; }
+  .cc-actions { display: flex; gap: 10px; }
+  .cc-btn {
+    flex: 1 1 0; font-family: var(--button-text); font-weight: 500; font-size: 13px;
+    border-radius: 3px; padding: 8px 10px; cursor: pointer; border: 1.5px solid var(--theme);
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+  .cc-accept { background: var(--theme); color: #fff; }
+  .cc-accept:hover { background: #fff; color: var(--theme); }
+  .cc-decline { background: #fff; color: var(--theme); }
+  .cc-decline:hover { background: var(--theme); color: #fff; }
+  @media (max-width: 600px) {
+    .cc { left: 12px; right: 12px; bottom: 12px; width: auto; }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    var GA_ID = 'G-C3ZXXGXPE3';
+    var KEY = 'sw.analytics.consent';   // 'granted' | 'denied'
+    var el = document.getElementById('cookie-consent');
+    if (!el) return;
+
+    function store(v) { try { localStorage.setItem(KEY, v); } catch (e) {} }
+    function read() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
+
+    function loadGA() {
+      if (window.__swGA) return;
+      window.__swGA = true;
+      window['ga-disable-' + GA_ID] = false;
+      var s = document.createElement('script');
+      s.async = true;
+      s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+      document.head.appendChild(s);
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag('js', new Date());
+      gtag('config', GA_ID);
+    }
+
+    function disableGA() {
+      // Block further hits, and clear GA cookies if it had loaded this session.
+      window['ga-disable-' + GA_ID] = true;
+      var host = location.hostname;
+      var root = host.replace(/^www\./, '');
+      document.cookie.split(';').forEach(function (c) {
+        var name = c.split('=')[0].trim();
+        if (name.indexOf('_ga') === 0 || name === '_gid' || name === '_gat') {
+          ['', '; domain=' + host, '; domain=.' + root].forEach(function (d) {
+            document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/' + d;
+          });
+        }
+      });
+    }
+
+    function show() { el.hidden = false; }
+    function hide() { el.hidden = true; }
+    function accept() { store('granted'); loadGA(); hide(); }
+    function decline() { store('denied'); disableGA(); hide(); }
+
+    document.getElementById('cc-accept').addEventListener('click', accept);
+    document.getElementById('cc-decline').addEventListener('click', decline);
+    document.getElementById('cc-close').addEventListener('click', decline);
+
+    // For the "Manage cookies" button on the Cookies page.
+    window.swCookie = { open: show, accept: accept, decline: decline, state: read };
+
+    var choice = read();
+    if (choice === 'granted') loadGA();
+    else if (choice !== 'denied') show();   // no choice recorded yet → ask
+  })();
+</script>

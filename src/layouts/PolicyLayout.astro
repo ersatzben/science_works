@@ -1,0 +1,38 @@
+---
+// Shared chrome for the policy pages (Terms, Privacy, Cookies). Pass a `title`;
+// put the real copy in the default slot — until then a "coming soon" stub shows.
+import BaseLayout from './BaseLayout.astro';
+const { title } = Astro.props;
+---
+<BaseLayout title={`${title} — Science Works`}>
+  <main class="policy">
+    <div class="policy-inner">
+      <h1 class="policy-title">{title}</h1>
+      <div class="policy-prose">
+        <slot>
+          <p class="policy-stub">This page is coming soon — we'll publish the full {title.toLowerCase()} here shortly.</p>
+        </slot>
+      </div>
+    </div>
+  </main>
+
+  <!-- Global so slotted copy (authored in the child page) is styled too. -->
+  <style is:global>
+    .policy { padding: 80px 24px 96px; }
+    .policy-inner { max-width: 760px; margin: 0 auto; }
+    .policy-title { font-family: 'Copperplate', serif; font-weight: normal; font-size: 40px; letter-spacing: 0.02em; color: var(--text); margin: 0 0 18px; }
+    .policy-prose { font-family: 'Antique Olive', sans-serif; font-size: 16px; line-height: 1.65; color: var(--text); font-weight: 300; }
+    .policy-prose h2 { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 24px; color: var(--text); margin: 20px 0 8px; }
+    .policy-prose h3 { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 19px; color: var(--text); margin: 14px 0 10px; }
+    .policy-prose p { margin: 0 0 16px; }
+    .policy-prose ul, .policy-prose ol { margin: 0 0 16px; padding-left: 22px; }
+    .policy-prose li { margin: 0 0 8px; }
+    .policy-prose a { color: var(--theme); text-decoration: underline; text-underline-offset: 2px; font-weight: 500;}
+    .policy-prose strong { font-weight: 700; }
+    .policy-stub { font-style: italic; opacity: 0.7; }
+    @media (max-width: 600px) {
+      .policy { padding: 48px 18px 64px; }
+      .policy-title { font-size: 30px; }
+    }
+  </style>
+</BaseLayout>

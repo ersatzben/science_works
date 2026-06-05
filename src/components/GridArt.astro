@@ -6,7 +6,9 @@
 // Props:
 //   bitmap  — the parsed sw.bitmap.v1 object ({ cols, rows, cell:{size,gap,radius}, cells:[hex|null] })
 //   aspect  — desired width/height of the slot (e.g. 3/2). Defaults to the art's own aspect.
-//   fit     — 'width' (default: fill container width) or 'contain' (letterbox whole art inside the box)
+//   fit     — 'width' (default: fill container width, height follows),
+//             'contain' (letterbox the whole art inside the box), or
+//             'cover' (fill the box in both axes, cropping the overflow — box needs a set height)
 //   class   — passed through to the <svg>
 //   label   — accessible label; when omitted the SVG is aria-hidden
 const { bitmap, aspect, fit = 'width', class: className, label } = Astro.props;
@@ -47,10 +49,12 @@ for (let r = 0; r < vRows; r++) {
   role={label ? 'img' : undefined}
   aria-label={label}
   aria-hidden={label ? undefined : 'true'}
-  preserveAspectRatio="xMidYMid meet"
-  style={fit === 'contain'
-    ? 'display:block; max-width:100%; max-height:100%; width:auto; height:auto;'
-    : 'display:block; width:100%; height:auto;'}
+  preserveAspectRatio={fit === 'cover' ? 'xMidYMid slice' : 'xMidYMid meet'}
+  style={fit === 'cover'
+    ? 'display:block; width:100%; height:100%;'
+    : fit === 'contain'
+      ? 'display:block; max-width:100%; max-height:100%; width:auto; height:auto;'
+      : 'display:block; width:100%; height:auto;'}
 >
   {rects.map((rc) => (
     <rect x={rc.x} y={rc.y} width={size} height={size} rx={radius} ry={radius} fill={rc.fill} />

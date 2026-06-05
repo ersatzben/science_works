@@ -124,7 +124,7 @@
       box-sizing: border-box;
       display: flex;
       align-items: center;
-      padding: 0 24px;
+      padding: 0 0 0 12px;
       position: sticky;
       top: 0;
       z-index: 100;
@@ -139,7 +139,7 @@
       text-decoration: none;
     }
     .logo-mark {
-      height: 22px;
+      height: 20px;
       margin-left: 10px;
       width: auto;
       display: block;
@@ -148,8 +148,8 @@
       font-family: 'Antique Olive', sans-serif;
       font-weight: bold;
       text-transform: uppercase;
-      letter-spacing: -0.08em;
-      margin-left: -5px;
+      letter-spacing: -0.06em;
+      margin-left: -3px;
       font-size: 24px;
       line-height: 1;
       white-space: nowrap;
@@ -200,7 +200,7 @@
     @media (max-width: 720px) {
       /* Smaller, tighter mobile header. */
       .nav { padding: 0 14px; }
-      .logo-mark { height: 18px; margin-left: 0; }   /* smaller + flush to the left edge */
+      .logo-mark { height: 17px; margin-left: 0; }   /* smaller + flush to the left edge */
       .logo-text { font-size: 20px; }
       .nav-toggle { display: flex; padding: 6px; }    /* smaller hit area, tighter to the right */
       .nav-toggle span { width: 20px; }               /* shorter bars */
@@ -609,142 +609,8 @@
       text-align: left;
     }
 
-    .stage {
-      min-height: calc(100vh - 63px);
-      display: flex;
-      align-items: center;          /* vertically centre the composition in the hero */
-      justify-content: center;
-      padding: var(--matrix-gap);
-      box-sizing: border-box;
-    }
-
-    /* Outer box reserves space at scaled dimensions so the page lays out cleanly. */
-    .scaler {
-      width: calc(var(--composition-w) * var(--scale));
-      height: calc(var(--composition-h) * var(--scale));
-    }
-
     /* Inner composition is always its natural size; transform scales it visually. */
-    .matrix-wrap {
-      position: relative;
-      width: var(--composition-w);
-      height: var(--composition-h);
-      transform: scale(var(--scale));
-      transform-origin: top left;
-    }
 
-    .matrix {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--matrix-gap);
-      width: var(--composition-w);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(var(--grid-cols), var(--cell-size));
-      grid-template-rows: repeat(var(--grid-rows), var(--cell-size));
-      gap: var(--cell-gap);
-      width: var(--grid-w);
-      height: var(--grid-h);
-      flex: 0 0 auto;
-    }
-
-    .cell {
-      width: var(--cell-size);
-      height: var(--cell-size);
-      border-radius: var(--cell-radius);
-      background: var(--beige);
-      position: relative;
-    }
-    /* Theme-red hover overlay; instant on hover-in, 0.5s fade-out on hover-off. */
-    .cell::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: var(--theme);
-      border-radius: inherit;
-      opacity: 0;
-      transition: opacity 1.5s ease;
-      pointer-events: none;
-    }
-    .cell:hover::after {
-      opacity: 1;
-      transition: opacity 0s;
-    }
-
-    .hero-box {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      /* Extend beyond the four-block gap it sits in; still centred via the
-         top/left 50% + translate(-50%, -50%) above. */
-      width: calc(var(--hero-w) + 20px);
-      height: calc(var(--hero-h) + 50px);
-      background: transparent;
-      border: 1px solid var(--border-grey);
-      border-radius: 5px;
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 0 50px;
-      box-sizing: border-box;
-      font-family: 'Copperplate', serif;
-      font-weight: 700;
-      font-size: 42px;
-      line-height: 1.0;
-      letter-spacing: 0;
-      text-align: center;
-      z-index: 10;
-      pointer-events: none;
-    }
-    .hero-box .line-2 { font-size: 0.9em; }
-
-    /* Hero buttons, side by side under the text. */
-    .hero-actions {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      margin-top: 14px;
-      pointer-events: auto;   /* hero-box is pointer-events:none — re-enable here */
-    }
-    .hero-btn {
-      font-family: var(--button-text);
-      font-weight: normal;
-      font-size: 13px;
-      letter-spacing: 0;
-      line-height: 1;
-      text-decoration: none;
-      box-sizing: border-box;
-      width: 140px;            /* equalised, ~20% narrower */
-      padding: 6px 12px;       /* ~20% shorter */
-      text-align: center;
-      border-radius: 5px;
-      border: 1.5px solid var(--theme);
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background-color 0.15s ease, color 0.15s ease;
-    }
-    /* White on red → inverts to red on white on hover. */
-    .hero-btn--primary {
-      background: var(--theme);
-      color: #fff;
-    }
-    .hero-btn--primary:hover {
-      background: #fff;
-      color: var(--theme);
-    }
-    /* Red on white (red outline) → inverts to white on red on hover. */
-    .hero-btn--secondary {
-      background: #fff;
-      color: var(--theme);
-    }
-    .hero-btn--secondary:hover {
-      background: var(--theme);
-      color: #fff;
-    }
 
 /* ---- Footer mobile overrides (ported from index.html @media 600) ---- */
 @media (max-width: 600px) {

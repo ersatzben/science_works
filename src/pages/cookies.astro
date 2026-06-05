@@ -1,0 +1,37 @@
+---
+import PolicyLayout from '../layouts/PolicyLayout.astro';
+---
+<PolicyLayout title="Cookies Policy">
+  <p>We use Google Analytics to understand how people use our website, for example which pages you view and how long you spend on them.</p>
+
+  <p>Our legal basis for this is legitimate interests: understanding how our website is used so we can improve it.</p>
+
+  <p>When you first visit our site, we ask whether you accept analytics cookies. You can change your mind at any time by visiting this page.</p>
+
+  <p>If you do not accept analytics cookies, only strictly necessary cookies will be used. Strictly necessary cookies are needed for the website to work and do not require your consent.</p>
+
+  <p>The analytics cookies collect information about your visit, including which pages you view, how you arrived at our site, and what device and browser you use. The information is used in aggregated form to help us understand how the website is used.</p>
+
+  <p>These cookies are set by Google. You can read Google's privacy policy at <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">policies.google.com/privacy</a></p>
+
+  <p>You can change your choice at any time: <button type="button" class="cc-manage" id="cc-manage">Manage cookies</button></p>
+</PolicyLayout>
+
+<style>
+  .cc-manage {
+    font-family: var(--button-text); font-weight: 500; font-size: 13px;
+    color: var(--theme); background: var(--almost-white);
+    border: 1.5px solid var(--theme); border-radius: 6px;
+    padding: 7px 16px; cursor: pointer; transition: background-color 0.15s ease, color 0.15s ease;
+  }
+  .cc-manage:hover { background: var(--theme); color: #fff; }
+</style>
+
+<script is:inline>
+  (function () {
+    var btn = document.getElementById('cc-manage');
+    if (btn) btn.addEventListener('click', function () {
+      if (window.swCookie) window.swCookie.open();
+    });
+  })();
+</script>
