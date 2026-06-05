@@ -84,7 +84,7 @@
       --matrix-cols: 6;
       --matrix-rows: 3;
       --matrix-gap: 50px;          /* horizontal gap between columns */
-      --matrix-row-gap: 56px;      /* vertical gap between rows (70 − 2×cell, for the taller 6/11 boxes) */
+      --matrix-row-gap: 50px;      /* vertical gap between rows (70 − 2×cell, for the taller 6/11 boxes) */
 
       /* One grid is 12*14 + 11*2 = 190px wide, 11*14 + 10*2 = 174px tall */
       --grid-w: 190px;
