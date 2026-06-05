@@ -1,5 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import GridArt from '../components/GridArt.astro';
+import { getCover } from '../lib/covers.js';
 ---
 <BaseLayout title="Science Works">
   <section id="splash">
@@ -116,8 +118,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   <section class="infocus">
     <div class="content-wrap">
       <div class="infocus-card">
-        <a class="infocus-link" href="/essay" aria-label="How not to waste an AI for science mission"></a>
-        <div class="infocus-pix" aria-hidden="true"></div>
+        <a class="infocus-link" href="/writing/how-not-to-waste-an-ai-for-science-mission" aria-label="How not to waste an AI for science mission"></a>
+        <div class="infocus-art" aria-hidden="true"><GridArt bitmap={getCover('how-not-to-waste-an-ai-for-science-mission')} aspect={3 / 2} /></div>
         <div class="infocus-meta">
           <p class="infocus-tag">In Focus</p>
           <h3 class="infocus-title">How not to waste an AI for science mission</h3>
@@ -136,42 +138,44 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <h2 class="section-label"><a href="/writing">latest from science works</a></h2>
         <a class="reports-viewall" href="/writing">View all &rarr;</a>
       </div>
-      <div class="reports-box">
-      <div class="carousel-track">
-                <div class="report-card">
-          <a class="report-card-link" href="#" aria-label="Designing AI for Disruptive Science"></a>
-          <div class="report-card-pix" aria-hidden="true"></div>
-          <div class="report-card-body">
-            <h3 class="report-title">Designing AI for Disruptive Science</h3>
-            <p class="report-authors"><a href="#">Alvin Djajadikerta</a></p>
-            <p class="report-foot"><span class="report-date">23 March 2026</span><span class="report-type">Essay</span></p>
+      <div class="reports-box-wrapper">
+        <div class="reports-box">
+          <div class="carousel-track">
+                  <div class="report-card">
+            <a class="report-card-link" href="/writing/designing-ai-for-disruptive-science" aria-label="Designing AI for Disruptive Science"></a>
+            <div class="report-card-art" aria-hidden="true"><GridArt bitmap={getCover('designing-ai-for-disruptive-science')} aspect={14 / 12} /></div>
+            <div class="report-card-body">
+              <h3 class="report-title">Designing AI for Disruptive Science</h3>
+              <p class="report-authors"><a href="#">Alvin Djajadikerta</a></p>
+              <p class="report-foot"><span class="report-date">23 March 2026</span><span class="report-type">Essay</span></p>
+            </div>
           </div>
-        </div>
-                <div class="report-card">
-          <a class="report-card-link" href="#" aria-label="The Bucket Stops Here"></a>
-          <div class="report-card-pix" aria-hidden="true"></div>
-          <div class="report-card-body">
-            <h3 class="report-title">The Bucket Stops Here</h3>
-            <p class="report-authors"><a href="#">Ben Johnson</a></p>
-            <p class="report-foot"><span class="report-date">14 February 2026</span><span class="report-type">Essay</span></p>
+                  <div class="report-card">
+            <a class="report-card-link" href="/writing/the-bucket-stops-here" aria-label="The Bucket Stops Here"></a>
+            <div class="report-card-art" aria-hidden="true"><GridArt bitmap={getCover('the-bucket-stops-here')} aspect={14 / 12} /></div>
+            <div class="report-card-body">
+              <h3 class="report-title">The Bucket Stops Here</h3>
+              <p class="report-authors"><a href="#">Ben Johnson</a></p>
+              <p class="report-foot"><span class="report-date">14 February 2026</span><span class="report-type">Essay</span></p>
+            </div>
           </div>
-        </div>
-                <div class="report-card">
-          <a class="report-card-link" href="#" aria-label="The three-bucket problem"></a>
-          <div class="report-card-pix" aria-hidden="true"></div>
-          <div class="report-card-body">
-            <h3 class="report-title">The three-bucket problem</h3>
-            <p class="report-authors"><a href="#">Ben Johnson</a></p>
-            <p class="report-foot"><span class="report-date">18 November 2025</span><span class="report-type">Essay</span></p>
+                  <div class="report-card">
+            <a class="report-card-link" href="/writing/the-three-bucket-problem" aria-label="The three-bucket problem"></a>
+            <div class="report-card-art" aria-hidden="true"><GridArt bitmap={getCover('the-three-bucket-problem')} aspect={14 / 12} /></div>
+            <div class="report-card-body">
+              <h3 class="report-title">The three-bucket problem</h3>
+              <p class="report-authors"><a href="#">Ben Johnson</a></p>
+              <p class="report-foot"><span class="report-date">18 November 2025</span><span class="report-type">Essay</span></p>
+            </div>
           </div>
-        </div>
-                <div class="report-card">
-          <a class="report-card-link" href="#" aria-label="The Counter-Reformation of science"></a>
-          <div class="report-card-pix" aria-hidden="true"></div>
-          <div class="report-card-body">
-            <h3 class="report-title">The Counter-Reformation of science</h3>
-            <p class="report-authors"><a href="#">Ben Johnson</a></p>
-            <p class="report-foot"><span class="report-date">1 September 2025</span><span class="report-type">Essay</span></p>
+                  <div class="report-card">
+            <a class="report-card-link" href="/writing/the-counter-reformation-of-science" aria-label="The Counter-Reformation of science"></a>
+            <div class="report-card-art" aria-hidden="true"><GridArt bitmap={getCover('the-counter-reformation-of-science')} aspect={14 / 12} /></div>
+            <div class="report-card-body">
+              <h3 class="report-title">The Counter-Reformation of science</h3>
+              <p class="report-authors"><a href="#">Ben Johnson</a></p>
+              <p class="report-foot"><span class="report-date">1 September 2025</span><span class="report-type">Essay</span></p>
+            </div>
           </div>
         </div>
       </div>
@@ -416,6 +420,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       gap: var(--card-pix-gap);
       overflow: hidden;
     }
+    /* Grid-art cover: occupies the same left slot as the dot grid it replaces. */
+    .infocus-art { flex: 0 0 360px; align-self: center; margin: 20px; }
     .infocus-meta {
       flex: 1;
       min-width: 0;
@@ -468,7 +474,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     }
 
     /* ---------- Latest reports carousel ---------- */
-    .reports { padding: 0 0 110px; }
+    .reports { padding: 0 0 40px; }
+
+    .reports-box-wrapper { padding: 0 30px; }
     .reports-box {
       position: relative;               /* anchors the overlaid arrows */
       border: 1px solid var(--border-grey);
@@ -566,6 +574,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       gap: var(--card-pix-gap);
       margin-bottom: 16px;
     }
+    /* Grid-art cover: fills the card's content width, cropped to the card shape. */
+    .report-card-art { width: 100%; margin-bottom: 16px; }
     .report-card-body { flex: 1; display: flex; flex-direction: column; }
     .report-title {
       font-family: 'Playfair Display', serif;
@@ -750,7 +760,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       .infocus-authors { font-size: 14px; }
       .infocus-sub { font-size: 13px; margin-bottom: 14px; }
       .infocus-foot { font-size: 12px;}
-      .infocus-pix { margin: 0; } 
+      .infocus-pix { margin: 0; }
+      .infocus-art { flex: none; width: 100%; margin: 0; }
 
       .reports { padding: 14px 0 24px; }
       .reports-box { padding: 10px; border-radius: 8px; }

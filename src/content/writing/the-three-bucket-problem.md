@@ -5,7 +5,7 @@ summary: "Lord Vallance’s three-bucket framework could bring real coherence to
 authors: ["Ben Johnson"]
 date: 2025-11-18
 type: essay
-programme: "Funding Reform"
+project: "Funding Reform"
 illustration: "/assets/images/writing/the-three-bucket-problem/three-bucket-cover.png"
 related: ["the-bucket-stops-here", "how-not-to-waste-an-ai-for-science-mission"]
 writers:

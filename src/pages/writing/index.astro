@@ -1,93 +1,376 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import GridArt from '../../components/GridArt.astro';
+import { getCover } from '../../lib/covers.js';
 
 const all = (await getCollection('writing'))
   .filter((e) => !e.data.draft)
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 const featured = all.find((e) => e.data.featured) ?? all[0];
-const rest = all.filter((e) => e !== featured);
 const fmt = (d) => d.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
 const label = (t) => (t === 'report' ? 'Report' : 'Essay');
+const projects = [...new Set(all.map((e) => e.data.project))].sort((a, b) => a.localeCompare(b));
 ---
 <BaseLayout title="Writing — Science Works">
   <main class="writing-index">
-    <h1 class="wi-heading">Writing</h1>
+    <div class="wi-header">
+      <div class="wi-pix wi-header-pix" aria-hidden="true"></div>
+      <h1 class="wi-heading">Writing</h1>
+    </div>
 
-    {featured && (
-      <a class="wi-featured" href={`/writing/${featured.id}`}>
-        {featured.data.illustration
-          ? <div class="wi-feat-img" role="img" aria-label="" style={`background-image: url('${featured.data.illustration}')`}></div>
-          : <div class="wi-pix wi-feat-pix" aria-hidden="true"></div>}
-        <div class="wi-feat-meta">
-          <p class="wi-eyebrow">{featured.data.programme} &middot; {label(featured.data.type)}</p>
-          <h2 class="wi-feat-title">{featured.data.title}</h2>
-          {(featured.data.summary ?? featured.data.subtitle) && <p class="wi-feat-sub">{featured.data.summary ?? featured.data.subtitle}</p>}
-          <p class="wi-meta">{featured.data.authors.join(', ')} &middot; {fmt(featured.data.date)}</p>
+    <div class="wi-toolbar">
+      <div class="wi-filter">
+        <button class="wi-filter-btn" type="button" aria-expanded="false" aria-haspopup="true">
+          <span>Filters</span>
+          <span class="wi-filter-count" aria-hidden="true"></span>
+          <span class="wi-caret" aria-hidden="true"></span>
+        </button>
+        <div class="wi-filter-panel">
+          <div class="wi-filter-group">
+            <p class="wi-filter-heading">Project</p>
+            {projects.map((p) => (
+              <label class="wi-check"><input type="checkbox" class="wi-f-project" value={p} /><span>{p}</span></label>
+            ))}
+          </div>
+          <div class="wi-filter-group">
+            <p class="wi-filter-heading">Type</p>
+            <label class="wi-check"><input type="checkbox" class="wi-f-type" value="essay" /><span>Essay</span></label>
+            <label class="wi-check"><input type="checkbox" class="wi-f-type" value="report" /><span>Report</span></label>
+          </div>
+          <button class="wi-filter-clear" type="button">Clear all</button>
         </div>
-      </a>
+      </div>
+
+      <div class="wi-sort">
+        <button class="wi-sort-btn" type="button" aria-expanded="false" aria-haspopup="true">
+          <span class="wi-sort-current">Newest first</span>
+          <span class="wi-caret" aria-hidden="true"></span>
+        </button>
+        <div class="wi-sort-list">
+          <button class="wi-sort-opt" type="button" data-sort="newest" aria-selected="true">Newest first</button>
+          <button class="wi-sort-opt" type="button" data-sort="oldest" aria-selected="false">Oldest first</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="wi-content">
+    {featured && (
+      <div class="wi-featured-wrapper">
+        <a class="wi-featured" href={`/writing/${featured.id}`}>
+          <div class="wi-feat-top">
+            <div class="wi-feat-meta">
+              <div class="wi-feat-head">
+                <h2 class="wi-feat-title">{featured.data.title}</h2>
+                <p class="wi-feat-eyebrow">{label(featured.data.type)}</p>
+              </div>
+              <p class="wi-feat-authors">{featured.data.authors.join(', ')}</p>
+              {(featured.data.summary ?? featured.data.subtitle) && <p class="wi-feat-summary">{featured.data.summary ?? featured.data.subtitle}</p>}
+            </div>
+            {getCover(featured.id)
+              ? <div class="wi-feat-art" aria-hidden="true"><GridArt bitmap={getCover(featured.id)} aspect={3 / 2} /></div>
+              : featured.data.illustration
+                ? <div class:list={["wi-feat-img", { "is-pixelated": featured.data.illustrationPixelated }]} role="img" aria-label="" style={`background-image: url('${featured.data.illustration}')`}></div>
+                : <div class="wi-pix wi-feat-pix" aria-hidden="true"></div>}
+          </div>
+          <div class="wi-feat-rule"></div>
+          <div class="wi-feat-foot">
+            <span class="wi-feat-latest">Latest</span>
+            <span class="wi-feat-date">{fmt(featured.data.date)}</span>
+          </div>
+        </a>
+      </div>
     )}
 
-    {rest.length > 0 && (
+    {all.length > 0 && (
       <div class="wi-grid">
-        {rest.map((e) => (
-          <a class="wi-card" href={`/writing/${e.id}`}>
-            {e.data.illustration
-              ? <div class="wi-card-img" role="img" aria-label="" style={`background-image: url('${e.data.illustration}')`}></div>
-              : <div class="wi-pix wi-card-pix" aria-hidden="true"></div>}
+        {all.map((e) => (
+          <a
+            class:list={["wi-card", { "is-hidden": e === featured }]}
+            href={`/writing/${e.id}`}
+            data-type={e.data.type}
+            data-project={e.data.project}
+            data-date={e.data.date.getTime()}
+            data-featured={e === featured ? "true" : undefined}
+          >
+            {getCover(e.id)
+              ? <div class="wi-card-art" aria-hidden="true"><GridArt bitmap={getCover(e.id)} aspect={3 / 2} /></div>
+              : e.data.illustration
+                ? <div class:list={["wi-card-img", { "is-pixelated": e.data.illustrationPixelated }]} role="img" aria-label="" style={`background-image: url('${e.data.illustration}')`}></div>
+                : <div class="wi-pix wi-card-pix" aria-hidden="true"></div>}
             <div class="wi-card-body">
-              <p class="wi-eyebrow">{e.data.programme} &middot; {label(e.data.type)}</p>
               <h3 class="wi-card-title">{e.data.title}</h3>
-              <p class="wi-meta">{e.data.authors.join(', ')} &middot; {fmt(e.data.date)}</p>
+              <p class="wi-card-authors">{e.data.authors.join(', ')}</p>
+              {(e.data.summary ?? e.data.subtitle) && <p class="wi-card-summary">{e.data.summary ?? e.data.subtitle}</p>}
+              <p class="wi-card-foot"><span>{fmt(e.data.date)}</span><span>{label(e.data.type)}</span></p>
             </div>
           </a>
         ))}
       </div>
     )}
+
+    <p class="wi-empty is-hidden">No writing matches those filters.</p>
+    </div>
   </main>
 
   <style is:global>
-    .writing-index { max-width: 1100px; margin: 0 auto; padding: 56px 40px 96px; }
-    .wi-heading { font-family: 'Copperplate', serif; font-weight: normal; font-size: 44px; letter-spacing: 0.02em; color: var(--text); margin: 0 0 32px; }
+    .writing-index { max-width: 1200px; margin: 0 auto; padding: 56px 40px 96px; }
+    /* Full-bleed header band filled with large white pixel cells (homepage hero block size) */
+    .wi-header {
+      position: relative; height: 190px; overflow: hidden;
+      margin: -30px calc(50% - 50vw) 30px;   /* negate .writing-index top padding → flush under nav; full-bleed sides */
+      background: var(--bg-secondary);
+      transform: scaleY(90%);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .wi-pix.wi-header-pix {
+      position: absolute; inset: 0; align-content: center;
+      --card-pix-cell: var(--cell-size);     /* 14px */
+      --card-pix-gap: var(--cell-gap);       /* 2px */
+      --card-pix-radius: var(--cell-radius); /* 2px */
+      --card-pix-color: var(--almost-white);
+      --card-pix-rows: 12;                    /* 12 × 14 + 11 × 2 = 190px — matches the mosaic height */
+    }
+    .wi-heading { position: relative; z-index: 1; margin: 0; display: inline-block; background: var(--almost-white); padding: 15px 27px; text-transform: lowercase; font-family: 'Copperplate', serif; font-weight: normal; font-size: 28px; letter-spacing: 0.02em; color: var(--text); }
+
+    /* Filter / sort toolbar — Filters (left), Sort (right) */
+    .wi-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin: 0 0 42px; padding: 0 0 6px; border-bottom: 1px solid var(--theme); }
+    .wi-filter, .wi-sort { position: relative; }
+    .wi-filter-btn, .wi-sort-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--button-text); font-weight: 500; font-size: 11px; color: var(--theme); text-transform: uppercase;
+      background: var(--almost-white); border: 1px solid var(--border-grey); border-radius: 3px;
+      padding: 5px 14px; cursor: pointer; transition: border-color 0.15s ease;
+    }
+    .wi-filter-btn:hover, .wi-sort-btn:hover,
+    .wi-filter.is-open .wi-filter-btn, .wi-sort.is-open .wi-sort-btn { border-color: var(--theme); }
+    .wi-filter.has-active .wi-filter-btn { border-color: var(--theme); }
+    .wi-filter-count { color: var(--theme); font-weight: 700; }
+    .wi-filter-count:empty { display: none; }
+    .wi-caret { width: 7px; height: 7px; border-right: 2px solid var(--theme); border-bottom: 2px solid var(--theme); transform: rotate(45deg); transition: transform 0.2s ease; margin: -3px 0 0 2px; }
+    .wi-filter.is-open .wi-caret, .wi-sort.is-open .wi-caret { transform: rotate(225deg); margin-top: 1px; }
+
+    /* Pop-over panels */
+    .wi-filter-panel, .wi-sort-list {
+      position: absolute; top: calc(100% + 6px); z-index: 30; display: none;
+      background: var(--almost-white); border: 1px solid var(--border-grey); border-radius: 6px;
+      box-shadow: 0 8px 28px rgba(68, 2, 20, 0.12);
+    }
+    .wi-filter.is-open .wi-filter-panel, .wi-sort.is-open .wi-sort-list { display: block; }
+    .wi-filter-panel { left: 0; padding: 16px; min-width: 220px; }
+    .wi-sort-list { right: 0; padding: 6px; min-width: 162px; }
+
+    .wi-filter-group + .wi-filter-group { margin-top: 14px; }
+    .wi-filter-heading { font-family: var(--button-text); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; font-size: 11px; color: var(--theme); margin: 0 0 6px; }
+    .wi-check { display: flex; align-items: center; gap: 9px; padding: 5px 0; cursor: pointer; font-family: 'Antique Olive', sans-serif; font-size: 13px; color: var(--text); }
+    .wi-check input {
+      appearance: none; -webkit-appearance: none; width: 15px; height: 15px; flex: 0 0 auto; margin: 0;
+      border: 1.5px solid var(--border-grey); border-radius: 3px; background: transparent; cursor: pointer; position: relative;
+    }
+    .wi-check input:checked { background: var(--theme); border-color: var(--theme); }
+    .wi-check input:checked::after { content: ''; position: absolute; left: 4px; top: 1px; width: 4px; height: 8px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+    .wi-filter-clear { display: block; margin: 16px 0 0; padding: 0; background: none; border: none; cursor: pointer; font-family: var(--button-text); font-size: 12px; color: var(--theme); text-decoration: underline; text-underline-offset: 2px; }
+
+    .wi-sort-opt { display: block; width: 100%; text-align: left; white-space: nowrap; font-family: 'Roboto', sans-serif; text-transform: uppercase; font-size: 13px; color: var(--text); background: none; border: none; border-radius: 4px; padding: 8px 12px; cursor: pointer; }
+    .wi-sort-opt:hover { background: var(--bg-secondary); }
+    .wi-sort-opt[aria-selected="true"] { color: var(--theme); font-weight: 500; }
+
+    /* Inset the cards inside the main container (toolbar/heading stay full width) */
+    .wi-content { padding: 0 20px; }
+
+    .wi-empty { font-family: 'Antique Olive', sans-serif; font-size: 14px; color: var(--text); opacity: 0.7; margin: 8px 0 0; }
+    .is-hidden { display: none !important; }
     .wi-eyebrow { font-family: var(--button-text); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; font-size: 12px; color: var(--theme); margin: 0 0 10px; }
     .wi-meta { font-family: 'Antique Olive', sans-serif; font-size: 13px; color: var(--text); opacity: 0.8; margin: 0; }
 
     /* Featured (In Focus style) */
-    .wi-featured { position: relative; display: flex; align-items: stretch; gap: 30px; background: var(--almost-white); border: 1px solid var(--border-grey); border-radius: 14px; overflow: hidden; padding: 30px; margin: 0 0 48px; text-decoration: none; color: var(--text); }
+    .wi-featured { position: relative; display: flex; flex-direction: column; background: var(--almost-white); border: 1px solid var(--border-grey); border-radius: 12px; overflow: hidden; padding: 14px 20px 12px; margin: 0 0 28px; text-decoration: none; color: var(--text); }
     .wi-featured:hover { border-color: var(--theme); box-shadow: inset 0 0 0 1px var(--theme); }
-    .wi-feat-img { flex: 0 0 320px; align-self: center; aspect-ratio: 3 / 2; border-radius: 6px; background-size: contain; background-position: center; background-repeat: no-repeat; image-rendering: pixelated; }
-    .wi-feat-pix { flex: 0 0 auto; align-self: center; width: 320px; --card-pix-rows: 16; }
-    .wi-feat-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
-    .wi-feat-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 32px; line-height: 1.12; color: var(--text); margin: 0 0 12px; }
-    .wi-feat-sub { font-family: 'Playfair Display', serif; font-style: italic; font-size: 17px; color: var(--text); margin: 0 0 14px; }
+    .wi-feat-top { display: flex; align-items: flex-start; gap: 30px; }   /* meta (left) + image (right), both top-aligned */
+    .wi-feat-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .wi-feat-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin: 0 0 12px; }
+    .wi-feat-title { flex: 1; min-width: 0; font-family: 'Playfair Display', serif; font-weight: 600; font-size: 30px; line-height: 1.14; color: var(--text); margin: 0; }
+    .wi-feat-eyebrow { flex: 0 0 auto; padding-top: 5px; font-family: var(--button-text); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; font-size: 12px; color: var(--text); margin: 0; }   /* top-right of the meta block */
+    .wi-feat-authors { font-family: 'Antique Olive', sans-serif; font-size: 14px; color: var(--theme); margin: 0 0 14px; }
+    .wi-feat-summary { font-family: 'Antique Olive', sans-serif; font-weight: 300; font-size: 14px; line-height: 1.55; color: var(--text); margin: 0; }
+    /* full-width divider + foot, spanning under the image too */
+    .wi-feat-rule { border-top: 1px solid var(--border-grey); margin: 14px -20px 14px; }
+    .wi-feat-foot { display: flex; justify-content: space-between; align-items: baseline; }
+    .wi-feat-latest { font-family: var(--button-text); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; font-size: 13px; color: var(--theme); }
+    .wi-feat-date { font-family: var(--button-text); font-size: 13px; color: var(--text); text-transform: uppercase; }
+    .wi-feat-img { flex: 0 0 320px; align-self: flex-start; aspect-ratio: 3 / 2; border-radius: 6px; background-size: contain; background-position: center; background-repeat: no-repeat; image-rendering: auto; }   /* image right, top-aligned */
+    .wi-feat-img.is-pixelated { image-rendering: pixelated; }
+    .wi-feat-pix { flex: 0 0 auto; align-self: flex-start; width: 320px; --card-pix-rows: 16; }
+    .wi-feat-art { flex: 0 0 320px; align-self: flex-start; border-radius: 6px; overflow: hidden; }
 
-    /* Grid */
-    .wi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 28px; }
-    .wi-card { position: relative; display: flex; flex-direction: column; background: var(--almost-white); border: 1px solid var(--border-grey); border-radius: 10px; overflow: hidden; padding: 16px; text-decoration: none; color: var(--text); }
+    /* Grid — cards mirror the homepage "latest from science works" layout */
+    .wi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 18px; }
+    .wi-card { position: relative; display: flex; flex-direction: column; background: var(--almost-white); border: 1px solid var(--border-grey); border-radius: 12px; overflow: hidden; padding: 16px; text-decoration: none; color: var(--text); }
     .wi-card:hover { border-color: var(--theme); box-shadow: inset 0 0 0 1px var(--theme); }
-    .wi-card-img { aspect-ratio: 3 / 2; border-radius: 4px; margin-bottom: 14px; background-size: cover; background-position: center; image-rendering: pixelated; }
-    .wi-card-pix { margin-bottom: 14px; --card-pix-rows: 8; }
+    .wi-card-img { aspect-ratio: 3 / 2; border-radius: 4px; margin-bottom: 16px; background-size: cover; background-position: center; image-rendering: auto; }
+    .wi-card-img.is-pixelated { image-rendering: pixelated; }
+    .wi-card-art { margin-bottom: 16px; border-radius: 4px; overflow: hidden; }
+    .wi-card-pix { margin-bottom: 16px; --card-pix-rows: 8; }
     .wi-card-body { display: flex; flex-direction: column; flex: 1; }
-    .wi-card-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 19px; line-height: 1.2; color: var(--text); margin: 0 0 10px; }
-    .wi-card .wi-meta { margin-top: auto; }
+    .wi-card-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 18px; line-height: 1.2; color: var(--text); margin: 0 0 10px; }
+    .wi-card-authors { font-family: 'Antique Olive', sans-serif; font-size: 13px; color: var(--theme); margin: 0 0 12px; }
+    .wi-card-summary { font-family: 'Antique Olive', sans-serif; font-weight: 300; font-size: 13px; line-height: 1.5; color: var(--text); margin: 0 0 14px; }
+    .wi-card-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-family: 'Antique Olive', sans-serif; font-size: 12px; color: var(--text); margin: auto 0 0; }
 
     /* Dot-grid panels (cols computed from width by JS; rows fixed via --card-pix-rows) */
     .wi-pix { --card-pix-cell: var(--small-block-size); --card-pix-gap: var(--small-block-gap); --card-pix-radius: var(--small-block-radius); --card-pix-color: var(--border-grey); display: grid; grid-auto-rows: var(--card-pix-cell); gap: var(--card-pix-gap); justify-content: center; }
 
     @media (max-width: 720px) {
-      .writing-index { padding: 40px 18px 72px; }
-      .wi-heading { font-size: 32px; }
-      .wi-featured { flex-direction: column; gap: 18px; padding: 18px; }
+      .writing-index { padding: 30px 0 32px; }
+      .wi-content { padding: 0; }
+      .wi-header { margin-top: -20px; margin-bottom: 15px;}   /* keeps the full 190px so all 12 mosaic rows show; art centre-crops on narrow screens (mobile pass TBD) */
+      .wi-heading { font-size: 22px; padding: 20px 40px}
+      .wi-toolbar { margin-bottom: 14px; padding-left: 18px; padding-right: 18px;}
+      .wi-featured-wrapper { padding: 14px 18px; background-color: var(--coral); margin-top: 8px; margin-bottom: 14px; }
+      .wi-featured { padding: 18px; margin-bottom: 0px; }
+      .wi-feat-top { flex-direction: column; gap: 18px; }
       .wi-feat-img, .wi-feat-pix { flex: none; width: 100%; aspect-ratio: 16 / 9; }
+      .wi-feat-art { flex: none; width: 100%; }
       .wi-feat-title { font-size: 24px; }
-      .wi-grid { grid-template-columns: 1fr; }
+      .wi-grid {padding: 0 18px; }
     }
   </style>
 
   <script is:inline>
     (function () {
+      const grid = document.querySelector('.wi-grid');
+      if (!grid) return;
+      const cards = Array.prototype.slice.call(grid.querySelectorAll('.wi-card'));
+      const featuredBlock = document.querySelector('.wi-featured');
+      const empty = document.querySelector('.wi-empty');
+
+      const filter = document.querySelector('.wi-filter');
+      const filterBtn = filter && filter.querySelector('.wi-filter-btn');
+      const filterCount = filter && filter.querySelector('.wi-filter-count');
+      const projectChecks = Array.prototype.slice.call(document.querySelectorAll('.wi-f-project'));
+      const typeChecks = Array.prototype.slice.call(document.querySelectorAll('.wi-f-type'));
+      const clearBtn = document.querySelector('.wi-filter-clear');
+
+      const sort = document.querySelector('.wi-sort');
+      const sortBtn = sort && sort.querySelector('.wi-sort-btn');
+      const sortCurrent = sort && sort.querySelector('.wi-sort-current');
+      const sortOpts = Array.prototype.slice.call(document.querySelectorAll('.wi-sort-opt'));
+      let sortValue = 'newest';
+
+      function checkedVals(list) {
+        return list.filter(function (c) { return c.checked; }).map(function (c) { return c.value; });
+      }
+
+      function apply() {
+        const projects = checkedVals(projectChecks);
+        const types = checkedVals(typeChecks);
+        // Default view shows the featured hero; any active filter/sort folds it into the grid.
+        const isDefault = projects.length === 0 && types.length === 0 && sortValue === 'newest';
+        if (featuredBlock) featuredBlock.classList.toggle('is-hidden', !isDefault);
+
+        let visible = 0;
+        cards.forEach(function (card) {
+          let show = (projects.length === 0 || projects.indexOf(card.dataset.project) !== -1) &&
+                     (types.length === 0 || types.indexOf(card.dataset.type) !== -1);
+          if (isDefault && card.dataset.featured === 'true') show = false;
+          card.classList.toggle('is-hidden', !show);
+          if (show) visible++;
+        });
+
+        cards.slice().sort(function (a, b) {
+          const da = +a.dataset.date, db = +b.dataset.date;
+          return sortValue === 'oldest' ? da - db : db - da;
+        }).forEach(function (c) { grid.appendChild(c); });
+
+        if (empty) empty.classList.toggle('is-hidden', visible > 0);
+        if (filter && filterCount) {
+          const n = projects.length + types.length;
+          filterCount.textContent = n ? String(n) : '';
+          filter.classList.toggle('has-active', n > 0);
+        }
+      }
+
+      function closeAll() {
+        if (filter) { filter.classList.remove('is-open'); if (filterBtn) filterBtn.setAttribute('aria-expanded', 'false'); }
+        if (sort) { sort.classList.remove('is-open'); if (sortBtn) sortBtn.setAttribute('aria-expanded', 'false'); }
+      }
+      function toggle(wrap, btn) {
+        const open = !wrap.classList.contains('is-open');
+        closeAll();
+        if (open) { wrap.classList.add('is-open'); if (btn) btn.setAttribute('aria-expanded', 'true'); }
+      }
+      if (filterBtn) filterBtn.addEventListener('click', function (e) { e.stopPropagation(); toggle(filter, filterBtn); });
+      if (sortBtn) sortBtn.addEventListener('click', function (e) { e.stopPropagation(); toggle(sort, sortBtn); });
+      document.addEventListener('click', function (e) {
+        if (filter && filter.contains(e.target)) return;
+        if (sort && sort.contains(e.target)) return;
+        closeAll();
+      });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAll(); });
+
+      projectChecks.concat(typeChecks).forEach(function (c) { c.addEventListener('change', apply); });
+      if (clearBtn) clearBtn.addEventListener('click', function () {
+        projectChecks.concat(typeChecks).forEach(function (c) { c.checked = false; });
+        apply();
+      });
+      sortOpts.forEach(function (opt) {
+        opt.addEventListener('click', function () {
+          sortValue = opt.getAttribute('data-sort');
+          if (sortCurrent) sortCurrent.textContent = opt.textContent;
+          sortOpts.forEach(function (o) { o.setAttribute('aria-selected', o === opt ? 'true' : 'false'); });
+          closeAll();
+          apply();
+        });
+      });
+
+      apply();
+    })();
+
+    (function () {
       const panels = document.querySelectorAll('.wi-pix');
       if (!panels.length) return;
+
+      // Header mosaic. Rows are equal-width strings; each char is a palette key
+      // ('0' = blank/almost-white). Palette mixes themed CSS vars with hero-JS hexes.
+      const MOSAIC = [
+        '11234123412341200511353135113511',
+        '16750675068506700792289227922711',
+        '1893589358835890068B1888168B1611',
+        '1821AB188881AB10005A4888805AA011',
+        '18234188888888800888888888BA1281',
+        '18888888888888800888888888888881',
+        '18888888888888800888888888888881',
+        '1821AB88888888800888888888143281',
+        '1104A5088884A50001BA188881BA5281',
+        '1161B8618881B8600985388539853981',
+        '117229B2298229B00B6058605B605361',
+        '11531153135311500214321432143211',
+      ];
+      const MOSAIC_W = MOSAIC[0].length;
+      const PAL = {
+        '0': 'var(--almost-white)', '1': 'var(--theme)', '2': '#a3c0d7', '3': '#0e676a',
+        '4': 'var(--text)', '5': 'var(--coral)', '6': '#4b5cce', '7': '#111340',
+        '8': '#ebe5cf', '9': '#64b37b', 'A': '#440214', 'B': '#004ee6',
+      };
+
+      function paintMosaic(el, cols, rows) {
+        const cells = el.children;
+        for (let i = 0; i < cells.length; i++) cells[i].style.background = '';   // reset to CSS default
+        const startCol = Math.round((cols - MOSAIC_W) / 2);                       // centre the art horizontally
+        const startRow = Math.max(0, Math.floor((rows - MOSAIC.length) / 2));
+        for (let r = 0; r < MOSAIC.length && startRow + r < rows; r++) {
+          const line = MOSAIC[r];
+          for (let c = 0; c < line.length; c++) {
+            const ch = line[c];
+            if (ch === '0') continue;
+            const gc = startCol + c;
+            if (gc < 0 || gc >= cols) continue;
+            const cell = cells[(startRow + r) * cols + gc];
+            if (cell) cell.style.background = PAL[ch] || '';
+          }
+        }
+      }
+
       function fill(el) {
         const cs = getComputedStyle(el);
         const cell = parseFloat(cs.getPropertyValue('--card-pix-cell')) || 10;
@@ -96,13 +379,18 @@ const label = (t) => (t === 'report' ? 'Report' : 'Essay');
         const cols = Math.max(1, Math.floor((el.clientWidth + gap) / (cell + gap)));
         el.style.gridTemplateColumns = 'repeat(' + cols + ', var(--card-pix-cell))';
         const need = cols * rows;
-        if (el.childElementCount === need) return;
-        while (el.childElementCount > need) el.removeChild(el.lastChild);
-        const frag = document.createDocumentFragment();
-        for (let i = el.childElementCount; i < need; i++) {
-          const c = document.createElement('div'); c.className = 'pix-cell'; frag.appendChild(c);
+        const isHeader = el.classList.contains('wi-header-pix');
+        if (el.childElementCount !== need) {
+          while (el.childElementCount > need) el.removeChild(el.lastChild);
+          const frag = document.createDocumentFragment();
+          for (let i = el.childElementCount; i < need; i++) {
+            const c = document.createElement('div'); c.className = 'pix-cell'; frag.appendChild(c);
+          }
+          el.appendChild(frag);
+        } else if (!isHeader) {
+          return;   // card panels are static once filled; the header re-paints to re-centre the art
         }
-        el.appendChild(frag);
+        if (isHeader) paintMosaic(el, cols, rows);
       }
       const ro = new ResizeObserver(function (es) { for (const e of es) fill(e.target); });
       panels.forEach(function (el) { fill(el); ro.observe(el); });

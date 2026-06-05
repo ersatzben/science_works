@@ -3,13 +3,18 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 <BaseLayout title="About — Science Works">
   <main>
+    <div class="wi-header">
+      <div class="wi-pix wi-header-pix" aria-hidden="true"></div>
+      <h1 class="wi-heading">About</h1>
+    </div>
+
     <section class="about-hero-section">
       <div class="about-row">
         <div class="about-hero">
           <canvas id="helix" aria-hidden="true"></canvas>
         </div>
         <div class="about-copy">
-          <h2 class="section-heading">What do you do?</h2>
+          <h2 class="section-heading">What is Science Works?</h2>
           <p class="section-body">Science Works is a research and policy studio focused on accelerating progress in British science and technology.</p>
           <p class="section-body">We work on building and improving the organisational, technological, and intellectual infrastructure that the UK's research and innovation system needs to stay at the frontier. We work on a small number of identified problems that we believe, if solved, will generate the highest leverage and impact for both the UK and for humanity as a whole.</p>
           <p class="section-body">Science Works is editorially independent, strictly non-partisan, not-for-profit, and not aligned with any single funder, department, agency, or institution.</p>
@@ -22,10 +27,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <div class="people-inner">
         <h2 class="people-title">Our People</h2>
         <div class="tabs" role="tablist">
-          <button class="tab is-active" data-tab="team" role="tab">Our Team</button>
+          <button class="tab is-active" data-tab="team" role="tab"><span class="hidden">Our </span>Team</button>
           <button class="tab" data-tab="contributors" role="tab">Contributors</button>
-          <button class="tab" data-tab="igb" role="tab">Independent Governance Board</button>
-          <button class="tab" data-tab="sab" role="tab">Strategic Advisory Board</button>
+          <button class="tab" data-tab="igb" role="tab"><span class="hidden">Independent Governance </span>Board</button>
+          <button class="tab" data-tab="sab" role="tab"><span class="hidden">Strategic Advisory Board</span><span class="unhidden">Advisors</span></button>
         </div>
         <div class="cards-container">
           <div class="cards-grid" id="cards"></div>
@@ -36,18 +41,37 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 
 <style is:global>
+    /* ===== Mosaic header banner (lifted from the Writing page) ===== */
+    .wi-header {
+      position: relative; height: 190px; overflow: hidden;
+      margin: 26px calc(50% - 50vw) 30px;   /* full-bleed sides; small gap under the nav (About main has no top padding) */
+      background: var(--bg-secondary);
+      transform: scaleY(90%);
+      display: none; align-items: center; justify-content: center;
+    }
+    .wi-pix { --card-pix-cell: var(--small-block-size); --card-pix-gap: var(--small-block-gap); --card-pix-radius: var(--small-block-radius); --card-pix-color: var(--border-grey); display: grid; grid-auto-rows: var(--card-pix-cell); gap: var(--card-pix-gap); justify-content: center; }
+    .wi-pix.wi-header-pix {
+      position: absolute; inset: 0; align-content: center;
+      --card-pix-cell: var(--cell-size);     /* 14px */
+      --card-pix-gap: var(--cell-gap);       /* 2px */
+      --card-pix-radius: var(--cell-radius); /* 2px */
+      --card-pix-color: var(--almost-white);
+      --card-pix-rows: 12;                    /* 12 × 14 + 11 × 2 = 190px — matches the mosaic height */
+    }
+    .wi-heading { position: relative; z-index: 1; margin: 0; display: inline-block; background: var(--almost-white); padding: 15px 27px; text-transform: lowercase; font-family: 'Copperplate', serif; font-weight: normal; font-size: 28px; letter-spacing: 0.02em; color: var(--text); }
+
     .section-heading {
       font-family: 'Copperplate', serif;
       font-weight: normal;
       color: var(--text);
-      font-size: 56px;
+      font-size: 30px;
       letter-spacing: 0.02em;
       margin: 0 0 24px;
       text-align: right;
     }
     .section-body {
-      font-family: 'Antique Olive', sans-serif;
-      font-size: 18px;
+      font-family: 'Antique Olive Light', sans-serif;
+      font-size: 14px;
       line-height: 1.5;
       color: var(--text);
       margin: 0 0 16px;
@@ -65,7 +89,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       display: flex;
       /* Stable baseline for the helix canvas, but grows to fit taller copy so
          the vertically-centred heading is never pushed off the top. */
-      min-height: 560px;
+      min-height: 500px;
     }
     .about-hero {
       flex: 0 0 44%;
@@ -88,7 +112,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding: 60px 80px;
+      padding: 40px 80px 0px;
       box-sizing: border-box;
     }
     .about-copy .section-heading {
@@ -115,7 +139,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     /* ---------- Our People ---------- */
     .people {
-      padding: 84px 32px 110px;
+      padding: 44px 32px 40px;
     }
     .people-inner {
       max-width: 1240px;
@@ -125,10 +149,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       font-family: 'Copperplate', serif;
       font-weight: normal;
       color: var(--text);
-      font-size: 48px;
+      font-size: 28px;
       letter-spacing: 0.02em;
-      margin: 0 0 28px;
+      margin: 0 0 18px;
     }
+
+     .unhidden { display: none; }
 
     /* Horizontal tab menu: full-width white rounded bar split into three equal
        sections; the active section is an inset red-outlined rounded box. */
@@ -138,7 +164,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       gap: 0;
       background: var(--almost-white);
       border: 1px solid rgba(235, 49, 49, 0.18);
-      border-radius: 12px;
+      border-radius: 8px;
       padding: 0;
       margin-bottom: 16px;
     }
@@ -146,10 +172,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       appearance: none;
       background: none;
       border: 1.5px solid transparent;
-      border-radius: 11px;       /* sits just inside the container's 12px */
-      padding: 11px 10px;
+      border-radius: 8px;       /* sits just inside the container's 12px */
+      padding: 9px 8px;
       font-family: 'Roboto', sans-serif;
-      font-size: 18px;
+      font-size: 16px;
       color: var(--text);
       text-align: center;
       cursor: pointer;
@@ -244,9 +270,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       margin: 0;
     }
     .card-bio {
-      font-family: 'Antique Olive', sans-serif;
+      font-family: 'Antique Olive Light', sans-serif;
       color: var(--text);
-      font-size: 14.5px;
+      font-size: 15px;
       line-height: 1.55;
       margin: 20px 0 0;
     }
@@ -278,9 +304,48 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     }
 
 @media (max-width: 720px) {
-      .cards-grid { grid-template-columns: 1fr; }
-      .card-photo { width: 150px; height: 170px; }
-      .card-headinfo { height: 170px; }
+      .wi-header { display: flex; margin-top: 10px; margin-bottom: 15px; }
+      .wi-heading { font-size: 22px; padding: 20px 48px; }
+
+      .about-row {min-height: 400px; background-color: var(--almost-white); margin-bottom: 14px; padding-top: 12px;}
+      
+      .about-hero { display: none; }
+      .about-copy {padding: 0 20px; }
+      .section-heading { text-align: left; font-size: 26px; margin-bottom: 10px;}
+      .section-body { text-align: left; }
+      .about-copy .section-body {
+        font-size: 16px;
+        line-height: 1.4;
+        margin: 0 0 12px;
+        max-width: 560px;
+      }
+
+      .people { padding: 0 20px; }
+      .people-title { font-size: 22px; margin-bottom: 8px; }
+      
+      .tabs {border-radius: 2px; }
+      .tab {font-size: 12px; padding: 3px 0; border-radius: 2px; }
+      .hidden { display: none; }
+      .unhidden {display: inline; }
+
+      .cards-container { padding: 5px; border-radius: 8px; }
+      .card { padding:10px; border-radius: 8px; }
+      .cards-grid { grid-template-columns: 1fr; border-radius: 8px; gap: 6px; }
+      .card-photo { width: 100px; height: 130px; }
+      .card-headinfo { height: 135px; }
+      .card-glyph {
+        grid-template-columns: repeat(5, 8px);
+        grid-template-rows: repeat(5, 8px);
+        gap: 2px;
+      }
+      .card-name { font-size: 20px; }
+      .card-role { font-size: 13px; }
+      .glyph-cell {
+        width: 8px;
+        height: 8px;
+        border-radius: 1px;
+      }
+      .card-bio { line-height: 1.4; margin-top: 12px; }
     }
 
 </style>
@@ -792,6 +857,74 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       });
 
       render('team');
+    })();
+
+    // ----- Mosaic header banner (lifted from the Writing page) ----------
+    (function () {
+      const panels = document.querySelectorAll('.wi-header-pix');
+      if (!panels.length) return;
+
+      // Rows are equal-width strings; each char is a palette key ('0' = blank/
+      // almost-white). Palette mixes themed CSS vars with hero-JS hexes.
+      const MOSAIC = [
+        '11234123412341200511353135113511',
+        '16750675068506700792289227922711',
+        '1893589358835890068B1888168B1611',
+        '1821AB188881AB10005A4888805AA011',
+        '18234188888888800888888888BA1281',
+        '18888888888888800888888888888881',
+        '18888888888888800888888888888881',
+        '1821AB88888888800888888888143281',
+        '1104A5088884A50001BA188881BA5281',
+        '1161B8618881B8600985388539853981',
+        '117229B2298229B00B6058605B605361',
+        '11531153135311500214321432143211',
+      ];
+      const MOSAIC_W = MOSAIC[0].length;
+      const PAL = {
+        '0': 'var(--almost-white)', '1': 'var(--theme)', '2': '#a3c0d7', '3': '#0e676a',
+        '4': 'var(--text)', '5': 'var(--coral)', '6': '#4b5cce', '7': '#111340',
+        '8': '#ebe5cf', '9': '#64b37b', 'A': '#440214', 'B': '#004ee6',
+      };
+
+      function paintMosaic(el, cols, rows) {
+        const cells = el.children;
+        for (let i = 0; i < cells.length; i++) cells[i].style.background = '';   // reset to CSS default
+        const startCol = Math.round((cols - MOSAIC_W) / 2);                       // centre the art horizontally
+        const startRow = Math.max(0, Math.floor((rows - MOSAIC.length) / 2));
+        for (let r = 0; r < MOSAIC.length && startRow + r < rows; r++) {
+          const line = MOSAIC[r];
+          for (let c = 0; c < line.length; c++) {
+            const ch = line[c];
+            if (ch === '0') continue;
+            const gc = startCol + c;
+            if (gc < 0 || gc >= cols) continue;
+            const cell = cells[(startRow + r) * cols + gc];
+            if (cell) cell.style.background = PAL[ch] || '';
+          }
+        }
+      }
+
+      function fill(el) {
+        const cs = getComputedStyle(el);
+        const cell = parseFloat(cs.getPropertyValue('--card-pix-cell')) || 10;
+        const gap  = parseFloat(cs.getPropertyValue('--card-pix-gap'))  || 3;
+        const rows = parseInt(cs.getPropertyValue('--card-pix-rows'), 10) || 6;
+        const cols = Math.max(1, Math.floor((el.clientWidth + gap) / (cell + gap)));
+        el.style.gridTemplateColumns = 'repeat(' + cols + ', var(--card-pix-cell))';
+        const need = cols * rows;
+        if (el.childElementCount !== need) {
+          while (el.childElementCount > need) el.removeChild(el.lastChild);
+          const frag = document.createDocumentFragment();
+          for (let i = el.childElementCount; i < need; i++) {
+            const c = document.createElement('div'); c.className = 'pix-cell'; frag.appendChild(c);
+          }
+          el.appendChild(frag);
+        }
+        paintMosaic(el, cols, rows);
+      }
+      const ro = new ResizeObserver(function (es) { for (const e of es) fill(e.target); });
+      panels.forEach(function (el) { fill(el); ro.observe(el); });
     })();
 
 </script>

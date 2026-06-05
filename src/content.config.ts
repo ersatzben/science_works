@@ -10,7 +10,7 @@ const writing = defineCollection({
     authors: z.array(z.string()),
     date: z.coerce.date(),
     type: z.enum(['essay', 'report']),
-    programme: z.string(),
+    project: z.string(),
     summary: z.string().optional(),          // longer blurb for cards/index; falls back to subtitle
     illustration: z.string().optional(),     // pixel-art essay image
     illustrationPixelated: z.boolean().default(false),  // nearest-neighbour render for low-res pixel art

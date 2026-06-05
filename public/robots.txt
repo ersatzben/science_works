@@ -1,0 +1,4 @@
+# Staging site — keep it out of search indexes while in testing.
+# Remove (or allow) this at production launch.
+User-agent: *
+Disallow: /
