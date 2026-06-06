@@ -9,11 +9,11 @@ const mosaics = Object.keys(mods).sort().map((k) => mods[k].default ?? mods[k]);
 // Project copy + offsets (translate, px). tx/ty nudge the whole pair; ctx/cty
 // nudge the text card independently of the network. Tune freely.
 const PROJECTS = [
-  { index: '01', title: 'Institutional Dynamism',   subtitle: 'We want to inject diversity and dynamism into our institutional landscape.', tx: 30, ty: 10, ctx: 0, cty: 0 },
-  { index: '02', title: 'AI and Science',           subtitle: 'An ambitious British agenda for AI in science — data, software and incentives.', tx: 20, ty: 64, ctx: 0, cty: 0 },
-  { index: '03', title: 'The Research Economy',      subtitle: 'Rigorous analysis of how research is funded, costed and governed.', tx: 0, ty: 24, ctx: 0, cty: 0 },
+  { index: '01', title: 'Institutional Dynamism',   subtitle: 'We want to inject diversity and dynamism into our institutional landscape.', tx: 30, ty: 10, ctx: -25, cty: 0 },
+  { index: '02', title: 'AI and Science',           subtitle: 'An ambitious British agenda for AI in science — data, software and incentives.', tx: 20, ty: 64, ctx: -25, cty: 0 },
+  { index: '03', title: 'The Research Economy',      subtitle: 'Rigorous analysis of how research is funded, costed and governed.', tx: 0, ty: 24, ctx: -25, cty: 0 },
   { index: '04', title: 'Software for Science',      subtitle: 'Building tools and shifting incentives so research software can flourish.', tx: -80, ty: 16, ctx: 0, cty: 0 },
-  { index: '05', title: 'A Story of British Science', subtitle: 'Telling the story of British science — its past, present and future.', tx: 10, ty: 36, ctx: 0, cty: 0 },
+  { index: '05', title: 'A Story of British Science', subtitle: 'Telling the story of British science — its past, present and future.', tx: 10, ty: 36, ctx: -5, cty: 0 },
 ];
 const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: String(i + 1).padStart(2, '0'), title: 'Project', subtitle: '', tx: 0, ty: 0, ctx: 0, cty: 0 }) }));
 ---
@@ -98,7 +98,8 @@ const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: Stri
       width: 180px;
       height: 180px;
       box-sizing: border-box;
-      border: 0px solid var(--border-grey);
+      border: 1px solid var(--border-grey);
+      background-color: rgb(248, 243, 239, 0.85); 
       border-radius: 6px;
       padding: 14px 16px;
       display: flex;
@@ -132,7 +133,7 @@ const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: Stri
     .pp-modal[hidden] { display: none; }
     .pp-modal { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 24px; }
     .pp-modal-scrim {
-      position: absolute; inset: 0; background: rgba(68, 2, 20, 0.32);
+      position: absolute; inset: 0; background: rgba(20, 10, 10, 0.42);
       opacity: 0; transition: opacity 0.32s ease;
     }
     .pp-modal.is-open .pp-modal-scrim { opacity: 1; }
