@@ -13,6 +13,31 @@ const featured = all.find((e) => e.data.featured) ?? all[0];
 const fmt = (d) => d.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
 const typeLabel = (t) => (t === 'report' ? 'Report' : 'Essay');
 const ifCover = getCover(featured.id);
+
+// Spotlight footer: a 4x4 pixel motif above each section title.
+// Legend → palette: fills (0 = transparent), border-only letters, and X (fill + border).
+const sifFill = {
+  '1': 'var(--theme)', '2': 'var(--coral)', '3': 'var(--bright-blue)',
+  '4': 'var(--pale-blue)', '5': 'var(--deep-green)', '6': 'var(--sage)',
+  '7': 'var(--text)', '8': 'var(--darkest-brown)', '9': 'var(--opt-2)',
+  'G': 'var(--light-green)',
+};
+const sifBorder = {
+  'A': 'var(--theme)', 'B': 'var(--bright-blue)', 'C': 'var(--deep-green)',
+  'D': 'var(--sage)', 'E': 'var(--text)', 'F': 'var(--light-green)',
+};
+const sifCellStyle = (ch) => {
+  if (ch === 'X') return 'background: var(--darkest-brown); border-color: var(--pale-blue);';
+  if (sifFill[ch]) return `background: ${sifFill[ch]};`;
+  if (sifBorder[ch]) return `border-color: ${sifBorder[ch]};`;
+  return '';   // '0' → transparent
+};
+const sifItems = [
+  { label: 'Writing',      art: ['0000', '0000', '0200', '1A00'] },
+  { label: 'Analytics',    art: ['0000', '0000', '4B00', '3340'] },
+  { label: 'Tool-building', art: ['0000', '0C00', '0500', 'FG55'] },
+  { label: 'Community',    art: ['0070', '0470', '0XE4', 'E87E'] },
+];
 ---
 <BaseLayout title="Science Works">
   <section id="splash">
@@ -55,7 +80,21 @@ const ifCover = getCover(featured.id);
         <p>The UK's place in the world has long been underwritten by the creativity of its laboratories, workshops, and universities. Today that imagination is running into the limits of institutions built for another era.</p>
         <p>We've lost much of the freedom that once defined British science, and failed to seize the possibilities of our technological age. Science Works exists to change that.</p>
         <a class="hero-link" href="/writing">Explore Our Work  &rarr;</a>
+        <div class="spotlight-intro-footer">
+          {sifItems.map((it) => (
+            <div class="sif-item">
+              <div class="sif-art" aria-hidden="true">
+                {it.art.map((row) => row.split('').map((ch) => (
+                  <span class="sif-cell" style={sifCellStyle(ch)}></span>
+                )))}
+              </div>
+              <div class="sif-label">{it.label}</div>
+            </div>
+          ))}
+        </div>
       </div>
+
+
       <div class="spotlight-main">
         <h2 class="section-label"><a href="/projects">featured projects</a></h2>
         <div class="projects">
@@ -486,7 +525,7 @@ const ifCover = getCover(featured.id);
     }
     .spotlight-intro {
       position: sticky;
-      top: 220px;                   /* sticky threshold — freezes 80px below viewport top (clears the 60px nav) */
+      top: 240px;                   /* sticky threshold — freezes 80px below viewport top (clears the 60px nav) */
       margin-top: 120px;            /* initial gap before the intro */
       align-self: start;
       padding-left: 0px; 
@@ -529,16 +568,59 @@ const ifCover = getCover(featured.id);
       margin: 0 0 16px;
       max-width: 520px;     /* use the now-wider column */
     }
-    .spotlight-intro .hero-link { 
+    .spotlight-intro .hero-link {
       display: block;
       font-family: 'Roboto', sans-serif;
-      text-decoration: none; 
-      color: var(--theme); 
-      text-transform: uppercase; 
-      font-size: 13px; 
-      font-weight: bold; 
-      margin-top: 30px; 
-      
+      text-decoration: none;
+      color: var(--theme);
+      text-transform: uppercase;
+      font-size: 13px;
+      font-weight: bold;
+      margin-top: 30px;
+
+    }
+    /* Four section titles arranged in a row, evenly spaced across the width. */
+    .spotlight-intro-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 10px;
+      padding-top: 40px; 
+      padding-bottom: 80px; 
+    }
+    .sif-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .sif-art {
+      display: grid;
+      grid-template-columns: repeat(4, var(--small-block-size));
+      grid-auto-rows: var(--small-block-size);
+      gap: var(--small-block-gap);
+      margin-bottom: 10px;
+      margin-left: 10px;        /* nudge all four motifs right */
+    }
+    /* Pull the Analytics + Toolbuilding labels left a touch */
+    .sif-item:nth-child(2) .sif-label { margin-left: -3px; }
+    .sif-item:nth-child(3) .sif-label { margin-left: -6px; }
+    /* Nudge the Community label + motif right a touch */
+    .sif-item:nth-child(4) .sif-label { margin-left: 14px; }
+    .sif-item:nth-child(4) .sif-art { margin-left: 19px; }
+    .sif-cell {
+      width: var(--small-block-size);
+      height: var(--small-block-size);
+      border-radius: var(--small-block-radius);
+      border: 2.5px solid transparent;   /* border-only cells set border-color; fills set background */
+      box-sizing: border-box;
+    }
+    .sif-label {
+      text-align: left;
+      font-family: 'Copperplate', serif;
+      font-weight: normal;
+      color: var(--text);
+      font-size: 12px;
     }
 
     .projects { display: flex; flex-direction: column; gap: 22px; padding-right: 0px; }
