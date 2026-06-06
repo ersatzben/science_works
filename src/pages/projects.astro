@@ -6,15 +6,16 @@ import MosaicNetwork from '../components/MosaicNetwork.astro';
 const mods = import.meta.glob('../data/mosaics/*.json', { eager: true });
 const mosaics = Object.keys(mods).sort().map((k) => mods[k].default ?? mods[k]);
 
-// Project copy + per-item scatter offset (translate, in px) — tune freely.
+// Project copy + offsets (translate, px). tx/ty nudge the whole pair; ctx/cty
+// nudge the text card independently of the network. Tune freely.
 const PROJECTS = [
-  { index: '01', title: 'Institutional Dynamism',   subtitle: 'We want to inject diversity and dynamism into our institutional landscape.', tx: -20, ty: 0 },
-  { index: '02', title: 'AI and Science',           subtitle: 'An ambitious British agenda for AI in science — data, software and incentives.', tx: 20, ty: 64 },
-  { index: '03', title: 'The Research Economy',      subtitle: 'Rigorous analysis of how research is funded, costed and governed.', tx: 0, ty: 24 },
-  { index: '04', title: 'Software for Science',      subtitle: 'Building tools and shifting incentives so research software can flourish.', tx: -10, ty: 96 },
-  { index: '05', title: 'A Story of British Science', subtitle: 'Telling the story of British science — its past, present and future.', tx: 10, ty: 36 },
+  { index: '01', title: 'Institutional Dynamism',   subtitle: 'We want to inject diversity and dynamism into our institutional landscape.', tx: 30, ty: 10, ctx: 0, cty: 0 },
+  { index: '02', title: 'AI and Science',           subtitle: 'An ambitious British agenda for AI in science — data, software and incentives.', tx: 20, ty: 64, ctx: 0, cty: 0 },
+  { index: '03', title: 'The Research Economy',      subtitle: 'Rigorous analysis of how research is funded, costed and governed.', tx: 0, ty: 24, ctx: 0, cty: 0 },
+  { index: '04', title: 'Software for Science',      subtitle: 'Building tools and shifting incentives so research software can flourish.', tx: -80, ty: 16, ctx: 0, cty: 0 },
+  { index: '05', title: 'A Story of British Science', subtitle: 'Telling the story of British science — its past, present and future.', tx: 10, ty: 36, ctx: 0, cty: 0 },
 ];
-const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: String(i + 1).padStart(2, '0'), title: 'Project', subtitle: '', tx: 0, ty: 0 }) }));
+const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: String(i + 1).padStart(2, '0'), title: 'Project', subtitle: '', tx: 0, ty: 0, ctx: 0, cty: 0 }) }));
 ---
 <BaseLayout title="Projects — Science Works">
   <main class="projects-page">
@@ -28,7 +29,7 @@ const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: Stri
     <!-- Staggered scatter: flow handles the cascade, translate handles the scatter. -->
     <div class="pp-networks">
       {items.map((it) => (
-        <div class="pp-item" style={`--tx:${it.tx}px; --ty:${it.ty}px`}>
+        <div class="pp-item" style={`--tx:${it.tx}px; --ty:${it.ty}px; --ctx:${it.ctx}px; --cty:${it.cty}px`}>
           <div class="pp-block">
             <MosaicNetwork data={it.data} cell="6px" gap="1px" />
           </div>
@@ -36,10 +37,25 @@ const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: Stri
             <p class="project-index">{it.index}</p>
             <h3 class="project-title">{it.title}</h3>
             <p class="project-subtitle">{it.subtitle}</p>
-            <button type="button" class="project-toggle">+ Open Project</button>
+            <button type="button" class="project-toggle" data-open data-index={it.index} data-title={it.title} data-subtitle={it.subtitle}>+ Open Project</button>
           </div>
         </div>
       ))}
+    </div>
+
+    <!-- Project modal (populated on open; placed outside transformed ancestors). -->
+    <div class="pp-modal" id="pp-modal" hidden>
+      <div class="pp-modal-scrim" data-close></div>
+      <div class="pp-modal-card" role="dialog" aria-modal="true" aria-labelledby="pp-modal-title">
+        <button class="pp-modal-close" type="button" aria-label="Close" data-close>&times;</button>
+        <p class="pp-modal-index" id="pp-modal-index"></p>
+        <h2 class="pp-modal-title" id="pp-modal-title"></h2>
+        <p class="pp-modal-sub" id="pp-modal-sub"></p>
+        <div class="pp-modal-body">
+          <p>Placeholder body copy for this project. This is where a fuller description, links and detail will live — a paragraph or two introducing the work, its aims, and how to get involved.</p>
+          <p>A second placeholder paragraph so the modal has some heft to it while we design the real content.</p>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -71,7 +87,7 @@ const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: Stri
       flex: 0 0 auto;
       display: flex;
       align-items: center;
-      gap: 14px;
+      /* gap: 14px; */
       transform: translate(var(--tx, 0), var(--ty, 0));   /* cosmetic scatter — no scaling */
     }
     .pp-block { flex: 0 0 auto; }
@@ -82,11 +98,12 @@ const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: Stri
       width: 180px;
       height: 180px;
       box-sizing: border-box;
-      border: 1px solid var(--border-grey);
+      border: 0px solid var(--border-grey);
       border-radius: 6px;
       padding: 14px 16px;
       display: flex;
       flex-direction: column;
+      transform: translate(var(--ctx, 0), var(--cty, 0));   /* independent card nudge */
     }
     .project-index {
       font-family: var(--button-text); font-weight: 500; font-size: 12px;
@@ -106,13 +123,68 @@ const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: Stri
       font-family: var(--button-text); font-weight: 500; font-size: 12px;
       letter-spacing: 0.02em; text-transform: uppercase;
       color: var(--theme); background: none; border: none; padding: 0; cursor: pointer;
+      transition: transform 0.12s ease;
     }
     .project-toggle:hover { text-decoration: underline; }
+    .project-toggle:active { transform: scale(0.9); }   /* subtle push */
+
+    /* ---------- Project modal ---------- */
+    .pp-modal[hidden] { display: none; }
+    .pp-modal { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 24px; }
+    .pp-modal-scrim {
+      position: absolute; inset: 0; background: rgba(68, 2, 20, 0.32);
+      opacity: 0; transition: opacity 0.32s ease;
+    }
+    .pp-modal.is-open .pp-modal-scrim { opacity: 1; }
+    .pp-modal-card {
+      position: relative; z-index: 1;
+      width: min(720px, 100%); max-height: 84vh; overflow: auto;
+      box-sizing: border-box;
+      background: var(--almost-white);
+      border: 1px solid var(--border-grey); border-radius: 12px;
+      padding: 40px 44px;
+      box-shadow: 0 24px 70px rgba(68, 2, 20, 0.22);
+      /* grows from the clicked button (--ox/--oy set in JS) to centre */
+      opacity: 0;
+      transform: translate(var(--ox, 0), var(--oy, 0)) scale(0.12);
+      transform-origin: center;
+      transition: opacity 0.34s ease, transform 0.46s cubic-bezier(0.2, 0.8, 0.25, 1);
+      will-change: transform, opacity;
+    }
+    .pp-modal.is-open .pp-modal-card { opacity: 1; transform: translate(0, 0) scale(1); }
+    .pp-modal-close {
+      position: absolute; top: 14px; right: 16px;
+      width: 34px; height: 34px; line-height: 1; font-size: 24px;
+      color: var(--text); background: none; border: none; border-radius: 50%; cursor: pointer;
+    }
+    .pp-modal-close:hover { color: var(--theme); background: var(--beige); }
+    .pp-modal-index {
+      font-family: var(--button-text); font-weight: 500; font-size: 13px;
+      letter-spacing: 0.06em; color: var(--theme); margin: 0 0 8px;
+    }
+    .pp-modal-title {
+      font-family: 'Copperplate', serif; font-weight: normal; font-size: 28px;
+      letter-spacing: -0.01em; color: var(--text); margin: 0 0 12px;
+    }
+    .pp-modal-sub {
+      font-family: 'Playfair Display', serif; font-weight: 300; font-size: 17px;
+      line-height: 1.4; color: var(--text); margin: 0 0 22px;
+    }
+    .pp-modal-body {
+      font-family: 'Antique Olive', sans-serif; font-weight: 300; font-size: 15px;
+      line-height: 1.6; color: var(--text);
+    }
+    .pp-modal-body p { margin: 0 0 16px; }
+    .pp-modal-body p:last-child { margin-bottom: 0; }
+    @media (prefers-reduced-motion: reduce) {
+      .pp-modal-card { transition: opacity 0.2s ease; transform: none !important; }
+    }
 
     /* Narrow screens: drop the scatter, stack each pair cleanly. */
     @media (max-width: 940px) {
       .pp-networks { flex-direction: column; align-items: center; gap: 40px; }
       .pp-item { transform: none; flex-direction: column; align-items: flex-start; gap: 12px; }
+      .project-card { transform: none; }
     }
     @media (max-width: 600px) {
       .projects-page { padding: 80px 18px 60px; }
@@ -133,6 +205,49 @@ const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: Stri
         if (!g) return;
         it.addEventListener('mouseenter', function () { g.classList.add('is-grown'); }, { once: true });
       });
+    })();
+
+    // "+ Open Project" → modal that grows from the clicked button to centre.
+    (function () {
+      const modal = document.getElementById('pp-modal');
+      if (!modal) return;
+      const card = modal.querySelector('.pp-modal-card');
+      const fIndex = modal.querySelector('#pp-modal-index');
+      const fTitle = modal.querySelector('#pp-modal-title');
+      const fSub = modal.querySelector('#pp-modal-sub');
+      let lastFocus = null;
+
+      function open(btn) {
+        fIndex.textContent = btn.dataset.index || '';
+        fTitle.textContent = btn.dataset.title || '';
+        fSub.textContent = btn.dataset.subtitle || '';
+        const r = btn.getBoundingClientRect();
+        card.style.setProperty('--ox', Math.round(r.left + r.width / 2 - window.innerWidth / 2) + 'px');
+        card.style.setProperty('--oy', Math.round(r.top + r.height / 2 - window.innerHeight / 2) + 'px');
+        lastFocus = document.activeElement;
+        modal.hidden = false;
+        document.body.style.overflow = 'hidden';
+        void card.offsetWidth;                       // commit the start state before animating
+        modal.classList.add('is-open');
+        const c = modal.querySelector('.pp-modal-close');
+        if (c) c.focus();
+      }
+      function close() {
+        if (!modal.classList.contains('is-open')) return;
+        modal.classList.remove('is-open');
+        document.body.style.overflow = '';
+        const done = function (e) {
+          if (e.target === card && e.propertyName === 'transform') { modal.hidden = true; card.removeEventListener('transitionend', done); }
+        };
+        card.addEventListener('transitionend', done);
+        if (lastFocus && lastFocus.focus) lastFocus.focus();
+      }
+
+      document.querySelectorAll('.project-toggle[data-open]').forEach(function (b) {
+        b.addEventListener('click', function () { open(b); });
+      });
+      modal.querySelectorAll('[data-close]').forEach(function (el) { el.addEventListener('click', close); });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
     })();
   </script>
 </BaseLayout>
