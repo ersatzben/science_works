@@ -8,6 +8,7 @@ const writing = defineCollection({
     title: z.string(),
     shortTitle: z.string().optional(),       // compact title for tight surfaces (homepage carousel); falls back to title
     subtitle: z.string().optional(),
+    shortSubtitle: z.string().optional(),    // compact subtitle for the title block; falls back to subtitle
     authors: z.array(z.string()),
     date: z.coerce.date(),
     type: z.enum(['essay', 'report']),

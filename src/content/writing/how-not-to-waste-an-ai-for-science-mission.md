@@ -74,7 +74,7 @@ They go on to say that successful missions require (and are characterised by) a 
 
 These elements are a good jumping off point for thinking about what makes a strong mission candidate, but they are generalised to any mission programme. What follows is our attempt to build on them: a set of criteria, some analytical, others practical, that we think should govern the selection of AI for science missions. It is not exhaustive, but it covers the ground where we think the risks of getting it wrong are highest.
 
-## 1\) Definitional clarity
+## Definitional clarity
 
 ### What is AI for science?
 
@@ -88,7 +88,7 @@ We think the threshold must be more demanding: an AI for science mission should 
 
 The mission programme may buckle if swathes of proposals can claim the “AI4S” label with equal plausibility. It must be able to distinguish genuinely exciting opportunities for value-creation from rebranded scientific programmes that would have been proposed regardless. 
 
-## 2\) Quality over quantity
+## Quality over quantity
 
 ### Can we afford another?
 
@@ -100,7 +100,7 @@ Each new mission is also competing for the same inputs: leadership talent with b
 
 The government has said that part of the reason it is pursuing missions is to ensure resources “are targeted towards shared goals instead of being spread thinly across diffuse opportunities.” That’s the right instinct, but the pressure to add missions will be considerable. Announcing the next one is virtually costless and would confer considerable political upside in the short-term (and the goodwill of the research base). Many ideas will be advocated for with great force. Resisting that pressure will be the government’s first and most important act of discipline.
 
-## 3\) Meaningful, falsifiable targets
+## Meaningful, falsifiable targets
 
 ### Can describe success precisely enough to know if we made it?
 
@@ -116,7 +116,7 @@ Equally, a target pegged to broad research assessment processes would fail. The 
 
 And finally, a really serious mission must be capable of embarrassing its sponsors. To know when you have succeeded, you have to know when you’ve failed – and that failure must be visible enough to sting. The London 2012 Olympics could not be redefined as a partial success if the stadium was unfinished on opening night: the date was fixed and the world was watching. Pressure is the mechanism by which missions sustain political weight; visibility keeps everyone honest. 
 
-## 4\) Multi-faceted challenges…
+## Multi-faceted challenges…
 
 ### Is the problem the right *shape* for a mission?
 
@@ -128,9 +128,11 @@ At the other end sit the great diffuse frontiers: broad research spaces that wou
 
 The sweet spot lies between these poles. The right candidate for a mission should aim for a scientific or technical goal that was previously out of reach, requiring a multi-stage process and coordination between disparate actors who won’t align on their own – a network of distinct challenges. Crucially, there must be a credible account of why an AI-oriented mission can shift the dial.
 
-## 5\) ...that need government intervention
+## …that need government intervention [[TOC: …that need government]]
 
-### **Does government play a necessary role here?**  There should also be an understanding of why government is uniquely necessary, and what a government-backed national mission can offer that can’t be achieved otherwise. The strategy talks about missions “galvanising activity and coordination across UK industry and academia”. This is a natural place for government to be, and aligns with the sweet spot described above. But government can only provide so much funding and bandwidth – so it should be very strict about discriminating on the basis of additionality. 
+### **Does government play a necessary role here?**  
+
+There should also be an understanding of why government is uniquely necessary, and what a government-backed national mission can offer that can’t be achieved otherwise. The strategy talks about missions “galvanising activity and coordination across UK industry and academia”. This is a natural place for government to be, and aligns with the sweet spot described above. But government can only provide so much funding and bandwidth – so it should be very strict about discriminating on the basis of additionality. 
 
 That said, additionality should be assessed against the full range of what government can uniquely provide: access to, or redeployment of, existing national assets – including public facilities or secure datasets; coordination and brokerage power that can help anchor the disparate efforts of multiple actors inside and outside government; and help with addressing specific policy or regulatory blockers that are holding back delivery. 
 
@@ -140,7 +142,7 @@ Let’s apply these last two tests to the drug discovery mission. On the shape o
 
 But the problem isn’t merely scientific – if it were, then the research base and pharmaceutical industry would get there on their own. Critical enablers require targeted action from government: providing access to compute, establishing new public infrastructure like the Health Data Research Service, and reforming regulation to enable the Medicines and Healthcare products Regulatory Agency to accept AI-generated evidence. These are public goods or pre-commercial activities that the market won’t supply, and collective action problems that no one company or institution has the incentive to address systemically. 
 
-## 6\) Consideration of existing national assets
+## Consideration of existing national assets [[TOC: Existing assets]]
 
 ### Are we playing to our strengths?
 
@@ -152,7 +154,7 @@ But ‘existing assets’ requires more granular thinking than simply listing ma
 
 There is a trade-off here. In some cases it will be acceptable – desirable, even – for a mission to build on a more nascent ecosystem rather than exploiting existing institutional strengths. This might be justified where strategic necessity demands it, or where an emerging field shows extraordinary promise but lacks the critical mass to develop without a deliberate concentration of effort. Missions can be a powerful vehicle for fanning early sparks into something larger. But the less you have in place at the outset, the more honest you’ve got to be about what that means for deliverability and timelines. A mission that must first construct its own foundations before it can pursue its core objective is a fundamentally riskier proposition – and the timescales involved must be compatible with the urgency that justifies a mission approach in the first place. 
 
-## 7\) Mission Control 
+## Mission Control 
 
 ### Is it governable at the right level?
 
@@ -170,7 +172,7 @@ This isn’t a novel prescription. Vallance's 2018 mission principles call for e
 
 These principles also give us a practical test for whether a proposal is genuinely mission-shaped. If you can’t imagine a single person being held accountable for whether the target was met, the mission is probably too diffuse. If the delivery team would need to span so many domains that no group of ten people could cover it and act as the strategic brain, it is probably too broad. The drug discovery mission, whatever its eventual governance arrangements, could plausibly be run this way. That won’t be true of every proposal.
 
-## 8\) Political durability
+## Political durability
 
 ### Can the mission survive political changes?
 

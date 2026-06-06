@@ -45,7 +45,7 @@
       "role": "Researcher",
       "bio": "Will is a Researcher at Science Works, working on science and innovation funding reform. He was previously Senior Policy Advisor for Science and Innovation at HM Treasury, where he led a team driving innovation-led growth policy across Whitehall and allocated more than £20bn in annual budgets. His focus is on funding reform, government-institutional architecture, and strategy.",
       "photo": "will-stone.jpg",
-      "x": "",
+      "x": "willecstone",
       "bluesky": "",
       "linkedin": "https://www.linkedin.com/in/will-stone-839064182/",
       "glyph": [[null, 9, null, 0, 10], [null, 4, 0, 0, 3], [null, null, null, 5, null], [11, 1, 6, null, null], [4, 2, null, 10, 7]]
@@ -319,7 +319,7 @@
     {
       "name": "Paul Nightingale",
       "role": "Professor, SPRU, University of Sussex",
-      "bio": "Paul is Professor of Strategy and Associate Dean of Research at the University of Sussex Business School, based at SPRU (Science Policy Research Unit). Originally trained as a chemist, his work focuses on technical change, innovation systems, and the governance of complex and security-relevant technologies. He has contributed to research on biosecurity, dual-use science, and the implications of emerging technologies for the chemical and biological weapons prohibition regimes. His broader interests include industrial dynamics, metascience, financial innovation, and the management of uncertainty in major R&D and transformational projects. Paul is also acting Director of the Harvard Sussex Program.",
+      "bio": "Paul is a Professor of Strategy at SPRU (Science Policy Research Unit) at the University of Sussex. Originally trained as a chemist, his work focuses on technical change, innovation systems, and the governance of complex and security-relevant technologies. He has contributed to research on biosecurity, dual-use science, and the implications of emerging technologies for the chemical and biological weapons prohibition regimes. His broader interests include industrial dynamics, metascience, financial innovation, and the management of uncertainty in major R&D and transformational projects. Paul is also acting Director of the Harvard Sussex Program.",
       "photo": "paul-nightingale.jpg",
       "x": "Nightingale_P",
       "bluesky": "paulnightingale.bsky.social",

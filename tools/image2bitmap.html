@@ -220,6 +220,49 @@
       resize: vertical;
     }
     .divider { height: 1px; background: var(--border-grey); border: 0; margin: 4px 0; }
+
+    /* ---- Aspect lock toggle ---- */
+    .lock-toggle {
+      display: flex; align-items: center; gap: 8px; width: 100%;
+      margin-bottom: 14px;
+      font-family: inherit; font-size: 13px; font-weight: 600;
+      padding: 8px 10px; cursor: pointer;
+      border: 1px solid var(--border-grey); border-radius: 6px;
+      background: var(--almost-white); color: var(--text);
+      transition: background .15s ease, border-color .15s ease, opacity .15s ease;
+    }
+    .lock-toggle .ico { font-size: 14px; line-height: 1; }
+    .lock-toggle .ratio { margin-left: auto; font-family: ui-monospace, monospace; opacity: .7; }
+    .lock-toggle[aria-pressed="true"] { border-color: var(--theme); background: #fff; }
+    .lock-toggle[aria-pressed="false"] { opacity: .6; }
+    .lock-toggle[aria-pressed="false"] .ratio { text-decoration: line-through; }
+
+    /* ---- Crop anchor ---- */
+    .crop-wrap { margin-top: 12px; }
+    .crop-stage {
+      position: relative; width: 100%; line-height: 0;
+      border-radius: 6px; overflow: hidden;
+      background: var(--almost-white); border: 1px solid var(--border-grey);
+      user-select: none; touch-action: none;
+    }
+    .crop-stage img { width: 100%; display: block; opacity: .55; }
+    .crop-box {
+      position: absolute; box-sizing: border-box;
+      border: 2px solid var(--theme);
+      box-shadow: 0 0 0 2000px rgba(102, 34, 59, 0.30);
+      cursor: grab; touch-action: none;
+    }
+    .crop-box.drag { cursor: grabbing; }
+    .crop-box::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background:
+        linear-gradient(var(--theme), var(--theme)) 0 33.33% / 100% 1px no-repeat,
+        linear-gradient(var(--theme), var(--theme)) 0 66.66% / 100% 1px no-repeat,
+        linear-gradient(var(--theme), var(--theme)) 33.33% 0 / 1px 100% no-repeat,
+        linear-gradient(var(--theme), var(--theme)) 66.66% 0 / 1px 100% no-repeat;
+      opacity: .4;
+    }
+    .crop-hint { font-size: 11px; opacity: .55; margin: 8px 0 0; }
   </style>
 </head>
 <body>
@@ -239,6 +282,14 @@
           <img id="thumb" alt="source preview" />
         </div>
         <input type="file" id="file" accept="image/*" hidden />
+
+        <div class="crop-wrap" id="cropPanel" hidden>
+          <div class="crop-stage" id="cropStage">
+            <img id="cropImg" alt="crop source" />
+            <div class="crop-box" id="cropBox"></div>
+          </div>
+          <p class="crop-hint">Drag the frame to set the 8:5 crop anchor.</p>
+        </div>
       </div>
 
       <!-- Colours -->
@@ -290,29 +341,33 @@
       <!-- Geometry -->
       <div class="panel">
         <h2>Grid &amp; cells</h2>
+        <button type="button" class="lock-toggle" id="aspectLock" aria-pressed="true">
+          <span class="ico">🔒</span>
+          <span class="txt">Grid locked</span>
+          <span class="ratio">40 × 25</span>
+        </button>
         <div class="ctl-row">
           <div class="ctl">
-            <label>Columns</label>
-            <input type="number" id="cols" min="1" max="300" value="64" />
+            <label>Columns <span class="home" id="colsLock">lock 40</span></label>
+            <input type="number" id="cols" min="1" max="300" value="40" />
           </div>
           <div class="ctl">
-            <label>Rows</label>
-            <input type="number" id="rows" min="1" max="300" value="64" />
+            <label>Rows <span class="home" id="rowsLock">lock 25</span></label>
+            <input type="number" id="rows" min="1" max="300" value="25" />
           </div>
         </div>
-        <label class="check" style="margin-bottom:12px;"><input type="checkbox" id="lockAspect" checked /> Lock rows to image aspect</label>
         <div class="ctl-row">
           <div class="ctl">
-            <label>Cell <span class="home">home 14</span></label>
-            <input type="number" id="cell" min="1" max="80" value="14" />
+            <label>Cell <span class="home">lock 12</span></label>
+            <input type="number" id="cell" min="1" max="80" value="12" />
           </div>
           <div class="ctl">
-            <label>Gap <span class="home">home 2</span></label>
-            <input type="number" id="gap" min="0" max="40" value="2" />
+            <label>Gap <span class="home">lock 1</span></label>
+            <input type="number" id="gap" min="0" max="40" value="1" />
           </div>
         </div>
         <div class="ctl" style="max-width:50%;">
-          <label>Radius <span class="home">home 2</span></label>
+          <label>Radius <span class="home">lock 2</span></label>
           <input type="number" id="radius" min="0" max="40" value="2" />
         </div>
       </div>
@@ -353,6 +408,11 @@
   <script>
   (function () {
     'use strict';
+
+    // Locked grid: fixed 40 × 25 cells (aspect 8 : 5).
+    const LOCK_COLS = 40, LOCK_ROWS = 25;
+    const AR_W = 8, AR_H = 5;
+    const AR = AR_W / AR_H;
 
     // ---------------------------------------------------------------------
     // Brand palette (index order = the splash contract; DO NOT reorder).
@@ -446,6 +506,8 @@
       ink: ['#66223b'],     // ordered ink stops (dark end)
       bg: ['#f6f0ed'],      // ordered background stops (light end)
       bgTransparent: false,
+      aspectLock: true,     // lock grid + source crop to AR_W:AR_H
+      cropX: 0.5, cropY: 0.5, // crop anchor, fraction of the free axis (0..1)
     };
 
     const $ = id => document.getElementById(id);
@@ -501,7 +563,14 @@
       // White matte so transparent source reads as "light" (-> background).
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, cols, rows);
-      ctx.drawImage(state.img, 0, 0, cols, rows);
+      if (state.aspectLock) {
+        // Crop the source (object-fit: cover) to the locked aspect, anchored.
+        // Use AR (not cols/rows) so the crop matches the on-screen frame exactly.
+        const { sx, sy, sw, sh } = cropRect(AR);
+        ctx.drawImage(state.img, sx, sy, sw, sh, 0, 0, cols, rows);
+      } else {
+        ctx.drawImage(state.img, 0, 0, cols, rows);
+      }
       const data = ctx.getImageData(0, 0, cols, rows).data;
       const lum = new Float32Array(cols * rows);
       for (let i = 0; i < cols * rows; i++) {
@@ -721,18 +790,74 @@
         state.filename = file.name || '';
         state.imgW = img.naturalWidth;
         state.imgH = img.naturalHeight;
-        const thumb = $('thumb');
-        thumb.src = url; thumb.style.display = 'inline-block';
-        if ($('lockAspect').checked) applyAspect();
+        $('thumb').src = url;
+        $('cropImg').src = url;
+        state.cropX = 0.5; state.cropY = 0.5;
+        if (state.aspectLock) syncAspect();
+        updateCropUI();
         regenerate();
         setStatus(`Loaded ${img.naturalWidth}×${img.naturalHeight}. ${file.name || ''}`);
       };
       img.onerror = () => setStatus('Could not load that image.');
       img.src = url;
     }
-    function applyAspect() {
-      const cols = Math.max(1, parseInt($('cols').value, 10) || 1);
-      $('rows').value = Math.max(1, Math.round(cols * state.imgAspect));
+
+    // ---------------------------------------------------------------------
+    // Aspect lock + movable source crop (object-fit: cover)
+    // ---------------------------------------------------------------------
+    function syncAspect() {
+      $('cols').value = LOCK_COLS;
+      $('rows').value = LOCK_ROWS;
+    }
+
+    // Source sub-rectangle for a cover-crop to `targetAR`, placed by anchor.
+    function cropRect(targetAR) {
+      const iw = state.imgW, ih = state.imgH;
+      const imgAR = iw / ih;
+      if (imgAR > targetAR) {              // source wider -> crop sides, X free
+        const sw = ih * targetAR;
+        return { sx: (iw - sw) * state.cropX, sy: 0, sw, sh: ih };
+      }
+      const sh = iw / targetAR;            // source taller -> crop top/bottom, Y free
+      return { sx: 0, sy: (ih - sh) * state.cropY, sw: iw, sh };
+    }
+
+    // Crop-box size/offset as fractions of the displayed full image.
+    function cropFractions() {
+      const imgAR = state.imgW / state.imgH;
+      if (imgAR > AR) return { wf: AR / imgAR, hf: 1, leftMax: 1 - AR / imgAR, topMax: 0 };
+      return { wf: 1, hf: imgAR / AR, leftMax: 0, topMax: 1 - imgAR / AR };
+    }
+    function positionCropBox() {
+      if (!state.img) return;
+      const f = cropFractions();
+      const box = $('cropBox');
+      box.style.left = (state.cropX * f.leftMax * 100) + '%';
+      box.style.top = (state.cropY * f.topMax * 100) + '%';
+      box.style.width = (f.wf * 100) + '%';
+      box.style.height = (f.hf * 100) + '%';
+    }
+    function updateCropUI() {
+      const show = state.aspectLock && !!state.img;
+      $('cropPanel').hidden = !show;
+      $('thumb').style.display = (state.img && !state.aspectLock) ? 'inline-block' : 'none';
+      const hint = state.aspectLock ? '' : 'none';
+      $('colsLock').style.display = hint;
+      $('rowsLock').style.display = hint;
+      if (show) positionCropBox();
+    }
+
+    function setAspectLock(on) {
+      state.aspectLock = on;
+      $('aspectLock').setAttribute('aria-pressed', String(on));
+      $('cols').disabled = on;
+      $('rows').disabled = on;
+      if (on) {
+        $('cell').value = 12; $('gap').value = 1; $('radius').value = 2;
+        syncAspect();
+      }
+      updateCropUI();
+      if (state.img) { remetric(); regenerate(); }
     }
 
     const drop = $('drop');
@@ -755,10 +880,34 @@
     $('invert').addEventListener('change', restyle);
     $('dither').addEventListener('change', restyle);
 
-    $('cols').addEventListener('change', () => { if ($('lockAspect').checked && state.img) applyAspect(); regenerate(); });
+    $('cols').addEventListener('change', () => { if (state.aspectLock) syncAspect(); regenerate(); });
     $('rows').addEventListener('change', regenerate);
-    $('lockAspect').addEventListener('change', () => { if ($('lockAspect').checked && state.img) { applyAspect(); regenerate(); } });
+    $('aspectLock').addEventListener('click', () => setAspectLock(!state.aspectLock));
     ['cell', 'gap', 'radius'].forEach(id => $(id).addEventListener('change', remetric));
+
+    // Movable crop anchor — drag the frame over the source.
+    (function () {
+      const stage = $('cropStage'), box = $('cropBox');
+      let startX = 0, startY = 0, startCX = 0.5, startCY = 0.5, on = false;
+      box.addEventListener('pointerdown', e => {
+        on = true; box.classList.add('drag'); box.setPointerCapture(e.pointerId);
+        startX = e.clientX; startY = e.clientY; startCX = state.cropX; startCY = state.cropY;
+        e.preventDefault();
+      });
+      box.addEventListener('pointermove', e => {
+        if (!on) return;
+        const rect = stage.getBoundingClientRect();
+        const f = cropFractions();
+        const freeW = f.leftMax * rect.width, freeH = f.topMax * rect.height;
+        if (freeW > 0) state.cropX = Math.max(0, Math.min(1, startCX + (e.clientX - startX) / freeW));
+        if (freeH > 0) state.cropY = Math.max(0, Math.min(1, startCY + (e.clientY - startY) / freeH));
+        positionCropBox();
+        regenerate();
+      });
+      const end = () => { if (on) { on = false; box.classList.remove('drag'); } };
+      box.addEventListener('pointerup', end);
+      box.addEventListener('pointercancel', end);
+    })();
 
     $('inkAdd').addEventListener('click', () => { const hex = $('inkPick').value; if (!state.ink.includes(hex)) state.ink.push(hex); syncColours(); restyle(); });
     $('bgAdd').addEventListener('click', () => { const hex = $('bgPick').value; if (!state.bg.includes(hex)) state.bg.push(hex); syncColours(); restyle(); });
@@ -892,8 +1041,15 @@
         },
         grid: {
           cols, rows,
-          lockAspect: $('lockAspect').checked,
+          lockAspect: state.aspectLock,
+          aspect: state.aspectLock ? { w: AR_W, h: AR_H } : null,
         },
+        crop: state.aspectLock ? {
+          fit: 'cover',
+          aspect: { w: AR_W, h: AR_H },
+          anchorX: state.cropX,             // fraction of free horizontal range
+          anchorY: state.cropY,             // fraction of free vertical range
+        } : null,
         cell: {
           size: parseInt($('cell').value, 10),
           gap: parseInt($('gap').value, 10),
@@ -1033,6 +1189,7 @@
     // Init
     // ---------------------------------------------------------------------
     syncColours();
+    setAspectLock(true);
   })();
   </script>
 </body>
