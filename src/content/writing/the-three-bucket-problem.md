@@ -1,11 +1,11 @@
 ---
-title: "The three-bucket problem"
+title: "The Three-Bucket Problem"
 subtitle: "Ten tests for the UK’s new R&D funding framework"
 summary: "Lord Vallance’s three-bucket framework could bring real coherence to the science budget, or collapse into an empty taxonomy. We set out ten tests it must pass to work as a governance settlement rather than just a way of labelling spending."
 authors: ["Ben Johnson"]
 date: 2025-11-18
 type: essay
-project: "Funding Reform"
+project: "The Research Economy"
 illustration: "/assets/images/writing/the-three-bucket-problem/three-bucket-cover.png"
 related: ["the-bucket-stops-here", "how-not-to-waste-an-ai-for-science-mission"]
 writers:

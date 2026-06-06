@@ -1,5 +1,5 @@
 ---
-title: "How not to waste an AI for science mission"
+title: "How Not to Waste an AI for Science Mission"
 subtitle: "On the regrettable necessity of thinking carefully before spending public money"
 summary: "The government’s proposed AI for Science missions will only succeed with rigorous selection criteria and proper delivery thinking. Vague, poorly-governed missions would waste public money and damage the credibility of ambitious state action."
 authors: ["Ben Johnson", "Laura Ryan"]

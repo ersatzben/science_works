@@ -864,8 +864,8 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
     .report-card-body { flex: 1; display: flex; flex-direction: column; }
     .report-title {
       font-family: 'Playfair Display', serif;
-      font-weight: 600;
-      font-size: 18px;
+      font-weight: 300;
+      font-size: 19px;
       line-height: 1.2;
       color: var(--text);
       margin: 0 0 10px;
@@ -1371,12 +1371,13 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
       };
     })();
 
-    // ----- Mobile hero: render the 8 pixel-art blocks (same art as desktop) --
+    // ----- Mobile hero: 6 pixel-art blocks (same art as desktop) + swap anim --
     (function () {
       const host = document.querySelector('.mobile-hero');
       if (!host || !window.SW) return;
       const PAL = window.SW.ART_PALETTE;
       const TOTAL = 132, N = 6;
+
       const blocks = [];
       for (let b = 0; b < N; b++) {
         const el = document.createElement('div');
@@ -1391,15 +1392,70 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
         host.appendChild(el);
         blocks.push(cells);
       }
+
+      // Per-block live cell data (palette indices), seeded from the art.
+      const slotData = Array.from({ length: N }, () => new Array(TOTAL).fill(0));
+
       function render(art) {
         const grids = (art && art.grids) || [];
         for (let b = 0; b < N; b++) {
-          const data = grids[b] || [];
-          const cells = blocks[b];
-          for (let i = 0; i < TOTAL; i++) cells[i].style.background = PAL[data[i]] || PAL[0];
+          const src = grids[b] || [];
+          for (let i = 0; i < TOTAL; i++) {
+            slotData[b][i] = src[i] || 0;
+            blocks[b][i].style.background = PAL[slotData[b][i]] || PAL[0];
+          }
         }
       }
-      window.SW.loadArt().then(render);
+
+      // ----- Swap animation --------------------------------------------------
+      // Block layout (text fills cols 2-3 of rows 2-4):  0 1 2 / 3 / 4 / 5.
+      // Fixed pairs per the diagram (1 2 1 / 3 / 2 / 3).
+      const FIXED_PAIRS = [[0, 2], [1, 4], [3, 5]];
+      const DISSOLVE_MS = 12000;       // each swap dissolves over 12s
+      const PAUSE_MS = 7500;           // pause after a swap before it loops
+      const SWAP_INTERVAL_MS = DISSOLVE_MS + PAUSE_MS;   // 19.5s loop period per pair
+      const PAIR_OFFSETS_MS = [0, 1500, 7500];           // each pair's start offset from load
+
+      let animGen = 0, intervals = [];
+      function stop() { animGen++; intervals.forEach(clearInterval); intervals = []; }
+
+      function dissolveSwap(a, b, gen) {
+        for (let i = 0; i < TOTAL; i++) {
+          setTimeout(() => {
+            if (gen !== animGen) return;
+            const tmp = slotData[a][i];
+            slotData[a][i] = slotData[b][i];
+            slotData[b][i] = tmp;
+            blocks[a][i].style.background = PAL[slotData[a][i]] || PAL[0];
+            blocks[b][i].style.background = PAL[slotData[b][i]] || PAL[0];
+          }, Math.random() * DISSOLVE_MS);
+        }
+      }
+
+      function start() {
+        stop();
+        const gen = animGen;
+        FIXED_PAIRS.forEach((pair, idx) => {
+          setTimeout(() => {
+            if (gen !== animGen) return;
+            dissolveSwap(pair[0], pair[1], gen);
+            const id = setInterval(() => {
+              if (gen !== animGen) { clearInterval(id); return; }
+              dissolveSwap(pair[0], pair[1], gen);
+            }, SWAP_INTERVAL_MS);
+            intervals.push(id);
+          }, PAIR_OFFSETS_MS[idx] || 0);
+        });
+      }
+
+      // Only animate when the mobile hero is visible; respect reduced-motion.
+      const mqMobile = window.matchMedia('(max-width: 600px)');
+      const mqMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      function sync() { (mqMobile.matches && !mqMotion.matches) ? start() : stop(); }
+      mqMobile.addEventListener('change', sync);
+      mqMotion.addEventListener('change', sync);
+
+      window.SW.loadArt().then((art) => { render(art); sync(); });
     })();
 
     // ----- Spotlight cards: fill each right panel with a whole-cell dot grid -
