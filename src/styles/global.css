@@ -120,7 +120,7 @@
     }
 
     .nav {
-      height: 60px;
+      height: 70px;
       background: var(--bg-secondary);
       border-bottom: 2px solid var(--border-grey);
       box-sizing: border-box;
@@ -142,7 +142,7 @@
     }
     .logo-mark {
       height: 20px;
-      margin-left: 10px;
+      margin-left: 14px;
       width: auto;
       display: block;
     }
@@ -164,7 +164,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-right: 16px;
+      margin-right: 22px;
     }
     .nav-links a {
       font-family: 'Roboto', sans-serif;
@@ -175,7 +175,7 @@
       line-height: 1;
       padding: 8px 14px;
       border: 1.5px solid transparent;   /* always present so hover doesn't shift layout */
-      border-radius: 8px;
+      border-radius: 4px;
       transition: border-color 0.15s ease;
     }
     .nav-links a:hover {
@@ -201,7 +201,7 @@
     }
     @media (max-width: 720px) {
       /* Smaller, tighter mobile header. */
-      .nav { padding: 0 14px; }
+      .nav { padding: 0 14px; height: 60px; }
       .logo-mark { height: 17px; margin-left: 0; }   /* smaller + flush to the left edge */
       .logo-text { font-size: 20px; }
       .nav-toggle { display: flex; gap: 4px; padding: 5px; }   /* smaller hit area, tighter to the right */
