@@ -6,8 +6,7 @@ authors: ["Ben Johnson"]
 date: 2025-11-18
 type: essay
 project: "The Research Economy"
-illustration: "/assets/images/writing/the-three-bucket-problem/three-bucket-cover.png"
-related: ["the-bucket-stops-here", "how-not-to-waste-an-ai-for-science-mission"]
+related: ["the-bucket-stops-here", "how-not-to-waste-an-ai-for-science-mission", "designing-ai-for-disruptive-science"]
 writers:
   - name: "Ben Johnson"
     role: "Co-Director"

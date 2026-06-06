@@ -7,8 +7,6 @@ date: 2026-03-07
 type: essay
 featured: true
 project: "AI for Science"
-illustration: "/assets/pixel_art/essay_images/essay_test.png"
-illustrationPixelated: true
 contributors: ["Sam Currie", "Alex Chalmers", "Alvin Djajadikerta", "Charlie Harris"]
 related: ["designing-ai-for-disruptive-science", "the-three-bucket-problem", "the-bucket-stops-here"]
 writers:

@@ -7,7 +7,7 @@ import { getCover } from '../../lib/covers.js';
 const all = (await getCollection('writing'))
   .filter((e) => !e.data.draft)
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
-const featured = all.find((e) => e.data.featured) ?? all[0];
+const latest = all[0];   // newest by date (list is sorted newest-first)
 const fmt = (d) => d.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
 const label = (t) => (t === 'report' ? 'Report' : 'Essay');
 const projects = [...new Set(all.map((e) => e.data.project))].sort((a, b) => a.localeCompare(b));
@@ -55,28 +55,26 @@ const projects = [...new Set(all.map((e) => e.data.project))].sort((a, b) => a.l
     </div>
 
     <div class="wi-content">
-    {featured && (
+    {latest && (
       <div class="wi-featured-wrapper">
-        <a class="wi-featured" href={`/writing/${featured.id}`}>
+        <a class="wi-featured" href={`/writing/${latest.id}`}>
           <div class="wi-feat-top">
             <div class="wi-feat-meta">
               <div class="wi-feat-head">
-                <h2 class="wi-feat-title">{featured.data.title}</h2>
-                <p class="wi-feat-eyebrow">{label(featured.data.type)}</p>
+                <h2 class="wi-feat-title">{latest.data.title}</h2>
+                <p class="wi-feat-eyebrow">{label(latest.data.type)}</p>
               </div>
-              <p class="wi-feat-authors">{featured.data.authors.join(', ')}</p>
-              {(featured.data.summary ?? featured.data.subtitle) && <p class="wi-feat-summary">{featured.data.summary ?? featured.data.subtitle}</p>}
+              <p class="wi-feat-authors">{latest.data.authors.join(', ')}</p>
+              {(latest.data.summary ?? latest.data.subtitle) && <p class="wi-feat-summary">{latest.data.summary ?? latest.data.subtitle}</p>}
             </div>
-            {getCover(featured.id)
-              ? <div class="wi-feat-art" aria-hidden="true"><GridArt bitmap={getCover(featured.id)} aspect={3 / 2} /></div>
-              : featured.data.illustration
-                ? <div class:list={["wi-feat-img", { "is-pixelated": featured.data.illustrationPixelated }]} role="img" aria-label="" style={`background-image: url('${featured.data.illustration}')`}></div>
-                : <div class="wi-pix wi-feat-pix" aria-hidden="true"></div>}
+            {getCover(latest.id)
+              ? <div class="wi-feat-art" aria-hidden="true"><GridArt bitmap={getCover(latest.id)} aspect={3 / 2} /></div>
+              : <div class="wi-pix wi-feat-pix" aria-hidden="true"></div>}
           </div>
           <div class="wi-feat-rule"></div>
           <div class="wi-feat-foot">
-            <span class="wi-feat-featured">Featured</span>
-            <span class="wi-feat-date">{fmt(featured.data.date)}</span>
+            <span class="wi-feat-featured">Latest</span>
+            <span class="wi-feat-date">{fmt(latest.data.date)}</span>
           </div>
         </a>
       </div>
@@ -86,18 +84,16 @@ const projects = [...new Set(all.map((e) => e.data.project))].sort((a, b) => a.l
       <div class="wi-grid">
         {all.map((e) => (
           <a
-            class:list={["wi-card", { "is-hidden": e === featured }]}
+            class:list={["wi-card", { "is-hidden": e === latest }]}
             href={`/writing/${e.id}`}
             data-type={e.data.type}
             data-project={e.data.project}
             data-date={e.data.date.getTime()}
-            data-featured={e === featured ? "true" : undefined}
+            data-featured={e === latest ? "true" : undefined}
           >
             {getCover(e.id)
               ? <div class="wi-card-art" aria-hidden="true"><GridArt bitmap={getCover(e.id)} aspect={3 / 2} /></div>
-              : e.data.illustration
-                ? <div class:list={["wi-card-img", { "is-pixelated": e.data.illustrationPixelated }]} role="img" aria-label="" style={`background-image: url('${e.data.illustration}')`}></div>
-                : <div class="wi-pix wi-card-pix" aria-hidden="true"></div>}
+              : <div class="wi-pix wi-card-pix" aria-hidden="true"></div>}
             <div class="wi-card-body">
               <h3 class="wi-card-title">{e.data.title}</h3>
               <p class="wi-card-authors">{e.data.authors.join(', ')}</p>
@@ -198,8 +194,6 @@ const projects = [...new Set(all.map((e) => e.data.project))].sort((a, b) => a.l
     .wi-feat-foot { display: flex; justify-content: space-between; align-items: baseline; }
     .wi-feat-featured { font-family: var(--button-text); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; font-size: 13px; color: var(--theme); }
     .wi-feat-date { font-family: var(--button-text); font-size: 13px; color: var(--text); text-transform: uppercase; }
-    .wi-feat-img { flex: 0 0 320px; align-self: flex-start; aspect-ratio: 3 / 2; border-radius: 0px; background-size: contain; background-position: center; background-repeat: no-repeat; image-rendering: auto; }   /* image right, top-aligned */
-    .wi-feat-img.is-pixelated { image-rendering: pixelated; }
     .wi-feat-pix { flex: 0 0 auto; align-self: flex-start; width: 320px; --card-pix-rows: 16; }
     .wi-feat-art { flex: 0 0 320px; align-self: flex-start; border-radius: 0px; overflow: hidden; }
 
@@ -207,8 +201,6 @@ const projects = [...new Set(all.map((e) => e.data.project))].sort((a, b) => a.l
     .wi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 18px; }
     .wi-card { position: relative; display: flex; flex-direction: column; background: var(--almost-white); border: 1px solid var(--border-grey); border-radius: 6px; overflow: hidden; padding: 16px 20px; text-decoration: none; color: var(--text); }
     .wi-card:hover { border-color: var(--theme); box-shadow: inset 0 0 0 1px var(--theme); }
-    .wi-card-img { aspect-ratio: 3 / 2; border-radius: 4px; margin-bottom: 16px; background-size: cover; background-position: center; image-rendering: auto; }
-    .wi-card-img.is-pixelated { image-rendering: pixelated; }
     .wi-card-art { margin-bottom: 16px; border-radius: 0px; overflow: hidden; }
     .wi-card-pix { margin-bottom: 16px; --card-pix-rows: 8; }
     .wi-card-body { display: flex; flex-direction: column; flex: 1; }
@@ -229,7 +221,7 @@ const projects = [...new Set(all.map((e) => e.data.project))].sort((a, b) => a.l
       .wi-featured-wrapper { padding: 14px 18px; background-color: var(--coral); margin-top: 8px; margin-bottom: 14px; }
       .wi-featured { padding: 18px; margin-bottom: 0px; }
       .wi-feat-top { flex-direction: column; gap: 18px; }
-      .wi-feat-img, .wi-feat-pix { flex: none; width: 100%; aspect-ratio: 16 / 9; }
+      .wi-feat-pix { flex: none; width: 100%; aspect-ratio: 16 / 9; }
       .wi-feat-art { flex: none; width: 100%; }
       .wi-feat-title { font-size: 24px; }
       .wi-grid {padding: 0 18px; }

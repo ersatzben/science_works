@@ -14,8 +14,6 @@ const writing = defineCollection({
     type: z.enum(['essay', 'report']),
     project: z.string(),
     summary: z.string().optional(),          // longer blurb for cards/index; falls back to subtitle
-    illustration: z.string().optional(),     // pixel-art essay image
-    illustrationPixelated: z.boolean().default(false),  // nearest-neighbour render for low-res pixel art
     contributors: z.array(z.string()).optional(),
     pdf: z.string().optional(),
     draft: z.boolean().default(false),
