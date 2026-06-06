@@ -1,0 +1,82 @@
+---
+// Renders a mosaic JSON (from scripts/mosaic-from-image.mjs) as a pixel grid that
+// "grows" via a breadth-first flood. The reveal is baked per cell (--step); the
+// page-level trigger script plays it on hover.
+//
+// Reveal seed:
+//  • If `data.seed` (a list of [row,col]) is present, those cells are the start
+//    state (visible at rest) and growth floods outward from all of them at once
+//    — used for the start→destination morph.
+//  • Otherwise the seed is the densest cell in the right half (single hub), and
+//    `seedSteps` BFS layers show at rest.
+const { data, cell, gap, seedSteps = 1 } = Astro.props;
+const { cols: MW, rows: MH, grid: MG, palette: MP } = data;
+const filled = (r, c) => r >= 0 && c >= 0 && r < MH && c < MW && MG[r][c] >= 0;
+
+const step = Array.from({ length: MH }, () => new Array(MW).fill(-1));
+const q = [];
+const isSeed = Array.from({ length: MH }, () => new Array(MW).fill(false));
+if (Array.isArray(data.seed) && data.seed.length) {
+  for (const [r, c] of data.seed) if (filled(r, c)) { step[r][c] = 0; isSeed[r][c] = true; q.push([r, c]); }
+} else {
+  let seed = [0, 0], best = -1;
+  for (let r = 0; r < MH; r++) for (let c = Math.floor(MW * 0.5); c < MW; c++) {
+    if (!filled(r, c)) continue;
+    let n = 0;
+    for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) if ((dr || dc) && filled(r + dr, c + dc)) n++;
+    if (n > best) { best = n; seed = [r, c]; }
+  }
+  step[seed[0]][seed[1]] = 0;
+  q.push(seed);
+}
+// BFS (8-connected) from the seed set → per-cell reveal step.
+for (let h = 0; h < q.length; h++) {
+  const [r, c] = q[h], d = step[r][c];
+  for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) {
+    if (!dr && !dc) continue;
+    const nr = r + dr, nc = c + dc;
+    if (filled(nr, nc) && step[nr][nc] < 0) { step[nr][nc] = d + 1; q.push([nr, nc]); }
+  }
+}
+// Disconnected islands → nearest reachable cell's step + 1.
+for (let r = 0; r < MH; r++) for (let c = 0; c < MW; c++) {
+  if (filled(r, c) && step[r][c] < 0) {
+    let bd = Infinity, bs = 0;
+    for (let rr = 0; rr < MH; rr++) for (let cc = 0; cc < MW; cc++)
+      if (filled(rr, cc) && step[rr][cc] >= 0) { const dd = (rr - r) ** 2 + (cc - c) ** 2; if (dd < bd) { bd = dd; bs = step[rr][cc]; } }
+    step[r][c] = bs + 1;
+  }
+}
+const hasSeedMask = Array.isArray(data.seed) && data.seed.length;
+const seedAtRest = (r, c) => hasSeedMask ? isSeed[r][c] : step[r][c] <= seedSteps;
+---
+<div class="pp-mosaic" style={`--m-cols:${MW}${cell ? `; --m-cell:${cell}` : ''}${gap ? `; --m-gap:${gap}` : ''}`} aria-hidden="true">
+  {MG.map((row, r) => row.map((v, c) => (
+    <span class:list={["pp-cell", { "is-seed": v >= 0 && seedAtRest(r, c) }]} style={v >= 0 ? `background:${MP[v]}; --step:${step[r][c]};` : ''}></span>
+  )))}
+</div>
+
+<style>
+  .pp-mosaic {
+    --grow-step: 62ms;   /* delay added per BFS layer */
+    display: grid;
+    grid-template-columns: repeat(var(--m-cols), var(--m-cell, 16px));
+    grid-auto-rows: var(--m-cell, 16px);
+    gap: var(--m-gap, 3px);
+  }
+  .pp-cell { border-radius: 2px; }
+
+  /* When armed, every cell except the seed bunch hides until the block grows.
+     (No-JS / reduced-motion never arms, so the whole network stays visible.) */
+  .pp-mosaic.anim-ready .pp-cell:not(.is-seed) {
+    opacity: 0;
+    transform: scale(0.4);
+    transform-origin: center;
+    transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.2, 0.85, 0.3, 1.1);
+    transition-delay: calc(var(--step, 0) * var(--grow-step));
+  }
+  .pp-mosaic.anim-ready.is-grown .pp-cell { opacity: 1; transform: scale(1); }
+
+  @media (max-width: 820px) { .pp-mosaic { --m-cell: 12px; --m-gap: 2px; } }
+  @media (max-width: 600px) { .pp-mosaic { --m-cell: 9px; --m-gap: 2px; } }
+</style>

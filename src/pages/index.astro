@@ -96,6 +96,7 @@ const sifItems = [
 
 
       <div class="spotlight-main">
+        <canvas class="spotlight-rain" aria-hidden="true"></canvas>
         <h2 class="section-label"><a href="/projects">featured projects</a></h2>
         <div class="projects">
         <article class="project">
@@ -521,7 +522,18 @@ const sifItems = [
       grid-template-columns: minmax(280px, 1.5fr) 1.55fr;   /* intro col ~25% wider */
       gap: 56px;
       align-items: start;
-      margin: 0 160px;              /* THIS IS THE BIG PADDING */ 
+      margin: 0 160px;              /* THIS IS THE BIG PADDING */
+    }
+    /* Anchor for the rain layer, which sits in the grid's right margin band. */
+    .spotlight-main { position: relative; }
+    .spotlight-rain {
+      position: absolute;
+      top: 0;                      /* height set in JS — reaches the top of card 3 */
+      left: 100%;                  /* right edge of the project cards */
+      width: 120px;
+      margin-left: 40px;           /* keep 40px clear of the cards' right edge (fits the 160px margin) */
+      pointer-events: none;
+      z-index: 0;
     }
     .spotlight-intro {
       position: sticky;
@@ -547,7 +559,11 @@ const sifItems = [
     .intro-matrix span {
       background: var(--border-grey);
       border-radius: var(--small-block-radius);
+      box-sizing: border-box;
+      box-shadow: inset 0 0 0 0 transparent;   /* baseline for the hollow-ring transition */
+      transition: background-color 0.9s ease, box-shadow 0.9s ease;
     }
+    .intro-matrix.is-flutter span { transition-duration: 0.18s; }   /* quick burst */
     .intro-eyebrow { display: none; }   /* mobile-only (shown in the 600px query) */
     .intro-pic { display: none; }       /* mobile-only (shown in the 600px query) */
     .spotlight-intro h2 {
@@ -1179,8 +1195,10 @@ const sifItems = [
     }
 
     @media (max-width: 900px) {
-      .spotlight-grid { grid-template-columns: 1fr; gap: 34px; }
+      .spotlight-grid { grid-template-columns: 1fr; gap: 34px; margin: 0; }
       .spotlight-intro { position: static; top: auto; }
+      .spotlight-intro-footer { padding: 20px 0 0; transform: scale(0.9); }
+      .spotlight-rain { display: none; }   /* desktop-only */
     }
 </style>
 
@@ -1730,9 +1748,229 @@ const sifItems = [
         '5': 'var(--coral)',
       };
       const spans = grid.children;
-      for (let i = 0; i < spans.length && i < MOTIF.length; i++) {
-        const c = COLOURS[MOTIF[i]];
-        if (c) spans[i].style.background = c;
+      const base = [];
+      for (let i = 0; i < spans.length; i++) {
+        const c = (i < MOTIF.length && COLOURS[MOTIF[i]]) || 'var(--border-grey)';
+        spans[i].style.background = c;
+        base[i] = c;
+      }
+
+      // Gentle, occasional life: one cell at a time mostly goes hollow or
+      // transparent for a moment; rarely one changes colour. CSS transitions
+      // smooth every change. Pauses when hidden; off under reduced-motion.
+      const mqMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const PALETTE = ['var(--beige)', 'var(--bright-blue)', 'var(--theme)', 'var(--pale-blue)', 'var(--coral)', 'var(--sage)'];
+      const rand = function (a, b) { return a + Math.random() * (b - a); };
+      let calmTimer = 0, flutterTimer = 0, waveTimer = 0, active = false;
+      const COLS = 7, ROWS = 2;
+
+      function revert(i) {
+        spans[i].style.background = base[i];
+        spans[i].style.boxShadow = 'inset 0 0 0 0 transparent';
+      }
+      function applyEffect(i) {
+        const r = Math.random();
+        if (r < 0.45) {                 // hollow ring
+          spans[i].style.background = 'transparent';
+          spans[i].style.boxShadow = 'inset 0 0 0 2px ' + base[i];
+        } else if (r < 0.85) {          // briefly transparent
+          spans[i].style.background = 'transparent';
+        } else {                        // rare colour change
+          spans[i].style.background = PALETTE[(Math.random() * PALETTE.length) | 0];
+        }
+      }
+      function act() {
+        const i = (Math.random() * spans.length) | 0;
+        applyEffect(i);
+        setTimeout(function () { revert(i); }, rand(1400, 3000));
+        schedule();
+      }
+      function schedule() {
+        clearTimeout(calmTimer);
+        calmTimer = setTimeout(act, rand(2600, 6500));
+      }
+      // Flutter: a quick left-to-right "Mexican wave". A 3-column
+      // hollow–transparent–hollow band sweeps across; the top row runs one
+      // column ahead of the bottom row.
+      const STEP = 70;   // ms per column
+      function waveCell(i, mode) {           // mode: 'centre' | 'edge'
+        spans[i].style.background = 'transparent';
+        spans[i].style.boxShadow = (mode === 'edge') ? 'inset 0 0 0 2px ' + base[i] : 'inset 0 0 0 0 transparent';
+      }
+      function flutter() {
+        grid.classList.add('is-flutter');
+        let pos = -1;                        // wave centre column for the top row
+        function frame() {
+          for (let i = 0; i < spans.length; i++) revert(i);
+          for (let row = 0; row < ROWS; row++) {
+            const centre = (row === 0) ? pos : pos - 1;   // top leads bottom by one
+            for (let d = -1; d <= 1; d++) {
+              const c = centre + d;
+              if (c < 0 || c >= COLS) continue;
+              waveCell(row * COLS + c, d === 0 ? 'centre' : 'edge');
+            }
+          }
+          pos++;
+          if (pos <= COLS + 1) {             // run until the offset tail clears
+            waveTimer = setTimeout(frame, STEP);
+          } else {
+            for (let i = 0; i < spans.length; i++) revert(i);
+            setTimeout(function () { grid.classList.remove('is-flutter'); }, 220);
+          }
+        }
+        frame();
+        scheduleFlutter();
+      }
+      function scheduleFlutter() {
+        clearTimeout(flutterTimer);
+        flutterTimer = setTimeout(flutter, rand(5000, 15000));
+      }
+      function start() { if (!active) { active = true; schedule(); scheduleFlutter(); } }
+      function stop() {
+        active = false;
+        clearTimeout(calmTimer); clearTimeout(flutterTimer); clearTimeout(waveTimer);
+        grid.classList.remove('is-flutter');
+        for (let i = 0; i < spans.length; i++) revert(i);
+      }
+      function sync() { (!document.hidden && !mqMotion.matches) ? start() : stop(); }
+
+      mqMotion.addEventListener('change', sync);
+      document.addEventListener('visibilitychange', sync);
+      sync();
+    })();
+</script>
+
+<script is:inline>
+    // Subtle falling pixel "rain" in the empty band to the right of the project
+    // cards. Desktop only; respects reduced-motion; pauses when hidden/off-screen.
+    (function () {
+      const canvas = document.querySelector('.spotlight-rain');
+      if (!canvas || !canvas.getContext) return;
+      const ctx = canvas.getContext('2d');
+
+      // Muted theme colours, rendered at low alpha so the effect stays quiet.
+      const css = getComputedStyle(document.documentElement);
+      const palette = ['--pale-blue', '--sage', '--border-grey', '--deep-green', '--theme']
+        .map(function (v) { return css.getPropertyValue(v).trim(); })
+        .filter(Boolean);
+      const SIZES = [6, 8, 10], RADIUS = 2;
+
+      let W = 0, H = 0, drops = [], raf = 0, running = false, onScreen = true;
+      const rand = function (a, b) { return a + Math.random() * (b - a); };
+
+      function makeDrop(fromTop) {
+        const hollow = Math.random() < 0.4;                     // ~40% are outlines, like the SIF cells
+        const size = hollow ? (Math.random() < 0.5 ? 8 : 10)    // bigger so the outline reads
+                            : SIZES[(Math.random() * SIZES.length) | 0];
+        const amp = rand(1.5, 4);   // sway amplitude — inset x by it so drops stay in-band
+        return {
+          x: rand(amp, Math.max(amp + 1, W - size - amp)),
+          y: fromTop ? -size : rand(0, H),
+          size: size,
+          speed: rand(0.12, 0.45),        // slow = rain-like and subtle
+          alpha: Math.random() < 0.6 ? 1 : rand(0.5, 1),   // mostly full, never below 0.5
+          color: palette[(Math.random() * palette.length) | 0] || '#888',
+          hollow: hollow,
+          // Smoothed sideways drift: small sine sway tied to vertical position.
+          amp: amp,
+          freq: rand(0.010, 0.024),
+          phase: rand(0, Math.PI * 2),
+        };
+      }
+      function build() {
+        const n = Math.max(6, Math.min(26, Math.round(H / 48)));
+        drops = [];
+        for (let i = 0; i < n; i++) drops.push(makeDrop(false));
+      }
+      // Height runs from the top of the column down to the top of card 3.
+      function targetHeight() {
+        const main = canvas.parentElement;
+        const cards = main ? main.querySelectorAll('.project') : [];
+        if (cards.length >= 3 && cards[2].offsetTop > 0) return cards[2].offsetTop;
+        return main ? main.clientHeight : (canvas.clientHeight || 1);
+      }
+      function resize() {
+        canvas.style.height = targetHeight() + 'px';
+        const r = canvas.getBoundingClientRect();
+        W = Math.max(1, r.width);
+        H = Math.max(1, r.height);
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        build();
+      }
+      function roundRect(x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
+      }
+      function draw() {
+        ctx.clearRect(0, 0, W, H);
+        for (let i = 0; i < drops.length; i++) {
+          const d = drops[i];
+          ctx.globalAlpha = d.alpha;
+          const sway = Math.sin(d.y * d.freq + d.phase) * d.amp;
+          if (d.hollow) {
+            roundRect(d.x + sway, d.y, d.size, d.size, RADIUS);
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = d.color;
+            ctx.stroke();
+          } else {
+            roundRect(d.x + sway, d.y, d.size, d.size, RADIUS);
+            ctx.fillStyle = d.color;
+            ctx.fill();
+          }
+        }
+        ctx.globalAlpha = 1;
+      }
+      function tick() {
+        for (let i = 0; i < drops.length; i++) {
+          const d = drops[i];
+          d.y += d.speed;
+          if (d.y > H + d.size) drops[i] = makeDrop(true);
+        }
+        draw();
+        raf = requestAnimationFrame(tick);
+      }
+      function start() {
+        if (running) return;
+        running = true;
+        if (!W || !H) resize();
+        raf = requestAnimationFrame(tick);
+      }
+      function stop() {
+        running = false;
+        if (raf) cancelAnimationFrame(raf);
+        raf = 0;
+      }
+
+      const mqDesktop = window.matchMedia('(min-width: 901px)');
+      const mqMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      function sync() {
+        (!document.hidden && onScreen && mqDesktop.matches && !mqMotion.matches) ? start() : stop();
+      }
+
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (entries) {
+          onScreen = entries[0].isIntersecting;
+          sync();
+        }, { threshold: 0 }).observe(canvas);
+      }
+      window.addEventListener('resize', function () { if (mqDesktop.matches) resize(); });
+      mqDesktop.addEventListener('change', sync);
+      mqMotion.addEventListener('change', sync);
+      document.addEventListener('visibilitychange', sync);
+
+      if (mqDesktop.matches) resize();
+      sync();
+      // Card heights can shift once webfonts load — re-measure the target height.
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(function () { if (mqDesktop.matches) resize(); });
       }
     })();
 </script>

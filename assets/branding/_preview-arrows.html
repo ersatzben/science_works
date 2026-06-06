@@ -1,0 +1,28 @@
+<!doctype html>
+<!-- Dev helper: visual contact sheet for the arrow-right SVG set. Safe to delete. -->
+<meta charset="utf-8">
+<title>Arrow set preview</title>
+<style>
+  body { background:#f7f5f2; color:#222; font:14px/1.5 system-ui, sans-serif; margin:40px; }
+  h1 { font-size:18px; }
+  .row { display:flex; align-items:center; gap:20px; padding:12px 0; border-bottom:1px solid #e3ded7; }
+  .row code { flex:0 0 230px; color:#666; }
+  img { height:24px; }          /* native height; width scales with length */
+  .thick { background:#fff; }
+</style>
+<h1>arrow-right set &mdash; theme red <code>#eb3131</code></h1>
+<p>Rendered at native size (height 24). Longer multipliers are intrinsically wider.</p>
+<div id="list"></div>
+<script>
+  const lens = ['1x','1_5x','2x','2_5x','3x','4x'];
+  const host = document.getElementById('list');
+  for (const w of ['', '-thick']) {
+    for (const l of lens) {
+      const f = `arrow-right-${l}${w}.svg`;
+      const row = document.createElement('div');
+      row.className = 'row' + (w ? ' thick' : '');
+      row.innerHTML = `<code>${f}</code><img src="${f}" alt="${f}">`;
+      host.appendChild(row);
+    }
+  }
+</script>

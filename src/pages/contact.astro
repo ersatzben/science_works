@@ -25,10 +25,57 @@ const PALETTE = [
   { name: 'Indigo', hex: '#3a3c7c' },
   { name: 'Mauve', hex: '#72679b' },
 ];
+
+// Decorative pixel-art motifs scattered around the contact content. Each motif is
+// a small matrix, absolutely positioned relative to .contact-inner. '0' is always
+// transparent; other digits are coloured via `color` (single fill) or `colors`
+// (per-digit map). List a digit in `hollow` to render it as an outline instead of
+// a fill. `cell` overrides the pixel size (default 12px); `pos.transform` allows
+// centred placement (e.g. translateY(-50%)). Add/adjust entries as we go.
+const motifs = [
+  // worked example: 2x3, purple, out to the left near the top
+  { rows: ['11', '10', '01'], color: 'var(--purple-blue)', pos: { top: '-20px', left: '-100px' } },
+  // 3x2, light blue with a hollow cell, out to the middle-left
+  { rows: ['001', '200'], color: 'var(--pale-blue)', hollow: '2', pos: { top: '45%', left: '-70px', transform: 'translateY(-50%)' } },
+  // single coral pixel, bottom-left
+  { rows: ['1'], color: 'var(--coral)', pos: { bottom: '80px', left: '-140px' } },
+  // dark green trio, top-right
+  { rows: ['010', '011'], color: 'var(--deep-green)', pos: { top: '-60px', right: '-130px' } },
+  // single dark green pixel near the trio
+  { rows: ['1'], color: 'var(--deep-green)', pos: { top: '-12px', right: '-95px' } },
+  // 3x2, theme + coral, middle-right
+  { rows: ['002', '100'], colors: { '1': 'var(--theme)', '2': 'var(--coral)' }, pos: { top: '40%', right: '-100px', transform: 'translateY(-50%)' } },
+  // 2x2 hollow light-blue, slightly below the theme/coral set
+  { rows: ['0X', 'X0'], color: 'var(--pale-blue)', hollow: 'X', pos: { top: 'calc(40% + 10px)', right: '-130px' } },
+];
+const motifStyle = (m) => [
+  m.pos.top    ? `top:${m.pos.top};` : '',
+  m.pos.right  ? `right:${m.pos.right};` : '',
+  m.pos.bottom ? `bottom:${m.pos.bottom};` : '',
+  m.pos.left   ? `left:${m.pos.left};` : '',
+  m.pos.transform ? `transform:${m.pos.transform};` : '',
+  `--cart-cols:${m.rows[0].length};`,
+  m.cell ? `--cart-cell:${m.cell};` : '',
+].join('');
+const cartCell = (ch, m) => {
+  if (ch === '0') return '';   // transparent
+  const col = (m.colors && m.colors[ch]) || m.color;
+  if (!col) return '';
+  return (m.hollow && m.hollow.indexOf(ch) !== -1)
+    ? `box-shadow: inset 0 0 0 2px ${col};`   // hollow outline
+    : `background:${col};`;                    // fill
+};
 ---
 <BaseLayout title="Contact — Science Works">
   <main class="contact">
     <div class="contact-inner">
+     {motifs.map((m) => (
+       <div class="cart-motif" aria-hidden="true" style={motifStyle(m)}>
+         {m.rows.map((row) => row.split('').map((ch) => (
+           <span class="cart-cell" style={cartCell(ch, m)}></span>
+         )))}
+       </div>
+     ))}
      <div class="contact-grid">
       <div class="contact-left">
       <h1 class="contact-title">Get in touch</h1>
@@ -122,12 +169,28 @@ const PALETTE = [
   </main>
 
   <style>
-    .contact { padding: 150px 24px 104px; }
-    .contact-inner { max-width: 1200px; margin: 0 auto; }
+    .contact { padding: 130px 24px 104px; }
+    .contact-inner { max-width: 1100px; margin: 0 auto; position: relative; }
+
+    /* Decorative pixel-art motifs, absolutely placed around the content. */
+    .cart-motif {
+      position: absolute;
+      display: grid;
+      grid-template-columns: repeat(var(--cart-cols), var(--cart-cell, 12px));
+      grid-auto-rows: var(--cart-cell, 12px);
+      gap: var(--cart-gap, 3px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .cart-cell { border-radius: var(--small-block-radius); }
+    /* Side-margin art needs room — only show on wide screens. */
+    @media (max-width: 1199px) { .cart-motif { display: none; } }
 
     /* Two columns: contact form (left) + mosaic maker (right) */
-    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 120px; align-items: start; }
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 100px; align-items: start; }
     .contact-left, .contact-right { min-width: 0; }
+
+    .contact-left {padding-right:30px; padding-left: 20px; }
 
     .contact-right { background-color: var(--almost-white); border: 1px solid var(--border-grey); padding: 24px 24px 14px; border-radius: 5px; }
 
@@ -155,17 +218,17 @@ const PALETTE = [
     .mk-clear { font-family: var(--button-text); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--theme); background: var(--almost-white); border: 1px solid var(--border-grey); border-radius: 4px; padding: 7px 14px; cursor: pointer; }
     .mk-clear:hover { border-color: var(--theme); }
     .contact-title {
-      font-family: 'Copperplate', serif; font-weight: normal; font-size: 36px;
-      letter-spacing: -0.02em; color: var(--text); margin: 0 0 14px;
+      font-family: 'Copperplate', serif; font-weight: normal; font-size: 34px;
+      letter-spacing: -0.02em; color: var(--text); margin: 20px 0 14px;
     }
     .contact-intro {
       font-family: 'Antique Olive', sans-serif; font-size: 14px; line-height: 1.4; font-weight: 300;
       color: var(--text); margin: 0 0 24px; max-width: 560px;
     }
 
-    .cform { display: flex; flex-direction: column; gap: 14px; }
-    .cform-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .cform-field { display: flex; flex-direction: column; gap: 7px;}
+    .cform { display: flex; flex-direction: column; gap: 10px; }
+    .cform-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .cform-field { display: flex; flex-direction: column; gap: 4px;}
     .cform-field label {
       font-family: 'Antique Olive'; font-weight: 500; 
       letter-spacing: 0em; font-size: 13px; color: var(--text);

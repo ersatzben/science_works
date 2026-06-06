@@ -1,0 +1,109 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import MosaicNetwork from '../components/MosaicNetwork.astro';
+
+// Every JSON in src/data/mosaics/ becomes its own network block (sorted by name).
+const mods = import.meta.glob('../data/mosaics/*.json', { eager: true });
+const mosaics = Object.keys(mods).sort().map((k) => mods[k].default ?? mods[k]);
+---
+<BaseLayout title="Projects — Science Works">
+  <main class="projects-page">
+    <div class="pp-inner">
+      <header class="pp-head">
+        <h1 class="pp-title">Projects</h1>
+        <p class="pp-intro">Placeholder intro — more to come.</p>
+      </header>
+
+      <!-- Working with 01 for now (02–05 hidden while positioning is figured out). -->
+      <div class="pp-networks">
+        <div class="pp-block">
+          <MosaicNetwork data={mosaics[0]} cell="6px" gap="1px" />
+        </div>
+
+        <div class="project-card">
+          <p class="project-index">01</p>
+          <h3 class="project-title">Institutional Dynamism</h3>
+          <p class="project-subtitle">Some placeholder text about the project which we will write later</p>
+          <button type="button" class="project-toggle">+ Open Project</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <style>
+    .projects-page { padding: 96px 24px 40px; }
+    .pp-inner { max-width: 1100px; margin: 0 auto; position: relative; }
+
+    .pp-head { margin: 0 0 28px; }
+    .pp-title {
+      font-family: 'Copperplate', serif; font-weight: normal; font-size: 30px;
+      letter-spacing: -0.02em; color: var(--text); margin: 0 0 10px;
+    }
+    .pp-intro {
+      font-family: 'Antique Olive', sans-serif; font-weight: 300; font-size: 15px;
+      line-height: 1.5; color: var(--text); margin: 0; max-width: 560px;
+    }
+
+    /* Lay the five networks out together, no scrolling. */
+    .pp-networks {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 28px 36px;
+    }
+    .pp-block { flex: 0 0 auto; }
+
+    /* Project info card, sits to the right of the network. */
+    .project-card {
+      flex: 0 0 auto;
+      width: 180px;
+      height: 180px;
+      box-sizing: border-box;
+      border: 1px solid var(--border-grey);
+      border-radius: 6px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+    }
+    .project-index {
+      font-family: var(--button-text); font-weight: 500; font-size: 12px;
+      letter-spacing: 0.06em; color: var(--theme); margin: 0 0 6px;
+    }
+    .project-title {
+      font-family: 'Copperplate', serif; font-weight: normal; font-size: 16px;
+      line-height: 1.15; color: var(--text); margin: 0 0 8px;
+    }
+    .project-subtitle {
+      font-family: 'Antique Olive', sans-serif; font-weight: 300; font-size: 12px;
+      line-height: 1.4; color: var(--text); margin: 0;
+    }
+    .project-toggle {
+      margin-top: auto;   /* pin to the bottom of the card */
+      align-self: flex-start;
+      font-family: var(--button-text); font-weight: 500; font-size: 12px;
+      letter-spacing: 0.02em; text-transform: uppercase;
+      color: var(--theme); background: none; border: none; padding: 0; cursor: pointer;
+    }
+    .project-toggle:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .projects-page { padding: 80px 18px 40px; }
+      .pp-title { font-size: 26px; }
+      .pp-networks { gap: 24px; }
+    }
+  </style>
+
+  <script is:inline>
+    // Each network grows from its seed on hover and stays grown afterwards.
+    (function () {
+      const grids = Array.prototype.slice.call(document.querySelectorAll('.pp-mosaic'));
+      if (!grids.length) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;   // static
+      grids.forEach(function (g) {
+        g.classList.add('anim-ready');   // only the seed bunch shows until hovered
+        g.addEventListener('mouseenter', function () { g.classList.add('is-grown'); }, { once: true });
+      });
+    })();
+  </script>
+</BaseLayout>

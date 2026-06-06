@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 101 24" width="101" height="24" fill="none" stroke="#eb3131" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Arrow pointing right, 1.5x length, normal weight">
+  <!-- Right arrow: open chevron head, 1.5x shaft (1x = original), normal weight, theme red #eb3131. -->
+  <path d="M4 12 H91 M79 5 L91 12 L79 19" />
+</svg>
