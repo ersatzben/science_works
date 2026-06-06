@@ -1,0 +1,350 @@
+{
+  "team": [
+    {
+      "name": "Ben Johnson",
+      "role": "Co-Director",
+      "bio": "Ben is Co-Director of Science Works. He is a former senior UK government adviser on science and R&D, having advised multiple administrations, and co-author of national-level science policies including the UK R&D Roadmap and UK Innovation Strategy. He was previously associate director at UKRI, has contributed to G7 open science frameworks, and builds data tools for research strategy. Ben is also Professor of Research and Innovation Policy at the University of Strathclyde.",
+      "photo": "ben-johnson.jpg",
+      "x": "ersatzben",
+      "bluesky": "ersatzben.com",
+      "linkedin": "https://www.linkedin.com/in/ben-johnson-aa9195192/",
+      "glyph": [[2, null, null, 3, null], [4, null, null, 5, 10], [0, 9, null, 1, null], [6, 1, 1, null, null], [8, null, 7, null, 6]]
+    },
+    {
+      "name": "Laura Ryan",
+      "role": "Co-Director",
+      "bio": "Laura is Co-Director of Science Works. She was previously Senior Analyst in Science and Technology at the Tony Blair Institute, leading work on metascience, AI for science, and institutional models for R&D, and is lead author of the Lovelace Disruptive Invention Labs report. Laura is co-founder of the Better Science Project and a former Cambridge neuroscientist with a PhD in the field.",
+      "photo": "laura-ryan.jpg",
+      "x": "Lyan82",
+      "bluesky": "",
+      "linkedin": "https://www.linkedin.com/in/laura-ryan-07489a14a/",
+      "glyph": [[5, null, null, 0, 5], [6, 7, null, 6, 3], [11, null, null, 4, null], [4, 1, 9, null, 10], [1, null, null, null, 3]]
+    },
+    {
+      "name": "Louise Dunsby",
+      "role": "Chief Operating Officer",
+      "bio": "Louise is a senior operations leader with extensive experience building and scaling mission-driven organisations. She has established core operating infrastructure for early-stage non-profits, serving as COO and leading the launch of a £17m programme portfolio. As a senior civil servant, she built the UK government’s Office for Science and Technology Strategy, overseeing government-wide science and technology decision-making processes.",
+      "photo": "louise-dunsby.jpg",
+      "x": "",
+      "bluesky": "",
+      "linkedin": "https://www.linkedin.com/in/ldunsby/",
+      "glyph": [[null, 8, null, null, 10], [null, 1, 3, 10, 10], [9, null, 8, null, 10], [0, 10, 4, null, 9], [5, null, 11, 11, 2]]
+    },
+    {
+      "name": "Alvin Djajadikerta",
+      "role": "Researcher",
+      "bio": "Alvin is a Researcher at Science Works, working on AI for Science and wider metascience delivery. He was co-founder of the Better Science Project and a strategy consultant at BCG, where he delivered transformation programmes across health, industry, and the public sector. He is a former Cambridge neuroscientist and PhD graduate.",
+      "photo": "alvin-djajadikerta.jpg",
+      "x": "adjajadikerta",
+      "bluesky": "adjajadikerta.bsky.social",
+      "linkedin": "https://www.linkedin.com/in/alvin-djajadikerta/",
+      "glyph": [[0, 7, 7, 4, null], [null, 7, 11, null, 10], [9, 1, 5, 0, 5], [null, null, 11, null, 1], [4, 5, null, 6, 6]]
+    },
+    {
+      "name": "Will Stone",
+      "role": "Researcher",
+      "bio": "Will is a Researcher at Science Works, working on science and innovation funding reform. He was previously Senior Policy Advisor for Science and Innovation at HM Treasury, where he led a team driving innovation-led growth policy across Whitehall and allocated more than £20bn in annual budgets. His focus is on funding reform, government-institutional architecture, and strategy.",
+      "photo": "will-stone.jpg",
+      "x": "",
+      "bluesky": "",
+      "linkedin": "https://www.linkedin.com/in/will-stone-839064182/",
+      "glyph": [[null, 9, null, 0, 10], [null, 4, 0, 0, 3], [null, null, null, 5, null], [11, 1, 6, null, null], [4, 2, null, 10, 7]]
+    },
+    {
+      "name": "Rory Byrne",
+      "role": "Researcher",
+      "bio": "Rory is a Researcher at Science Works, working on software toolbuilding. He is an engineer and two-time founder, currently completing a PhD in computational neuroscience at Cambridge. He was previously a senior software engineer and is co-organiser of the CompMotifs ARIA Innovator Circle.",
+      "photo": "rory-byrne.jpg",
+      "x": "ryrobyrne",
+      "bluesky": "rory.bio",
+      "linkedin": "https://www.linkedin.com/in/rorytbyrne/",
+      "glyph": [[5, 0, 6, null, 4], [10, 11, 0, null, null], [1, 0, 10, 5, null], [null, 3, null, 4, null], [null, 9, 4, 10, null]]
+    },
+    {
+      "name": "Will Bolton",
+      "role": "Researcher",
+      "bio": "Will is a Researcher at Science Works, working on software toolbuilding. He is an AI for Health Researcher at Imperial College London, where he recently completed his PhD on machine learning systems to support antibiotic prescribing decisions. As an Encode Fellow at Oxford, he develops multi-agent AI scientist systems to generate, critique, and compare research strategies, using clinical research as a testbed. He founded Steward.ai, a clinical decision support tool now being clinically evaluated, and won the No.10 Generative AI Hackathon 2024 on biothreats detection. Will has published in Nature Communications and Nature Machine Intelligence, and holds an MPhil in Bioscience Enterprise from Cambridge and a BSc in Biochemistry from Imperial.",
+      "photo": "will-bolton.jpg",
+      "x": "",
+      "bluesky": "",
+      "linkedin": "https://www.linkedin.com/in/william-bolton/",
+      "glyph": [[8, 8, 2, 2, null], [8, 4, 6, null, null], [8, null, 10, 9, 10], [null, 11, 6, 11, 6], [null, 11, null, null, 7]]
+    }
+  ],
+  "contributors": [
+    {
+      "name": "Alex Chalmers",
+      "role": "Contributor",
+      "bio": "Alex is a staff writer at the Cosmos Institute. Before joining Cosmos, he was an editor at Works in Progress, a magazine focused on new and underrated ideas to improve the world. He previously held roles in venture capital and policy consultancy. Alex studied History at the University of Oxford and won an Emergent Ventures grant in 2024 to support Chalmermagne, his Substack on the intersection of policy, finance, and technology.",
+      "photo": "alex-chalmers.jpg",
+      "x": "chalmermagne",
+      "bluesky": "",
+      "linkedin": "https://www.linkedin.com/in/alex-chalmers-41937912a/",
+      "glyph": [[null, 8, 7, 1, 4], [null, 10, 4, 10, 6], [9, 0, 11, 11, 6], [7, 9, null, null, 2], [7, 11, 0, 2, null]]
+    },
+    {
+      "name": "Charlie Harris",
+      "role": "Contributor",
+      "bio": "Charlie is an AI scientist and PhD candidate at the University of Cambridge, working on geometric deep learning for structural biology and drug discovery. He is a leading contributor to the Boltz project, an open-source AI model for protein folding and molecular interaction prediction.",
+      "photo": "charlie-harris.jpg",
+      "x": "",
+      "bluesky": "harrisbio.bsky.social",
+      "linkedin": "https://www.linkedin.com/in/charlie-harris-388285156/",
+      "glyph": [[7, null, 1, 1, 6], [6, 2, null, 3, null], [5, 5, 1, 11, 1], [null, 0, null, 8, null], [10, null, 9, null, 11]]
+    },
+    {
+      "name": "Anastasia Bektimirova",
+      "role": "Contributor",
+      "bio": "Anastasia is a policy expert, researcher, and author specialising in science, technology, and AI governance. She was previously Head of Science and Technology at the UK think tank The Entrepreneurs Network, and has since worked at the Royal Academy of Engineering in a policy delivery role.",
+      "photo": "anastasia-bektimirova.jpg",
+      "x": "anastasiabekt",
+      "bluesky": "anastasiabekt.bsky.social",
+      "linkedin": "https://www.linkedin.com/in/anastasia-bektimirova-711a3a191/",
+      "glyph": [[null, 10, null, 8, null], [7, null, null, null, 9], [null, null, 9, null, 9], [4, null, 11, null, null], [9, 2, 11, 2, 10]]
+    },
+    {
+      "name": "James Phillips",
+      "role": "Contributor",
+      "bio": "James is a former neuroscientist and policy expert who served as Special Adviser to the Prime Minister from 2020 to 2022. He is best known for helping architect the UK’s Advanced Research and Invention Agency (ARIA) and for leading rapid COVID-19 testing initiatives.",
+      "photo": "james-phillips.jpg",
+      "x": "AnEmergentI",
+      "bluesky": "",
+      "linkedin": "https://www.linkedin.com/in/james-phillips-6737591a9/",
+      "glyph": [[11, null, 4, 10, 1], [8, null, 6, null, 3], [null, null, 5, 10, 9], [6, 4, 9, 2, null], [6, 4, 8, 6, 9]]
+    },
+    {
+      "name": "David Jordan",
+      "role": "Contributor",
+      "bio": "David is an independent researcher, engineer, and founding director of the Living Physics Lab. Backed by the UK’s Advanced Research and Invention Agency (ARIA), his work merges theory, experiments, and engineering to understand how living cells learn, adapt, and compute.",
+      "photo": "david-jordan.jpg",
+      "x": "",
+      "bluesky": "",
+      "linkedin": "",
+      "glyph": [[6, 2, 11, 7, 5], [8, 8, null, null, 11], [null, 11, 8, null, 10], [9, 10, null, null, 8], [3, null, 1, null, 2]]
+    },
+    {
+      "name": "Lydia Farnham",
+      "role": "Contributor",
+      "bio": "Lydia is Chief Technology Officer at Asothia, a startup building a platform matching researchers to funding and automating grant writing. She is also social and events curator at the Pharos Foundation, building community and connecting people across disciplines. Her background is in atmospheric chemistry and climate technology, and her interests lie at the intersection of scientific research, technology, and the systems that help researchers do their best work.",
+      "photo": "lydia-farnham.jpg",
+      "x": "",
+      "bluesky": "",
+      "linkedin": "https://www.linkedin.com/in/lydia-farnham/",
+      "glyph": [[0, 10, 0, 4, 0], [7, 1, null, null, null], [8, 2, 3, null, 2], [9, 9, 4, 0, 6], [8, 1, 8, null, 0]]
+    },
+    {
+      "name": "Eric Gilliam",
+      "role": "Contributor",
+      "bio": "Eric runs FreakTakes, a Substack focused on the organisational infrastructure of scientific progress, producing ‘administrative histories’ of historically exceptional R&D organisations such as Bell Labs, early MIT, the Rockefeller Foundation, and DARPA. His work explores what made these labs unusually effective and what it would take to build their modern equivalents. Eric is a Fellow at the Good Science Project and works with ARIA UK and Renaissance Philanthropy on new R&D models. He has a degree in political science from Stanford and previously worked with economist Steve Levitt at the University of Chicago, where he developed his interest in the empirical literature on the economics of science and innovation.",
+      "photo": "eric-gilliam.jpg",
+      "x": "eric_is_weird",
+      "bluesky": "",
+      "linkedin": "https://www.linkedin.com/in/eric-gilliam-068b78116/",
+      "glyph": [[3, null, null, null, 2], [4, 6, 2, 3, 0], [7, 5, null, 8, null], [9, null, 2, null, 3], [null, 7, 11, null, null]]
+    },
+    {
+      "name": "Hope Bretscher",
+      "role": "Contributor",
+      "bio": "Hope is a physicist and researcher specialising in experimental condensed matter, low-energy physics, and ultrafast optoelectronics. She is a postdoctoral researcher at the Max Planck Institute for the Structure and Dynamics of Matter in Germany, and is establishing the Integrated Quantum Materials lab at Boston College.",
+      "photo": "hope-bretscher.jpg",
+      "x": "HopeLouiseB",
+      "bluesky": "hope-ful.bsky.social",
+      "linkedin": "https://www.linkedin.com/in/hope-m-bretscher/",
+      "glyph": [[7, 1, 1, null, 7], [7, 11, 0, 2, 3], [1, 11, 8, null, 10], [4, 6, 9, 0, null], [9, 3, 9, 5, 4]]
+    },
+    {
+      "name": "Jennie Palmer",
+      "role": "Contributor",
+      "bio": "Jennie is a PhD student at the Cambridge Institute for Medical Research (CIMR) and the UK Dementia Research Institute (UK DRI). Her research investigates the interplay between autophagy and neurodegeneration, combining cell biology, molecular biology and biochemistry to explore the molecular mechanisms of neurodegenerative diseases and potential therapeutic avenues. She also contributes to widening participation in science through public engagement and outreach activities.",
+      "photo": "jennie-palmer.jpg",
+      "x": "",
+      "bluesky": "jenniferepalmer.bsky.social",
+      "linkedin": "https://www.linkedin.com/in/jenniferepalmer/",
+      "glyph": [[11, null, 2, 7, null], [0, null, 1, 0, 9], [2, 0, 4, 5, null], [11, 3, null, null, 11], [null, 1, 10, 8, 7]]
+    },
+    {
+      "name": "Sehaj Pasricha",
+      "role": "Contributor",
+      "bio": "Sehaj works with Not Boring, the media and venture studio founded by Packy McCormick, where he helped build Boring News, a Polymarket-sponsored project that turns prediction-market data into daily news analysis. His own work sits at the intersection of machine intelligence and computer systems, with a long-term interest in hardware. He is also building Wayfarers Space, a community for autodidacts learning across disciplines.",
+      "photo": "",
+      "x": "",
+      "bluesky": "",
+      "linkedin": "",
+      "glyph": [[null, 1, 10, 2, 8], [2, 8, 5, 4, 5], [10, 10, 6, 10, 6], [null, 4, 6, 0, null], [null, null, 1, null, 1]]
+    }
+  ],
+  "igb": [
+    {
+      "name": "Ben Southwood",
+      "role": "Chair",
+      "bio": "Ben is an economist, researcher, and writer. He is co-founder and editor of the magazine Works in Progress, which now operates as part of Stripe Press, and has held roles at the Adam Smith Institute, Policy Exchange, and Create Streets.",
+      "photo": "ben-southwood.jpg",
+      "x": "bswud",
+      "bluesky": "bswud.bsky.social",
+      "linkedin": "https://www.linkedin.com/in/ben-southwood-805824b6/",
+      "glyph": [[7, null, 3, null, 8], [null, null, null, null, null], [1, 7, 3, 11, null], [null, 6, 9, 4, null], [null, null, 5, null, 4]]
+    },
+    {
+      "name": "Helen Ewles",
+      "role": "Chief of Staff, Royal Academy of Engineering",
+      "bio": "Helen is Chief of Staff at the Royal Academy of Engineering, where she has been shaping UK research and innovation policy for over a decade. Her expertise spans emerging technologies, entrepreneurship, R&D investment, and research culture. Helen has also worked in the civil service on science and technology policy, and previously as an academic in molecular microbiology.",
+      "photo": "helen-ewles.jpg",
+      "x": "",
+      "bluesky": "helvisew.bsky.social",
+      "linkedin": "https://www.linkedin.com/in/helen-ewles-75b6785a/",
+      "glyph": [[3, null, 2, 1, 9], [null, 8, null, null, 1], [null, 4, 6, 9, null], [null, 11, null, 8, null], [null, 7, null, 1, 8]]
+    },
+    {
+      "name": "Jeegar Kakkad",
+      "role": "Director, Stonehaven & Public First",
+      "bio": "Jeegar leads the Defence & Industrials team at Stonehaven & Public First. He was previously Director of Government Innovation at the Tony Blair Institute for Global Change, and his career spans roles at Jaguar Land Rover, the Social Market Foundation, the Brookings Institution, and Chief Economist at ADS Group.",
+      "photo": "jeegar-kakkad.jpg",
+      "x": "jeegarkakkad",
+      "bluesky": "jeegarkakkad.bsky.social",
+      "linkedin": "https://www.linkedin.com/in/jeegar-kakkad-8596a91/",
+      "glyph": [[null, 6, 5, 5, 8], [10, null, 8, 0, null], [7, 9, 11, 6, 11], [10, 1, null, null, 10], [1, 2, null, 3, 1]]
+    }
+  ],
+  "sab": [
+    {
+      "name": "Anastasia Gamick",
+      "role": "President, Convergent Research",
+      "bio": "Anastasia is co-founder and President of Convergent Research, a non-profit organisation that pioneers and scales the Focused Research Organization (FRO) model. She sits on the boards and advises various scientific and public-good organisations, including Forest Neurotech, EvE Bio, Cultivarium, Dragonfly, [C]Worthy, and the Unitary Fund.",
+      "photo": "anastasia-gamick.jpg",
+      "x": "AGamick",
+      "bluesky": "",
+      "linkedin": "https://www.linkedin.com/in/anastasiagamick/",
+      "glyph": [[10, null, 1, 7, 5], [0, 0, 5, null, 0], [8, null, null, 6, 2], [null, 8, null, 2, 11], [9, 2, 4, 9, 2]]
+    },
+    {
+      "name": "Rob Miller",
+      "role": "Director, Whittle Laboratory, Cambridge",
+      "bio": "Rob is Professor of Aerothermal Technology and Director of the Whittle Laboratory at the University of Cambridge, and Director of the Rolls-Royce University Technology Centre. His research targets emissions in aviation and power generation. His pioneering work on Rapid Technology Development has cut R&D timelines from years to months, and he is leading a new Whittle Laboratory to accelerate the journey from research to engineering application. Rob founded the Aviation Impact Accelerator, which develops evidence-based tools for net zero aviation. He is a Fellow of the Royal Academy of Engineering and serves on the Department for Transport’s Science Advisory Council.",
+      "photo": "rob-miller.jpg",
+      "x": "",
+      "bluesky": "",
+      "linkedin": "https://www.linkedin.com/in/rob-miller-7bb014339/",
+      "glyph": [[2, 8, 7, 9, null], [0, 5, 8, null, 3], [null, null, null, 5, null], [6, 8, null, 1, 6], [10, 7, null, null, null]]
+    },
+    {
+      "name": "Tom Kalil",
+      "role": "CEO, Renaissance Philanthropy",
+      "bio": "Tom is CEO of Renaissance Philanthropy. He previously led innovation at Schmidt Futures. Tom served in the White House under Presidents Obama and Clinton, helping design and launch major science and technology initiatives, including the National Nanotechnology Initiative, the BRAIN Initiative, the Next Generation Internet, and programmes in data science, robotics, commercial space, and advanced materials. His team worked with the Senate to give every federal agency authority to support incentive prizes of up to $50 million. From 2001 to 2008, he was Special Assistant to the Chancellor for Science and Technology at UC Berkeley, where he launched Big Ideas@Berkeley.",
+      "photo": "tom-kalil.jpg",
+      "x": "tkalil2050",
+      "bluesky": "",
+      "linkedin": "https://www.linkedin.com/in/tom-kalil-a581/",
+      "glyph": [[9, null, 0, null, null], [7, 9, 11, 10, null], [null, 6, null, 8, null], [null, 5, null, 2, 10], [0, 7, 3, null, 10]]
+    },
+    {
+      "name": "David Willetts",
+      "role": "Chair, Resolution Foundation",
+      "bio": "Bio coming soon.",
+      "photo": "david-willetts.jpg",
+      "x": "",
+      "bluesky": "",
+      "linkedin": "https://www.linkedin.com/in/david-willetts-428b89281/",
+      "glyph": [[10, 5, 9, null, null], [3, 11, null, 5, 4], [5, 6, null, 10, 9], [1, 2, 7, null, 1], [7, 7, 0, 1, null]]
+    },
+    {
+      "name": "Sam Bowman",
+      "role": "Head of Publishing, Stripe",
+      "bio": "Sam is an economist and policy analyst, currently Head of Publishing at Stripe and founding editor of Works in Progress. He is best known for co-authoring the influential 2021 essay ‘The Housing Theory of Everything’, and previously served as Executive Director of the Adam Smith Institute.",
+      "photo": "sam-bowman.jpg",
+      "x": "s8mb",
+      "bluesky": "sambowman.co",
+      "linkedin": "https://www.linkedin.com/in/~samb/",
+      "glyph": [[null, 8, 6, null, 10], [4, null, null, null, 3], [9, 1, null, 8, 4], [null, 10, null, null, null], [3, null, 3, 3, 7]]
+    },
+    {
+      "name": "James Wilsdon",
+      "role": "Director, Research on Research Institute",
+      "bio": "James is Executive Director of the Research on Research Institute (RoRI), and Professor of Research Policy at UCL’s Department of Science, Technology, Engineering and Public Policy (STEaPP). RoRI’s consortium spans 15 countries and includes funders investing over $25 billion in R&D each year. A transdisciplinary social scientist, James has been active in UK and international science policy since the late 1990s, with academic posts at Sheffield, Sussex and Lancaster, and roles including Director of Science Policy at the Royal Society. He chaired the 2015 review of research metrics published as The Metric Tide.",
+      "photo": "james-wilsdon.jpg",
+      "x": "",
+      "bluesky": "jameswilsdon.bsky.social",
+      "linkedin": "https://www.linkedin.com/in/james-wilsdon-0112a7/",
+      "glyph": [[9, null, null, 5, null], [9, null, 6, 6, null], [5, 9, 7, 10, null], [null, 6, 2, 5, 6], [null, 11, 4, 5, 6]]
+    },
+    {
+      "name": "Saloni Dattani",
+      "role": "Co-founder, Works in Progress",
+      "bio": "Saloni is a science writer, researcher, and co-founder of Works in Progress. She works on data-driven journalism in global health, meta-science, and medical innovation, and holds a PhD in psychiatric genetics from King’s College London and the University of Hong Kong.",
+      "photo": "saloni-dattani.jpg",
+      "x": "salonium",
+      "bluesky": "scientificdiscovery.dev",
+      "linkedin": "https://www.linkedin.com/in/saloni-dattani/",
+      "glyph": [[1, 5, null, 7, null], [11, 4, 10, 1, 4], [8, null, null, 6, null], [null, null, null, 4, 1], [0, 0, 1, 6, 5]]
+    },
+    {
+      "name": "Ben Reinhardt",
+      "role": "Founder & CEO, Speculative Technologies",
+      "bio": "Bio coming soon.",
+      "photo": "ben-reinhardt.jpg",
+      "x": "Ben_Reinhardt",
+      "bluesky": "benjaminreinhardt.com",
+      "linkedin": "https://www.linkedin.com/in/benjaminzreinhardt/",
+      "glyph": [[null, null, 7, 1, null], [null, 9, 6, null, 4], [null, 7, 6, 7, null], [8, null, null, 2, 5], [1, null, 11, 6, 2]]
+    },
+    {
+      "name": "Stuart Buck",
+      "role": "Executive Director, Good Science Project",
+      "bio": "Stuart is Executive Director of the Good Science Project, a non-profit think tank dedicated to making federal science funding more innovative and streamlined. He has spearheaded over $60 million in grants to improve scientific reproducibility and transparency, and previously served as Vice President of Research at Arnold Ventures.",
+      "photo": "stuart-buck.jpg",
+      "x": "stuartbuck1",
+      "bluesky": "stuartbuck.bsky.social",
+      "linkedin": "https://www.linkedin.com/in/stuartbuck/",
+      "glyph": [[5, 7, 5, 7, 4], [1, 10, 10, 6, null], [null, 9, 8, 1, 10], [8, 6, 4, 0, null], [5, 10, 4, 3, 5]]
+    },
+    {
+      "name": "Benedict Macon-Cooney",
+      "role": "Chief AI & Innovation Officer, TBI",
+      "bio": "Benedict is Chief AI & Innovation Officer at the Tony Blair Institute for Global Change, where he leads policy work across technology, the economy, climate, health, and geopolitics. His focus is on AI policy and how governments adapt to fast-moving technology. He began his career as an economist at HM Treasury during the financial crisis, before working in finance, in a Prime Minister’s Office in Southeast Asia and in President Kagame’s Office in Rwanda. Benedict led the influential New National Purpose report series, co-authored with Tony Blair and Lord Hague, and writes extensively on artificial intelligence, biotechnology and clean technology.",
+      "photo": "benedict-macon-cooney.jpg",
+      "x": "benedictcooney",
+      "bluesky": "",
+      "linkedin": "https://www.linkedin.com/in/benedict-macon-cooney-4516ab29/",
+      "glyph": [[0, 1, 11, null, 0], [3, null, null, null, 0], [null, 5, 5, 3, 9], [9, 11, 1, 1, 2], [null, 3, 3, null, null]]
+    },
+    {
+      "name": "Sarah Chaytor",
+      "role": "Director of Strategy & Policy, UCL",
+      "bio": "Sarah is a UK higher education professional specialising in research policy and academic-policy engagement. She is Director of Strategy & Policy and Joint Chief of Staff for UCL Research, Innovation and Global Engagement, and Co-Chair and Director of Programmes for the Universities Policy Engagement Network.",
+      "photo": "sarah-chaytor.jpg",
+      "x": "",
+      "bluesky": "",
+      "linkedin": "https://www.linkedin.com/in/sarah-chaytor-130a3384/",
+      "glyph": [[8, 10, null, null, 8], [5, null, 0, 1, 8], [null, 2, 5, 0, null], [10, null, null, null, 5], [11, 11, null, null, 3]]
+    },
+    {
+      "name": "Paul Nightingale",
+      "role": "Professor, SPRU, University of Sussex",
+      "bio": "Paul is Professor of Strategy and Associate Dean of Research at the University of Sussex Business School, based at SPRU (Science Policy Research Unit). Originally trained as a chemist, his work focuses on technical change, innovation systems, and the governance of complex and security-relevant technologies. He has contributed to research on biosecurity, dual-use science, and the implications of emerging technologies for the chemical and biological weapons prohibition regimes. His broader interests include industrial dynamics, metascience, financial innovation, and the management of uncertainty in major R&D and transformational projects. Paul is also acting Director of the Harvard Sussex Program.",
+      "photo": "paul-nightingale.jpg",
+      "x": "Nightingale_P",
+      "bluesky": "paulnightingale.bsky.social",
+      "linkedin": "https://www.linkedin.com/in/paul-nightingale-b3b2444/",
+      "glyph": [[null, null, null, null, 7], [7, 8, null, 3, 1], [5, null, null, null, 4], [0, 5, 5, 4, 10], [5, 3, 10, null, 11]]
+    },
+    {
+      "name": "Ronit Kanwar",
+      "role": "Managing Director, Renaissance Philanthropy",
+      "bio": "Ronit is Managing Director at Renaissance Philanthropy, and was previously Director of Partnerships at Schmidt Futures. Recognised on the Forbes 30 Under 30 Asia list, he co-founded Empower Energy, an enterprise that brings renewable energy to rural communities in India.",
+      "photo": "ronit-kanwar.jpg",
+      "x": "RonitKanwar",
+      "bluesky": "",
+      "linkedin": "https://www.linkedin.com/in/ronitkanwar/",
+      "glyph": [[null, 7, 4, 9, 5], [2, null, null, null, null], [null, 8, 5, null, null], [3, 2, 10, 1, null], [4, 4, 7, null, 2]]
+    },
+    {
+      "name": "Jacqueline Campbell",
+      "role": "Co-Founder, Asterisk Labs",
+      "bio": "Jacqueline is a Schmidt Science Fellow and interdisciplinary scientist with an unconventional career path. After years as a tube driver and social care worker, she took evening classes in astrophysics and earned a First-Class BSc in Earth and Ocean Science from Brighton. Her UCL PhD in Space and Climate Physics searched for life on Mars. As a Schmidt Fellow at Oxford, she investigated ocean acidification using remote sensing satellites, then worked in drug discovery and science entrepreneurship startups. She co-founded Asterisk Labs, the UK’s first worker-owned co-operative research laboratory, combining deep learning, Earth observation and climate science with open-source outputs.",
+      "photo": "jacqueline-campbell.jpg",
+      "x": "",
+      "bluesky": "",
+      "linkedin": "https://www.linkedin.com/in/dr-jacqueline-campbell/",
+      "glyph": [[null, 4, null, 1, null], [5, null, 6, null, null], [11, null, 7, 1, 7], [4, 1, 9, 11, null], [null, null, 6, 5, 0]]
+    }
+  ]
+}

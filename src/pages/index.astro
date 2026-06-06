@@ -70,7 +70,7 @@ const ifCover = getCover(featured.id);
             <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
           <div class="project-divider" aria-hidden="true"></div>
-          <div class="project-img" aria-hidden="true"></div>
+          <div class="project-img" aria-hidden="true"><div class="project-img-cells"></div></div>
         </article>
         <article class="project">
           <div class="project-body">
@@ -82,7 +82,7 @@ const ifCover = getCover(featured.id);
             <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
           <div class="project-divider" aria-hidden="true"></div>
-          <div class="project-img" aria-hidden="true"></div>
+          <div class="project-img" aria-hidden="true"><div class="project-img-cells"></div></div>
         </article>
         <article class="project">
           <div class="project-body">
@@ -94,7 +94,7 @@ const ifCover = getCover(featured.id);
             <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
           <div class="project-divider" aria-hidden="true"></div>
-          <div class="project-img" aria-hidden="true"></div>
+          <div class="project-img" aria-hidden="true"><div class="project-img-cells"></div></div>
         </article>
         <article class="project">
           <div class="project-body">
@@ -106,7 +106,7 @@ const ifCover = getCover(featured.id);
             <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
           <div class="project-divider" aria-hidden="true"></div>
-          <div class="project-img" aria-hidden="true"></div>
+          <div class="project-img" aria-hidden="true"><div class="project-img-cells"></div></div>
         </article>
         <article class="project">
           <div class="project-body">
@@ -118,7 +118,7 @@ const ifCover = getCover(featured.id);
             <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
           <div class="project-divider" aria-hidden="true"></div>
-          <div class="project-img" aria-hidden="true"></div>
+          <div class="project-img" aria-hidden="true"><div class="project-img-cells"></div></div>
         </article>
         </div>
       </div>
@@ -188,11 +188,19 @@ const ifCover = getCover(featured.id);
 
     <script define:vars={{ swQuotes: quotes, ROTATE_MS: 12000 }}>
       (function () {
-        if (!Array.isArray(swQuotes) || swQuotes.length < 2) return;   // single quote → static
+        if (!Array.isArray(swQuotes) || swQuotes.length === 0) return;
         var content = document.querySelector('.quote-content');
         var textEl = document.querySelector('.quote-text');
         var authorEl = document.querySelector('.quote-author');
         if (!content || !textEl || !authorEl) return;
+        function shuffle(arr) {
+          var a = arr.slice();
+          for (var k = a.length - 1; k > 0; k--) {     // Fisher–Yates
+            var j = (Math.random() * (k + 1)) | 0;
+            var t = a[k]; a[k] = a[j]; a[j] = t;
+          }
+          return a;
+        }
         function renderText(text) {
           var paras = Array.isArray(text) ? text : [text];
           textEl.innerHTML = '';
@@ -203,13 +211,26 @@ const ifCover = getCover(featured.id);
             textEl.appendChild(pe);
           });
         }
-        var FADE = 450, i = 0;
+        function show(q) {
+          renderText(q.text);
+          authorEl.textContent = q.author;
+        }
+        // Randomise the rotation order on each load. The first item replaces the
+        // server-rendered quotes[0] so visitors don't always open on the same one.
+        var order = shuffle(swQuotes), i = 0;
+        if (order[0] !== swQuotes[0]) show(order[0]);
+        if (swQuotes.length < 2) return;   // single quote → static
+        var FADE = 450;
         setInterval(function () {
-          i = (i + 1) % swQuotes.length;
+          i++;
+          if (i >= order.length) {                     // reshuffle each full cycle…
+            var last = order[order.length - 1];
+            do { order = shuffle(swQuotes); } while (order[0] === last);   // …avoiding a back-to-back repeat
+            i = 0;
+          }
           content.style.opacity = '0';
           setTimeout(function () {
-            renderText(swQuotes[i].text);
-            authorEl.textContent = swQuotes[i].author;
+            show(order[i]);
             content.style.opacity = '1';
           }, FADE);
         }, ROTATE_MS);
@@ -581,19 +602,28 @@ const ifCover = getCover(featured.id);
        One colour for now. */
     .project-img {
       flex: 0 0 auto;
-      align-self: stretch;              /* panel height = card content height */
+      align-self: stretch;              /* stretches to the card height set by the body… */
+      position: relative;               /* …and anchors the out-of-flow cell layer below */
       --card-pix-cols: 11;              /* columns → drives the panel width */
       --card-pix-cell: var(--small-block-size);   /* pixel size */
       --card-pix-gap: var(--small-block-gap);      /* spacing between pixels */
       --card-pix-color: var(--border-grey);   /* single fill colour for now */
       width: calc(var(--card-pix-cols) * var(--card-pix-cell)
                   + (var(--card-pix-cols) - 1) * var(--card-pix-gap));
+      overflow: hidden;
+    }
+    /* The dot grid lives in an absolutely-positioned layer so its row count
+       never contributes to the card's height. Without this, taller cards (from
+       wrapped body text at narrow widths) grow the grid, and the grid's own
+       height then holds the card open — so it can't contract when widened. */
+    .project-img-cells {
+      position: absolute;
+      inset: 0;
       display: grid;
       grid-template-columns: repeat(var(--card-pix-cols), var(--card-pix-cell));
       grid-auto-rows: var(--card-pix-cell);
       gap: var(--card-pix-gap);
       align-content: start;             /* pack pixels from the top down */
-      overflow: hidden;
     }
 
     /* ---------- In Focus: one highlighted publication ---------- */
@@ -663,8 +693,12 @@ const ifCover = getCover(featured.id);
       overflow: hidden;
     }
     /* Grid-art cover: occupies the same left slot as the dot grid it replaces. */
-    .infocus-art { flex: 0 0 360px; align-self: stretch; margin: 20px; overflow: hidden; }
-    .infocus-art svg { display: block; }
+    .infocus-art { position: relative; flex: 0 0 360px; align-self: stretch; margin: 20px; overflow: hidden; }
+    /* The cover SVG is sized (height = card height) by JS. Positioning it
+       absolutely keeps that JS-set height from feeding back into the card
+       height — otherwise the card ratchets taller and can't contract again.
+       JS still sets width/height/margin; left/right:0 + margin auto centres it. */
+    .infocus-art svg { display: block; position: absolute; top: 0; left: 0; right: 0; }
     .infocus-meta {
       flex: 1;
       min-width: 0;
@@ -1316,7 +1350,17 @@ const ifCover = getCover(featured.id);
         startAnimations();
       }
 
-      loadArt().then(paintFromArt);
+      loadArt().then((art) => {
+        paintFromArt(art);
+        // Pause the dissolve loops while the tab is backgrounded. rAF is
+        // suspended when hidden but the swap intervals keep firing, so without
+        // this their queued frames run in a burst ("catch-up") on return.
+        // Registered after the first paint so grids/slotData are ready.
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) stopAnimations();
+          else startAnimations();
+        });
+      });
 
       // React to the Reduce Motion preference changing at runtime.
       reduceMotion.addEventListener('change', () => {
@@ -1454,16 +1498,19 @@ const ifCover = getCover(featured.id);
       // Only animate when the mobile hero is visible; respect reduced-motion.
       const mqMobile = window.matchMedia('(max-width: 600px)');
       const mqMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-      function sync() { (mqMobile.matches && !mqMotion.matches) ? start() : stop(); }
+      // Animate only when visible, on a mobile viewport, and motion is allowed —
+      // the visibility check stops the backgrounded-tab "catch-up" burst.
+      function sync() { (!document.hidden && mqMobile.matches && !mqMotion.matches) ? start() : stop(); }
       mqMobile.addEventListener('change', sync);
       mqMotion.addEventListener('change', sync);
+      document.addEventListener('visibilitychange', sync);
 
       window.SW.loadArt().then((art) => { render(art); sync(); });
     })();
 
     // ----- Spotlight cards: fill each right panel with a whole-cell dot grid -
     (function () {
-      const panels = document.querySelectorAll('.project-img, .infocus-pix, .report-card-pix');
+      const panels = document.querySelectorAll('.project-img-cells, .infocus-pix, .report-card-pix');
       if (!panels.length) return;
 
       function fill(el) {

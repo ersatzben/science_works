@@ -75,7 +75,7 @@ const projects = [...new Set(all.map((e) => e.data.project))].sort((a, b) => a.l
           </div>
           <div class="wi-feat-rule"></div>
           <div class="wi-feat-foot">
-            <span class="wi-feat-latest">Latest</span>
+            <span class="wi-feat-featured">Featured</span>
             <span class="wi-feat-date">{fmt(featured.data.date)}</span>
           </div>
         </a>
@@ -196,7 +196,7 @@ const projects = [...new Set(all.map((e) => e.data.project))].sort((a, b) => a.l
     /* full-width divider + foot, spanning under the image too */
     .wi-feat-rule { border-top: 1px solid var(--border-grey); margin: 14px -20px 14px; }
     .wi-feat-foot { display: flex; justify-content: space-between; align-items: baseline; }
-    .wi-feat-latest { font-family: var(--button-text); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; font-size: 13px; color: var(--theme); }
+    .wi-feat-featured { font-family: var(--button-text); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; font-size: 13px; color: var(--theme); }
     .wi-feat-date { font-family: var(--button-text); font-size: 13px; color: var(--text); text-transform: uppercase; }
     .wi-feat-img { flex: 0 0 320px; align-self: flex-start; aspect-ratio: 3 / 2; border-radius: 0px; background-size: contain; background-position: center; background-repeat: no-repeat; image-rendering: auto; }   /* image right, top-aligned */
     .wi-feat-img.is-pixelated { image-rendering: pixelated; }
