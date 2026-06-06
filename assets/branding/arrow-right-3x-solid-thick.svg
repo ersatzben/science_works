@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 188 24" width="188" height="24" fill="none" stroke="#eb3131" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Arrow pointing right, solid head, concave inner edge, 3x length, thick weight">
+  <!-- Solid head, concave inner edge (curve 6). 3x shaft, thick weight.
+       Shaft runs to x=173 (partway into the head). Theme red #eb3131. -->
+  <path d="M4 12 H173" />
+  <path d="M178 12 L166 5 Q172 12 166 19 Z" fill="#eb3131" stroke="none" />
+</svg>

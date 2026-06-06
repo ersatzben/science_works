@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 24" width="72" height="24" fill="none" stroke="#eb3131" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Arrow pointing right, solid head, concave inner edge, 1x length, normal weight">
+  <!-- Solid head, concave inner edge (curve 6). 1x shaft, normal weight.
+       Shaft runs to x=57 (partway into the head). Theme red #eb3131. -->
+  <path d="M4 12 H57" />
+  <path d="M62 12 L50 5 Q56 12 50 19 Z" fill="#eb3131" stroke="none" />
+</svg>

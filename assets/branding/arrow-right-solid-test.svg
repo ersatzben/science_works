@@ -1,8 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 24" width="72" height="24" fill="none" stroke="#eb3131" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Arrow pointing right, solid head, concave inner edge (test)">
-  <!-- TEST arrow: solid filled head whose inner/back edge is concave (caves in
-       toward the tip — the classic fletched-arrow notch). Tune with the Q
-       control x below: back corners are at x=50; control x = 50 + curve.
-       curve = 6 here. Larger curve = deeper notch; curve = 0 = straight back. -->
-  <path d="M4 12 H50" />
+  <!-- TEST arrow: solid filled head with a concave (caved-in) inner/back edge.
+       Geometry: back corners x=50 (y5/y19), tip x=62; Q control x = 50 + curve
+       sets the notch depth (curve = 6 here).
+       The shaft runs to x=57 — partway INTO the head, past the notch's deepest
+       point — so it bridges the concave area instead of stopping short of it.
+       The head is filled on top, so the overshoot is hidden and reads seamless. -->
+  <path d="M4 12 H57" />
   <path d="M62 12 L50 5 Q56 12 50 19 Z" fill="#eb3131" stroke="none" />
 </svg>
