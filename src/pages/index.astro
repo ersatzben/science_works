@@ -1,9 +1,18 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import GridArt from '../components/GridArt.astro';
 import { getCover } from '../lib/covers.js';
 import quotes from '../data/quotes.json';
-const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
+
+// In Focus + carousel are driven by the writing collection (same source as /writing).
+const all = (await getCollection('writing'))
+  .filter((e) => !e.data.draft)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const featured = all.find((e) => e.data.featured) ?? all[0];
+const fmt = (d) => d.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
+const typeLabel = (t) => (t === 'report' ? 'Report' : 'Essay');
+const ifCover = getCover(featured.id);
 ---
 <BaseLayout title="Science Works">
   <section id="splash">
@@ -121,14 +130,14 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
       <div class="content-wrap">
       <div class="infocus-row">
         <div class="infocus-card">
-          <a class="infocus-link" href="/writing/how-not-to-waste-an-ai-for-science-mission" aria-label="How not to waste an AI for science mission"></a>
-          <div class="infocus-art" id="infocus-art" aria-hidden="true"><GridArt bitmap={ifCover} /></div>
+          <a class="infocus-link" href={`/writing/${featured.id}`} aria-label={featured.data.title}></a>
+          <div class="infocus-art" id="infocus-art" aria-hidden="true">{ifCover && <GridArt bitmap={ifCover} />}</div>
           <div class="infocus-meta">
             <p class="infocus-tag">In Focus</p>
-            <h3 class="infocus-title">How not to waste an AI for science mission</h3>
-            <p class="infocus-authors"><a href="#">Ben Johnson</a><span class="sep">,</span> <a href="#">Laura Ryan</a></p>
-            <p class="infocus-sub">The government's proposed AI for Science missions will only succeed with rigorous selection criteria and proper delivery thinking. Vague, poorly-governed missions would waste public money and damage the credibility of ambitious state action.</p>
-            <p class="infocus-foot"><span class="infocus-date">7 March 2026</span><span class="infocus-type">Essay</span></p>
+            <h3 class="infocus-title">{featured.data.title}</h3>
+            <p class="infocus-authors">{featured.data.authors.join(', ')}</p>
+            {(featured.data.summary ?? featured.data.subtitle) && <p class="infocus-sub">{featured.data.summary ?? featured.data.subtitle}</p>}
+            <p class="infocus-foot"><span class="infocus-date">{fmt(featured.data.date)}</span><span class="infocus-type">{typeLabel(featured.data.type)}</span></p>
           </div>
         </div>
 
@@ -146,7 +155,7 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
       </div>
     </section>
 
-    <script define:vars={{ IF_COLS: ifCover.cols, IF_ROWS: ifCover.rows, IF_SIZE: ifCover.cell?.size ?? 14, IF_GAP: ifCover.cell?.gap ?? 2 }}>
+    <script define:vars={{ IF_COLS: ifCover?.cols ?? 1, IF_ROWS: ifCover?.rows ?? 1, IF_SIZE: ifCover?.cell?.size ?? 14, IF_GAP: ifCover?.cell?.gap ?? 2 }}>
       (function () {
         // Fill the In Focus card height with WHOLE cells: keep all rows, scale so
         // they fill the box height, then show however many whole columns fit the
@@ -219,66 +228,20 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
             <a class="reports-viewall" href="/writing">View all &rarr;</a>
           </div>
             <div class="carousel-track">
-              <div class="report-card">
-                <a class="report-card-link" href="/writing/designing-ai-for-disruptive-science" aria-label="Designing AI for Disruptive Science"></a>
-                <div class="report-card-art" aria-hidden="true"><GridArt bitmap={getCover('designing-ai-for-disruptive-science')} aspect={12 / 12} /></div>
-                <div class="report-card-body">
-                  <h3 class="report-title">Designing AI for Disruptive Science</h3>
-                  <p class="report-authors"><a href="#">Alvin Djajadikerta</a></p>
-                  <p class="report-sub">Why scaling AI won’t automatically lead to paradigm shifts</p>
-                  <p class="report-foot"><span class="report-date">23 March 2026</span><span class="report-type">Essay</span></p>
+              {all.map((e) => (
+                <div class="report-card">
+                  <a class="report-card-link" href={`/writing/${e.id}`} aria-label={e.data.title}></a>
+                  {getCover(e.id)
+                    ? <div class="report-card-art" aria-hidden="true"><GridArt bitmap={getCover(e.id)} aspect={12 / 12} /></div>
+                    : <div class="report-card-pix" aria-hidden="true"></div>}
+                  <div class="report-card-body">
+                    <h3 class="report-title">{e.data.shortTitle ?? e.data.title}</h3>
+                    <p class="report-authors">{e.data.authors.join(', ')}</p>
+                    {e.data.subtitle && <p class="report-sub">{e.data.subtitle}</p>}
+                    <p class="report-foot"><span class="report-date">{fmt(e.data.date)}</span><span class="report-type">{typeLabel(e.data.type)}</span></p>
+                  </div>
                 </div>
-              </div>
-              <div class="report-card">
-                <a class="report-card-link" href="/writing/how-not-to-waste-an-ai-for-science-mission" aria-label="How not to waste an AI for science mission"></a>
-                <div class="report-card-art" aria-hidden="true"><GridArt bitmap={getCover('how-not-to-waste-an-ai-for-science-mission')} aspect={12 / 12} /></div>
-                <div class="report-card-body">
-                  <h3 class="report-title">How not to waste an AI for science mission</h3>
-                  <p class="report-authors"><a href="#">Ben Johnson</a>, <a href="#">Laura Ryan</a></p>
-                  <p class="report-sub">On the regrettable necessity of thinking carefully before spending public money</p>
-                  <p class="report-foot"><span class="report-date">7 March 2026</span><span class="report-type">Essay</span></p>
-                </div>
-              </div>
-              <div class="report-card">
-                <a class="report-card-link" href="/writing/the-bucket-stops-here" aria-label="The Bucket Stops Here"></a>
-                <div class="report-card-art" aria-hidden="true"><GridArt bitmap={getCover('the-bucket-stops-here')} aspect={12 / 12} /></div>
-                <div class="report-card-body">
-                  <h3 class="report-title">The Bucket Stops Here</h3>
-                  <p class="report-authors"><a href="#">Ben Johnson</a></p>
-                  <p class="report-sub">UKRI’s new funding framework takes a stab at classifying budgets – but doesn’t yet govern research</p>
-                  <p class="report-foot"><span class="report-date">14 February 2026</span><span class="report-type">Essay</span></p>
-                </div>
-              </div>
-              <div class="report-card">
-                <a class="report-card-link" href="/writing/the-three-bucket-problem" aria-label="The three-bucket problem"></a>
-                <div class="report-card-art" aria-hidden="true"><GridArt bitmap={getCover('the-three-bucket-problem')} aspect={12 / 12} /></div>
-                <div class="report-card-body">
-                  <h3 class="report-title">The three-bucket problem</h3>
-                  <p class="report-authors"><a href="#">Ben Johnson</a></p>
-                  <p class="report-sub">Ten tests for the UK’s new R&amp;D funding framework</p>
-                  <p class="report-foot"><span class="report-date">18 November 2025</span><span class="report-type">Essay</span></p>
-                </div>
-              </div>
-              <div class="report-card">
-                <a class="report-card-link" href="/writing/the-three-bucket-problem" aria-label="The three-bucket problem"></a>
-                <div class="report-card-art" aria-hidden="true"><GridArt bitmap={getCover('the-three-bucket-problem')} aspect={12 / 12} /></div>
-                <div class="report-card-body">
-                  <h3 class="report-title">The three-bucket problem</h3>
-                  <p class="report-authors"><a href="#">Ben Johnson</a></p>
-                  <p class="report-sub">Ten tests for the UK’s new R&amp;D funding framework</p>
-                  <p class="report-foot"><span class="report-date">18 November 2025</span><span class="report-type">Essay</span></p>
-                </div>
-              </div>
-              <div class="report-card">
-                <a class="report-card-link" href="/writing/the-counter-reformation-of-science" aria-label="The Counter-Reformation of science"></a>
-                <div class="report-card-art" aria-hidden="true"><GridArt bitmap={getCover('the-counter-reformation-of-science')} aspect={12 / 12} /></div>
-                <div class="report-card-body">
-                  <h3 class="report-title">The Counter-Reformation of science</h3>
-                  <p class="report-authors"><a href="#">Ben Johnson</a></p>
-                  <p class="report-sub">British research has perfected discipline and outsourced magnificence. The fix is demonstration statecraft, to pair theatre with delivery.</p>
-                  <p class="report-foot"><span class="report-date">1 September 2025</span><span class="report-type">Essay</span></p>
-                </div>
-              </div>
+              ))}
             </div>
           <div class="carousel-arrows">
             <button class="carousel-arrow" data-dir="-1" type="button" aria-label="Previous reports">&larr;</button>
@@ -557,6 +520,7 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
       padding: 24px 24px;
       box-sizing: border-box;
     }
+
     .project-body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
     .project-title {
       font-family: 'Copperplate', serif;
@@ -842,6 +806,10 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
       display: flex;
       flex-direction: column;
     }
+    .report-card:hover {
+      border-color: var(--theme);
+      box-shadow: inset 0 0 0 1px var(--theme);
+    }
     .report-card-link { position: absolute; inset: 0; z-index: 1; }   /* whole card clickable */
     /* Pixel-art image: fixed 14x12 grid at the small block size, filled by the shared JS. */
     .report-card-pix {
@@ -874,6 +842,7 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
     .report-authors {
       font-family: 'Copperplate', serif;
       font-size: 13px;
+      color: var(--theme);
       margin: 0 0 12px;
     }
     .report-authors a { color: var(--theme); text-decoration: none; position: relative; z-index: 2; }
@@ -1015,7 +984,7 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
       .spotlight-intro p { font-size: 14px; }
 
       /* Projects become a horizontal, swipeable carousel on mobile. */
-      .spotlight-main { min-width: 0; background-color: var(--bg); padding: 20px 0 20px 24px;}   /* let the grid item shrink so the carousel can overflow-scroll instead of stretching the column */
+      .spotlight-main { min-width: 0; background-color: var(--bg); padding: 30px 0 20px 24px; margin-top: 20px; }   /* let the grid item shrink so the carousel can overflow-scroll instead of stretching the column */
       .projects {
         flex-direction: row;
         gap: 14px;
@@ -1293,22 +1262,37 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
 
       function dissolveSwap(a, b, gen) {
         const total = grids[a].total;   // a and b always share a size (pairs are like-sized)
-        for (let i = 0; i < total; i++) {
-          const delay = Math.random() * DISSOLVE_MS;
-          setTimeout(() => {
-            if (gen !== animGen) return;
+        const order = new Array(total);
+        for (let i = 0; i < total; i++) order[i] = i;
+        for (let k = total - 1; k > 0; k--) {          // shuffle → cells flip in random order
+          const j = (Math.random() * (k + 1)) | 0;
+          const t = order[k]; order[k] = order[j]; order[j] = t;
+        }
+        // One rAF loop flips every cell due by now in a single batch, so the
+        // browser repaints once per frame instead of once per cell (Safari-safe).
+        let cursor = 0, start = 0;
+        function frame(now) {
+          if (gen !== animGen) return;
+          if (!start) start = now;
+          const targetCount = Math.min(total, Math.floor(((now - start) / DISSOLVE_MS) * total));
+          for (; cursor < targetCount; cursor++) {
+            const i = order[cursor];
             const tmp = slotData[a][i];
             slotData[a][i] = slotData[b][i];
             slotData[b][i] = tmp;
-            const r = (i / COLS) | 0;
-            const c = i % COLS;
+            const r = (i / COLS) | 0, c = i % COLS;
             grids[a].cells[r][c].style.background = ART_PALETTE[slotData[a][i]] || ART_PALETTE[0];
             grids[b].cells[r][c].style.background = ART_PALETTE[slotData[b][i]] || ART_PALETTE[0];
-          }, delay);
+          }
+          if (cursor < total) requestAnimationFrame(frame);
         }
+        requestAnimationFrame(frame);
       }
 
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
       function startAnimations() {
+        if (reduceMotion.matches) return;   // honour Reduce Motion
         const pairs = buildPairs();
         const gen = animGen;
         pairs.forEach((pair, idx) => {
@@ -1333,6 +1317,12 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
       }
 
       loadArt().then(paintFromArt);
+
+      // React to the Reduce Motion preference changing at runtime.
+      reduceMotion.addEventListener('change', () => {
+        stopAnimations();
+        if (!reduceMotion.matches) startAnimations();
+      });
 
       // Auto-refresh when the editor saves in another tab.
       window.addEventListener('storage', (e) => {
@@ -1420,16 +1410,29 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
       function stop() { animGen++; intervals.forEach(clearInterval); intervals = []; }
 
       function dissolveSwap(a, b, gen) {
-        for (let i = 0; i < TOTAL; i++) {
-          setTimeout(() => {
-            if (gen !== animGen) return;
+        const order = new Array(TOTAL);
+        for (let i = 0; i < TOTAL; i++) order[i] = i;
+        for (let k = TOTAL - 1; k > 0; k--) {          // shuffle → cells flip in random order
+          const j = (Math.random() * (k + 1)) | 0;
+          const t = order[k]; order[k] = order[j]; order[j] = t;
+        }
+        // One rAF loop: batch all cells due this frame → one repaint per frame.
+        let cursor = 0, start = 0;
+        function frame(now) {
+          if (gen !== animGen) return;
+          if (!start) start = now;
+          const targetCount = Math.min(TOTAL, Math.floor(((now - start) / DISSOLVE_MS) * TOTAL));
+          for (; cursor < targetCount; cursor++) {
+            const i = order[cursor];
             const tmp = slotData[a][i];
             slotData[a][i] = slotData[b][i];
             slotData[b][i] = tmp;
             blocks[a][i].style.background = PAL[slotData[a][i]] || PAL[0];
             blocks[b][i].style.background = PAL[slotData[b][i]] || PAL[0];
-          }, Math.random() * DISSOLVE_MS);
+          }
+          if (cursor < TOTAL) requestAnimationFrame(frame);
         }
+        requestAnimationFrame(frame);
       }
 
       function start() {
@@ -1534,14 +1537,19 @@ const ifCover = getCover('how-not-to-waste-an-ai-for-science-mission');
         if (e.pointerType !== 'mouse') return;   // touch/pen use native scroll (no manual drag)
         down = true; moved = false;
         startX = e.clientX; startLeft = track.scrollLeft;
-        track.classList.add('dragging');
-        track.setPointerCapture(e.pointerId);
       });
       track.addEventListener('pointermove', function (e) {
         if (!down) return;
         const dx = e.clientX - startX;
-        if (Math.abs(dx) > 4) moved = true;
-        track.scrollLeft = startLeft - dx;
+        // Only start a real drag — and capture the pointer — once we cross the
+        // threshold. Capturing on pointerdown would retarget the trailing click
+        // to the track, so a plain click never reached the card's <a> overlay.
+        if (!moved && Math.abs(dx) > 4) {
+          moved = true;
+          track.classList.add('dragging');
+          track.setPointerCapture(e.pointerId);
+        }
+        if (moved) track.scrollLeft = startLeft - dx;
       });
       function release() { down = false; track.classList.remove('dragging'); }
       track.addEventListener('pointerup', release);

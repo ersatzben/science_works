@@ -6,6 +6,7 @@ const writing = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/writing' }),
   schema: z.object({
     title: z.string(),
+    shortTitle: z.string().optional(),       // compact title for tight surfaces (homepage carousel); falls back to title
     subtitle: z.string().optional(),
     authors: z.array(z.string()),
     date: z.coerce.date(),

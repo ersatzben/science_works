@@ -575,17 +575,20 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           const phaseWorld = b.yWorld + offset;
           const phase = (phaseWorld / wavelength) * TWO_PI - offset * 0.004 * twist * 100 / fallSpeed;
           let x, col, al;
+          // The x term is negated (a horizontal reflection) so the strands wind
+          // the same way as real B-DNA — right-handed. The depth/alpha term is
+          // left as-is; reflecting only x is what flips the chirality.
           if (b.strand === 0) {
             const s = Math.sin(phase);
             const depth = Math.cos(phase);
-            x = midX + s * amp + b.jitter;
+            x = midX - s * amp + b.jitter;
             col = b.colA;
             al = ALPHA_FLOOR + (1 - ALPHA_FLOOR) * ((depth + 1) / 2);
           } else {
             // 2nd arm offset by ARM_PHASE so the helix isn't a perfect mirror.
             const s = Math.sin(phase + ARM_PHASE);
             const depth = Math.cos(phase + ARM_PHASE);
-            x = midX - s * amp + b.jitter;
+            x = midX + s * amp + b.jitter;
             col = b.colB;
             al = ALPHA_FLOOR + (1 - ALPHA_FLOOR) * ((-depth + 1) / 2);
           }
