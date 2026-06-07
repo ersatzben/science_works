@@ -6,7 +6,7 @@ authors: ["Ben Johnson", "Laura Ryan"]
 date: 2026-03-07
 type: essay
 featured: true
-project: "AI for Science"
+project: "AI and Science"
 contributors: ["Sam Currie", "Alex Chalmers", "Alvin Djajadikerta", "Charlie Harris"]
 related: ["designing-ai-for-disruptive-science", "the-three-bucket-problem", "the-bucket-stops-here"]
 ---
