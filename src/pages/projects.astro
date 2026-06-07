@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import MosaicNetwork from '../components/MosaicNetwork.astro';
 import decor from '../data/decor/projects-corner.json';
+import banner from '../data/decor/projects-banner.json';
 
 // Every JSON in src/data/mosaics/ becomes its own network block (sorted by name).
 const mods = import.meta.glob('../data/mosaics/*.json', { eager: true });
@@ -12,14 +13,17 @@ const decorCells = decor.grid.flat();
 
 // Project copy + offsets (translate, px). tx/ty nudge the whole pair; ctx/cty
 // nudge the text card independently of the network. Tune freely.
+// `slug` is the canonical deep-link: /projects#<slug> opens that project's modal.
+// Keep slugs stable even if the order/index changes. The numeric `index` (e.g. 01)
+// also works as an inbound alias and canonicalises to the slug.
 const PROJECTS = [
-  { index: '01', title: 'Institutional Dynamism',   subtitle: 'What mix of research institutions does Britain need, and how could we build them?', tx: 30, ty: 10, ctx: -25, cty: 0 },
-  { index: '02', title: 'AI and Science',           subtitle: 'How should British science adapt to the coming AI revolution?', tx: 20, ty: 64, ctx: -25, cty: 0 },
-  { index: '03', title: 'The Research Economy',      subtitle: 'How does Britain’s research and innovation economy really work – and can it be made more dynamic?', tx: 0, ty: 24, ctx: -25, cty: 0 },
-  { index: '04', title: 'Software for Science',      subtitle: 'Why does public research still run on poor software – and what could great tools unlock?', tx: -80, ty: 16, ctx: 0, cty: 0 },
-  { index: '05', title: 'A Story of British Science', subtitle: 'How can we tell a story of British scientific renewal – linking institutions, place, and purpose?', tx: 10, ty: 36, ctx: -5, cty: 0 },
+  { index: '01', slug: 'institutional-dynamism',   title: 'Institutional Dynamism',   subtitle: 'What mix of research institutions does Britain need, and how could we build them?', tx: 30, ty: 10, ctx: -25, cty: 0 },
+  { index: '02', slug: 'ai-and-science',           title: 'AI and Science',           subtitle: 'How should British science adapt to the coming AI revolution?', tx: 20, ty: 64, ctx: -25, cty: 0 },
+  { index: '03', slug: 'the-research-economy',     title: 'The Research Economy',      subtitle: 'How does Britain’s research and innovation economy really work – and can it be made more dynamic?', tx: 0, ty: 24, ctx: -25, cty: 0 },
+  { index: '04', slug: 'software-for-science',     title: 'Software for Science',      subtitle: 'Why does public research still run on poor software – and what could great tools unlock?', tx: -80, ty: 16, ctx: 0, cty: 0 },
+  { index: '05', slug: 'a-story-of-british-science', title: 'A Story of British Science', subtitle: 'How can we tell a story of British scientific renewal – linking institutions, place, and purpose?', tx: 10, ty: 36, ctx: -5, cty: 0 },
 ];
-const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: String(i + 1).padStart(2, '0'), title: 'Project', subtitle: '', tx: 0, ty: 0, ctx: 0, cty: 0 }) }));
+const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: String(i + 1).padStart(2, '0'), slug: 'project-' + String(i + 1).padStart(2, '0'), title: 'Project', subtitle: '', tx: 0, ty: 0, ctx: 0, cty: 0 }) }));
 ---
 <BaseLayout title="Projects — Science Works">
   <main class="projects-page">
@@ -27,6 +31,7 @@ const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: Stri
     <div class="wi-header">
       <div class="wi-pix wi-header-pix" aria-hidden="true"></div>
       <h1 class="wi-heading">projects</h1>
+      <script type="application/json" id="projects-banner-data" set:html={JSON.stringify(banner)}></script>
     </div>
 
     <div class="pp-decor pp-decor--left" style={`--d-cols:${decor.cols}`} aria-hidden="true">
@@ -54,7 +59,7 @@ const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: Stri
             <p class="project-index">{it.index}</p>
             <h3 class="project-title">{it.title}</h3>
             <p class="project-subtitle">{it.subtitle}</p>
-            <button type="button" class="project-toggle" data-open data-index={it.index} data-title={it.title} data-subtitle={it.subtitle}>+ Open Project</button>
+            <button type="button" class="project-toggle" data-open data-slug={it.slug} data-index={it.index} data-title={it.title} data-subtitle={it.subtitle}>+ Open Project</button>
           </div>
         </div>
       ))}
@@ -104,11 +109,11 @@ const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: Stri
     }
     .wi-pix.wi-header-pix {
       position: absolute; inset: 0; align-content: center;
-      --card-pix-cell: var(--cell-size);     /* 14px */
-      --card-pix-gap: var(--cell-gap);       /* 2px */
+      --card-pix-cell: 7px;
+      --card-pix-gap: 1px;
       --card-pix-radius: var(--cell-radius); /* 2px */
       --card-pix-color: var(--almost-white);
-      --card-pix-rows: 12;                    /* 12 × 14 + 11 × 2 = 190px */
+      --card-pix-rows: 24;                     /* 24 × 7 + 23 × 1 = 191px — matches the banner art height */
     }
     .wi-heading {
       position: relative; z-index: 1; margin: 0; display: inline-block;
@@ -356,10 +361,27 @@ const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: Stri
       const modal = document.getElementById('pp-modal');
       if (!modal) return;
       const card = modal.querySelector('.pp-modal-card');
+      const scroll = modal.querySelector('.pp-modal-scroll');
       const fIndex = modal.querySelector('#pp-modal-index');
       const fTitle = modal.querySelector('#pp-modal-title');
       const fSub = modal.querySelector('#pp-modal-sub');
       let lastFocus = null;
+
+      // Deep-linking: build a lookup so /projects#<slug> (canonical) — or the
+      // numeric alias #01 / #1 — resolves to a project's open button.
+      const byKey = {};
+      const buttons = Array.prototype.slice.call(document.querySelectorAll('.project-toggle[data-open]'));
+      buttons.forEach(function (b) {
+        if (b.dataset.slug) byKey[b.dataset.slug.toLowerCase()] = b;
+        if (b.dataset.index) {
+          byKey[b.dataset.index.toLowerCase()] = b;                 // "01"
+          byKey[String(parseInt(b.dataset.index, 10))] = b;         // "1"
+        }
+      });
+      function btnForHash() {
+        const h = (location.hash || '').replace(/^#/, '').toLowerCase();
+        return h ? (byKey[h] || null) : null;
+      }
 
       function open(btn) {
         fIndex.textContent = btn.dataset.index || '';
@@ -368,6 +390,7 @@ const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: Stri
         const r = btn.getBoundingClientRect();
         card.style.setProperty('--ox', Math.round(r.left + r.width / 2 - window.innerWidth / 2) + 'px');
         card.style.setProperty('--oy', Math.round(r.top + r.height / 2 - window.innerHeight / 2) + 'px');
+        if (scroll) scroll.scrollTop = 0;            // start each project at the top
         lastFocus = document.activeElement;
         modal.hidden = false;
         document.body.style.overflow = 'hidden';
@@ -375,8 +398,11 @@ const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: Stri
         modal.classList.add('is-open');
         const c = modal.querySelector('.pp-modal-close');
         if (c) c.focus();
+        // Reflect the open project in the URL (canonical slug) without adding a
+        // history entry — replaceState doesn't fire hashchange, so no loop.
+        if (btn.dataset.slug) history.replaceState(null, '', '#' + btn.dataset.slug);
       }
-      function close() {
+      function close(clearHash) {
         if (!modal.classList.contains('is-open')) return;
         modal.classList.remove('is-open');
         document.body.style.overflow = '';
@@ -385,54 +411,47 @@ const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: Stri
         };
         card.addEventListener('transitionend', done);
         if (lastFocus && lastFocus.focus) lastFocus.focus();
+        if (clearHash && location.hash) history.replaceState(null, '', location.pathname + location.search);
       }
 
-      document.querySelectorAll('.project-toggle[data-open]').forEach(function (b) {
+      // Open/close to match the current hash (on load and on back/forward).
+      function syncToHash() {
+        const b = btnForHash();
+        if (b) open(b); else close(false);
+      }
+
+      buttons.forEach(function (b) {
         b.addEventListener('click', function () { open(b); });
       });
-      modal.querySelectorAll('[data-close]').forEach(function (el) { el.addEventListener('click', close); });
-      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+      modal.querySelectorAll('[data-close]').forEach(function (el) {
+        el.addEventListener('click', function () { close(true); });   // user close clears the hash
+      });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(true); });
+      window.addEventListener('hashchange', syncToHash);
+      syncToHash();                                  // honour a deep link on initial load
     })();
 
-    // ----- Mosaic header banner (lifted from About/Writing) -------------
+    // ----- Mosaic header banner (rendered from src/data/decor/projects-banner.json) ----
     (function () {
       const panels = document.querySelectorAll('.wi-header-pix');
       if (!panels.length) return;
-      // Rows are equal-width strings; each char is a palette key ('0' = blank).
-      const MOSAIC = [
-        '11234123412341200511353135113511',
-        '16750675068506700792289227922711',
-        '1893589358835890068B1888168B1611',
-        '1821AB188881AB10005A4888805AA011',
-        '18234188888888800888888888BA1281',
-        '18888888888888800888888888888881',
-        '18888888888888800888888888888881',
-        '1821AB88888888800888888888143281',
-        '1104A5088884A50001BA188881BA5281',
-        '1161B8618881B8600985388539853981',
-        '117229B2298229B00B6058605B605361',
-        '11531153135311500214321432143211',
-      ];
-      const MOSAIC_W = MOSAIC[0].length;
-      const PAL = {
-        '0': 'var(--almost-white)', '1': 'var(--theme)', '2': '#a3c0d7', '3': '#0e676a',
-        '4': 'var(--text)', '5': 'var(--coral)', '6': '#4b5cce', '7': '#111340',
-        '8': '#ebe5cf', '9': '#64b37b', 'A': '#440214', 'B': '#004ee6',
-      };
+      const dataEl = document.getElementById('projects-banner-data');
+      if (!dataEl) return;
+      const ART = JSON.parse(dataEl.textContent);   // { cols, rows, palette, grid }
+      const AW = ART.cols, AH = ART.rows, GRID = ART.grid, PAL = ART.palette;
       function paintMosaic(el, cols, rows) {
         const cells = el.children;
         for (let i = 0; i < cells.length; i++) cells[i].style.background = '';
-        const startCol = Math.round((cols - MOSAIC_W) / 2);
-        const startRow = Math.max(0, Math.floor((rows - MOSAIC.length) / 2));
-        for (let r = 0; r < MOSAIC.length && startRow + r < rows; r++) {
-          const line = MOSAIC[r];
-          for (let c = 0; c < line.length; c++) {
-            const ch = line[c];
-            if (ch === '0') continue;
+        const startCol = Math.round((cols - AW) / 2);
+        const startRow = Math.max(0, Math.floor((rows - AH) / 2));
+        for (let r = 0; r < AH && startRow + r < rows; r++) {
+          for (let c = 0; c < AW; c++) {
+            const v = GRID[r][c];
+            if (v < 0) continue;
             const gc = startCol + c;
             if (gc < 0 || gc >= cols) continue;
             const cell = cells[(startRow + r) * cols + gc];
-            if (cell) cell.style.background = PAL[ch] || '';
+            if (cell) cell.style.background = PAL[v] || '';
           }
         }
       }

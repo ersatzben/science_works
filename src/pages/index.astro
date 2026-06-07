@@ -6,9 +6,21 @@ import { coverFor } from '../lib/covers.js';
 import quotes from '../data/quotes.json';
 // Featured-project grid art (18×37 sw.bitmap.v1), one per card.
 import instDynArt from '../data/projects/institutional-dynamism.json';
-import { cropCols } from '../lib/bitmap.js';
+import aiSciSrc from '../data/projects/ai-and-science.json';
+import resEconSrc from '../data/projects/the-research-economy.json';
+import softSciSrc from '../data/projects/software-for-science.json';
+import britSciSrc from '../data/projects/the-story-of-british-science.json';
+import { cropCols, paletteGridToBitmap } from '../lib/bitmap.js';
+const aiSciArt = paletteGridToBitmap(aiSciSrc);
+const resEconArt = paletteGridToBitmap(resEconSrc);
+const softSciArt = paletteGridToBitmap(softSciSrc);
+const britSciArt = paletteGridToBitmap(britSciSrc);
 // Mobile strips show the leftmost 8 columns of the same source art.
 const instDynArtM = cropCols(instDynArt, 8);
+const aiSciArtM = cropCols(aiSciArt, 8);
+const resEconArtM = cropCols(resEconArt, 8);
+const softSciArtM = cropCols(softSciArt, 8);
+const britSciArtM = cropCols(britSciArt, 8);
 
 // In Focus + carousel are driven by the writing collection (same source as /writing).
 const all = (await getCollection('writing'))
@@ -99,7 +111,7 @@ const sifItems = [
 
       <div class="spotlight-main">
         <canvas class="spotlight-rain" aria-hidden="true"></canvas>
-        <h2 class="section-label"><a href="/projects">featured projects</a></h2>
+        <h2 class="section-label">featured projects</h2>
         <div class="projects">
         <article class="project">
           <div class="project-body">
@@ -125,20 +137,20 @@ const sifItems = [
             <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
           <div class="project-divider" aria-hidden="true"></div>
-          <div class="project-img" aria-hidden="true"><div class="project-img-cells"></div></div>
+          <div class="project-img" aria-hidden="true"><GridArt bitmap={aiSciArt} fit="width" class="project-img-art project-img-art--wide" /><GridArt bitmap={aiSciArtM} fit="width" class="project-img-art project-img-art--narrow" /></div>
         </article>
         <article class="project">
           <div class="project-body">
             <h3 class="project-title">The Research Economy</h3>
             <div class="project-detail">
               <p class="project-sub">How does Britain&rsquo;s research and innovation economy really work &ndash; and can it be made more dynamic?</p>
-              <p class="project-text">The UK invests heavily in R&D without fully understanding how the system works as a whole.</p>
+              <p class="project-text">The UK invests huge sums in R&D without fully understanding how the system works as a whole.</p>
               <p class="project-text">Crude metrics obscure its true nature, while incentives, frictions, and hidden cross-subsidies shape decisions on the ground.</p>
             </div>
             <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
           <div class="project-divider" aria-hidden="true"></div>
-          <div class="project-img" aria-hidden="true"><div class="project-img-cells"></div></div>
+          <div class="project-img" aria-hidden="true"><GridArt bitmap={resEconArt} fit="width" class="project-img-art project-img-art--wide" /><GridArt bitmap={resEconArtM} fit="width" class="project-img-art project-img-art--narrow" /></div>
         </article>
         <article class="project">
           <div class="project-body">
@@ -151,7 +163,7 @@ const sifItems = [
             <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
           <div class="project-divider" aria-hidden="true"></div>
-          <div class="project-img" aria-hidden="true"><div class="project-img-cells"></div></div>
+          <div class="project-img" aria-hidden="true"><GridArt bitmap={softSciArt} fit="width" class="project-img-art project-img-art--wide" /><GridArt bitmap={softSciArtM} fit="width" class="project-img-art project-img-art--narrow" /></div>
         </article>
         <article class="project">
           <div class="project-body">
@@ -164,7 +176,7 @@ const sifItems = [
             <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
           <div class="project-divider" aria-hidden="true"></div>
-          <div class="project-img" aria-hidden="true"><div class="project-img-cells"></div></div>
+          <div class="project-img" aria-hidden="true"><GridArt bitmap={britSciArt} fit="width" class="project-img-art project-img-art--wide" /><GridArt bitmap={britSciArtM} fit="width" class="project-img-art project-img-art--narrow" /></div>
         </article>
         </div>
       </div>
@@ -581,10 +593,11 @@ const sifItems = [
 
     .spotlight-grid {
       display: grid;
-      grid-template-columns: minmax(280px, 1.5fr) 1.55fr;   /* intro col ~25% wider */
+      grid-template-columns: minmax(0, 1fr) 520px;   /* intro flexes; cards hold 520px and never compress */
       gap: 56px;
       align-items: start;
-      margin: 0 160px;              /* THIS IS THE BIG PADDING */
+      margin: 0 auto;               /* centred — side gutters are whitespace, not fixed chrome */
+      max-width: 1200px;            /* beyond this the gutters just grow */
     }
     /* Anchor for the rain layer, which sits in the grid's right margin band. */
     .spotlight-main { position: relative; }
@@ -867,6 +880,11 @@ const sifItems = [
       .infocus-row { flex-direction: column; }
       .infocus-row .infocus-card { flex: none; width: 100%; max-width: 860px; }
       .quote-box { display: none; }   /* desktop-only — only suits sitting beside the In Focus card */
+
+      /* Spotlight stacks: intro above the cards, single centred column. */
+      .spotlight-grid { grid-template-columns: 1fr; max-width: 600px; gap: 40px; }
+      .spotlight-intro { position: static; top: auto; margin-top: 0; padding-right: 0; }
+      .spotlight-rain { display: none; }
     }
     /* Fixed max width, left-aligned to the content-wrap's left edge. Room is
        left to the right of the card for future content (tune width later). */
@@ -945,6 +963,7 @@ const sifItems = [
       font-family: 'Copperplate', serif;
       font-weight: bold;
       font-size: 17px;
+      letter-spacing: 0.02em;
       color: var(--theme);
       margin: 0 0 14px;
     }
@@ -1097,6 +1116,7 @@ const sifItems = [
     .report-authors {
       font-family: 'Copperplate', serif;
       font-size: 13px;
+      letter-spacing: 0.02em;
       color: var(--theme);
       margin: 0 0 12px;
     }
