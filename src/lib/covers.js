@@ -1,12 +1,19 @@
-// Cover art lookup. Every `src/data/covers/<slug>.json` (an sw.bitmap.v1 export
-// from tools/image2bitmap.html) is keyed by its filename slug, which matches the
-// writing collection entry id. Returns the parsed bitmap, or null if none exists.
+// Cover art lookup. Every `src/data/covers/<slug>.json` is keyed by its filename
+// slug, which matches the writing collection entry id. Files may be either an
+// sw.bitmap.v1 export (a flat `cells` hex array) or a {cols, rows, palette, grid}
+// index-grid export — the latter is normalised to sw.bitmap.v1 on load (with the
+// same cell metrics as the existing covers). Returns the bitmap, or null.
+import { paletteGridToBitmap } from './bitmap.js';
+
 const modules = import.meta.glob('../data/covers/*.json', { eager: true });
 
 const covers = {};
 for (const [path, mod] of Object.entries(modules)) {
   const slug = path.split('/').pop().replace(/\.json$/, '');
-  covers[slug] = mod.default ?? mod;
+  const data = mod.default ?? mod;
+  covers[slug] = (data.grid && data.palette)
+    ? paletteGridToBitmap(data, { size: 12, gap: 1, radius: 2 })
+    : data;
 }
 
 export function getCover(slug) {

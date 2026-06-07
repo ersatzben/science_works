@@ -8,8 +8,40 @@ import banner from '../data/decor/projects-banner.json';
 const mods = import.meta.glob('../data/mosaics/*.json', { eager: true });
 const mosaics = Object.keys(mods).sort().map((k) => mods[k].default ?? mods[k]);
 
-// Decorative corner art (static). Index 1 (#f7f0ed) is the blank filler → transparent.
+// Decorative corner art. Index 1 (#f7f0ed) is the blank filler → transparent.
 const decorCells = decor.grid.flat();
+
+// Grow order: an 8-connected flood from the leftmost visible pixel. Both corners
+// share it; the right figure is mirrored (scaleX(-1)), so the same left-seeded
+// growth reads as growing from the right there. (Tree-branch reveal.)
+const dVisible = (r, c) => r >= 0 && c >= 0 && r < decor.rows && c < decor.cols && decor.grid[r][c] !== 1;
+let dSeed = null;
+for (let c = 0; c < decor.cols && !dSeed; c++) for (let r = 0; r < decor.rows; r++) if (dVisible(r, c)) { dSeed = [r, c]; break; }
+const dStep = Array.from({ length: decor.rows }, () => new Array(decor.cols).fill(-1));
+if (dSeed) {
+  const q = [dSeed];
+  dStep[dSeed[0]][dSeed[1]] = 0;
+  // radius 2: the art is sparse, so bridge gaps up to 2 cells — the flood then
+  // travels along the branch rather than stalling at the first gap.
+  const RAD = 2;
+  for (let h = 0; h < q.length; h++) {
+    const [r, c] = q[h], d = dStep[r][c];
+    for (let dr = -RAD; dr <= RAD; dr++) for (let dc = -RAD; dc <= RAD; dc++) {
+      if (!dr && !dc) continue;
+      const nr = r + dr, nc = c + dc;
+      if (dVisible(nr, nc) && dStep[nr][nc] < 0) { dStep[nr][nc] = d + 1; q.push([nr, nc]); }
+    }
+  }
+}
+for (let r = 0; r < decor.rows; r++) for (let c = 0; c < decor.cols; c++) {   // islands → nearest reachable step + 1
+  if (dVisible(r, c) && dStep[r][c] < 0) {
+    let bd = Infinity, bs = 0;
+    for (let rr = 0; rr < decor.rows; rr++) for (let cc = 0; cc < decor.cols; cc++)
+      if (dVisible(rr, cc) && dStep[rr][cc] >= 0) { const dd = (rr - r) ** 2 + (cc - c) ** 2; if (dd < bd) { bd = dd; bs = dStep[rr][cc]; } }
+    dStep[r][c] = bs + 1;
+  }
+}
+const decorStepFlat = dStep.flat();
 
 // Project copy + offsets (translate, px). tx/ty nudge the whole pair; ctx/cty
 // nudge the text card independently of the network. Tune freely.
@@ -44,7 +76,11 @@ const DESCRIPTIONS = {
     `We are developing an ambitious national operating agenda for AI in science, covering data, software, infrastructure, and talent.`,
   ],
   'the-research-economy': [
-    `Placeholder description for The Research Economy. Replace this with the real copy.`,
+    `The UK research and innovation sector is a multi-billion-pound system that runs without enough insight, and thus with insufficient strategy.`,
+    `How funding flows within institutions, what research really costs, where talent flows and pools, and how incentives shape choices on the ground – most of this is invisible to the people steering the public system, which remains undisturbed by the market dynamics that force reinvention in the private sector.`,
+    `In place of rich understanding, the system relies on crude metrics and proxies that capture little of what we care about but, over time, become what it optimises for. Intuitive but misleading models of both research and innovation stand in for deep appreciation of how value is really created.`,
+    `The policy levers we have are blunt. Research assessment is bureaucratic and expensive; grant-making is risk-averse and slow; promising alternatives go untested against the status quo. A system this opaque and conservative cannot adapt.`,
+    `We are bringing quantitative and qualitative analysis to bear on how the research and innovation economy really works — its implicit assumptions and hidden distortions – and pushing for a system that is less bureaucratic, more intelligible, and more dynamic.`,
   ],
   'software-for-science': [
     `Placeholder description for Software for Science. Replace this with the real copy.`,
@@ -63,12 +99,13 @@ const DESCRIPTIONS = {
       <script type="application/json" id="projects-banner-data" set:html={JSON.stringify(banner)}></script>
     </div>
 
-    <div class="pp-decor pp-decor--left" style={`--d-cols:${decor.cols}`} aria-hidden="true">
-      {decorCells.map((v) => (<span class="d-cell" style={v === 1 ? '' : `background:${decor.palette[v]}`}></span>))}
+    <div class="pp-decor pp-decor--left anim-ready" style={`--d-cols:${decor.cols}`} aria-hidden="true">
+      {decorCells.map((v, i) => (<span class="d-cell" style={v === 1 ? '' : `background:${decor.palette[v]}; --step:${decorStepFlat[i]}`}></span>))}
     </div>
-    <div class="pp-decor pp-decor--right" style={`--d-cols:${decor.cols}`} aria-hidden="true">
-      {decorCells.map((v) => (<span class="d-cell" style={v === 1 ? '' : `background:${decor.palette[v]}`}></span>))}
+    <div class="pp-decor pp-decor--right anim-ready" style={`--d-cols:${decor.cols}`} aria-hidden="true">
+      {decorCells.map((v, i) => (<span class="d-cell" style={v === 1 ? '' : `background:${decor.palette[v]}; --step:${decorStepFlat[i]}`}></span>))}
     </div>
+    <noscript><style>.pp-decor .d-cell { opacity: 1 !important; transform: none !important; }</style></noscript>
 
     <div class="pp-inner">
       <header class="pp-head">
@@ -169,6 +206,20 @@ const DESCRIPTIONS = {
     .pp-decor--left { left: 8px; }
     .pp-decor--right { right: 8px; transform: scaleX(-1); }   /* mirror for the right corner */
     .d-cell { border-radius: 1px; }
+    /* Branch-grow: pixels flood out from the seed (left figure: leftmost pixel;
+       right figure: rightmost, via the mirror). Armed by JS so no-JS stays static. */
+    .pp-decor { --decor-step: 190ms; }
+    .pp-decor.anim-ready .d-cell {
+      opacity: 0;
+      transform: scale(0.35);
+      transform-origin: center;
+      transition: opacity 0.45s ease, transform 0.55s cubic-bezier(0.2, 0.85, 0.3, 1.1);
+      transition-delay: calc(var(--step, 0) * var(--decor-step));
+    }
+    .pp-decor.anim-ready.is-grown .d-cell { opacity: 1; transform: scale(1); }
+    @media (prefers-reduced-motion: reduce) {
+      .pp-decor.anim-ready .d-cell { opacity: 1; transform: none; transition: none; }   /* static */
+    }
     @media (max-width: 940px) { .pp-decor { display: none; } }   /* declutter on small screens */
 
     .pp-head { margin: 0 0 28px; text-align: center; }
@@ -335,8 +386,9 @@ const DESCRIPTIONS = {
 
     /* Narrow screens: drop the scatter, stack each pair cleanly. */
     @media (max-width: 940px) {
-      .projects-page { padding-top: 0; }   /* let the banner sit flush under the nav */
-      .wi-header { display: flex; }
+      .projects-page { padding-top: 0; }   /* banner controls the top gap, not the page padding */
+      .wi-header { display: flex; margin-top: 20px; }   /* match Writing's spacing above the banner */
+      .wi-heading { font-size: 25px; padding: 18px 16px;}      /* unify chip size with About/Writing (mobile only) */
       .pp-title { display: none; }          /* banner heading replaces the plain title */
       .pp-head { margin-top: 22px; }
       .pp-networks { flex-direction: column; align-items: center; gap: 40px; max-width: 520px; }
@@ -505,6 +557,19 @@ const DESCRIPTIONS = {
       }
       const ro = new ResizeObserver(function (es) { for (const e of es) fill(e.target); });
       panels.forEach(function (el) { fill(el); ro.observe(el); });
+    })();
+  </script>
+
+  <!-- Decorative corners grow in on load (tree-branch flood). Own script so it's
+       independent of any error in the block above. -->
+  <script is:inline>
+    (function () {
+      const decors = Array.prototype.slice.call(document.querySelectorAll('.pp-decor'));
+      if (!decors.length) return;
+      // Cells render hidden (anim-ready in the markup → no full-grown first paint).
+      // Reduced-motion is handled in CSS, so just trigger the grow.
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      setTimeout(function () { decors.forEach(function (d) { d.classList.add('is-grown'); }); }, 60);
     })();
   </script>
 </BaseLayout>
