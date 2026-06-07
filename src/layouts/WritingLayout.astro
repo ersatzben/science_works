@@ -1,10 +1,19 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import GridArt from '../components/GridArt.astro';
-import { getCover } from '../lib/covers.js';
+import { coverFor } from '../lib/covers.js';
+import { getPerson } from '../lib/people.js';
 const { entry, related = [] } = Astro.props;
 const d = entry.data;
-const cover = getCover(entry.id);
+const cover = coverFor(entry);
+
+// Resolve author bio cards from the byline names: pull role/bio/photo from
+// people.json for anyone on /about, and fall back to a frontmatter `writers`
+// entry (external/guest authors, or a per-piece override) keyed by the same name.
+const writerOverrides = Object.fromEntries((d.writers ?? []).map((w) => [w.name, w]));
+const writers = d.authors
+  .map((name) => ({ name, ...(getPerson(name) ?? {}), ...(writerOverrides[name] ?? {}) }))
+  .filter((w) => w.bio || w.role || w.photo);   // only show a card when we have something to show
 const fmt = (dt) => dt.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
 const typeLabel = d.type === 'report' ? 'Report' : 'Essay';
 
@@ -79,8 +88,8 @@ const mailShareUrl = `mailto:?subject=${encodeURIComponent(d.title)}&body=${enco
             <div class="related-track">
               {related.map((r) => (
                 <a class="rel-card" href={`/writing/${r.id}`}>
-                  {getCover(r.id)
-                    ? <div class="rel-card-art" aria-hidden="true"><GridArt bitmap={getCover(r.id)} aspect={3 / 2} /></div>
+                  {coverFor(r)
+                    ? <div class="rel-card-art" aria-hidden="true"><GridArt bitmap={coverFor(r)} aspect={3 / 2} /></div>
                     : <div class="rel-card-img rel-card-img--ph" aria-hidden="true"></div>}
                   <div class="rel-card-body">
                     <p class="rel-tag">{r.data.project}</p>
@@ -96,9 +105,9 @@ const mailShareUrl = `mailto:?subject=${encodeURIComponent(d.title)}&body=${enco
             </div>
           </div>
         )}
-        {d.writers && d.writers.length > 0 && (
+        {writers.length > 0 && (
           <div class="writers" id="writers">
-            {d.writers.map((w) => (
+            {writers.map((w) => (
               <div class="writer">
                 {w.photo
                   ? <div class="writer-pic" role="img" aria-label={w.name} style={`background-image: url('${w.photo}')`}></div>

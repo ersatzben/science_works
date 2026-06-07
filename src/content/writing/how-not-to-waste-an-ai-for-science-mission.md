@@ -9,15 +9,6 @@ featured: true
 project: "AI for Science"
 contributors: ["Sam Currie", "Alex Chalmers", "Alvin Djajadikerta", "Charlie Harris"]
 related: ["designing-ai-for-disruptive-science", "the-three-bucket-problem", "the-bucket-stops-here"]
-writers:
-  - name: "Ben Johnson"
-    role: "Co-Director"
-    photo: "/assets/images/people/ben-johnson.jpg"
-    bio: "Ben is Co-Director of Science Works. He is a former senior UK government adviser on science and R&D, having advised multiple administrations, and co-author of national-level science policies including the UK R&D Roadmap and UK Innovation Strategy. He was previously associate director at UKRI, has contributed to G7 open science frameworks, and builds data tools for research strategy. Ben is also Professor of Research and Innovation Policy at the University of Strathclyde."
-  - name: "Laura Ryan"
-    role: "Co-Director"
-    photo: "/assets/images/people/laura-ryan.jpg"
-    bio: "Laura is Co-Director of Science Works. She was previously Senior Analyst in Science and Technology at the Tony Blair Institute, leading work on metascience, AI for science, and institutional models for R&D, and is lead author of the Lovelace Disruptive Invention Labs report. Laura is co-founder of the Better Science Project and a former Cambridge neuroscientist with a PhD in the field."
 ---
 
 ##  Missions – possible? [[TOC: Introduction]]

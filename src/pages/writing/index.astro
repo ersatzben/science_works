@@ -2,10 +2,10 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import GridArt from '../../components/GridArt.astro';
-import { getCover } from '../../lib/covers.js';
+import { coverFor } from '../../lib/covers.js';
 
 const all = (await getCollection('writing'))
-  .filter((e) => !e.data.draft)
+  .filter((e) => !e.data.draft && !e.data.hidden)
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 const latest = all[0];   // newest by date (list is sorted newest-first)
 const fmt = (d) => d.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -67,8 +67,8 @@ const projects = [...new Set(all.map((e) => e.data.project))].sort((a, b) => a.l
               <p class="wi-feat-authors">{latest.data.authors.join(', ')}</p>
               {(latest.data.summary ?? latest.data.subtitle) && <p class="wi-feat-summary">{latest.data.summary ?? latest.data.subtitle}</p>}
             </div>
-            {getCover(latest.id)
-              ? <div class="wi-feat-art" aria-hidden="true"><GridArt bitmap={getCover(latest.id)} aspect={3 / 2} /></div>
+            {coverFor(latest)
+              ? <div class="wi-feat-art" aria-hidden="true"><GridArt bitmap={coverFor(latest)} aspect={3 / 2} /></div>
               : <div class="wi-pix wi-feat-pix" aria-hidden="true"></div>}
           </div>
           <div class="wi-feat-rule"></div>
@@ -91,8 +91,8 @@ const projects = [...new Set(all.map((e) => e.data.project))].sort((a, b) => a.l
             data-date={e.data.date.getTime()}
             data-featured={e === latest ? "true" : undefined}
           >
-            {getCover(e.id)
-              ? <div class="wi-card-art" aria-hidden="true"><GridArt bitmap={getCover(e.id)} aspect={3 / 2} /></div>
+            {coverFor(e)
+              ? <div class="wi-card-art" aria-hidden="true"><GridArt bitmap={coverFor(e)} aspect={3 / 2} /></div>
               : <div class="wi-pix wi-card-pix" aria-hidden="true"></div>}
             <div class="wi-card-body">
               <h3 class="wi-card-title">{e.data.title}</h3>

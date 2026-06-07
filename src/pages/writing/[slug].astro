@@ -4,12 +4,17 @@ import WritingLayout from '../../layouts/WritingLayout.astro';
 
 export async function getStaticPaths() {
   const entries = await getCollection('writing');
-  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+  // `hidden` pieces get no page at all (not just excluded from listings).
+  return entries
+    .filter((entry) => !entry.data.hidden)
+    .map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
 }
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
-const related = entry.data.related ? await getEntries(entry.data.related) : [];
+const related = entry.data.related
+  ? (await getEntries(entry.data.related)).filter((r) => !r.data.hidden)
+  : [];
 ---
 <WritingLayout entry={entry} related={related}>
   <Content />

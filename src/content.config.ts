@@ -14,11 +14,16 @@ const writing = defineCollection({
     type: z.enum(['essay', 'report']),
     project: z.string(),
     summary: z.string().optional(),          // longer blurb for cards/index; falls back to subtitle
+    cover: z.string().optional(),            // cover json name in src/data/covers (no extension); defaults to the slug
     contributors: z.array(z.string()).optional(),
     pdf: z.string().optional(),
     draft: z.boolean().default(false),
+    hidden: z.boolean().default(false),     // exclude from the site entirely: no page is built and it appears in no listing
     featured: z.boolean().default(false),
-    // Structural, placed by the layout (not authored inline):
+    // Author details for writers NOT on the /about page (external/guest authors).
+    // Authors who ARE on /about resolve automatically from people.json by name —
+    // no need to list them here. An entry here whose `name` matches an `authors`
+    // name supplies (or overrides) that author's role/bio/photo for this piece.
     writers: z.array(z.object({
       name: z.string(),
       role: z.string().optional(),

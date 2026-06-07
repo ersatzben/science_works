@@ -2,17 +2,17 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import GridArt from '../components/GridArt.astro';
-import { getCover } from '../lib/covers.js';
+import { coverFor } from '../lib/covers.js';
 import quotes from '../data/quotes.json';
 
 // In Focus + carousel are driven by the writing collection (same source as /writing).
 const all = (await getCollection('writing'))
-  .filter((e) => !e.data.draft)
+  .filter((e) => !e.data.draft && !e.data.hidden)
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 const featured = all.find((e) => e.data.featured) ?? all[0];
 const fmt = (d) => d.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
 const typeLabel = (t) => (t === 'report' ? 'Report' : 'Essay');
-const ifCover = getCover(featured.id);
+const ifCover = coverFor(featured);
 
 // Spotlight footer: a 4x4 pixel motif above each section title.
 // Legend → palette: fills (0 = transparent), border-only letters, and X (fill + border).
@@ -74,8 +74,8 @@ const sifItems = [
         <div class="intro-pic" aria-hidden="true"></div>
         <p class="intro-eyebrow">Science Works</p>
         <h2>Britain needs a metascientific revolution</h2>
-        <p>The UK's place in the world has long been underwritten by the creativity of its laboratories, workshops, and universities. Today that imagination is running into the limits of institutions built for another era.</p>
-        <p>We've lost much of the freedom that once defined British science, and failed to seize the possibilities of our technological age. Science Works exists to change that.</p>
+        <p>The UK is fundamentally a scientific nation. Our place in the world has long been underwritten by the creativity of our laboratories, workshops, and universities.</p>
+        <p>Today, our imagination is running into the limits of an overstretched system built for another era.</p><p>We&rsquo;ve lost much of the freedom that once defined British science, and failed to seize the possibilities of our technological age. This is what animates us at Science Works.</p>
         <a class="hero-link" href="/writing">Explore Our Work  &rarr;</a>
         <div class="spotlight-intro-footer">
           {sifItems.map((it) => (
@@ -100,8 +100,9 @@ const sifItems = [
           <div class="project-body">
             <h3 class="project-title">Institutional Dynamism</h3>
             <div class="project-detail">
-              <p class="project-sub">The UK&rsquo;s research ecosystem is unusually homogeneous and slow to evolve</p>
-              <p class="project-text">We want to inject diversity and dynamism into the sector &mdash; mapping institutional models, strengthening state capacity, and incubating new organisational forms.</p>
+              <p class="project-sub">What mix of research institutions does Britain need, and how could we build them?</p>
+              <p class="project-text">Different kinds of scientific and technological projects need different types of support, and different homes.</p>
+              <p class="project-text">Britain&rsquo;s institutional repertoire and funding architecture are narrower than the science we want to do.</p>
             </div>
             <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
@@ -112,8 +113,9 @@ const sifItems = [
           <div class="project-body">
             <h3 class="project-title">AI and Science</h3>
             <div class="project-detail">
-              <p class="project-sub">Artificial intelligence is poised to change what it means to be a scientist</p>
-              <p class="project-text">We are developing an ambitious British agenda for AI in science &mdash; covering data, software, automation, and incentives.</p>
+              <p class="project-sub">How should British science adapt to the coming AI revolution?</p>
+              <p class="project-text">Artificial intelligence will expand our horizons, and change what it means to be a scientist.</p>
+              <p class="project-text">We must ensure that we reap the benefits of AI-assisted discovery without compounding existing dysfunctions.</p>
             </div>
             <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
@@ -124,8 +126,9 @@ const sifItems = [
           <div class="project-body">
             <h3 class="project-title">The Research Economy</h3>
             <div class="project-detail">
-              <p class="project-sub">The UK funds research without a clear picture of its real costs and trade-offs</p>
-              <p class="project-text">We bring quantitative and qualitative analysis to bear on the research base, pushing for a system that is less bureaucratic, more honest, and more dynamic.</p>
+              <p class="project-sub">How does Britain&rsquo;s research and innovation economy really work &ndash; and can it be made more dynamic?</p>
+              <p class="project-text">The UK invests heavily in R&D without fully understanding how the system works as a whole.</p>
+              <p class="project-text">Crude metrics obscure its true nature, while incentives, frictions, and hidden cross-subsidies shape decisions on the ground.</p>
             </div>
             <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
@@ -136,8 +139,9 @@ const sifItems = [
           <div class="project-body">
             <h3 class="project-title">Software for Science</h3>
             <div class="project-detail">
-              <p class="project-sub">The future of research is digital&mdash;and we need to adapt</p>
-              <p class="project-text">We are building and testing new software tools <span class="hidden">to address this gap, </span>while working on the incentives that will allow software to flourish.</p>
+              <p class="project-sub">Why does public research still run on poor software &ndash; and what could great tools unlock?</p>
+              <p class="project-text">Modern research increasingly depends on the digital.</p>
+              <p class="project-text">But tooling is underrecognised as a research output, with neither the infrastructure to share and maintain tools nor the incentives to do so.</p>
             </div>
             <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
@@ -148,8 +152,9 @@ const sifItems = [
           <div class="project-body">
             <h3 class="project-title">The Story of British Science</h3>
             <div class="project-detail">
-              <p class="project-sub">Scientific progress requires public confidence and political willpower</p>
-              <p class="project-text">Neither is guaranteed to endure over the coming decade. We want to help develop and articulate an account of British scientific renewal that can resonate.</p>
+              <p class="project-sub">How can we tell a story of British scientific renewal &ndash; linking institutions, place, and purpose?</p>
+              <p class="project-text">Few things matter more to our future prosperity than our capacity for discovery and invention.</p>
+              <p class="project-text">We need a vision (and a strategy) for the next decade of British science that is ambitious, tangible, and beautiful. </p>
             </div>
             <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
@@ -288,8 +293,8 @@ const sifItems = [
               {all.map((e) => (
                 <div class="report-card">
                   <a class="report-card-link" href={`/writing/${e.id}`} aria-label={e.data.title}></a>
-                  {getCover(e.id)
-                    ? <div class="report-card-art" aria-hidden="true"><GridArt bitmap={getCover(e.id)} aspect={12 / 12} /></div>
+                  {coverFor(e)
+                    ? <div class="report-card-art" aria-hidden="true"><GridArt bitmap={coverFor(e)} aspect={12 / 12} /></div>
                     : <div class="report-card-pix" aria-hidden="true"></div>}
                   <div class="report-card-body">
                     <h3 class="report-title">{e.data.shortTitle ?? e.data.title}</h3>
@@ -703,7 +708,7 @@ const sifItems = [
       border-radius: 4px;
       padding: 12px;
       box-sizing: border-box;
-      min-height: 275px;       /* desktop floor; spare space flexes above "More" (reset on mobile) */
+      min-height: 315px;       /* desktop floor; spare space flexes above "More" (reset on mobile) */
     }
 
     .project-body { flex: 1; min-width: 0; display: flex; flex-direction: column; 
@@ -738,14 +743,14 @@ const sifItems = [
       font-size: 14px;
       line-height: 1.4;
       color: var(--text);
-      margin: 0;
+      margin: 0 0 10px;
     }
     .project-detail {
       border-left: 1px solid var(--border-grey);
       padding-left: 16px;
       margin-top: 0px;
       margin-bottom: 6px; 
-      padding-bottom: 12px;
+      padding-bottom: 0px;
     }
     .project-more {
       font-family: 'Roboto', sans-serif;
