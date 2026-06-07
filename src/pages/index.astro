@@ -4,11 +4,24 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import GridArt from '../components/GridArt.astro';
 import { coverFor } from '../lib/covers.js';
 import quotes from '../data/quotes.json';
-// Featured-project grid art (18×37 sw.bitmap.v1), one per card.
+// Featured-project grid art (18×37), one per card.
 import instDynArt from '../data/projects/institutional-dynamism.json';
-import { cropCols } from '../lib/bitmap.js';
+import aiSciSrc from '../data/projects/ai-and-science.json';
+import resEconSrc from '../data/projects/the-research-economy.json';
+import softSciSrc from '../data/projects/software-for-science.json';
+import britSciSrc from '../data/projects/the-story-of-british-science.json';
+import { cropCols, paletteGridToBitmap } from '../lib/bitmap.js';
+// The newer four come in {cols,rows,palette,grid} format → convert to a bitmap.
+const aiSciArt = paletteGridToBitmap(aiSciSrc);
+const resEconArt = paletteGridToBitmap(resEconSrc);
+const softSciArt = paletteGridToBitmap(softSciSrc);
+const britSciArt = paletteGridToBitmap(britSciSrc);
 // Mobile strips show the leftmost 8 columns of the same source art.
 const instDynArtM = cropCols(instDynArt, 8);
+const aiSciArtM = cropCols(aiSciArt, 8);
+const resEconArtM = cropCols(resEconArt, 8);
+const softSciArtM = cropCols(softSciArt, 8);
+const britSciArtM = cropCols(britSciArt, 8);
 
 // In Focus + carousel are driven by the writing collection (same source as /writing).
 const all = (await getCollection('writing'))
@@ -125,7 +138,7 @@ const sifItems = [
             <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
           <div class="project-divider" aria-hidden="true"></div>
-          <div class="project-img" aria-hidden="true"><div class="project-img-cells"></div></div>
+          <div class="project-img" aria-hidden="true"><GridArt bitmap={aiSciArt} fit="width" class="project-img-art project-img-art--wide" /><GridArt bitmap={aiSciArtM} fit="width" class="project-img-art project-img-art--narrow" /></div>
         </article>
         <article class="project">
           <div class="project-body">
@@ -138,7 +151,7 @@ const sifItems = [
             <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
           <div class="project-divider" aria-hidden="true"></div>
-          <div class="project-img" aria-hidden="true"><div class="project-img-cells"></div></div>
+          <div class="project-img" aria-hidden="true"><GridArt bitmap={resEconArt} fit="width" class="project-img-art project-img-art--wide" /><GridArt bitmap={resEconArtM} fit="width" class="project-img-art project-img-art--narrow" /></div>
         </article>
         <article class="project">
           <div class="project-body">
@@ -151,7 +164,7 @@ const sifItems = [
             <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
           <div class="project-divider" aria-hidden="true"></div>
-          <div class="project-img" aria-hidden="true"><div class="project-img-cells"></div></div>
+          <div class="project-img" aria-hidden="true"><GridArt bitmap={softSciArt} fit="width" class="project-img-art project-img-art--wide" /><GridArt bitmap={softSciArtM} fit="width" class="project-img-art project-img-art--narrow" /></div>
         </article>
         <article class="project">
           <div class="project-body">
@@ -164,7 +177,7 @@ const sifItems = [
             <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
           <div class="project-divider" aria-hidden="true"></div>
-          <div class="project-img" aria-hidden="true"><div class="project-img-cells"></div></div>
+          <div class="project-img" aria-hidden="true"><GridArt bitmap={britSciArt} fit="width" class="project-img-art project-img-art--wide" /><GridArt bitmap={britSciArtM} fit="width" class="project-img-art project-img-art--narrow" /></div>
         </article>
         </div>
       </div>
