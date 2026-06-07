@@ -1,10 +1,14 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import MosaicNetwork from '../components/MosaicNetwork.astro';
+import decor from '../data/decor/projects-corner.json';
 
 // Every JSON in src/data/mosaics/ becomes its own network block (sorted by name).
 const mods = import.meta.glob('../data/mosaics/*.json', { eager: true });
 const mosaics = Object.keys(mods).sort().map((k) => mods[k].default ?? mods[k]);
+
+// Decorative corner art (static). Index 1 (#f7f0ed) is the blank filler → transparent.
+const decorCells = decor.grid.flat();
 
 // Project copy + offsets (translate, px). tx/ty nudge the whole pair; ctx/cty
 // nudge the text card independently of the network. Tune freely.
@@ -19,6 +23,13 @@ const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: Stri
 ---
 <BaseLayout title="Projects — Science Works">
   <main class="projects-page">
+    <div class="pp-decor pp-decor--left" style={`--d-cols:${decor.cols}`} aria-hidden="true">
+      {decorCells.map((v) => (<span class="d-cell" style={v === 1 ? '' : `background:${decor.palette[v]}`}></span>))}
+    </div>
+    <div class="pp-decor pp-decor--right" style={`--d-cols:${decor.cols}`} aria-hidden="true">
+      {decorCells.map((v) => (<span class="d-cell" style={v === 1 ? '' : `background:${decor.palette[v]}`}></span>))}
+    </div>
+
     <div class="pp-inner">
       <header class="pp-head">
         <h1 class="pp-title">projects</h1>
@@ -60,13 +71,29 @@ const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: Stri
   </main>
 
   <style>
-    .projects-page { padding: 46px 24px 80px; }
+    .projects-page { padding: 46px 24px 110px; position: relative; }
     .pp-inner { max-width: 1100px; margin: auto; position: relative; }
+
+    /* Decorative corner pixel-art (static, non-interactive). */
+    .pp-decor {
+      position: absolute;
+      top: 14px;
+      z-index: 0;
+      pointer-events: none;
+      display: grid;
+      grid-template-columns: repeat(var(--d-cols), var(--d-cell, 7px));
+      grid-auto-rows: var(--d-cell, 7px);
+      gap: var(--d-gap, 1px);
+    }
+    .pp-decor--left { left: 8px; }
+    .pp-decor--right { right: 8px; transform: scaleX(-1); }   /* mirror for the right corner */
+    .d-cell { border-radius: 1px; }
+    @media (max-width: 940px) { .pp-decor { display: none; } }   /* declutter on small screens */
 
     .pp-head { margin: 0 0 28px; text-align: center; }
     .pp-title {
-      font-family: 'Copperplate', serif; font-weight: normal; font-size: 30px;
-      letter-spacing: -0.02em; color: var(--text); margin: 0 0 10px;
+      font-family: 'Copperplate', serif; font-weight: normal; font-size: 40px;
+      letter-spacing: -0.02em; color: var(--text); margin: 20px 0 5px;
     }
     .pp-intro {
       font-family: 'Playfair Display', serif; font-weight: 300; font-size: 15px;
@@ -75,7 +102,7 @@ const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: Stri
 
     /* Flow layout (wrap = the responsive cascade); transform = the scatter. */
     .pp-networks {
-      max-width: 1400px;
+      max-width: 1500px;
       margin: 0 auto;
       display: flex;
       flex-wrap: wrap;
@@ -95,11 +122,13 @@ const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: Stri
     /* Project info card, sits to the right of the network. */
     .project-card {
       flex: 0 0 auto;
-      width: 180px;
+      width: 200px;
       height: 180px;
       box-sizing: border-box;
       border: 1px solid var(--border-grey);
-      background-color: rgb(248, 243, 239, 0.85); 
+      background-color: rgba(248, 243, 239, 0.7);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);   /* Safari */
       border-radius: 6px;
       padding: 14px 16px;
       display: flex;
