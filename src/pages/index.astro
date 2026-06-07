@@ -593,10 +593,11 @@ const sifItems = [
 
     .spotlight-grid {
       display: grid;
-      grid-template-columns: minmax(280px, 1.5fr) 1.55fr;   /* intro col ~25% wider */
+      grid-template-columns: minmax(0, 1fr) 520px;   /* intro flexes; cards hold 520px and never compress */
       gap: 56px;
       align-items: start;
-      margin: 0 160px;              /* THIS IS THE BIG PADDING */
+      margin: 0 auto;               /* centred — side gutters are whitespace, not fixed chrome */
+      max-width: 1200px;            /* beyond this the gutters just grow */
     }
     /* Anchor for the rain layer, which sits in the grid's right margin band. */
     .spotlight-main { position: relative; }
@@ -879,6 +880,12 @@ const sifItems = [
       .infocus-row { flex-direction: column; }
       .infocus-row .infocus-card { flex: none; width: 100%; max-width: 860px; }
       .quote-box { display: none; }   /* desktop-only — only suits sitting beside the In Focus card */
+
+      /* Spotlight stacks: intro above the cards, single centred column. */
+      .spotlight-grid { grid-template-columns: 1fr; max-width: 600px; gap: 40px; }
+      .spotlight-intro { position: static; top: auto; margin-top: 0; padding-right: 0; }
+      .spotlight-intro-footer { padding: 20px 0 0; transform: scale(0.9); }
+      .spotlight-rain { display: none; }
     }
     /* Fixed max width, left-aligned to the content-wrap's left edge. Room is
        left to the right of the card for future content (tune width later). */
@@ -957,6 +964,7 @@ const sifItems = [
       font-family: 'Copperplate', serif;
       font-weight: bold;
       font-size: 17px;
+      letter-spacing: 0.02em;
       color: var(--theme);
       margin: 0 0 14px;
     }
@@ -974,7 +982,8 @@ const sifItems = [
     .infocus-foot {
       display: flex;
       gap: 40px;                        /* the gap between Date and Essay */
-      font-family: 'Antique Olive', sans-serif;
+      font-family: 'Roboto', sans-serif;
+      text-transform: uppercase;
       font-size: 13px;
       color: var(--text);
       margin: auto 0 0;                 /* …but push the date/essay line to the bottom */
@@ -1109,6 +1118,7 @@ const sifItems = [
     .report-authors {
       font-family: 'Copperplate', serif;
       font-size: 13px;
+      letter-spacing: 0.02em;
       color: var(--theme);
       margin: 0 0 12px;
     }
@@ -1309,12 +1319,6 @@ const sifItems = [
 
     }
 
-    @media (max-width: 900px) {
-      .spotlight-grid { grid-template-columns: 1fr; gap: 34px; margin: 0; }
-      .spotlight-intro { position: static; top: auto; }
-      .spotlight-intro-footer { padding: 20px 0 0; transform: scale(0.9); }
-      .spotlight-rain { display: none; }   /* desktop-only */
-    }
 </style>
 
 <script is:inline>
