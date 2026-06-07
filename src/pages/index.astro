@@ -4,8 +4,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import GridArt from '../components/GridArt.astro';
 import { coverFor } from '../lib/covers.js';
 import quotes from '../data/quotes.json';
-// Featured-project grid art (14×29 sw.bitmap.v1), one per card.
+// Featured-project grid art (18×37 sw.bitmap.v1), one per card.
 import instDynArt from '../data/projects/institutional-dynamism.json';
+import { cropCols } from '../lib/bitmap.js';
+// Mobile strips show the leftmost 8 columns of the same source art.
+const instDynArtM = cropCols(instDynArt, 8);
 
 // In Focus + carousel are driven by the writing collection (same source as /writing).
 const all = (await getCollection('writing'))
@@ -109,7 +112,7 @@ const sifItems = [
             <a class="project-more" href="#">More from this project &rarr;</a>
           </div>
           <div class="project-divider" aria-hidden="true"></div>
-          <div class="project-img" aria-hidden="true"><GridArt bitmap={instDynArt} fit="width" class="project-img-art" /></div>
+          <div class="project-img" aria-hidden="true"><GridArt bitmap={instDynArt} fit="width" class="project-img-art project-img-art--wide" /><GridArt bitmap={instDynArtM} fit="width" class="project-img-art project-img-art--narrow" /></div>
         </article>
         <article class="project">
           <div class="project-body">
@@ -785,12 +788,14 @@ const sifItems = [
       flex: 0 0 auto;
       align-self: stretch;              /* stretches to the card height set by the body… */
       position: relative;               /* …and anchors the out-of-flow cell layer below */
-      --card-pix-cols: 14;              /* columns → drives the panel width */
-      --card-pix-cell: 9px;   /* pixel size */
-      --card-pix-gap: 1px;      /* spacing between pixels */
-      --card-pix-color: var(--border-grey);   /* single fill colour for now */
-      width: calc(var(--card-pix-cols) * var(--card-pix-cell)
-                  + (var(--card-pix-cols) - 1) * var(--card-pix-gap));
+      --card-pix-cols: 18;              /* procedural-dot columns (cards not yet using grid art) */
+      --card-pix-cell: 7px;
+      --card-pix-gap: 1px;
+      --card-pix-color: var(--border-grey);
+      /* Width derived from the fixed 289px strip height and the 18×37 art aspect
+         (native 179×369 at 9px/1px) so GridArt (fit:width) fills the height exactly.
+         289 × 179/369 ≈ 140.19px. */
+      width: calc(289px * 179 / 369);
       overflow: hidden;
     }
     /* The dot grid lives in an absolutely-positioned layer so its row count
@@ -808,13 +813,16 @@ const sifItems = [
     }
     /* Grid-art variant of the strip: top-anchored and out of flow (same reason as
        .project-img-cells) so it never feeds the card height. At the fixed 315px
-       card height the 14×29 art fills the 289px strip exactly. */
+       card height the 18×37 art fills the 289px strip exactly. */
     .project-img-art {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
     }
+    /* Desktop shows the full 18-column art; the leftmost-8 variant is mobile-only.
+       !important is needed to beat GridArt's inline `display:block` on the <svg>. */
+    .project-img-art--narrow { display: none !important; }
 
     /* ---------- In Focus: one highlighted publication ---------- */
     .infocus {
@@ -1247,20 +1255,25 @@ const sifItems = [
         scroll-snap-align: start;
         gap: 16px;
         padding: 15px;
-        min-height: 0;                  /* desktop-only floor; carousel sizes to content */
+        height: auto;                   /* desktop fixes 315px; carousel sizes to content */
+        min-height: 0;
       }
-      .project-img { --card-pix-cols: 8; }   /* narrower dot strip to fit the card */
+      /* Mobile cards are content-height (not the desktop 315px). Fixed-width
+         8-column strip; the leftmost-8 art is top-anchored and fills from the top. */
+      .project-img { --card-pix-cols: 8; width: 64px; }
+      .project-img-art--wide { display: none !important; }
+      .project-img-art--narrow { display: block !important; }
       .project-title { font-size: 16px; }
-      .project-detail { padding-left: 7px;}
+      .project-detail { padding-left: 7px; margin-bottom: 4px; }
       .project-sub { font-size: 13px; }
-      .project-text { font-size: 13px; }
+      .project-text { font-size: 11px; }
       .project-more { margin-top: auto; margin-left: 7px; font-size: 12px; }
       .project-divider { margin: -16px 0; }
       .hidden { display: none;}
 
-      .infocus { padding: 24px 16px; background-color: var(--theme);}
+      .infocus { padding: 24px 16px; background-color: var(--almost-white);}
       .infocus::before { display: none; }   /* solid --theme fill on mobile, no tiles */
-      .infocus-card { flex-direction: column; min-height: 0; border-radius: 0; }
+      .infocus-card { flex-direction: column; min-height: 0; border-radius: 0; background-color: var(--bg-secondary); }
       .infocus-meta { padding: 22px 22px 10px; }
       .infocus-tag { margin: 0 0 10px; }
       .infocus-title { font-size: 22px; }

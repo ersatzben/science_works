@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import people from '../data/people.json';
+import banner from '../data/decor/about-banner.json';
 
 // Photos live in /assets/images/people/<filename>; each person's `photo` field
 // holds just the filename (see src/data/people.json). The data file is the
@@ -53,6 +54,7 @@ function socialLinks(p) {
     <div class="wi-header">
       <div class="wi-pix wi-header-pix" aria-hidden="true"></div>
       <h1 class="wi-heading">About</h1>
+      <script type="application/json" id="about-banner-data" set:html={JSON.stringify(banner)}></script>
     </div>
 
     <section class="about-hero-section">
@@ -133,11 +135,11 @@ function socialLinks(p) {
     .wi-pix { --card-pix-cell: var(--small-block-size); --card-pix-gap: var(--small-block-gap); --card-pix-radius: var(--small-block-radius); --card-pix-color: var(--border-grey); display: grid; grid-auto-rows: var(--card-pix-cell); gap: var(--card-pix-gap); justify-content: center; }
     .wi-pix.wi-header-pix {
       position: absolute; inset: 0; align-content: center;
-      --card-pix-cell: var(--cell-size);     /* 14px */
-      --card-pix-gap: var(--cell-gap);       /* 2px */
+      --card-pix-cell: 7px;
+      --card-pix-gap: 1px;
       --card-pix-radius: var(--cell-radius); /* 2px */
       --card-pix-color: var(--almost-white);
-      --card-pix-rows: 12;                    /* 12 × 14 + 11 × 2 = 190px — matches the mosaic height */
+      --card-pix-rows: 24;                    /* 24 × 7 + 23 × 1 = 191px — matches the banner art height */
     }
     .wi-heading { position: relative; z-index: 1; margin: 0; display: inline-block; background: var(--almost-white); padding: 15px 27px; text-transform: lowercase; font-family: 'Copperplate', serif; font-weight: normal; font-size: 28px; letter-spacing: 0.02em; color: var(--text); }
 
@@ -749,48 +751,29 @@ function socialLinks(p) {
       });
     })();
 
-    // ----- Mosaic header banner (lifted from the Writing page) ----------
+    // ----- Mosaic header banner (rendered from src/data/decor/about-banner.json) ----
     (function () {
       const panels = document.querySelectorAll('.wi-header-pix');
       if (!panels.length) return;
 
-      // Rows are equal-width strings; each char is a palette key ('0' = blank/
-      // almost-white). Palette mixes themed CSS vars with hero-JS hexes.
-      const MOSAIC = [
-        '11234123412341200511353135113511',
-        '16750675068506700792289227922711',
-        '1893589358835890068B1888168B1611',
-        '1821AB188881AB10005A4888805AA011',
-        '18234188888888800888888888BA1281',
-        '18888888888888800888888888888881',
-        '18888888888888800888888888888881',
-        '1821AB88888888800888888888143281',
-        '1104A5088884A50001BA188881BA5281',
-        '1161B8618881B8600985388539853981',
-        '117229B2298229B00B6058605B605361',
-        '11531153135311500214321432143211',
-      ];
-      const MOSAIC_W = MOSAIC[0].length;
-      const PAL = {
-        '0': 'var(--almost-white)', '1': 'var(--theme)', '2': '#a3c0d7', '3': '#0e676a',
-        '4': 'var(--text)', '5': 'var(--coral)', '6': '#4b5cce', '7': '#111340',
-        '8': '#ebe5cf', '9': '#64b37b', 'A': '#440214', 'B': '#004ee6',
-      };
+      const dataEl = document.getElementById('about-banner-data');
+      if (!dataEl) return;
+      const ART = JSON.parse(dataEl.textContent);   // { cols, rows, palette, grid }  (-1 = transparent)
+      const AW = ART.cols, AH = ART.rows, GRID = ART.grid, PAL = ART.palette;
 
       function paintMosaic(el, cols, rows) {
         const cells = el.children;
-        for (let i = 0; i < cells.length; i++) cells[i].style.background = '';   // reset to CSS default
-        const startCol = Math.round((cols - MOSAIC_W) / 2);                       // centre the art horizontally
-        const startRow = Math.max(0, Math.floor((rows - MOSAIC.length) / 2));
-        for (let r = 0; r < MOSAIC.length && startRow + r < rows; r++) {
-          const line = MOSAIC[r];
-          for (let c = 0; c < line.length; c++) {
-            const ch = line[c];
-            if (ch === '0') continue;
+        for (let i = 0; i < cells.length; i++) cells[i].style.background = '';   // reset to CSS default (field cell)
+        const startCol = Math.round((cols - AW) / 2);                            // centre the art horizontally
+        const startRow = Math.max(0, Math.floor((rows - AH) / 2));
+        for (let r = 0; r < AH && startRow + r < rows; r++) {
+          for (let c = 0; c < AW; c++) {
+            const v = GRID[r][c];
+            if (v < 0) continue;                                                 // transparent → leave field cell
             const gc = startCol + c;
             if (gc < 0 || gc >= cols) continue;
             const cell = cells[(startRow + r) * cols + gc];
-            if (cell) cell.style.background = PAL[ch] || '';
+            if (cell) cell.style.background = PAL[v] || '';
           }
         }
       }

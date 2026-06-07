@@ -13,11 +13,11 @@ const decorCells = decor.grid.flat();
 // Project copy + offsets (translate, px). tx/ty nudge the whole pair; ctx/cty
 // nudge the text card independently of the network. Tune freely.
 const PROJECTS = [
-  { index: '01', title: 'Institutional Dynamism',   subtitle: 'We want to inject diversity and dynamism into our institutional landscape.', tx: 30, ty: 10, ctx: -25, cty: 0 },
-  { index: '02', title: 'AI and Science',           subtitle: 'An ambitious British agenda for AI in science — data, software and incentives.', tx: 20, ty: 64, ctx: -25, cty: 0 },
-  { index: '03', title: 'The Research Economy',      subtitle: 'Rigorous analysis of how research is funded, costed and governed.', tx: 0, ty: 24, ctx: -25, cty: 0 },
-  { index: '04', title: 'Software for Science',      subtitle: 'Building tools and shifting incentives so research software can flourish.', tx: -80, ty: 16, ctx: 0, cty: 0 },
-  { index: '05', title: 'A Story of British Science', subtitle: 'Telling the story of British science — its past, present and future.', tx: 10, ty: 36, ctx: -5, cty: 0 },
+  { index: '01', title: 'Institutional Dynamism',   subtitle: 'What mix of research institutions does Britain need, and how could we build them?', tx: 30, ty: 10, ctx: -25, cty: 0 },
+  { index: '02', title: 'AI and Science',           subtitle: 'How should British science adapt to the coming AI revolution?', tx: 20, ty: 64, ctx: -25, cty: 0 },
+  { index: '03', title: 'The Research Economy',      subtitle: 'How does Britain’s research and innovation economy really work – and can it be made more dynamic?', tx: 0, ty: 24, ctx: -25, cty: 0 },
+  { index: '04', title: 'Software for Science',      subtitle: 'Why does public research still run on poor software – and what could great tools unlock?', tx: -80, ty: 16, ctx: 0, cty: 0 },
+  { index: '05', title: 'A Story of British Science', subtitle: 'How can we tell a story of British scientific renewal – linking institutions, place, and purpose?', tx: 10, ty: 36, ctx: -5, cty: 0 },
 ];
 const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: String(i + 1).padStart(2, '0'), title: 'Project', subtitle: '', tx: 0, ty: 0, ctx: 0, cty: 0 }) }));
 ---
@@ -65,12 +65,21 @@ const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: Stri
       <div class="pp-modal-scrim" data-close></div>
       <div class="pp-modal-card" role="dialog" aria-modal="true" aria-labelledby="pp-modal-title">
         <button class="pp-modal-close" type="button" aria-label="Close" data-close>&times;</button>
+        <div class="pp-modal-scroll">
         <p class="pp-modal-index" id="pp-modal-index"></p>
         <h2 class="pp-modal-title" id="pp-modal-title"></h2>
         <p class="pp-modal-sub" id="pp-modal-sub"></p>
         <div class="pp-modal-body">
           <p>Placeholder body copy for this project. This is where a fuller description, links and detail will live — a paragraph or two introducing the work, its aims, and how to get involved.</p>
           <p>A second placeholder paragraph so the modal has some heft to it while we design the real content.</p>
+          <p>Institutions are technologies in their own right: architectures with design choices, affordances and constraints. The organisation of laboratories and funding, the incentives hardwired into the system, and the timescales each is optimised for all promote certain kinds of research while rendering others near impossible.</p>
+          <p>For decades the UK has run its publicly funded science largely on one platform — the university. Britain's universities are world-class, but no single institutional structure is well suited to every mode of research, and the standard academic operating system struggles to support certain programmes.</p>
+          <p>We want to widen the repertoire: mapping the institutional models available to funders and policymakers, strengthening the state's capacity to assess and support proposals for new organisations, and incubating new organisational forms where we are best placed to do so.</p>
+          <p>This placeholder runs long deliberately, so we can check how the card behaves when a real project description overflows the available height and the content needs to scroll.</p>
+        </div>
+        <div class="pp-modal-foot">
+          <a class="pp-modal-cta" href="/contact">If you are interested in this project, please get in touch <span class="arrow">&rarr;</span></a>
+        </div>
         </div>
       </div>
     </div>
@@ -202,11 +211,20 @@ const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: Stri
     .pp-modal.is-open .pp-modal-scrim { opacity: 1; }
     .pp-modal-card {
       position: relative; z-index: 1;
-      width: min(720px, 100%); max-height: 84vh; overflow: auto;
+      /* ── SIZE KNOBS (eyeball these) ───────────────────────────────────
+         width:      desktop card width (caps to the viewport via 100%)
+         min-height: how tall the card is when content is short
+         max-height: cap before the body scrolls; overflow:auto does the scroll
+         Mobile height is tuned in the @media (max-width: 600px) block below. */
+      width: min(936px, 100%);
+      min-height: 430px;
+      max-height: 84vh;
+      overflow: hidden;               /* the card frame never scrolls; the × stays pinned… */
+      display: flex;
+      flex-direction: column;         /* …and .pp-modal-scroll (index → CTA) scrolls inside it */
       box-sizing: border-box;
       background: var(--almost-white);
       border: 1px solid var(--border-grey); border-radius: 12px;
-      padding: 40px 44px;
       box-shadow: 0 24px 70px rgba(68, 2, 20, 0.22);
       /* grows from the clicked button (--ox/--oy set in JS) to centre */
       opacity: 0;
@@ -216,10 +234,25 @@ const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: Stri
       will-change: transform, opacity;
     }
     .pp-modal.is-open .pp-modal-card { opacity: 1; transform: translate(0, 0) scale(1); }
+    /* The single scroll region: everything from the index to the CTA scrolls
+       together here (one scroll container → no nested-scroll dead zones),
+       while the × stays pinned to the card. Inner padding lives here. */
+    .pp-modal-scroll {
+      flex: 1 1 auto; min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;   /* don't scroll the page behind the modal */
+      -webkit-overflow-scrolling: touch;
+      padding: 40px 44px;
+    }
+    /* Mobile: just a taller card floor (eyeball this). Scroll behaviour is the
+       same as desktop — the × stays put and the content scrolls. */
+    @media (max-width: 600px) {
+      .pp-modal-card { min-height: 460px; }
+    }
     .pp-modal-close {
-      position: absolute; top: 14px; right: 16px;
+      position: absolute; top: 14px; right: 16px; z-index: 1;   /* above the scroll area */
       width: 34px; height: 34px; line-height: 1; font-size: 24px;
-      color: var(--text); background: none; border: none; border-radius: 50%; cursor: pointer;
+      color: var(--text); background: var(--almost-white); border: none; border-radius: 50%; cursor: pointer;
     }
     .pp-modal-close:hover { color: var(--theme); background: var(--beige); }
     .pp-modal-index {
@@ -240,6 +273,20 @@ const items = mosaics.map((m, i) => ({ data: m, ...(PROJECTS[i] || { index: Stri
     }
     .pp-modal-body p { margin: 0 0 16px; }
     .pp-modal-body p:last-child { margin-bottom: 0; }
+    /* CTA pinned below the scrolling body (desktop); on mobile it sits at the
+       end of the whole-card scroll. */
+    .pp-modal-foot {
+      flex: 0 0 auto;
+      margin-top: 20px; padding-top: 18px;
+      border-top: 1px solid var(--border-grey);
+    }
+    .pp-modal-cta {
+      font-family: var(--button-text); font-weight: 500; font-size: 15px;
+      color: var(--theme); text-decoration: none;
+    }
+    .pp-modal-cta .arrow { display: inline-block; transition: transform 0.2s ease; }
+    .pp-modal-cta:hover { text-decoration: underline; }
+    .pp-modal-cta:hover .arrow { transform: translateX(3px); }
     @media (prefers-reduced-motion: reduce) {
       .pp-modal-card { transition: opacity 0.2s ease; transform: none !important; }
     }
