@@ -115,7 +115,7 @@ const sifItems = [
 
       <div class="spotlight-main">
         <canvas class="spotlight-rain" aria-hidden="true"></canvas>
-        <h2 class="section-label">featured projects</h2>
+        <h2 class="section-label">featured projects<span class="scroll-cue" aria-hidden="true">scroll<span class="scroll-cue-arrow">&rarr;</span></span></h2>
         <div class="projects">
         <article class="project">
           <div class="project-body">
@@ -587,6 +587,30 @@ const sifItems = [
       margin: 0 0 15px;
     }
     .section-label a { color: var(--text); text-decoration: none; }   /* plain brown heading, not a red/underlined link */
+    /* Mobile-only hint that the projects are a horizontal swipe carousel. */
+    .scroll-cue {
+      display: none;             /* shown only at the carousel breakpoint (≤600px) */
+      align-items: center;
+      gap: 5px;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 500;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--border-grey);
+      white-space: nowrap;
+    }
+    .scroll-cue-arrow {
+      display: inline-block;
+      animation: scroll-cue-nudge 1.5s ease-in-out infinite;
+    }
+    @keyframes scroll-cue-nudge {
+      0%, 100% { transform: translateX(0); }
+      50%      { transform: translateX(4px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .scroll-cue-arrow { animation: none; }
+    }
 
     /* ---------- Spotlight: pinned intro (left) + scrolling projects (right) ---------- */
     .spotlight { 
@@ -1226,7 +1250,8 @@ const sifItems = [
       .content-wrap { padding: 0; }
       .content-wrap-lower { padding: 0; }
   
-      .section-label { font-size: 22px; margin-bottom: 16px; }
+      .section-label { font-size: 22px; margin-bottom: 16px; display: flex; align-items: baseline; padding-right: 24px; }
+      .scroll-cue { display: inline-flex; margin-left: auto; transform: translateY(-3px); }   /* push right; nudge up off the baseline */
 
       .spotlight {
         padding-top: 40px; 
@@ -1254,6 +1279,7 @@ const sifItems = [
         display: grid;                    /* 30×22 pixel illustration */
         grid-template-columns: repeat(var(--ip-cols, 30), 1fr);
         grid-auto-rows: 1fr;
+        gap: 0.5px;                       /* hairline grout → reads as mosaic, not pixels */
         float: right;
         width: 44%;
         aspect-ratio: 30 / 22;            /* matches the art → cells stay square */
