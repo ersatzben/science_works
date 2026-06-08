@@ -125,12 +125,12 @@ const DESCRIPTIONS = {
           <div class="pp-block">
             <MosaicNetwork data={it.data} cell="6px" gap="1px" />
           </div>
-          <div class="project-card">
+          <a class="project-card" href={`#${it.slug}`} data-open data-slug={it.slug} data-index={it.index} data-title={it.title} data-subtitle={it.subtitle}>
             <p class="project-index">{it.index}</p>
             <h3 class="project-title">{it.title}</h3>
             <p class="project-subtitle">{it.subtitle}</p>
-            <button type="button" class="project-toggle" data-open data-slug={it.slug} data-index={it.index} data-title={it.title} data-subtitle={it.subtitle}>+ Open Project</button>
-          </div>
+            <span class="project-toggle">+ Open Project</span>
+          </a>
         </div>
       ))}
     </div>
@@ -258,9 +258,10 @@ const DESCRIPTIONS = {
     /* Project info card, sits to the right of the network. */
     .project-card {
       flex: 0 0 auto;
-      width: 200px;
-      height: 180px;
+      width: 210px;
+      height: 190px;
       box-sizing: border-box;
+      text-decoration: none; color: inherit;   /* it's an <a> now; children keep their own colours */
       border: 1px solid var(--border-grey);
       background-color: rgba(248, 243, 239, 0.7);
       backdrop-filter: blur(4px);
@@ -270,6 +271,13 @@ const DESCRIPTIONS = {
       display: flex;
       flex-direction: column;
       transform: translate(var(--ctx, 0), var(--cty, 0));   /* independent card nudge */
+      transition: transform 0.2s ease;
+    }
+    /* Subtle lift on hover — composes with the per-card --ctx/--cty scatter
+       offset. Hover-capable devices only, so a touch tap doesn't snap it. */
+    @media (hover: hover) {
+      .project-card:hover { transform: translate(var(--ctx, 0), calc(var(--cty, 0) - 4px)); }
+      .project-card:hover .project-toggle { text-decoration: underline; }   /* hint that the whole card opens it */
     }
     .project-index {
       font-family: var(--button-text); font-weight: 500; font-size: 12px;
@@ -288,11 +296,8 @@ const DESCRIPTIONS = {
       align-self: flex-start;
       font-family: var(--button-text); font-weight: 500; font-size: 12px;
       letter-spacing: 0.02em; text-transform: uppercase;
-      color: var(--theme); background: none; border: none; padding: 0; cursor: pointer;
-      transition: transform 0.12s ease;
+      color: var(--theme);
     }
-    .project-toggle:hover { text-decoration: underline; }
-    .project-toggle:active { transform: scale(0.9); }   /* subtle push */
 
     /* ---------- Project modal ---------- */
     .pp-modal[hidden] { display: none; }
@@ -321,7 +326,7 @@ const DESCRIPTIONS = {
       padding: 40px 44px;
       padding-right: 14px;
       box-shadow: 0 24px 70px rgba(68, 2, 20, 0.22);
-      /* grows from the clicked button (--ox/--oy set in JS) to centre */
+      /* grows from the clicked card's centre (--ox/--oy set in JS) to centre */
       opacity: 0;
       transform: translate(var(--ox, 0), var(--oy, 0)) scale(0.12);
       transform-origin: center;
@@ -440,7 +445,7 @@ const DESCRIPTIONS = {
       }
     })();
 
-    // "+ Open Project" → modal that grows from the clicked button to centre.
+    // Project card (whole <a>) → modal that grows from the card's centre to centre.
     (function () {
       const modal = document.getElementById('pp-modal');
       if (!modal) return;
@@ -453,10 +458,10 @@ const DESCRIPTIONS = {
       let lastFocus = null;
 
       // Deep-linking: build a lookup so /projects#<slug> (canonical) — or the
-      // numeric alias #01 / #1 — resolves to a project's open button.
+      // numeric alias #01 / #1 — resolves to a project's card (the open trigger).
       const byKey = {};
-      const buttons = Array.prototype.slice.call(document.querySelectorAll('.project-toggle[data-open]'));
-      buttons.forEach(function (b) {
+      const cards = Array.prototype.slice.call(document.querySelectorAll('.project-card[data-open]'));
+      cards.forEach(function (b) {
         if (b.dataset.slug) byKey[b.dataset.slug.toLowerCase()] = b;
         if (b.dataset.index) {
           byKey[b.dataset.index.toLowerCase()] = b;                 // "01"
@@ -508,8 +513,14 @@ const DESCRIPTIONS = {
         if (b) open(b); else close(false);
       }
 
-      buttons.forEach(function (b) {
-        b.addEventListener('click', function () { open(b); });
+      cards.forEach(function (b) {
+        b.addEventListener('click', function (e) {
+          // Let modifier/middle clicks do the native thing (open #slug in a new
+          // tab → deep-links there); otherwise intercept and open the modal.
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+          e.preventDefault();
+          open(b);
+        });
       });
       modal.querySelectorAll('[data-close]').forEach(function (el) {
         el.addEventListener('click', function () { close(true); });   // user close clears the hash

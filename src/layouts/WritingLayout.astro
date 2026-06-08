@@ -184,7 +184,7 @@ const mailShareUrl = `mailto:?subject=${encodeURIComponent(d.title)}&body=${enco
       line-height: 1.5;
       color: var(--text);
     }
-    .sn-num { font-family: 'Antique Olive', sans-serif; color: var(--theme); font-weight: 700; margin-right: 4px; }
+    .sn-num { font-family: 'Antique Olive', sans-serif; color: var(--theme); font-weight: 700; margin-right: 4px; font-size: 12px; }
 
     /* Collapsible aside (banked pattern — not currently used in the markup):
        header bar with +/- toggle, --bg-secondary panel. */
@@ -196,7 +196,7 @@ const mailShareUrl = `mailto:?subject=${encodeURIComponent(d.title)}&body=${enco
       gap: 16px;
       background: var(--bg-secondary);
       border: 1px solid var(--border-grey);
-      border-radius: 10px;
+      border-radius: 6px;
       padding: 12px 18px;
       cursor: pointer;
       list-style: none;
@@ -222,7 +222,7 @@ const mailShareUrl = `mailto:?subject=${encodeURIComponent(d.title)}&body=${enco
     .collapsible-body {
       border: 1px solid var(--border-grey);
       border-top: none;
-      border-radius: 0 0 10px 10px;
+      border-radius: 0 0 6px 6px;
       background: var(--bg-secondary);   /* marks the expanded region */
       padding: 20px 22px;
     }
@@ -235,7 +235,7 @@ const mailShareUrl = `mailto:?subject=${encodeURIComponent(d.title)}&body=${enco
       gap: 16px;
       background: var(--bg-secondary);
       border: 1px solid var(--border-grey);
-      border-radius: 10px;
+      border-radius: 6px;
       padding: 12px 16px;
       /* margin-bottom: 40px; */
       margin: 0 -10px 40px -10px;
@@ -427,7 +427,7 @@ const mailShareUrl = `mailto:?subject=${encodeURIComponent(d.title)}&body=${enco
 
     /* ---------- Essay foot: Related work + Writers ---------- */
     .essay-foot {
-      max-width: 1000px;
+      max-width: 1100px;
       margin: 40px auto 0;
       padding: 0 24px 96px;
       box-sizing: border-box;
@@ -437,7 +437,7 @@ const mailShareUrl = `mailto:?subject=${encodeURIComponent(d.title)}&body=${enco
     .related {
       margin-bottom: 44px;
       border: 1px solid var(--border-grey);
-      border-radius: 16px;
+      border-radius: 6px;
       padding: 18px;
       background-color: var(--bg-secondary); 
     }
@@ -445,9 +445,9 @@ const mailShareUrl = `mailto:?subject=${encodeURIComponent(d.title)}&body=${enco
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background-color: var(--bg-secondary); 
+      background-color: var(--almost-white); 
       border: 1px solid var(--border-grey);
-      border-radius: 12px;
+      border-radius: 6px;
       padding: 14px 22px;
       margin-bottom: 18px;
     }
@@ -479,7 +479,7 @@ const mailShareUrl = `mailto:?subject=${encodeURIComponent(d.title)}&body=${enco
     .rel-card {
       background: #fff;
       border: 1px solid var(--border-grey);
-      border-radius: 12px;
+      border-radius: 6px;
       overflow: hidden;
       text-decoration: none;
       display: flex;
@@ -505,6 +505,7 @@ const mailShareUrl = `mailto:?subject=${encodeURIComponent(d.title)}&body=${enco
     .rel-authors {
       font-family: 'Copperplate', serif; font-weight: normal; font-size: 13px;
       line-height: 1.25; letter-spacing: 0.02em; color: var(--text); min-width: 0;
+      margin-bottom: -3px; 
     }
     .rel-date {
       flex: none; font-family: 'Roboto', sans-serif; font-weight: 500; font-size: 11px;
@@ -520,6 +521,8 @@ const mailShareUrl = `mailto:?subject=${encodeURIComponent(d.title)}&body=${enco
       color: var(--text);
       margin: 0 0 26px;
     }
+    /* Author bios keep their original (pre-1100) width while Related stays wide. */
+    .writers { max-width: 882px; margin: 0 auto; }
     .writer {
       display: grid;
       grid-template-columns: 120px 1fr;
@@ -532,16 +535,16 @@ const mailShareUrl = `mailto:?subject=${encodeURIComponent(d.title)}&body=${enco
     .writer:last-child { margin-bottom: 0; }
     .writer-pic {
       grid-area: pic;
-      width: 120px;
-      height: 120px;
+      width: 120px;                /* fixed width → all blocks align horizontally */
+      align-self: stretch;         /* fill the full height of the writer block */
       border-radius: 2px;
-      background: var(--beige) center / cover no-repeat;
+      background: var(--beige) center / cover no-repeat;   /* crops vertically */
     }
     .writer-head { grid-area: head; }
     .writer-bio { grid-area: bio; }
     .writer-name {
-      font-family: 'Playfair Display', serif; font-weight: 600; font-size: 22px;
-      line-height: 1.15; color: var(--text); margin: 0 0 2px;
+      font-family: 'Copperplate', serif; font-weight: normal; font-size: 19px;
+      letter-spacing: 0.02em; line-height: 1.2; color: var(--text); margin: 0 0 2px;
     }
     .writer-role {
       font-family: 'Roboto', sans-serif; font-weight: 700; font-size: 16px;
