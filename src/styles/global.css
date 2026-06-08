@@ -63,12 +63,11 @@
       --border-grey: #ddcac9;   /* horizontal lines & borders */
       --button-text: 'Roboto', sans-serif;
 
-      /* Cell metrics */
+      /* Standard pixel-cell tokens (project cards, 404, shared — DO NOT
+         repurpose for the hero; the splash has its own --hero-cell-* set). */
       --cell-size: 14px;
       --cell-radius: 2px;
       --cell-gap: 2px;
-      --grid-cols: 12;
-      --grid-rows: 11;
 
       /* Small dot-matrix blocks (project cards, intro grid, reusable) */
       --small-block-size: 10px;
@@ -80,24 +79,52 @@
       --micro-block-gap: 1px;
       --micro-block-radius: 1px;
 
-      /* Matrix metrics */
+      /* ── Desktop splash hero geometry (self-contained) ───────────────
+         Redesign: 16×16 grids in a 6×3 field; boxes 6 & 11 get two extra
+         rows (18 tall). Everything below derives from the FOUR KNOBS, so
+         retuning the layout is a one-line change. Kept separate from the
+         shared --cell-* tokens above so card/404 pixels are untouched.   */
+      --hero-cell-size: 12px;        /* knob 1: pixel size                 */
+      --hero-cell-gap: 2px;          /* knob 2: gap between pixels          */
+      --hero-cell-radius: 2px;
+      --hero-cell-pitch: calc(var(--hero-cell-size) + var(--hero-cell-gap));  /* one cell + its gap */
+      --grid-gap-cells: 2;           /* knob 3: gap between grids, in whole cells */
+
+      --grid-cols: 16;
+      --grid-rows: 16;
+      --grid-tall-rows: 18;          /* boxes 6 & 11: +1 row top & bottom  */
       --matrix-cols: 6;
       --matrix-rows: 3;
-      --matrix-gap: 50px;          /* horizontal gap between columns */
-      --matrix-row-gap: 50px;      /* vertical gap between rows (70 − 2×cell, for the taller 6/11 boxes) */
 
-      /* One grid is 12*14 + 11*2 = 190px wide, 11*14 + 10*2 = 174px tall */
-      --grid-w: 190px;
-      --grid-h: 174px;
+      /* Gaps between grids are exactly --grid-gap-cells background cells, so the
+         art blocks and the background tile form one continuous, perfectly
+         aligned lattice. (N cells between blocks = (N+1) pitches − one cell.) */
+      --matrix-gap: calc((var(--grid-gap-cells) + 1) * var(--hero-cell-pitch) - var(--hero-cell-size));
+      --matrix-row-gap: var(--matrix-gap);
+      /* Background lattice extends this far past the composition on every side
+         (a whole number of cells → tile stays aligned) to reach the splash
+         edges at any viewport. */
+      --bg-overhang: calc(56 * var(--hero-cell-pitch));
+      /* --bg-secondary bands on the .matrix-bg plane (bounds measured from the
+         plane top). The middle band is the full height of the tall grids 6 & 11.
+         The upper/lower bands begin 4 cells outside the metagrid and run to the
+         splash edges — so 4 grey rows are left as a buffer above and below. */
+      --band-top: calc(var(--bg-overhang) + (var(--grid-rows) + var(--grid-gap-cells)) * var(--hero-cell-pitch));
+      --band-bottom: calc(var(--band-top) + var(--grid-tall-rows) * var(--hero-cell-pitch));
+      --band-upper: calc(var(--bg-overhang) - 4 * var(--hero-cell-pitch));
+      --band-lower: calc(var(--band-bottom) + (var(--grid-gap-cells) + var(--grid-rows) + 4) * var(--hero-cell-pitch));
 
-      /* Full composition: 6*190 + 5*50 = 1390w.
-         Height: row0 174 + gap 42 + row1 206 (tall) + gap 42 + row2 174 = 638h */
-      --composition-w: 1390px;
-      --composition-h: 638px;
-
-      /* Hero text box = exactly four horizontal grids: 4*190 + 3*50 = 910px wide, 174px tall */
-      --hero-w: 910px;
-      --hero-h: 174px;
+      /* Derived — do not edit directly. With the knobs above:
+         grid 222×222, tall 222×250, gaps 30px (2 cells),
+         composition 1482×754 (≈63/32), hero box span 978 wide. */
+      --grid-w: calc(var(--grid-cols) * var(--hero-cell-size) + (var(--grid-cols) - 1) * var(--hero-cell-gap));
+      --grid-h: calc(var(--grid-rows) * var(--hero-cell-size) + (var(--grid-rows) - 1) * var(--hero-cell-gap));
+      --grid-tall-h: calc(var(--grid-tall-rows) * var(--hero-cell-size) + (var(--grid-tall-rows) - 1) * var(--hero-cell-gap));
+      --composition-w: calc(var(--matrix-cols) * var(--grid-w) + (var(--matrix-cols) - 1) * var(--matrix-gap));
+      --composition-h: calc(2 * var(--grid-h) + var(--grid-tall-h) + 2 * var(--matrix-row-gap));
+      /* Hero text box spans the four central grids (slots 7–10). */
+      --hero-w: calc(4 * var(--grid-w) + 3 * var(--matrix-gap));
+      --hero-h: var(--grid-h);
 
       /* Set by JS on resize; clamp at 1 (no upscaling beyond natural size). */
       --scale: 1;
@@ -339,7 +366,7 @@
     #signup { --red: var(--theme); --text-muted: #888; --placeholder: #ccc; }
     #signup {
       margin-top: -14px;
-      margin-right: -20px;
+      margin-right: 20px;
       display: flex;
       flex-direction: column;
       align-items: center;

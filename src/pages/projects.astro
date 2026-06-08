@@ -90,7 +90,10 @@ const DESCRIPTIONS = {
     `Research software should be a first-class research output, with well-defined career paths for engineers, organisational infrastructure, and proper funding. At Science Works, we adapt and build open tools, and work with policymakers and the wider research software community to push for system-wide changes that will close the tooling gap.`,
   ],
   'a-story-of-british-science': [
-    `Placeholder description for A Story of British Science. Replace this with the real copy.`,
+    `A country gets the science it can imagine – and for all its strengths, Britain has lost the confidence to imagine very much. We pull the obvious levers, and somehow the system stays stuck: a decade of big decisions and bigger budgets has bought us less vitality than it should have, because we’re seized up on a deeper level.`,
+    `This is partly a way of seeing. Science has become procedural – prescribed, measured out, and administered to the public like medicine. That temper is nothing like how it actually feels to do science.`,
+    `It’s also the opposite of this country at its best: pragmatic and imaginative, fond of our eccentrics, suspicious of self-importance, historically brilliant not just at doing science but at inventing whole new ways to do it. Britain has always been at its strongest when it stood out from the pack.`,
+    `PThe moment to recover that spirit is now. The whole order is being reshuffled by AI; a country that’s brave enough can leap a generation ahead. Having conviction to act depends on having a story worth believing: ambitious yet tangible, brilliant, and beautiful. This programme works on that story.`,
   ],
 };
 ---
@@ -562,7 +565,8 @@ const DESCRIPTIONS = {
         const cell = parseFloat(cs.getPropertyValue('--card-pix-cell')) || 10;
         const gap = parseFloat(cs.getPropertyValue('--card-pix-gap')) || 3;
         const rows = parseInt(cs.getPropertyValue('--card-pix-rows'), 10) || 6;
-        const cols = Math.max(1, Math.floor((el.clientWidth + gap) / (cell + gap)));
+        let cols = Math.max(1, Math.floor((el.clientWidth + gap) / (cell + gap)));
+        cols = Math.max(1, cols - ((cols - AW) & 1));   // match the art's column parity → art centres exactly (mobile banner only)
         el.style.gridTemplateColumns = 'repeat(' + cols + ', var(--card-pix-cell))';
         const need = cols * rows;
         if (el.childElementCount !== need) {

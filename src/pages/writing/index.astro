@@ -359,7 +359,8 @@ const projects = [...new Set(all.map((e) => e.data.project))].sort((a, b) => a.l
         const cell = parseFloat(cs.getPropertyValue('--card-pix-cell')) || 10;
         const gap  = parseFloat(cs.getPropertyValue('--card-pix-gap'))  || 3;
         const rows = parseInt(cs.getPropertyValue('--card-pix-rows'), 10) || 6;
-        const cols = Math.max(1, Math.floor((el.clientWidth + gap) / (cell + gap)));
+        let cols = Math.max(1, Math.floor((el.clientWidth + gap) / (cell + gap)));
+        cols = Math.max(1, cols - ((cols - AW) & 1));   // match the art's column parity → art centres exactly (no half-cell drift)
         el.style.gridTemplateColumns = 'repeat(' + cols + ', var(--card-pix-cell))';
         const need = cols * rows;
         const isHeader = el.classList.contains('wi-header-pix');
