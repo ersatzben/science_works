@@ -513,7 +513,7 @@ const sifItems = [
       width: 120px;            /* equalised, ~20% narrower */
       padding: 6px 6px;       /* ~20% shorter */
       text-align: center;
-      border-radius: 5px;
+      border-radius: 4px;
       border: 1.5px solid var(--theme);
       cursor: pointer;
       white-space: nowrap;
@@ -605,10 +605,13 @@ const sifItems = [
       position: absolute;
       top: 0;                      /* height set in JS — reaches the top of card 3 */
       left: 100%;                  /* right edge of the project cards */
-      width: 120px;
+      width: 96px;                 /* 20% narrower band */
       margin-left: 40px;           /* keep 40px clear of the cards' right edge (fits the 160px margin) */
       pointer-events: none;
       z-index: 0;
+      /* Soft top/bottom edges so drops fade in/out instead of popping at a hard line. */
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 60px, #000 calc(100% - 60px), transparent 100%);
+              mask-image: linear-gradient(to bottom, transparent 0, #000 60px, #000 calc(100% - 60px), transparent 100%);
     }
     .spotlight-intro {
       position: sticky;
@@ -864,7 +867,7 @@ const sifItems = [
     .quote-box {
       flex: 1 1 300px; min-width: 0; box-sizing: border-box; margin: 0;
       display: flex; flex-direction: column;
-      background: var(--almost-white); border: 1px solid var(--border-grey); border-radius: 6px;
+      background: var(--almost-white); border: 1px solid var(--border-grey); border-radius: 4px;
       padding: 22px 28px 20px;
     }
     .quote-top { display: flex; align-items: center; gap: 14px; margin: -20px 0 14px; }
@@ -897,7 +900,7 @@ const sifItems = [
       min-height: 300px;
       background: var(--almost-white);
       border: 1px solid var(--border-grey);
-      border-radius: 6px;
+      border-radius: 4px;
       overflow: hidden;
       cursor: pointer;
     }
@@ -1000,7 +1003,7 @@ const sifItems = [
     .reports-box {
       position: relative;               /* anchors the overlaid arrows */
       border: 1.5px solid var(--border-grey);
-      border-radius: 6px;
+      border-radius: 4px;
       padding: 20px 20px 18px;
       background-color: var(--bg-secondary);
     }
@@ -1011,7 +1014,7 @@ const sifItems = [
       gap: 16px;
       margin-bottom: 18px;
       border: 1px solid var(--border-grey);
-      border-radius: 6px; 
+      border-radius: 4px; 
       padding: 8px; 
       background-color: var(--almost-white)
     }
@@ -1076,7 +1079,7 @@ const sifItems = [
       scroll-snap-align: start;
       background: var(--almost-white);
       border: 1px solid var(--border-grey);
-      border-radius: 6px;
+      border-radius: 4px;
       overflow: hidden;
       padding: 16px;
       box-sizing: border-box;
@@ -1263,6 +1266,8 @@ const sifItems = [
 
       .spotlight-intro p { font-size: 14px; }
 
+      .spotlight-intro-footer { margin-top: 20px; }
+
       /* Projects become a horizontal, swipeable carousel on mobile. */
       .spotlight-main { min-width: 0; background-color: var(--bg); padding: 30px 0 20px 24px; margin-top: 20px; }   /* let the grid item shrink so the carousel can overflow-scroll instead of stretching the column */
       .projects {
@@ -1282,6 +1287,7 @@ const sifItems = [
         padding: 15px;
         height: auto;                   /* desktop fixes 315px; carousel sizes to content */
         min-height: 0;
+        /* background-color: var(--almost-white);  */
       }
       /* Mobile cards are content-height (not the desktop 315px). Fixed-width
          8-column strip; the leftmost-8 art is top-anchored and fills from the top. */
@@ -1296,20 +1302,20 @@ const sifItems = [
       .project-divider { margin: -16px 0; }
       .hidden { display: none;}
 
-      .infocus { padding: 24px 16px; background-color: var(--almost-white);}
+      .infocus { padding: 34px 16px; background-color: var(--almost-white);}
       .infocus::before { display: none; }   /* solid --theme fill on mobile, no tiles */
       .infocus-card { flex-direction: column; min-height: 0; border-radius: 0; background-color: var(--bg-secondary); }
       .infocus-meta { padding: 22px 22px 10px; }
       .infocus-tag { margin: 0 0 10px; }
       .infocus-title { font-size: 22px; }
       .infocus-authors { font-size: 14px; }
-      .infocus-sub { font-size: 14px; margin-bottom: 14px; }
+      .infocus-sub { font-size: 13px; margin-bottom: 14px; line-height: 1.6; }
       .infocus-foot { font-size: 12px;}
       .infocus-pix { margin: 0; }
       .infocus-art { flex: none; width: 100%; margin: 0; aspect-ratio: 3 / 2; }   /* stacked: needs an explicit height for the cover SVG */
 
-      .reports { padding: 14px 14px 24px; }
-      .reports-box { padding: 10px; border-radius: 6px; }
+      .reports { padding: 14px 14px 44px; }
+      .reports-box { padding: 10px; border-radius: 4px; }
       .reports-box-wrapper { padding: 0; }
       .reports-head .reports-head-label { font-size: 20px; }
       .reports-viewall {display: none;}
@@ -1975,15 +1981,16 @@ const sifItems = [
       const palette = ['--pale-blue', '--sage', '--border-grey', '--deep-green', '--theme']
         .map(function (v) { return css.getPropertyValue(v).trim(); })
         .filter(Boolean);
-      const SIZES = [6, 8, 10], RADIUS = 2;
+      const SIZES = [4, 5, 6, 7], RADIUS = 0.5;   // one spread for ALL drops; RADIUS 0 = perfectly square
 
       let W = 0, H = 0, drops = [], raf = 0, running = false, onScreen = true;
       const rand = function (a, b) { return a + Math.random() * (b - a); };
 
       function makeDrop(fromTop) {
         const hollow = Math.random() < 0.4;                     // ~40% are outlines, like the SIF cells
-        const size = hollow ? (Math.random() < 0.5 ? 8 : 10)    // bigger so the outline reads
-                            : SIZES[(Math.random() * SIZES.length) | 0];
+        const pick = function () { return SIZES[(Math.random() * SIZES.length) | 0]; };
+        const size = hollow ? Math.max(pick(), pick())          // outlines skew larger so they still read
+                            : pick();
         const amp = rand(1.5, 4);   // sway amplitude — inset x by it so drops stay in-band
         return {
           x: rand(amp, Math.max(amp + 1, W - size - amp)),

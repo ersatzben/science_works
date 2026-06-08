@@ -3,7 +3,7 @@
     {
       "name": "Ben Johnson",
       "role": "Co-Director",
-      "bio": "Ben is Co-Director of Science Works. He is a former senior UK government adviser on science and R&D, having advised multiple administrations, and co-author of national-level science policies including the UK R&D Roadmap and UK Innovation Strategy. He was previously associate director at UK Research and Innovation. Ben is also Professor of Research and Innovation Policy at the University of Strathclyde.",
+      "bio": "Ben is Co-Director of Science Works. He is a former senior UK government adviser on science and R&D, and co-author of national-level science policies including the UK R&D Roadmap and UK Innovation Strategy. Ben is also Professor of Research and Innovation Policy at the University of Strathclyde.",
       "photo": "ben-johnson.jpg",
       "x": "ersatzben",
       "bluesky": "ersatzben.com",
@@ -13,7 +13,7 @@
     {
       "name": "Laura Ryan",
       "role": "Co-Director",
-      "bio": "Laura is Co-Director of Science Works. She was previously Senior Analyst in Science and Technology at the Tony Blair Institute, leading work on metascience, AI for science, and institutional models for R&D, and is lead author of the Lovelace Disruptive Invention Labs report. Laura is co-founder of the Better Science Project and a former Cambridge neuroscientist with a PhD in the field.",
+      "bio": "Laura is Co-Director of Science Works. She was previously Senior Analyst in Science and Technology at the Tony Blair Institute, leading work on metascience, AI for science, and institutional models for R&D. She has a PhD from the University of Cambridge in molecular neurogenetics.",
       "photo": "laura-ryan.jpg",
       "x": "Lyan82",
       "bluesky": "",
@@ -23,7 +23,7 @@
     {
       "name": "Louise Dunsby",
       "role": "Chief Operating Officer",
-      "bio": "Louise is a senior operations leader with extensive experience building and scaling mission-driven organisations. She has established core operating infrastructure for early-stage non-profits, serving as COO and leading the launch of a £17m programme portfolio. As a senior civil servant, she built the UK government’s Office for Science and Technology Strategy, overseeing government-wide science and technology decision-making processes.",
+      "bio": "Louise is a senior operations leader with extensive experience building and scaling mission-driven organisations. As a senior civil servant, she built the UK government’s Office for Science and Technology Strategy, overseeing government-wide science and technology decision-making processes.",
       "photo": "louise-dunsby.jpg",
       "x": "",
       "bluesky": "",
@@ -33,7 +33,7 @@
     {
       "name": "Alvin Djajadikerta",
       "role": "Researcher",
-      "bio": "Alvin is a Researcher at Science Works, working on AI for Science and wider metascience delivery. He was co-founder of the Better Science Project and a strategy consultant at BCG, where he delivered transformation programmes across health, industry, and the public sector. He is a former Cambridge neuroscientist and PhD graduate.",
+      "bio": "Alvin is a Researcher at Science Works, working on AI for Science, metascience, and institutional dynamism. He was co-founder of the Better Science Project and a strategy consultant at BCG, working across health, industry, and the public sector. He is a former Cambridge neuroscientist and PhD graduate.",
       "photo": "alvin-djajadikerta.jpg",
       "x": "adjajadikerta",
       "bluesky": "adjajadikerta.bsky.social",
@@ -43,7 +43,7 @@
     {
       "name": "Will Stone",
       "role": "Researcher",
-      "bio": "Will is Researcher at Science Works, working on science and innovation funding reform. He was previously Senior Policy Advisor for Science and Innovation at HM Treasury, where he led a team driving innovation-led growth policy across Whitehall and allocated more than £20bn in annual budgets. His focus is on funding reform, government-institutional architecture, and strategy.",
+      "bio": "Will is Researcher at Science Works, working on science and innovation funding reform, and government-institutional architecture. He was previously Senior Policy Advisor for Science and Innovation at HM Treasury, where he led a team driving innovation-led growth policy across Whitehall and allocated more than £20bn in annual budgets.",
       "photo": "will-stone.jpg",
       "x": "willecstone",
       "bluesky": "",
@@ -53,7 +53,7 @@
     {
       "name": "Rory Byrne",
       "role": "Researcher",
-      "bio": "Rory is a software engineer and two-time founder, and is currently completing a PhD in computational neuroscience at Cambridge. He was previously a senior software engineer and is co-organiser of the CompMotifs ARIA Innovator Circle.",
+      "bio": "Rory is a Researcher at Science Works, working on software toolbuilding. He is software engineer and two-time founder, and is currently completing a PhD in computational neuroscience at Cambridge. He was previously a senior software engineer and is co-organiser of the CompMotifs ARIA Innovator Circle.",
       "photo": "rory-byrne.jpg",
       "x": "ryrobyrne",
       "bluesky": "rory.bio",
@@ -63,7 +63,7 @@
     {
       "name": "Will Bolton",
       "role": "Researcher",
-      "bio": "Will is an AI scientist and software engineer. As an Encode: AI for Science Fellow with Pillar VC and Oxford University, he has spent the last year researching multi-agent AI scientist systems. Previously, he obtained his PhD in artificial intelligence from Imperial College London, where he built and evaluated antibiotic decision-support software for clinicians. He also holds an MPhil in Bioscience Enterprise from the University of Cambridge.",
+      "bio": "Will is an AI scientist and software engineer. As an Encode: AI for Science Fellow with Pillar VC and Oxford University, he has spent the last year researching multi-agent AI scientist systems. He obtained his PhD in artificial intelligence from Imperial College London, where he built and evaluated antibiotic decision-support software for clinicians. He also holds an MPhil in Bioscience Enterprise from the University of Cambridge.",
       "photo": "will-bolton.jpg",
       "x": "",
       "bluesky": "",

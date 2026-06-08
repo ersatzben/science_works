@@ -1,0 +1,140 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// "404" rendered in the same dot-matrix pixel style used across the site, with
+// scattered muted cells for glitchy noise. Built at compile time with a seeded
+// PRNG so the scatter is stable across builds.
+
+// 5×7 glyphs.
+const GLYPHS = {
+  '4': ['00010', '00110', '01010', '10010', '11111', '00010', '00010'],
+  '0': ['01110', '10001', '10001', '10001', '10001', '10001', '01110'],
+};
+const TEXT = '404';
+const GW = 5, GH = 7;           // glyph cell dimensions
+const DIGIT_GAP = 1;            // blank columns between digits
+const PAD_X = 5, PAD_Y = 4;     // noise margin (cells) around the number
+
+const digitsW = TEXT.length * GW + (TEXT.length - 1) * DIGIT_GAP;
+const COLS = digitsW + PAD_X * 2;
+const ROWS = GH + PAD_Y * 2;
+
+// Lit map for the "404".
+const lit = Array.from({ length: ROWS }, () => new Array(COLS).fill(false));
+let x = PAD_X;
+for (const ch of TEXT) {
+  const g = GLYPHS[ch];
+  for (let r = 0; r < GH; r++) for (let c = 0; c < GW; c++) {
+    if (g[r][c] === '1') lit[PAD_Y + r][x + c] = true;
+  }
+  x += GW + DIGIT_GAP;
+}
+
+// Seeded PRNG (mulberry32) → deterministic scatter.
+let seed = 0x34303401;
+const rnd = () => {
+  seed = (seed + 0x6d2b79f5) | 0;
+  let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+};
+const pick = (arr) => arr[(rnd() * arr.length) | 0];
+
+// The digits read in theme reds (with a little tonal variation); the glitch
+// noise uses muted accents from the wider site palette.
+const INK = ['#eb3131', '#eb3131', '#eb3131', '#f45e57', '#c9252e', '#f17260', '#66223b'];
+const NOISE = ['#a3c0d7', '#64b37b', '#4b5cce', '#72679b', '#0e676a', '#ebe5cf', '#d3d5cc', '#f45e57'];
+const NOISE_DENSITY = 0.11;
+
+const cells = [];
+for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+  if (lit[r][c]) {
+    cells.push({ color: pick(INK), noise: false });
+  } else if (rnd() < NOISE_DENSITY) {
+    cells.push({ color: pick(NOISE), noise: true, delay: (rnd() * 6).toFixed(2) });
+  } else {
+    cells.push(null);
+  }
+}
+---
+<BaseLayout title="Page not found — Science Works">
+  <main class="nf">
+    <div class="nf-matrix" aria-hidden="true" style={`--nf-cols:${COLS}`}>
+      {cells.map((cell) => (
+        <span
+          class:list={["nf-cell", { "is-noise": cell?.noise }]}
+          style={cell ? `background:${cell.color}` + (cell.noise ? `;animation-delay:${cell.delay}s` : '') : undefined}
+        ></span>
+      ))}
+    </div>
+
+    <h1 class="nf-title">Page not found</h1>
+    <p class="nf-sub">The page you were looking for doesn’t exist, or has moved.</p>
+    <p class="nf-actions">
+      <a class="nf-link" href="/">Back to home <span class="arrow">&rarr;</span></a>
+      <a class="nf-link nf-link--ghost" href="/writing">Browse writing</a>
+    </p>
+  </main>
+
+  <style>
+    .nf {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: clamp(56px, 12vh, 120px) 24px 120px;
+      text-align: center;
+    }
+
+    /* Dot-matrix "404" — same cell metrics as the rest of the site's pixel art. */
+    .nf-matrix {
+      display: grid;
+      grid-template-columns: repeat(var(--nf-cols), var(--nf-cell));
+      grid-auto-rows: var(--nf-cell);
+      gap: var(--nf-gap);
+      justify-content: center;
+      margin: 0 0 40px;
+      --nf-cell: clamp(8px, 2.6vw, var(--cell-size));   /* 14px on desktop, scales down on mobile */
+      --nf-gap: clamp(1px, 0.4vw, var(--cell-gap));
+    }
+    .nf-cell {
+      width: var(--nf-cell);
+      height: var(--nf-cell);
+      border-radius: var(--cell-radius);
+    }
+    .nf-cell.is-noise {
+      opacity: 0.85;
+      animation: nf-flicker 5.5s steps(1, end) infinite;
+    }
+    @keyframes nf-flicker {
+      0%, 100% { opacity: 0.85; }
+      46%      { opacity: 0.85; }
+      48%      { opacity: 0.12; }
+      50%      { opacity: 0.85; }
+      73%      { opacity: 0.85; }
+      75%      { opacity: 0.4; }
+      77%      { opacity: 0.85; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .nf-cell.is-noise { animation: none; }
+    }
+
+    .nf-title {
+      font-family: 'Copperplate', serif; font-weight: normal;
+      font-size: clamp(24px, 5vw, 32px); letter-spacing: 0.02em;
+      color: var(--text); margin: 0 0 12px;
+    }
+    .nf-sub {
+      font-family: 'Antique Olive', sans-serif; font-weight: 300;
+      font-size: 16px; line-height: 1.5; color: var(--text);
+      margin: 0 auto 28px; max-width: 460px;
+    }
+    .nf-actions { display: flex; gap: 28px; justify-content: center; flex-wrap: wrap; margin: 0; }
+    .nf-link {
+      font-family: var(--button-text); font-weight: 500; font-size: 15px;
+      color: var(--theme); text-decoration: none;
+    }
+    .nf-link--ghost { color: var(--text); }
+    .nf-link:hover { text-decoration: underline; }
+    .nf-link .arrow { display: inline-block; transition: transform 0.2s ease; }
+    .nf-link:hover .arrow { transform: translateX(3px); }
+  </style>
+</BaseLayout>

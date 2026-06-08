@@ -2,18 +2,15 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import people from '../data/people.json';
 import banner from '../data/decor/about-banner.json';
+import { glyphFor } from '../lib/glyphs.js';
 
 // Photos live in /assets/images/people/<filename>; each person's `photo` field
 // holds just the filename (see src/data/people.json). The data file is the
 // single source of truth for the People section — edit it, not this page.
 const PHOTO_DIR = '/assets/images/people/';
 
-// Glyph colour palette. A person's `glyph` is a 5×5 grid of indices into this
-// list (or null for an empty/transparent cell). Keep in sync with the palette
-// in scripts/gen_people.mjs.
-const GLYPH_PALETTE = ['#eb3131', '#f45e57', '#66223b', '#440214',
-  '#00726b', '#0e676a', '#64b37b', '#004ee6', '#a3c0d7', '#4b5cce',
-  '#3a3c7c', '#72679b'];
+// Card glyphs are 9×6 mosaics loaded from src/data/glyphs/<name-slug>.json
+// (covers format) via glyphFor(); everyone falls back to _fallback.json for now.
 
 // Tab order + labels. `hidden`/`unhidden` mirror the responsive label parts
 // from the original markup (full label on desktop, short label on mobile).
@@ -64,9 +61,9 @@ function socialLinks(p) {
         </div>
         <div class="about-copy">
           <h2 class="section-heading">What is Science Works?</h2>
-          <p class="section-body">Science Works is a research and policy studio focused on accelerating progress in British science and technology.</p>
-          <p class="section-body">We work on building and improving the organisational, technological, and intellectual infrastructure that the UK's research and innovation system needs to stay at the frontier. We work on a small number of identified problems that we believe, if solved, will generate the highest leverage and impact for both the UK and for humanity as a whole.</p>
-          <p class="section-body">Science Works is editorially independent, strictly non-partisan, not-for-profit, and not aligned with any single funder, department, agency, or institution.</p>
+          <p class="section-body">Science Works is a research and policy studio focused<br />on accelerating progress in British science and technology.</p>
+          <p class="section-body">We work on building and improving the organisational, technological,<br /> and intellectual infrastructure that the UK's research and innovation system needs to stay at the frontier. We work on a small number of identified problems that we believe, if solved, will generate the highest leverage<br /> and impact for both the UK and for humanity as a whole.</p>
+          <p class="section-body">Science Works is editorially independent, strictly non-partisan,<br /> not-for-profit, and not aligned with any single funder,<br /> department, agency, or institution.</p>
           <!-- <p class="section-body"><a class="copy-link" href="/charter">Read more about our approach &nbsp;<span class="arrow">&rarr;</span></a></p> -->
         </div>
       </div>
@@ -95,8 +92,8 @@ function socialLinks(p) {
                       : <div class="card-photo is-placeholder" aria-label={p.name}>{initials(p.name)}</div>}
                     <div class="card-headinfo">
                       <div class="card-glyph" aria-hidden="true">
-                        {p.glyph.flat().map((v) => (
-                          <span class="glyph-cell" style={v != null ? `background:${GLYPH_PALETTE[v]}` : undefined}></span>
+                        {(glyphFor(p.name)?.cells ?? []).map((hex) => (
+                          <span class="glyph-cell" style={hex ? `background:${hex}` : undefined}></span>
                         ))}
                       </div>
                       <div class="card-id">
@@ -175,11 +172,13 @@ function socialLinks(p) {
          the vertically-centred heading is never pushed off the top. */
       min-height: 500px;
       margin-top: 0px;
+      padding: 20px 0;
     }
     .about-hero {
       flex: 0 0 44%;
       position: relative;
       overflow: hidden;
+      margin: 25px 0;            /* 50px shorter than the row, vertically centred */
     }
     .about-hero canvas {
       display: block;
@@ -197,8 +196,12 @@ function socialLinks(p) {
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding: 0px 80px 0px;
+      align-items: flex-end;         /* push the text block to the column's right edge */
+      /* Right edge tracks the People grid's right edge (centred 1240 box, 32px min
+         gutter); left padding keeps a gap from the DNA. */
+      padding: 0 max(32px, (100vw - 1240px) / 2) 0 100px;
       box-sizing: border-box;
+      transform: translateY(80px);   /* nudge down — visual only, no layout feedback to the canvas */
     }
     .about-copy .section-heading {
       max-width: 560px;
@@ -248,8 +251,8 @@ function socialLinks(p) {
       grid-template-columns: repeat(4, 1fr);
       gap: 0;
       background: var(--almost-white);
-      border: 1px solid rgba(235, 49, 49, 0.18);
-      border-radius: 6px;
+      border: 1px solid var(--border-grey);
+      border-radius: 4px;
       padding: 0;
       margin-bottom: 16px;
     }
@@ -257,7 +260,7 @@ function socialLinks(p) {
       appearance: none;
       background: none;
       border: 1.5px solid transparent;
-      border-radius: 6px;       /* sits just inside the container's 12px */
+      border-radius: 4px;       /* sits just inside the container's 12px */
       padding: 9px 8px;
       font-family: 'Roboto', sans-serif;
       font-size: 16px;
@@ -276,25 +279,26 @@ function socialLinks(p) {
     /* White container the cards sit inside, so the cards pop. */
     .cards-container {
       background: var(--almost-white);
-      border-radius: 6px;
-      padding: 10px;
+      border-radius: 4px;
+      padding: 14px;
     }
     .cards-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
+      gap: 14px;
     }
 
     .card {
       background: var(--bg);
-      border-radius: 6px;
-      padding: 14px 22px;     /* tighter top/bottom than sides */
+      border-radius: 4px;
+      padding: 22px 24px;     /* tighter top/bottom than sides */
       display: flex;
       flex-direction: column;
+      border: 0.5px solid var(--border-grey); 
     }
     .card-top {
       display: flex;
-      gap: 18px;
+      gap: 14px;
     }
     .card-photo {
       flex: 0 0 auto;
@@ -328,38 +332,41 @@ function socialLinks(p) {
        own. Empty cells are transparent so the card background shows through. */
     .card-glyph {
       display: grid;
-      grid-template-columns: repeat(5, 14px);
-      grid-template-rows: repeat(5, 14px);
-      gap: 2px;
+      grid-template-columns: repeat(9, 10px);
+      grid-template-rows: repeat(6, 10px);
+      gap: 1.5px;
       align-self: flex-start;
     }
     .glyph-cell {
-      width: 14px;
-      height: 14px;
-      border-radius: 2px;
+      width: 10px;
+      height: 10px;
+      border-radius: 1px;
     }
     .card-name {
       font-family: 'Copperplate', serif;
       font-weight: 500;
       color: var(--text);
-      font-size: 23px;
+      font-size: 19px;
       line-height: 1.12;
-      letter-spacing: -0.01em;
-      margin: 0 0 6px;
+      letter-spacing: 0.02em;
+      margin: 0 0 2px;
     }
     .card-role {
-      font-family: 'Antique Olive', sans-serif;
+      font-family: 'Roboto', sans-serif;
       color: var(--theme);
-      font-size: 15px;
+      font-size: 13px;
+      text-transform: uppercase;
       line-height: 1.3;
       margin: 0;
+      margin-bottom: -3px; 
     }
     .card-bio {
       font-family: 'Antique Olive', sans-serif; font-weight: 300; 
       color: var(--text);
       font-size: 14px;
       line-height: 1.55;
-      margin: 20px 0 0;
+      margin: 24px 0;
+      padding: 0 10px 0 1px;
     }
     .card-socials {
       display: flex;
@@ -395,7 +402,7 @@ function socialLinks(p) {
       .about-row {min-height: 400px; background-color: var(--almost-white); margin-top: 36px; margin-bottom: 24px; padding-top: 34px; padding-bottom: 10px; }
       
       .about-hero { display: none; }
-      .about-copy {padding: 0 20px; }
+      .about-copy {padding: 0 20px; align-items: stretch; }
       .section-heading { text-align: left; font-size: 22px; margin-bottom: 10px;}
       .section-body { text-align: left; }
       .about-copy .section-body {
@@ -432,9 +439,10 @@ function socialLinks(p) {
         padding-top: 0;
       }
       .card-glyph {
-        grid-template-columns: repeat(5, 8px);
-        grid-template-rows: repeat(5, 8px);
+        grid-template-columns: repeat(9, 8px);
+        grid-template-rows: repeat(6, 8px);
         gap: 2px;
+        padding-top: 1px;
       }
       .card-name { font-size: 20px; }
       .card-role { font-size: 13px; }
@@ -465,8 +473,11 @@ function socialLinks(p) {
          those interactions are noted inline.
          ==================================================================== */
 
+      /* --- OVERALL SCALE -------------------------------------------------- */
+      const SCALE = 0.64;  // uniform zoom of the whole helix (blocks + spacing + width).
+
       /* --- CELL APPEARANCE ------------------------------------------------ */
-      const CELL   = 14;   // block size in px (square). Your original 14x14.
+      const CELL   = 14 * SCALE;   // block size in px (square). Your original 14x14.
       const RADIUS = 2;    // corner rounding of each block. 0 = sharp squares.
 
       /* --- COLOUR --------------------------------------------------------- */
@@ -479,7 +490,7 @@ function socialLinks(p) {
 
       /* --- MOTION --------------------------------------------------------- */
       const fallSpeed = 16;    // px/sec the whole pattern descends. Lower = slower rain.
-      const wavelength = 360;  // px of vertical travel for one full helix turn.
+      const wavelength = 360 * SCALE;  // px of vertical travel for one full helix turn.
                                // LARGER = turns more spread out vertically.
       const twist = 0.32;      // how fast the helix rotates as it falls.
                                // 0 = strands frozen in shape; higher = livelier swirl.
@@ -499,7 +510,7 @@ function socialLinks(p) {
          A sine runs down the strand; tanh squashes it; the result 0..1 is the
          local density. High density -> tight gaps (a run); low -> big gap (a void).
          ------------------------------------------------------------------- */
-      const PERIOD   = 150;  // px of vertical travel per density cycle (your "f").
+      const PERIOD   = 150 * SCALE;  // px of vertical travel per density cycle (your "f").
                              // One run + one void ~= this distance.
       const SHARP    = 0.8;  // your "s". Squareness of the density curve.
                              //   ~1   = gently breathing density, no real voids
@@ -510,7 +521,7 @@ function socialLinks(p) {
       const DMAX_GAP = 1.4;  // gap factor at ZERO density (the void).
                              // void px ~= DMAX_GAP * spacing. 3.4*26 ~= 88px ~= pi/2 turn.
 
-      const spacing  = 26;   // base px the gap factors multiply. Sets overall scale.
+      const spacing  = 26 * SCALE;   // base px the gap factors multiply. Sets overall scale.
 
       /* --- NOISE / SCATTER (breaks the smooth look) ----------------------
          Cores stay solid; only shoulders & voids get thinned by multi-octave
@@ -525,7 +536,7 @@ function socialLinks(p) {
       const NOISE_SCALE    = 0.18; // spatial frequency of that scatter along the strand.
 
       /* --- HORIZONTAL JITTER --------------------------------------------- */
-      const JITTER = 12;   // px of random left/right wobble per cell.
+      const JITTER = 12 * SCALE;   // px of random left/right wobble per cell.
                            // LOWER for cleaner bead-like runs; 0 = dead straight.
 
       /* --- ACCENT PARTICLES ----------------------------------------------
@@ -536,7 +547,7 @@ function socialLinks(p) {
       const ACCENTS = ['#a3c0d7', '#64b37b', '#faf8f6', '#4b5cce', '#72679b'];
 
       /* --- LAYOUT --------------------------------------------------------- */
-      const X_SHIFT = 60;  // px the whole helix is nudged right of centre. 0 = centred.
+      const X_SHIFT = 60 * SCALE;  // px the whole helix is nudged right of centre. 0 = centred.
 
       /* ====================================================================
          ENGINE — you shouldn't need to edit below here.
@@ -631,7 +642,7 @@ function socialLinks(p) {
         cv.height = H * dpr;
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         midX = W / 2 + X_SHIFT;
-        const ampBase = Math.min(W * 0.40, 188);
+        const ampBase = Math.min(W * 0.40, 188) * SCALE;
         amp = ampBase * ampFactor;
         pHalf = ampBase * 1.25;   // particles roam the wider, original span
         seed();
