@@ -3,7 +3,22 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import CookieConsent from '../components/CookieConsent.astro';
-const { title = 'Science Works' } = Astro.props;
+const {
+  title = 'Science Works',
+  description = "Science Works is an independent research and policy studio tackling the biggest problems facing UK science and technology.",
+  // OG/Twitter share image (absolute path under /public, 1200×630). Pages can
+  // override with their own; defaults to the brand mosaic card.
+  image = '/og-default.png',
+  // 'website' for most pages, 'article' for essays.
+  type = 'website',
+  // Set on pages that shouldn't appear in search results (e.g. policy stubs).
+  noindex = false,
+} = Astro.props;
+
+// Astro.site comes from astro.config (per-environment). Canonical + absolute
+// share URLs are derived from it so previews and dedup work across staging/prod.
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const imageURL = image ? new URL(image, Astro.site) : null;
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -11,6 +26,25 @@ const { title = 'Science Works' } = Astro.props;
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonicalURL} />
+  {noindex && <meta name="robots" content="noindex, follow" />}
+
+  <!-- Open Graph -->
+  <meta property="og:type" content={type} />
+  <meta property="og:site_name" content="Science Works" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonicalURL} />
+  {imageURL && <meta property="og:image" content={imageURL} />}
+  {imageURL && <meta property="og:image:alt" content={title} />}
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content={imageURL ? 'summary_large_image' : 'summary'} />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  {imageURL && <meta name="twitter:image" content={imageURL} />}
+
   <!-- Favicons (generated from the logo mark, assets/images/FINAL4.svg) -->
   <link rel="icon" href="/favicon.ico" sizes="32x32" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -20,6 +54,9 @@ const { title = 'Science Works' } = Astro.props;
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="alternate" type="application/rss+xml" title="Science Works — Writing" href="/rss.xml" />
+  <!-- Per-page head extras (e.g. JSON-LD structured data). -->
+  <slot name="head" />
 </head>
 <body>
   <Header />

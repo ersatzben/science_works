@@ -13,7 +13,7 @@ const fmt = (d) => d.toLocaleDateString('en-GB', { year: 'numeric', month: 'long
 const label = (t) => (t === 'report' ? 'Report' : 'Essay');
 const projects = [...new Set(all.map((e) => e.data.project))].sort((a, b) => a.localeCompare(b));
 ---
-<BaseLayout title="Writing — Science Works">
+<BaseLayout title="Writing — Science Works" description="Essays, research and policy writing from Science Works on reshaping the British research system.">
   <main class="writing-index">
     <div class="wi-header">
       <div class="wi-pix wi-header-pix" aria-hidden="true"></div>

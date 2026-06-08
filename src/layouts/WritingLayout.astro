@@ -23,8 +23,35 @@ const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
 const xShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(d.title)}&url=${encodeURIComponent(pageUrl)}`;
 const emailBody = `${(d.shortSubtitle ?? d.subtitle) ? (d.shortSubtitle ?? d.subtitle) + '\n\n' : ''}${pageUrl}`;
 const mailShareUrl = `mailto:?subject=${encodeURIComponent(d.title)}&body=${encodeURIComponent(emailBody)}`;
+
+// Meta description: prefer an explicit summary, else the subtitle.
+const metaDescription = d.summary ?? d.shortSubtitle ?? d.subtitle ?? undefined;
+
+// Per-article share card at /public/og/<slug>.png; pieces without one fall
+// back to the BaseLayout default (handled by leaving `image` undefined).
+import { existsSync } from 'node:fs';
+const ogCandidate = `/og/${entry.id}.png`;
+const ogImage = existsSync(`public${ogCandidate}`) ? ogCandidate : undefined;
+
+// Article structured data (schema.org) for richer search results.
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': d.type === 'report' ? 'Report' : 'Article',
+  headline: d.title,
+  ...(metaDescription ? { description: metaDescription } : {}),
+  image: new URL(ogImage ?? '/og-default.png', Astro.site).href,
+  datePublished: d.date.toISOString(),
+  author: d.authors.map((name) => ({ '@type': 'Person', name })),
+  publisher: {
+    '@type': 'Organization',
+    name: 'Science Works',
+    logo: { '@type': 'ImageObject', url: new URL('/icon-512.png', Astro.site).href },
+  },
+  mainEntityOfPage: { '@type': 'WebPage', '@id': pageUrl },
+};
 ---
-<BaseLayout title={`${d.title} — Science Works`}>
+<BaseLayout title={`${d.title} — Science Works`} description={metaDescription} type="article" image={ogImage}>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(jsonLd)} />
   <main>
     <article class="article">
       <div class="article-head">

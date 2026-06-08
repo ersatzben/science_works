@@ -67,8 +67,23 @@ const sifItems = [
   { label: 'Tool-building', art: ['0000', '0C00', '0500', 'FG55'] },
   { label: 'Community',    art: ['0070', '0470', '0XE4', 'E87E'] },
 ];
+
+// Organization structured data (schema.org) — feeds Google's knowledge panel.
+const orgJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Science Works',
+  url: new URL('/', Astro.site).href,
+  logo: new URL('/icon-512.png', Astro.site).href,
+  description: 'Science Works is an independent research and policy studio tackling the biggest problems facing UK science and technology.',
+  sameAs: [
+    'https://x.com/sci_works',
+    'https://bsky.app/profile/science.works',
+  ],
+};
 ---
 <BaseLayout title="Science Works">
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(orgJsonLd)} />
   <section id="splash">
     <div class="stage">
       <div class="scaler">
