@@ -1590,8 +1590,16 @@ const orgJsonLd = {
       // ----- Dissolve animation ----------------------------------------
       const DISSOLVE_MS = 20000;         // per-swap dissolve window
       const SWAP_INTERVAL_MS = 120000;   // time between swaps for one pair
-      const PAIR_STAGGER_MS = 7000;      // offset between pairs' first swap
-      const FIRST_SWAP_DELAY_MS = 2000;
+      const PAIR_STAGGER_MS = 7000;      // cadence between pairs once settled
+
+      // First-swap offset (ms) per pair index. The corner pairs open fast —
+      // [0,12] immediately, [5,17] at 2s — then [6,11] at 9s and every pair
+      // after it falls into the 7s cadence: 16s, 23s, 30s, …
+      function firstSwapDelay(idx) {
+        if (idx === 0) return 0;
+        if (idx === 1) return 2000;
+        return 9000 + (idx - 2) * PAIR_STAGGER_MS;
+      }
 
       // Generation counter lets in-flight timers no-op when animation restarts.
       let animGen = 0;
@@ -1639,7 +1647,7 @@ const orgJsonLd = {
         const pairs = buildPairs();
         const gen = animGen;
         pairs.forEach((pair, idx) => {
-          const startDelay = FIRST_SWAP_DELAY_MS + idx * PAIR_STAGGER_MS;
+          const startDelay = firstSwapDelay(idx);
           setTimeout(() => {
             if (gen !== animGen) return;
             dissolveSwap(pair[0], pair[1], gen);
