@@ -1,5 +1,9 @@
+---
+import footerBand from '../data/decor/footer-band.json';
+---
   <footer class="site-footer">
     <div class="footer-pixels" aria-hidden="true"></div>
+    <script type="application/json" id="footer-band-data" set:html={JSON.stringify(footerBand)}></script>
     <div class="footer-signup">
   <div id="signup" class="sib-form">
     <div id="sib-form-container" class="sib-form-container">
@@ -119,39 +123,24 @@
 <script is:inline>
     (function () {
       const band = document.querySelector('.footer-pixels');
-      if (!band) return;
-      const ROWS = 4;
+      const dataEl = document.getElementById('footer-band-data');
+      if (!band || !dataEl) return;
 
-      // Motif painted into the band at intervals. Digits map to palette
-      // colours below; 0 leaves the faint base cell ("white").
-      const SPRITE = [
-        '113222223113',
-        '033331334143',
-      ];
-      const COLOURS = {
-        '1': 'var(--beige)',
-        '2': 'var(--bright-blue)',
-        '3': 'var(--theme)',
-        '4': 'var(--pale-blue)',
-      };
-      const SPRITE_W = SPRITE[0].length;
-      const START = 10;                  // first sprite's left column
-      const GAP = 15;                    // empty columns between sprites
-      const PERIOD = SPRITE_W + GAP;     // start-to-start step
+      // Band art (sw palette+grid). Painted left-aligned: the leftmost columns
+      // show, the rest is clipped when the art is longer than the band; when the
+      // band is wider than the art, it tiles (col % ART_COLS).
+      const art = JSON.parse(dataEl.textContent);
+      const ROWS = art.rows;
+      const ART_COLS = art.cols;
+      const PALETTE = art.palette;
+      const GRID = art.grid;
 
       function paint(cols) {
         const cells = band.children;
-        for (let i = 0; i < cells.length; i++) cells[i].style.background = '';
-        let k = 0;
-        for (let c0 = START; c0 + SPRITE_W <= cols; c0 += PERIOD, k++) {
-          const rOff = (k % 2) ? 2 : 0;   // top two rows, then bottom two, alternating
-          for (let r = 0; r < SPRITE.length; r++) {
-            for (let c = 0; c < SPRITE_W; c++) {
-              const colour = COLOURS[SPRITE[r][c]];
-              if (!colour) continue;
-              const cell = cells[(rOff + r) * cols + (c0 + c)];
-              if (cell) cell.style.background = colour;
-            }
+        for (let r = 0; r < ROWS; r++) {
+          for (let c = 0; c < cols; c++) {
+            const cell = cells[r * cols + c];
+            if (cell) cell.style.background = PALETTE[GRID[r][c % ART_COLS]] || '';
           }
         }
       }

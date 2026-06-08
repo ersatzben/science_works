@@ -250,10 +250,12 @@
     .footer-pixels {
       --card-pix-color: var(--almost-white);
       --card-pix-radius: var(--small-block-radius);
+      --small-block-size: 7px;     /* footer-only: smaller than the site default 10px */
+      --small-block-gap: 2px;      /* gap reduced to match (the paint JS reads these) */
       display: grid;
       grid-auto-rows: var(--small-block-size);
       gap: var(--small-block-gap);
-      justify-content: center;     /* centre the row of cells; remainder splits both sides */
+      justify-content: start;      /* left-align: the band art starts at the left edge */
       padding: 18px 0;
     }
     /* 2) Mailing-list signup — markup supplied later; fills the middle for now. */
@@ -354,12 +356,13 @@
       padding: 0;
       max-width: none;
       text-align: center;
+      margin-top: -4px; 
     }
     #signup h3 {
       font-size: 16px;
       font-weight: 400;
       color: var(--theme);
-      margin-bottom: 8px;
+      margin-bottom: 2px;
       letter-spacing: 0.02em;
       text-align: center;
     }
@@ -392,7 +395,7 @@
       font-family: 'Roboto', sans-serif;
       font-size: 13px;
       padding: 0 12px;
-      border: 1.5px solid var(--theme);
+      border: 1px solid var(--theme);
       border-right: none;
       border-radius: 0;
       outline: none;
@@ -415,7 +418,7 @@
       font-size: 16px;
       font-weight: 400;
       padding: 0 12px;
-      border: 1.5px solid var(--theme);
+      border: 1px solid var(--theme);
       border-radius: 0;
       background: var(--theme);
       color: var(--bg);
@@ -453,7 +456,7 @@
       to { transform: rotate(360deg); }
     }
     #signup .sib-optin {
-      margin-top: 8px;
+      margin-top: 6px;
     }
     #signup .entry__choice {
       margin: 0;
@@ -493,12 +496,12 @@
       -webkit-appearance: none;
       width: 13px;
       height: 13px;
-      border: 1.5px solid var(--red);
+      border: 1px solid var(--red);
       border-radius: 0;
       background: transparent;
       cursor: pointer;
       flex-shrink: 0;
-      margin: 1px 0 0 0;
+      margin: 1px 0 0 -1px;
       padding: 0;
       box-shadow: none;
     }
@@ -585,8 +588,8 @@
       justify-content: center;      /* keep content vertically centred */
       gap: 30px;
       padding: 0 20px;
-      border: 2px solid var(--theme);
-      border-radius: 6px;
+      border: 1px solid var(--theme);
+      border-radius: 4px;
       overflow: hidden;             /* clip any message-driven height change; no overflow */
     }
     /* Image slot: 24x24 micro-pixel grid, filled by the shared JS. */
@@ -609,6 +612,7 @@
       font-family: 'Copperplate', serif;
       align-self: flex-start;       /* left-align the title with the form */
       text-align: left;
+      
     }
 
     /* Inner composition is always its natural size; transform scales it visually. */
@@ -616,7 +620,7 @@
 
 /* ---- Footer mobile overrides (ported from index.html @media 600) ---- */
 @media (max-width: 600px) {
-  .footer-signup { padding: 10px; margin: 0; display: block; }
+  .footer-signup { padding: 10px; margin: 0; margin-top: 10px; display: block; }
   #signup.sib-form { margin: -14px 0 0; }
   .signup-pix { display: none; }
   .footer-bottom { padding: 0 8px; }
