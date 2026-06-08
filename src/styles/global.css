@@ -603,9 +603,10 @@
       font-size: 14px;
       max-width: none;
     }
+    /* Server-error panel suppressed — native validation covers the common
+       failure cases without shifting layout (see the form submit handler). */
     #signup #error-message {
-      color: var(--red);
-      border: 1.5px solid var(--red);
+      display: none !important;
     }
     /* When success is shown, hide the form so success replaces it */
     #signup #success-message.sib-form-message-panel--active ~ #sib-container {
@@ -621,15 +622,11 @@
       font-family: 'Roboto', sans-serif;
       font-size: inherit;
     }
+    /* Inline field errors suppressed — they wrapped to 2–3 lines on mobile and
+       blew out the box. Kept in the DOM so Brevo's script can still write to
+       them harmlessly; native validation bubbles handle bad email / consent. */
     #signup .entry__error {
-      display: block;
-      font-family: 'Roboto', sans-serif;
-      font-size: 11px;
-      margin-top: 4px;
-      color: var(--red);
-    }
-    #signup .entry__error:empty {
-      display: none;
+      display: none !important;
     }
     @keyframes gdpr-shake {
       0%, 100% { transform: translateX(0); }

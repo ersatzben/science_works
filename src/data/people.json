@@ -85,7 +85,7 @@
     {
       "name": "Charlie Harris",
       "role": "Contributor",
-      "bio": "Charlie is an AI scientist and PhD candidate at the University of Cambridge, working on geometric deep learning for structural biology and drug discovery. He is a leading contributor to the Boltz project, an open-source AI model for protein folding and molecular interaction prediction.",
+      "bio": "Charlie is a Member of the Technical Staff at Boltz, a frontier AI lab building foundation models for biology. His background is in structural biology, and he did a PhD at the University of Cambridge, where he developed some of the early work on generative AI for Drug Discovery. Before Boltz, he was Technical Lead at the UK Government's Sovereign AI Unit, where he helped write the Government's AI for Science Strategy and fund new datasets such as OpenBind.",
       "photo": "charlie-harris.jpg",
       "x": "",
       "bluesky": "harrisbio.bsky.social",

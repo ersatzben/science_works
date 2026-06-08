@@ -256,23 +256,19 @@ import footerSignup from '../data/decor/footer-signup.json';   // sparse art beh
       const form = document.getElementById('sib-form');
       const gdpr = document.getElementById('GDPR_ACCEPTED');
       if (!form || !gdpr) return;
-      const errorLabel = gdpr.closest('.form__entry').querySelector('.entry__error');
+      // Consent nudge only — no inline message (those grew the box). The
+      // checkbox is `required`, so the native validation bubble explains it;
+      // we just add a small shake to draw the eye. No layout shift.
       form.addEventListener('submit', (e) => {
         if (!gdpr.checked) {
           e.preventDefault();
           e.stopImmediatePropagation();
-          if (errorLabel) errorLabel.textContent = 'Please confirm consent to subscribe.';
           gdpr.classList.remove('gdpr-shake');
           void gdpr.offsetWidth;
           gdpr.classList.add('gdpr-shake');
           gdpr.focus();
-        } else if (errorLabel) {
-          errorLabel.textContent = '';
         }
       }, true);
       gdpr.addEventListener('animationend', () => gdpr.classList.remove('gdpr-shake'));
-      gdpr.addEventListener('change', () => {
-        if (gdpr.checked && errorLabel) errorLabel.textContent = '';
-      });
     });
   </script>
