@@ -4,6 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import GridArt from '../components/GridArt.astro';
 import { coverFor } from '../lib/covers.js';
 import quotes from '../data/quotes.json';
+import introPic from '../data/decor/home-intro.json';   // mobile intro illustration (30×22)
 // Featured-project grid art (18×37), one per card.
 import instDynArt from '../data/projects/institutional-dynamism.json';
 import aiSciSrc from '../data/projects/ai-and-science.json';
@@ -89,7 +90,9 @@ const sifItems = [
     <div class="content-wrap spotlight-grid">
       <div class="spotlight-intro">
         <div class="intro-matrix" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-        <div class="intro-pic" aria-hidden="true"></div>
+        <div class="intro-pic" style={`--ip-cols:${introPic.cols}`} aria-hidden="true">
+          {introPic.grid.flat().map((v) => (<span class="intro-pic-cell" style={v >= 0 ? `background:${introPic.palette[v]}` : ''}></span>))}
+        </div>
         <p class="intro-eyebrow">Science Works</p>
         <h2>Britain needs a metascientific revolution</h2>
         <p>The UK is fundamentally a scientific nation. Our place in the world has long been underwritten by the creativity of our laboratories, workshops, and universities.</p>
@@ -907,7 +910,7 @@ const sifItems = [
     /* 2px red edge on hover via an inset ring (border stays 1px → no layout shift, no animation). */
     .infocus-card:hover {
       border-color: var(--theme);
-      box-shadow: inset 0 0 0 1px var(--theme);
+      box-shadow: inset 0 0 0 0.5px var(--theme);
     }
     /* Stretched link covers the whole card; author links sit above it. */
     .infocus-link { position: absolute; inset: 0; z-index: 1; }
@@ -995,7 +998,7 @@ const sifItems = [
 
     /* ---------- Latest reports carousel ---------- */
     .reports {    /* this is the background panel behind the carousel */
-      padding: 44px 0 40px; 
+      padding: 44px 0 100px; 
       background-color: var(--almost-white); 
     }
 
@@ -1088,7 +1091,7 @@ const sifItems = [
     }
     .report-card:hover {
       border-color: var(--theme);
-      box-shadow: inset 0 0 0 1px var(--theme);
+      box-shadow: inset 0 0 0 0.5px var(--theme);
     }
     .report-card-link { position: absolute; inset: 0; z-index: 1; }   /* whole card clickable */
     /* Pixel-art image: fixed 14x12 grid at the small block size, filled by the shared JS. */
@@ -1248,14 +1251,17 @@ const sifItems = [
 
       /* Picture floated top-right; heading + paragraphs flow around it. */
       .intro-pic {
-        display: block;
+        display: grid;                    /* 30×22 pixel illustration */
+        grid-template-columns: repeat(var(--ip-cols, 30), 1fr);
+        grid-auto-rows: 1fr;
         float: right;
         width: 44%;
-        aspect-ratio: 5 / 4;
-        background: var(--border-grey);   /* grey placeholder box */
+        aspect-ratio: 30 / 22;            /* matches the art → cells stay square */
         border-radius: 4px;
+        overflow: hidden;                 /* clip cells to the rounded corners */
         margin: 0 0 10px 16px;            /* gap below + left of the wrapping text */
       }
+      .intro-pic-cell { width: 100%; height: 100%; }
 
       .spotlight-intro h2 {
         font-size: 20px;
