@@ -18,16 +18,34 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+# Per-repo environment. Set the SITE_URL repo variable
+# (Settings → Secrets and variables → Actions → Variables):
+#   production repo: https://science.works
+#   staging repo:    https://staging.science.works   (or leave unset → falls back below)
+env:
+  SITE_URL: ${{ vars.SITE_URL || 'https://staging.science.works' }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
       - name: Build with Astro
-        # Installs deps (npm, via package-lock), runs `astro build`,
-        # and uploads dist/ as the Pages artifact.
-        uses: withastro/action@v3
+        run: npm run build              # reads SITE_URL from the env above
+      - name: Write CNAME (custom domain)
+        run: echo "${SITE_URL#https://}" > dist/CNAME   # strip scheme → bare host
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
 
   deploy:
     needs: build
