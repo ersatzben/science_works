@@ -61,7 +61,7 @@ function socialLinks(p) {
         </div>
         <div class="about-copy">
           <h2 class="section-heading">What is Science Works?</h2>
-          <p class="section-body">Science Works is a research and policy studio focused<br />on accelerating progress in British science and technology.</p>
+          <p class="section-body">Science Works is a research and policy studio focused<br /> on accelerating progress in British science and technology.</p>
           <p class="section-body">We work on building and improving the organisational, technological,<br /> and intellectual infrastructure that the UK's research and innovation system needs to stay at the frontier. We work on a small number of identified problems that we believe, if solved, will generate the highest leverage<br /> and impact for both the UK and for humanity as a whole.</p>
           <p class="section-body">Science Works is editorially independent, strictly non-partisan,<br /> not-for-profit, and not aligned with any single funder,<br /> department, agency, or institution.</p>
           <!-- <p class="section-body"><a class="copy-link" href="/charter">Read more about our approach &nbsp;<span class="arrow">&rarr;</span></a></p> -->
@@ -402,7 +402,11 @@ function socialLinks(p) {
       .about-row {min-height: 400px; background-color: var(--almost-white); margin-top: 36px; margin-bottom: 24px; padding-top: 34px; padding-bottom: 10px; }
       
       .about-hero { display: none; }
-      .about-copy {padding: 0 20px; align-items: stretch; }
+      .about-copy {padding: 0 20px; align-items: stretch; 
+      transform: translateY(0); 
+      }
+
+      .about-copy br {display: none;}
       .section-heading { text-align: left; font-size: 22px; margin-bottom: 10px;}
       .section-body { text-align: left; }
       .about-copy .section-body {
@@ -413,17 +417,17 @@ function socialLinks(p) {
         font-size: 15px; 
       }
 
-      .people { margin-top: 24px; padding: 0 20px 60px; }
-      .people-title { font-size: 22px; margin-bottom: 8px; }
+      .people { margin-top: 32px; padding: 0 20px 60px; }
+      .people-title { font-size: 22px; margin-bottom: 14px; }
       
-      .tabs {border-radius: 2px; }
+      .tabs {border-radius: 2px; margin-bottom: 10px; }
       .tab {font-size: 12px; padding: 3px 0; border-radius: 2px; }
       .hidden { display: none; }
       .unhidden {display: inline; }
 
-      .cards-container { padding: 5px; border-radius: 6px; }
-      .card { padding:10px; border-radius: 6px; position: relative; }
-      .cards-grid { grid-template-columns: 1fr; border-radius: 6px; gap: 6px; }
+      .cards-container { padding: 14px; border-radius: 6px; }
+      .card { padding:18px; border-radius: 6px; position: relative; }
+      .cards-grid { grid-template-columns: 1fr; border-radius: 6px; gap: 14px; }
       .card-photo { width: 100px; height: 130px; }
       /* leave room on the right for the vertically-stacked social icons */
       .card-headinfo { height: 135px; padding-right: 28px; }
@@ -431,7 +435,7 @@ function socialLinks(p) {
          desktop bottom row. Anchored to the card padding (10px). */
       .card-socials {
         position: absolute;
-        top: 10px;
+        top: 16px;
         right: 10px;
         flex-direction: column;
         gap: 12px;
@@ -444,14 +448,14 @@ function socialLinks(p) {
         gap: 2px;
         padding-top: 1px;
       }
-      .card-name { font-size: 20px; }
-      .card-role { font-size: 13px; }
+      .card-name { font-size: 16px; }
+      .card-role { font-size: 11px; margin-bottom: 0; line-height: 1.4; }
       .glyph-cell {
         width: 8px;
         height: 8px;
         border-radius: 1px;
       }
-      .card-bio { line-height: 1.4; margin-top: 12px; }
+      .card-bio { font-size: 13px; line-height: 1.6; margin-top: 16px; margin-bottom: 4px; padding-right: 0; }
     }
 
 </style>
