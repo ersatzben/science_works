@@ -43,7 +43,7 @@
     {
       "name": "Will Stone",
       "role": "Researcher",
-      "bio": "Will is Researcher at Science Works, working on science and innovation funding reform, and government-institutional architecture. He was previously Senior Policy Advisor for Science and Innovation at HM Treasury, where he led a team driving innovation-led growth policy across Whitehall and allocated more than £20bn in annual budgets.",
+      "bio": "Will is a Researcher at Science Works, working on science and innovation funding reform, and government-institutional architecture. He was previously Senior Policy Advisor for Science and Innovation at HM Treasury, where he led a team driving innovation-led growth policy across Whitehall and allocated more than £20bn in annual budgets.",
       "photo": "will-stone.jpg",
       "x": "willecstone",
       "bluesky": "",
@@ -53,7 +53,7 @@
     {
       "name": "Rory Byrne",
       "role": "Researcher",
-      "bio": "Rory is a Researcher at Science Works, working on software toolbuilding. He is software engineer and two-time founder, and is currently completing a PhD in computational neuroscience at Cambridge. He was previously a senior software engineer and is co-organiser of the CompMotifs ARIA Innovator Circle.",
+      "bio": "Rory is a Researcher at Science Works, working on software toolbuilding. He is a software engineer and two-time founder, and is currently completing a PhD in computational neuroscience at Cambridge. He was previously a senior software engineer and is co-organiser of the CompMotifs ARIA Innovator Circle.",
       "photo": "rory-byrne.jpg",
       "x": "ryrobyrne",
       "bluesky": "rory.bio",
@@ -102,6 +102,27 @@
       "linkedin": "https://www.linkedin.com/in/anastasia-bektimirova-711a3a191/",
       "glyph": [[null, 10, null, 8, null], [7, null, null, null, 9], [null, null, 9, null, 9], [4, null, 11, null, null], [9, 2, 11, 2, 10]]
     },
+   {
+      "name": "Eric Gilliam",
+      "role": "Contributor",
+      "bio": "Eric runs FreakTakes, a Substack focused on the organisational infrastructure of scientific progress, producing ‘administrative histories’ of historically exceptional R&D organisations such as Bell Labs, early MIT, the Rockefeller Foundation, and DARPA – and what it would take to build their modern equivalents. Eric is a Fellow at the Good Science Project and works with ARIA and Renaissance Philanthropy on new R&D models. He has a degree in political science from Stanford University.",
+      "photo": "eric-gilliam.jpg",
+      "x": "eric_is_weird",
+      "bluesky": "",
+      "linkedin": "https://www.linkedin.com/in/eric-gilliam-068b78116/",
+      "glyph": [[3, null, null, null, 2], [4, 6, 2, 3, 0], [7, 5, null, 8, null], [9, null, 2, null, 3], [null, 7, 11, null, null]]
+    },
+   {
+      "name": "Lydia Farnham",
+      "role": "Contributor",
+      "bio": "Lydia is Chief Technology Oﬃcer at Asothia, a startup building a platform matching researchers to funding and automating grant writing. She is social and events curator at the Pharos Foundation, connecting people across disciplines. Her background is in atmospheric chemistry and climate technology.",
+      "photo": "lydia-farnham.jpg",
+      "x": "",
+      "bluesky": "",
+      "linkedin": "https://www.linkedin.com/in/lydia-farnham/",
+      "glyph": [[3, null, null, null, 2], [4, 6, 2, 3, 0], [7, 5, null, 8, null], [9, null, 2, null, 3], [null, 7, 11, null, null]]
+    },
+    
     {
       "name": "James Phillips",
       "role": "Contributor",
@@ -113,26 +134,6 @@
       "glyph": [[11, null, 4, 10, 1], [8, null, 6, null, 3], [null, null, 5, 10, 9], [6, 4, 9, 2, null], [6, 4, 8, 6, 9]]
     },
     {
-      "name": "David Jordan",
-      "role": "Contributor",
-      "bio": "David is an independent researcher, engineer, and founding director of the Living Physics Lab. Backed by the UK’s Advanced Research and Invention Agency (ARIA), his work merges theory, experiments, and engineering to understand how living cells learn, adapt, and compute.",
-      "photo": "david-jordan.jpg",
-      "x": "",
-      "bluesky": "",
-      "linkedin": "",
-      "glyph": [[6, 2, 11, 7, 5], [8, 8, null, null, 11], [null, 11, 8, null, 10], [9, 10, null, null, 8], [3, null, 1, null, 2]]
-    },
-   {
-      "name": "Eric Gilliam",
-      "role": "Contributor",
-      "bio": "Eric runs FreakTakes, a Substack focused on the organisational infrastructure of scientific progress, producing ‘administrative histories’ of historically exceptional R&D organisations such as Bell Labs, early MIT, the Rockefeller Foundation, and DARPA – and what it would take to build their modern equivalents. Eric is a Fellow at the Good Science Project and works with ARIA and Renaissance Philanthropy on new R&D models. He has a degree in political science from Stanford University.",
-      "photo": "eric-gilliam.jpg",
-      "x": "eric_is_weird",
-      "bluesky": "",
-      "linkedin": "https://www.linkedin.com/in/eric-gilliam-068b78116/",
-      "glyph": [[3, null, null, null, 2], [4, 6, 2, 3, 0], [7, 5, null, 8, null], [9, null, 2, null, 3], [null, 7, 11, null, null]]
-    },
-    {
       "name": "Hope Bretscher",
       "role": "Contributor",
       "bio": "Hope is Assistant Professor of Physics at Boston College, where she leads the Integrated Quantum Materials Lab. She is a Marshall Scholar and Cambridge PhD. Her research focuses on understanding and controlling the properties of quantum materials, with a parallel interest in research norms, dark data, and the use of AI in science.",
@@ -141,6 +142,16 @@
       "bluesky": "hope-ful.bsky.social",
       "linkedin": "https://www.linkedin.com/in/hope-m-bretscher/",
       "glyph": [[7, 1, 1, null, 7], [7, 11, 0, 2, 3], [1, 11, 8, null, 10], [4, 6, 9, 0, null], [9, 3, 9, 5, 4]]
+    },
+    {
+      "name": "David Jordan",
+      "role": "Contributor",
+      "bio": "David is an independent researcher, engineer, and founding director of the Living Physics Lab. Backed by the UK’s Advanced Research and Invention Agency (ARIA), his work merges theory, experiments, and engineering to understand how living cells learn, adapt, and compute.",
+      "photo": "david-jordan.jpg",
+      "x": "",
+      "bluesky": "",
+      "linkedin": "",
+      "glyph": [[6, 2, 11, 7, 5], [8, 8, null, null, 11], [null, 11, 8, null, 10], [9, 10, null, null, 8], [3, null, 1, null, 2]]
     },
     {
       "name": "Jennie Palmer",
