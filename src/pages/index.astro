@@ -417,15 +417,15 @@ const sifItems = [
          into rounded squares. */
       background-image: linear-gradient(
         to bottom,
-        var(--bg-secondary) 0,
-        var(--bg-secondary) var(--band-upper),
+        var(--band-color) 0,
+        var(--band-color) var(--band-upper),
         var(--bg) var(--band-upper),
         var(--bg) var(--band-top),
-        var(--bg-secondary) var(--band-top),
-        var(--bg-secondary) var(--band-bottom),
+        var(--band-color) var(--band-top),
+        var(--band-color) var(--band-bottom),
         var(--bg) var(--band-bottom),
         var(--bg) var(--band-lower),
-        var(--bg-secondary) var(--band-lower)
+        var(--band-color) var(--band-lower)
       );
       -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14'%3E%3Crect width='12' height='12' rx='2' fill='%23fff'/%3E%3C/svg%3E") top left / 14px 14px repeat;
       mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14'%3E%3Crect width='12' height='12' rx='2' fill='%23fff'/%3E%3C/svg%3E") top left / 14px 14px repeat;
@@ -1501,9 +1501,14 @@ const sifItems = [
         const g = grids[slotIdx];
         if (!g || !g.cells.length || !art || !Array.isArray(art.grid)) return;
         const pal = art.palette || [];
+        // Centre the art vertically when the slot is taller than the art. The
+        // tall grids 6 & 11 have 18 cell rows; a 16-row art sits in the middle
+        // with a transparent cap row above and below (the "extra row above and
+        // below"), so the background lattice shows through the caps.
+        const rowOffset = Math.floor((g.cells.length - art.grid.length) / 2);
         for (let r = 0; r < g.cells.length; r++) {
           const rowArr = g.cells[r];
-          const srcRow = art.grid[r] || [];
+          const srcRow = art.grid[r - rowOffset] || [];
           for (let c = 0; c < rowArr.length; c++) {
             const idx = srcRow[c];
             const hex = (idx != null && idx >= 0) ? pal[idx] : null;

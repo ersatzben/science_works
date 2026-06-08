@@ -105,7 +105,11 @@
          (a whole number of cells → tile stays aligned) to reach the splash
          edges at any viewport. */
       --bg-overhang: calc(56 * var(--hero-cell-pitch));
-      /* --bg-secondary bands on the .matrix-bg plane (bounds measured from the
+      /* Colour of the three splash background bands (middle + upper/lower
+         exteriors). Isolated from --bg-secondary so tuning it doesn't touch the
+         nav, cards, etc. Tweak this one value to recolour the bands. */
+      --band-color: #fcf7f3;   /* midpoint of --bg-secondary (#f9f3ee) and --almost-white (#fffbf7) */
+      /* --band-color bands on the .matrix-bg plane (bounds measured from the
          plane top). The middle band is the full height of the tall grids 6 & 11.
          The upper/lower bands begin 4 cells outside the metagrid and run to the
          splash edges — so 4 grey rows are left as a buffer above and below. */
