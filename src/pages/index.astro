@@ -1279,7 +1279,7 @@ const sifItems = [
         display: grid;                    /* 30×22 pixel illustration */
         grid-template-columns: repeat(var(--ip-cols, 30), 1fr);
         grid-auto-rows: 1fr;
-        gap: 0.5px;                       /* hairline grout → reads as mosaic, not pixels */
+        gap: 1px;                         /* grout → reads as mosaic, not pixels */
         float: right;
         width: 44%;
         aspect-ratio: 30 / 22;            /* matches the art → cells stay square */
@@ -1287,7 +1287,7 @@ const sifItems = [
         overflow: hidden;                 /* clip cells to the rounded corners */
         margin: 0 0 10px 16px;            /* gap below + left of the wrapping text */
       }
-      .intro-pic-cell { width: 100%; height: 100%; }
+      .intro-pic-cell { width: 100%; height: 100%; border-radius: 1px; }
 
       .spotlight-intro h2 {
         font-size: 20px;
