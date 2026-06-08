@@ -1,10 +1,13 @@
 ---
 import footerBand from '../data/decor/footer-band.json';
+import footerSignup from '../data/decor/footer-signup.json';   // sparse art behind the signup box
 ---
   <footer class="site-footer">
     <div class="footer-pixels" aria-hidden="true"></div>
     <script type="application/json" id="footer-band-data" set:html={JSON.stringify(footerBand)}></script>
     <div class="footer-signup">
+      <div class="footer-signup-pix" aria-hidden="true"></div>
+      <script type="application/json" id="footer-signup-data" set:html={JSON.stringify(footerSignup)}></script>
   <div id="signup" class="sib-form">
     <div id="sib-form-container" class="sib-form-container">
       <div id="error-message" class="sib-form-message-panel">
@@ -163,6 +166,61 @@ import footerBand from '../data/decor/footer-band.json';
         paint(cols);
       }
       if (window.ResizeObserver) new ResizeObserver(fill).observe(band);
+      else window.addEventListener('resize', fill);
+      fill();
+    })();
+</script>
+
+<script is:inline>
+    (function () {
+      // Sparse art behind the signup box, in the empty space to its left.
+      // Left-aligned, a single iteration (no horizontal tiling); only the
+      // non-transparent cells are placed (by grid coords), so the mostly-(-1)
+      // art stays light on the DOM.
+      const layer = document.querySelector('.footer-signup-pix');
+      const dataEl = document.getElementById('footer-signup-data');
+      if (!layer || !dataEl) return;
+      const art = JSON.parse(dataEl.textContent);
+      const ROWS = art.grid.length;        // actual grid height (robust to a stale rows field)
+      const ART_COLS = art.cols;
+      const PAL = art.palette;
+      const GRID = art.grid;
+
+      const LEFT_PAD = 10;   // empty columns before the art, shifting it right
+      function fill() {
+        const cs = getComputedStyle(layer);
+        const cell = parseFloat(cs.getPropertyValue('--sp-cell')) || 5;
+        const gap  = parseFloat(cs.getPropertyValue('--sp-gap'))  || 1;
+        // Single iteration only; clip to the band width if it's narrower than the art.
+        const fit = Math.max(1, Math.floor((layer.clientWidth + gap) / (cell + gap)));
+        const artCols = Math.max(0, Math.min(ART_COLS, fit - LEFT_PAD));
+        const totalCols = LEFT_PAD + artCols;
+        layer.style.gridTemplateColumns = 'repeat(' + totalCols + ', var(--sp-cell))';
+        layer.style.gridTemplateRows = 'repeat(' + ROWS + ', var(--sp-cell))';
+        layer.textContent = '';
+        const frag = document.createDocumentFragment();
+        for (let r = 0; r < ROWS; r++) {
+          const row = GRID[r];
+          for (let c = 0; c < artCols; c++) {
+            const v = row[c];
+            if (v == null || v < 0) continue;   // transparent → not rendered
+            const el = document.createElement('div');
+            el.className = 'pix-cell';
+            el.style.gridColumn = (LEFT_PAD + c + 1);
+            el.style.gridRow = (r + 1);
+            el.style.background = PAL[v] || '';
+            // Each pixel gets its own period and its own phase, so they fade in
+            // and out independently rather than pulsing as a synchronised group.
+            const dur = 10 + Math.random() * 25;          // 10–35s: very varied periodicities
+            el.style.animationDuration = dur + 's';
+            el.style.animationDelay = (-Math.random() * dur) + 's';   // random start point in its cycle
+            el.style.animationTimingFunction = 'ease-in-out';
+            frag.appendChild(el);
+          }
+        }
+        layer.appendChild(frag);
+      }
+      if (window.ResizeObserver) new ResizeObserver(fill).observe(layer);
       else window.addEventListener('resize', fill);
       fill();
     })();

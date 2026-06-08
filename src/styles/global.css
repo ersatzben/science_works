@@ -298,6 +298,39 @@
       display: flex;
       align-items: center;        /* vertical-centre the box in the band */
       justify-content: flex-end;  /* push the box to the right of the viewport */
+      position: relative;         /* anchor for the sparse art layer behind the box */
+    }
+    /* Sparse pixel art filling the empty space to the left of (and behind) the
+       signup box. Left-aligned, tiled horizontally, vertically centred. */
+    .footer-signup-pix {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+      display: grid;
+      justify-content: start;     /* tile from the left edge */
+      align-content: center;      /* centre the rows vertically in the band */
+      gap: var(--sp-gap);
+      --sp-cell: 5px;
+      --sp-gap: 1px;
+      --card-pix-radius: 1px;
+    }
+    /* Each coloured pixel pulses very slowly in and out of transparent; a random
+       per-cell delay (set in JS) gives a gentle, organic shimmer. */
+    /* Mostly invisible: the pixels fade into view for ~4s, then stay gone for
+       ~16s before the next reveal. A small per-cell stagger (set in JS) softens
+       the edges so the group materialises rather than hard-blinking. */
+    @keyframes footer-pix-pulse {
+      0%, 7%    { opacity: 0; }
+      13%, 19%  { opacity: 1; }
+      25%, 100% { opacity: 0; }
+    }
+    .footer-signup-pix .pix-cell {
+      animation: footer-pix-pulse 22s ease-in-out infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .footer-signup-pix .pix-cell { animation: none; }
     }
     /* 3) Bottom band: solid dark brown, white text. */
     .footer-bottom {
@@ -375,6 +408,8 @@
       flex-direction: column;
       align-items: center;
       font-family: 'Roboto', sans-serif;
+      position: relative;   /* sit above the .footer-signup-pix art layer */
+      z-index: 1;
     }
     .sib-form {
       padding: 0 0;
@@ -621,6 +656,7 @@
       padding: 0 20px;
       border: 1px solid var(--theme);
       border-radius: 4px;
+      background: var(--bg-secondary);   /* opaque panel so the art behind doesn't show through */
       overflow: hidden;             /* clip any message-driven height change; no overflow */
     }
     /* Image slot: 24x24 micro-pixel grid, filled by the shared JS. */
@@ -656,6 +692,7 @@
   #signup h3 { margin-bottom: 0px; }
   #signup .sib-form-block { margin-top: 10px; }
   .signup-pix { display: none; }
+  .footer-signup-pix { display: none; }
   .footer-bottom { padding: 0 8px; }
   .footer-end { font-size: 8px; gap: 16px; }
   .footer-policies { gap: 16px; }

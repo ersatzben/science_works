@@ -139,6 +139,7 @@ const mailShareUrl = `mailto:?subject=${encodeURIComponent(d.title)}&body=${enco
       column-gap: 44px;
       max-width: 1200px;
       margin: 0 auto;
+      margin-bottom: 100px; 
     }
     /* Sticky left rail: reading-progress cells + table of contents */
     .reading-rail {
@@ -170,7 +171,7 @@ const mailShareUrl = `mailto:?subject=${encodeURIComponent(d.title)}&body=${enco
     .toc-link:hover { opacity: 1; }
     .toc-link.is-active { opacity: 1; color: var(--theme); }
     /* Reading column reserves a right margin for sidenotes */
-    .reading-main { padding-right: 240px; margin-bottom: 40px; }
+    .reading-main { padding-right: 240px; margin-bottom: -24px; }
     .sn-ref {
       font-size: 0.7em; vertical-align: super; line-height: 0;
       color: var(--theme); font-weight: 700; padding: 0 1px;
@@ -435,7 +436,7 @@ const mailShareUrl = `mailto:?subject=${encodeURIComponent(d.title)}&body=${enco
 
     /* Related work */
     .related {
-      margin-bottom: 44px;
+      margin-bottom: 64px;
       border: 1px solid var(--border-grey);
       border-radius: 6px;
       padding: 18px;
@@ -640,7 +641,7 @@ const mailShareUrl = `mailto:?subject=${encodeURIComponent(d.title)}&body=${enco
         margin-left: calc(50% - 50vw);    /* full-bleed despite the article's side padding */
         margin-right: calc(50% - 50vw);
       }
-      .reading-main { padding-right: 0; }
+      .reading-main { padding-right: 0; margin-bottom: 40px; }
       .article-head { max-width: 720px; }
       .title-block { padding-left: 0; }
       /* Footnotes become tap-to-expand: marker is a chip, note hidden until tapped */
@@ -692,6 +693,7 @@ const mailShareUrl = `mailto:?subject=${encodeURIComponent(d.title)}&body=${enco
         grid-template-areas: "pic head" "bio bio";
         column-gap: 16px;
         row-gap: 12px;
+        align-items: start;          /* top-align head with the top of the pic */
       }
       .writer-pic { width: 88px; height: 88px; }
     }

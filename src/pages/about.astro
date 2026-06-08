@@ -285,6 +285,7 @@ function socialLinks(p) {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 14px;
+      /* row-gap: 28px;  */
     }
 
     .card {
@@ -400,8 +401,8 @@ function socialLinks(p) {
       .wi-heading { font-size: 25px; padding: 18px 35px; }
 
       .about-copy-section { padding: 14px 20px 4px; }
-      .section-heading { font-size: 20px; }
-      .about-heading-row { gap: 0; margin-bottom: 10px; }   /* eyebrows hidden on mobile */
+      .section-heading { font-size: 20px; text-align: center; }
+      .about-heading-row { gap: 0; margin-bottom: 10px; justify-content: center; }   /* eyebrows hidden on mobile → centre the lone heading */
       .about-eyebrow { display: none; }                     /* desktop-only decoration */
       .section-body br { display: none; }
       .about-copy .section-body {

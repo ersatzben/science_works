@@ -359,6 +359,7 @@ const sifItems = [
       justify-content: center;
       padding: var(--matrix-gap);
       padding-top: 1.1%;
+      margin-top: -16px; 
       box-sizing: border-box;
       position: relative;
       isolation: isolate;                  /* stacking context, so the z-index:-1 tile
@@ -450,7 +451,7 @@ const sifItems = [
       width: var(--hero-cell-size);
       height: var(--hero-cell-size);
       border-radius: var(--hero-cell-radius);
-      background: var(--theme);   /* INTERIM: solid red while the hero is redesigned; restores to var(--beige) + JSON art once grids are wired */
+      background: transparent;   /* JS paints each cell from its grid art; transparent falls back to the background lattice */
       position: relative;
     }
     /* Theme-red hover overlay; instant on hover-in, 0.5s fade-out on hover-off. */
@@ -708,7 +709,6 @@ const sifItems = [
       box-shadow: inset 0 0 0 0 transparent;   /* baseline for the hollow-ring transition */
       transition: background-color 0.9s ease, box-shadow 0.9s ease;
     }
-    .intro-matrix.is-flutter span { transition-duration: 0.18s; }   /* quick burst */
     .intro-eyebrow { display: none; }   /* mobile-only (shown in the 600px query) */
     .intro-pic { display: none; }       /* mobile-only (shown in the 600px query) */
     .spotlight-intro h2 {
@@ -1409,13 +1409,6 @@ const sifItems = [
       const MATRIX_ROWS = 3;
       const GRID_COUNT = MATRIX_COLS * MATRIX_ROWS;
 
-      // INTERIM (hero redesign): paint every cell solid --theme red (done in
-      // CSS) and PARK the art load + swap animation while the new layout is
-      // dialled in. The art-loading / dissolve / pairing code below is kept
-      // intact and dormant — flip this to false to re-arm it once the new
-      // per-grid JSON is wired in.
-      const SOLID_RED = true;
-
       // Brand palette, exposed so JS can address cells by colour name later.
       const PALETTE = {
         bg: '#f6f0ed',
@@ -1485,39 +1478,36 @@ const sifItems = [
         grids.push(g);
       }
 
-      // ----- Per-grid static art (incremental) -------------------------
-      // {cols,rows,palette,grid} per slot, from src/data/splash/grid-NN.json.
-      // A slot with art renders it (palette index -1 → transparent, so the
-      // background lattice shows through); a slot without art keeps the solid
-      // --theme red painted by CSS. The swap animation stays parked until all
-      // grids are in and we re-arm it.
+      // ----- Per-grid art ----------------------------------------------
+      // {cols,rows,palette,grid} per slot, from src/data/splash/grid-NN.json,
+      // resolved to a flat array of hex colours (or null = transparent, so the
+      // background lattice shows through). This is the single source of truth
+      // both the initial render and the swap animation operate on.
       let SPLASH_ART = {};
       try {
         const tag = document.getElementById('splash-art-data');
         if (tag) SPLASH_ART = JSON.parse(tag.textContent || '{}');
       } catch (_) {}
 
-      function paintArtGrid(slotIdx, art) {
+      // Resolve a slot's art to a flat colour array (length = grid.total).
+      // Centres the art vertically when the slot is taller than the art: the
+      // tall grids 6 & 11 have 18 cell rows, so a 16-row art would sit in the
+      // middle with transparent caps (a full 16×18 art fills them).
+      function artToColors(slotIdx, art) {
         const g = grids[slotIdx];
-        if (!g || !g.cells.length || !art || !Array.isArray(art.grid)) return;
+        const out = new Array(g.total).fill(null);
+        if (!g.cells.length || !art || !Array.isArray(art.grid)) return out;
         const pal = art.palette || [];
-        // Centre the art vertically when the slot is taller than the art. The
-        // tall grids 6 & 11 have 18 cell rows; a 16-row art sits in the middle
-        // with a transparent cap row above and below (the "extra row above and
-        // below"), so the background lattice shows through the caps.
         const rowOffset = Math.floor((g.cells.length - art.grid.length) / 2);
         for (let r = 0; r < g.cells.length; r++) {
-          const rowArr = g.cells[r];
           const srcRow = art.grid[r - rowOffset] || [];
-          for (let c = 0; c < rowArr.length; c++) {
+          for (let c = 0; c < COLS; c++) {
             const idx = srcRow[c];
-            const hex = (idx != null && idx >= 0) ? pal[idx] : null;
-            rowArr[c].style.background = hex || 'transparent';
+            out[r * COLS + c] = (idx != null && idx >= 0) ? (pal[idx] || null) : null;
           }
         }
+        return out;
       }
-
-      Object.keys(SPLASH_ART).forEach((k) => paintArtGrid(+k, SPLASH_ART[k]));
 
       // Helpers exposed for future animation code.
       function setCell(gridIdx, row, col, color) {
@@ -1534,78 +1524,25 @@ const sifItems = [
         }
       }
 
-      // ----- Pixel art loading + dissolve animation --------------------
-      // Editor stores under this key. Palette order matches the editor's
-      // stored data exactly — DO NOT reorder.
-      const ART_STORAGE_KEY = 'sw.pixelart.v1';
-      const ART_PALETTE = [
-        '#f6f0ed', // 0 empty / bg
-        '#66223b', // 1 text
-        '#eb3131', // 2 theme
-        '#00726b', // 3 sage
-        '#004ee6', // 4 brightBlue
-        '#a3c0d7', // 5 paleBlue
-        '#64b37b', // 6 lightGreen
-        '#0e676a', // 7 deepGreen
-        '#f45e57', // 8 coral
-        '#ebe5cf', // 9 beige
-        '#faf8f6', // 10 almostWhite
-        '#4b5cce', // 11 purpleBlue
-        '#440214', // 12 darkestBrown
-        '#3a3c7c', // 13 opt1
-        '#72679b', // 14 opt2
-      ];
-
-      const TOTAL_CELLS = COLS * ROWS; // 256
+      // ----- Render + swap animation -----------------------------------
       const EDITABLE_SLOTS = [];
       for (let i = 0; i < grids.length; i++) {
         if (!HERO_SLOTS.has(i)) EDITABLE_SLOTS.push(i);
       }
 
-      // Per-slot current cell data (palette indices). Mutated by swaps so
-      // each pair oscillates between its two states over time.
-      const slotData = grids.map((g) => new Array(g.total).fill(0));
-
-      // Random brand-palette colour (indices 1..N, skipping 0 = empty/bg).
-      function randomColorIndex() {
-        return 1 + ((Math.random() * (ART_PALETTE.length - 1)) | 0);
-      }
-      // Fill the top and bottom rows of a tall grid with random colours.
-      function fillCapsRandom(i) {
-        const total = grids[i].total;
-        for (let c = 0; c < COLS; c++) {
-          slotData[i][c] = randomColorIndex();
-          slotData[i][total - COLS + c] = randomColorIndex();
-        }
-      }
-
-      function ingestArt(art) {
-        for (let i = 0; i < grids.length; i++) {
-          slotData[i] = new Array(grids[i].total).fill(0);
-          if (grids[i].rows > ROWS) fillCapsRandom(i);
-        }
-        if (!art?.grids || art.grids.length !== EDITABLE_SLOTS.length) return;
-        for (let ei = 0; ei < EDITABLE_SLOTS.length; ei++) {
-          const slot = EDITABLE_SLOTS[ei];
-          const data = art.grids[ei];
-          if (!Array.isArray(data) || data.length !== TOTAL_CELLS) continue;
-          if (grids[slot].rows > ROWS) {
-            // The 11-row art sits in the middle; the random top/bottom rows stay.
-            for (let k = 0; k < TOTAL_CELLS; k++) slotData[slot][COLS + k] = data[k];
-          } else {
-            slotData[slot] = data.slice();
-          }
-        }
-      }
+      // Per-slot current cell colours (hex or null = transparent). Seeded from
+      // each grid's art; mutated by swaps so each pair oscillates between its
+      // two states over time.
+      const slotData = grids.map((g, i) => artToColors(i, SPLASH_ART[i]));
 
       function renderSlot(slotIdx) {
-        const data = slotData[slotIdx];
+        const colors = slotData[slotIdx];
         const cells = grids[slotIdx].cells;
-        const total = grids[slotIdx].total;
-        for (let i = 0; i < total; i++) {
-          const r = (i / COLS) | 0;
-          const c = i % COLS;
-          cells[r][c].style.background = ART_PALETTE[data[i]] || ART_PALETTE[0];
+        for (let r = 0; r < cells.length; r++) {
+          const rowArr = cells[r];
+          for (let c = 0; c < rowArr.length; c++) {
+            rowArr[c].style.background = colors[r * COLS + c] || 'transparent';
+          }
         }
       }
 
@@ -1613,40 +1550,17 @@ const sifItems = [
         for (let i = 0; i < grids.length; i++) renderSlot(i);
       }
 
-      const ART_FILE_URL = '/assets/pixel_art/splash.json';
-
-      function loadArtLocal() {
-        try {
-          const raw = localStorage.getItem(ART_STORAGE_KEY);
-          return raw ? JSON.parse(raw) : null;
-        } catch (_) { return null; }
-      }
-
-      async function loadArtFile() {
-        try {
-          const resp = await fetch(ART_FILE_URL, { cache: 'no-cache' });
-          if (!resp.ok) return null;
-          return await resp.json();
-        } catch (_) { return null; }
-      }
-
-      // localStorage wins when present (so the editor's live drafts show
-      // up in the splash during dev). Falls back to the committed file
-      // when there's no draft — which is the production path.
-      async function loadArt() {
-        return loadArtLocal() || await loadArtFile();
-      }
-
       // ----- Pair selection --------------------------------------------
       // Fixed couples swap only with each other (and are excluded from the
       // random pairing below). [6, 11] are the two ends of the middle row,
-      // flanking the hero text.
+      // flanking the hero text. Pairs are always like-sized (16×16, except
+      // 6↔11 which are both 16×18).
       const FIXED_PAIRS = [[0, 12], [5, 17], [6, 11]];
 
       function buildPairs() {
         const used = new Set(FIXED_PAIRS.flat());
         const remaining = EDITABLE_SLOTS.filter(s => !used.has(s));
-        // Fisher–Yates shuffle on the remaining 10 slots.
+        // Fisher–Yates shuffle on the remaining slots.
         for (let i = remaining.length - 1; i > 0; i--) {
           const j = (Math.random() * (i + 1)) | 0;
           [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
@@ -1659,12 +1573,12 @@ const sifItems = [
       }
 
       // ----- Dissolve animation ----------------------------------------
-      const DISSOLVE_MS = 20000;        // per-swap dissolve window
+      const DISSOLVE_MS = 20000;         // per-swap dissolve window
       const SWAP_INTERVAL_MS = 120000;   // time between swaps for one pair
-      const PAIR_STAGGER_MS = 7000;     // offset between pairs' first swap
+      const PAIR_STAGGER_MS = 7000;      // offset between pairs' first swap
       const FIRST_SWAP_DELAY_MS = 2000;
 
-      // Generation counter lets in-flight setTimeouts no-op when art reloads.
+      // Generation counter lets in-flight timers no-op when animation restarts.
       let animGen = 0;
       let activeIntervals = [];
 
@@ -1674,16 +1588,16 @@ const sifItems = [
         activeIntervals = [];
       }
 
+      // Swap two like-sized grids' colours cell-by-cell over DISSOLVE_MS in a
+      // random per-cell order, batched to one repaint per frame (Safari-safe).
       function dissolveSwap(a, b, gen) {
-        const total = grids[a].total;   // a and b always share a size (pairs are like-sized)
+        const total = grids[a].total;   // a and b always share a size
         const order = new Array(total);
         for (let i = 0; i < total; i++) order[i] = i;
         for (let k = total - 1; k > 0; k--) {          // shuffle → cells flip in random order
           const j = (Math.random() * (k + 1)) | 0;
           const t = order[k]; order[k] = order[j]; order[j] = t;
         }
-        // One rAF loop flips every cell due by now in a single batch, so the
-        // browser repaints once per frame instead of once per cell (Safari-safe).
         let cursor = 0, start = 0;
         function frame(now) {
           if (gen !== animGen) return;
@@ -1695,8 +1609,8 @@ const sifItems = [
             slotData[a][i] = slotData[b][i];
             slotData[b][i] = tmp;
             const r = (i / COLS) | 0, c = i % COLS;
-            grids[a].cells[r][c].style.background = ART_PALETTE[slotData[a][i]] || ART_PALETTE[0];
-            grids[b].cells[r][c].style.background = ART_PALETTE[slotData[b][i]] || ART_PALETTE[0];
+            grids[a].cells[r][c].style.background = slotData[a][i] || 'transparent';
+            grids[b].cells[r][c].style.background = slotData[b][i] || 'transparent';
           }
           if (cursor < total) requestAnimationFrame(frame);
         }
@@ -1723,38 +1637,23 @@ const sifItems = [
         });
       }
 
-      function paintFromArt(art) {
+      // Paint the static art, then start the swap loops.
+      renderAll();
+      startAnimations();
+
+      // Pause the dissolve loops while the tab is backgrounded — rAF is
+      // suspended when hidden but the intervals keep firing, so their queued
+      // frames would otherwise burst on return.
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) stopAnimations();
+        else startAnimations();
+      });
+
+      // React to the Reduce Motion preference changing at runtime.
+      reduceMotion.addEventListener('change', () => {
         stopAnimations();
-        ingestArt(art);
-        renderAll();
-        startAnimations();
-      }
-
-      // PARKED while SOLID_RED — cells stay solid red from CSS, no art/anim.
-      if (!SOLID_RED) {
-        loadArt().then((art) => {
-          paintFromArt(art);
-          // Pause the dissolve loops while the tab is backgrounded. rAF is
-          // suspended when hidden but the swap intervals keep firing, so without
-          // this their queued frames run in a burst ("catch-up") on return.
-          // Registered after the first paint so grids/slotData are ready.
-          document.addEventListener('visibilitychange', () => {
-            if (document.hidden) stopAnimations();
-            else startAnimations();
-          });
-        });
-
-        // React to the Reduce Motion preference changing at runtime.
-        reduceMotion.addEventListener('change', () => {
-          stopAnimations();
-          if (!reduceMotion.matches) startAnimations();
-        });
-
-        // Auto-refresh when the editor saves in another tab.
-        window.addEventListener('storage', (e) => {
-          if (e.key === ART_STORAGE_KEY) loadArt().then(paintFromArt);
-        });
-      }
+        if (!reduceMotion.matches) startAnimations();
+      });
 
       // Proportional scaling: shrink the whole composition when the viewport
       // is narrower than its natural width. Mobile layout (fewer grids) TBD.
@@ -1789,15 +1688,46 @@ const sifItems = [
       if (window.ResizeObserver) new ResizeObserver(updateScale).observe(document.querySelector('.stage') || document.body);
       updateScale();
 
+      // ----- Legacy splash.json art source -----------------------------
+      // The desktop hero no longer uses these — it renders the per-grid files
+      // above. They remain ONLY because the (separate, unchanged) mobile hero
+      // still reads window.SW.ART_PALETTE and window.SW.loadArt to paint its
+      // 12×11 blocks from /assets/pixel_art/splash.json.
+      const ART_STORAGE_KEY = 'sw.pixelart.v1';
+      const ART_FILE_URL = '/assets/pixel_art/splash.json';
+      const ART_PALETTE = [
+        '#f6f0ed', '#66223b', '#eb3131', '#00726b', '#004ee6',
+        '#a3c0d7', '#64b37b', '#0e676a', '#f45e57', '#ebe5cf',
+        '#faf8f6', '#4b5cce', '#440214', '#3a3c7c', '#72679b',
+      ];
+      function loadArtLocal() {
+        try {
+          const raw = localStorage.getItem(ART_STORAGE_KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch (_) { return null; }
+      }
+      async function loadArtFile() {
+        try {
+          const resp = await fetch(ART_FILE_URL, { cache: 'no-cache' });
+          if (!resp.ok) return null;
+          return await resp.json();
+        } catch (_) { return null; }
+      }
+      async function loadArt() {
+        return loadArtLocal() || await loadArtFile();
+      }
+
       // Expose for console tinkering / future modules.
       window.SW = {
         grids, PALETTE, setCell, setAll,
         COLS, ROWS, MATRIX_COLS, MATRIX_ROWS,
         updateScale,
-        ART_PALETTE, HERO_SLOTS, EDITABLE_SLOTS,
-        slotData, loadArt, loadArtLocal, loadArtFile, paintFromArt,
+        HERO_SLOTS, EDITABLE_SLOTS,
+        slotData, renderAll,
         buildPairs, dissolveSwap,
         stopAnimations, startAnimations,
+        // Legacy splash.json source — consumed by the mobile hero.
+        ART_PALETTE, loadArt, loadArtLocal, loadArtFile,
       };
     })();
 
@@ -2030,8 +1960,7 @@ const sifItems = [
       const mqMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
       const PALETTE = ['var(--beige)', 'var(--bright-blue)', 'var(--theme)', 'var(--pale-blue)', 'var(--coral)', 'var(--sage)'];
       const rand = function (a, b) { return a + Math.random() * (b - a); };
-      let calmTimer = 0, flutterTimer = 0, waveTimer = 0, active = false;
-      const COLS = 7, ROWS = 2;
+      let calmTimer = 0, active = false;
 
       function revert(i) {
         spans[i].style.background = base[i];
@@ -2058,47 +1987,10 @@ const sifItems = [
         clearTimeout(calmTimer);
         calmTimer = setTimeout(act, rand(2600, 6500));
       }
-      // Flutter: a quick left-to-right "Mexican wave". A 3-column
-      // hollow–transparent–hollow band sweeps across; the top row runs one
-      // column ahead of the bottom row.
-      const STEP = 70;   // ms per column
-      function waveCell(i, mode) {           // mode: 'centre' | 'edge'
-        spans[i].style.background = 'transparent';
-        spans[i].style.boxShadow = (mode === 'edge') ? 'inset 0 0 0 2px ' + base[i] : 'inset 0 0 0 0 transparent';
-      }
-      function flutter() {
-        grid.classList.add('is-flutter');
-        let pos = -1;                        // wave centre column for the top row
-        function frame() {
-          for (let i = 0; i < spans.length; i++) revert(i);
-          for (let row = 0; row < ROWS; row++) {
-            const centre = (row === 0) ? pos : pos - 1;   // top leads bottom by one
-            for (let d = -1; d <= 1; d++) {
-              const c = centre + d;
-              if (c < 0 || c >= COLS) continue;
-              waveCell(row * COLS + c, d === 0 ? 'centre' : 'edge');
-            }
-          }
-          pos++;
-          if (pos <= COLS + 1) {             // run until the offset tail clears
-            waveTimer = setTimeout(frame, STEP);
-          } else {
-            for (let i = 0; i < spans.length; i++) revert(i);
-            setTimeout(function () { grid.classList.remove('is-flutter'); }, 220);
-          }
-        }
-        frame();
-        scheduleFlutter();
-      }
-      function scheduleFlutter() {
-        clearTimeout(flutterTimer);
-        flutterTimer = setTimeout(flutter, rand(5000, 15000));
-      }
-      function start() { if (!active) { active = true; schedule(); scheduleFlutter(); } }
+      function start() { if (!active) { active = true; schedule(); } }
       function stop() {
         active = false;
-        clearTimeout(calmTimer); clearTimeout(flutterTimer); clearTimeout(waveTimer);
-        grid.classList.remove('is-flutter');
+        clearTimeout(calmTimer);
         for (let i = 0; i < spans.length; i++) revert(i);
       }
       function sync() { (!document.hidden && !mqMotion.matches) ? start() : stop(); }
