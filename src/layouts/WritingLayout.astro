@@ -95,7 +95,10 @@ const mailShareUrl = `mailto:?subject=${encodeURIComponent(d.title)}&body=${enco
                   <div class="rel-card-body">
                     <p class="rel-tag">{r.data.project}</p>
                     <h3 class="rel-title">{r.data.title}</h3>
-                    <p class="rel-meta">{r.data.authors.join(', ')} &middot; {fmt(r.data.date)}</p>
+                    <div class="rel-foot">
+                      <span class="rel-authors">{r.data.authors.join(', ')}</span>
+                      <span class="rel-date">{fmt(r.data.date)}</span>
+                    </div>
                   </div>
                 </a>
               ))}
@@ -424,7 +427,7 @@ const mailShareUrl = `mailto:?subject=${encodeURIComponent(d.title)}&body=${enco
 
     /* ---------- Essay foot: Related work + Writers ---------- */
     .essay-foot {
-      max-width: 930px;          /* ~25% wider than the ~706px text column */
+      max-width: 1000px;
       margin: 40px auto 0;
       padding: 0 24px 96px;
       box-sizing: border-box;
@@ -484,7 +487,7 @@ const mailShareUrl = `mailto:?subject=${encodeURIComponent(d.title)}&body=${enco
     }
     .rel-card-img { width: 100%; height: 150px; object-fit: cover; background: var(--beige); display: block; }
     .rel-card-art { display: block; background: var(--beige); overflow: hidden; }
-    .rel-card-body { padding: 16px 18px 20px; }
+    .rel-card-body { padding: 16px 18px 20px; flex: 1; display: flex; flex-direction: column; }
     .rel-tag {
       font-family: 'Roboto', sans-serif; font-weight: 700; font-size: 11px;
       letter-spacing: 0.03em; text-transform: uppercase; color: var(--theme); margin: 0 0 9px;
@@ -493,7 +496,20 @@ const mailShareUrl = `mailto:?subject=${encodeURIComponent(d.title)}&body=${enco
       font-family: 'Playfair Display', serif; font-weight: 300; font-size: 18px;
       line-height: 1.2; color: var(--text); margin: 0 0 10px;
     }
-    .rel-meta { font-family: 'Roboto', sans-serif; font-size: 12px; color: var(--text); opacity: 0.7; }
+    /* Footer pinned to the bottom of the (equal-height) card: author bottom-left,
+       date bottom-right. */
+    .rel-foot {
+      margin-top: auto; padding-top: 12px;
+      display: flex; justify-content: space-between; align-items: flex-end; gap: 12px;
+    }
+    .rel-authors {
+      font-family: 'Copperplate', serif; font-weight: normal; font-size: 13px;
+      line-height: 1.25; letter-spacing: 0.02em; color: var(--text); min-width: 0;
+    }
+    .rel-date {
+      flex: none; font-family: 'Roboto', sans-serif; font-weight: 500; font-size: 11px;
+      letter-spacing: 0.04em; text-transform: uppercase; color: var(--text); opacity: 0.7; white-space: nowrap;
+    }
 
     /* Writers */
     .writers-heading {

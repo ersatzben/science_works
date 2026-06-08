@@ -317,7 +317,7 @@ const sifItems = [
                   <div class="report-card-body">
                     <h3 class="report-title">{e.data.shortTitle ?? e.data.title}</h3>
                     <p class="report-authors">{e.data.authors.join(', ')}</p>
-                    {e.data.subtitle && <p class="report-sub">{e.data.subtitle}</p>}
+                    {(e.data.shortSubtitle ?? e.data.subtitle) && <p class="report-sub">{e.data.shortSubtitle ?? e.data.subtitle}</p>}
                     <p class="report-foot"><span class="report-date">{fmt(e.data.date)}</span><span class="report-type">{typeLabel(e.data.type)}</span></p>
                   </div>
                 </div>
@@ -1133,7 +1133,9 @@ const sifItems = [
       justify-content: space-between;
       align-items: baseline;
       gap: 12px;
-      font-family: 'Antique Olive', sans-serif;
+      font-family: 'Roboto', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
       font-size: 12px;
       color: var(--text);
       margin: auto 0 0;          /* top:auto pushes it to the card bottom */

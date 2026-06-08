@@ -248,7 +248,7 @@ function socialLinks(p) {
       gap: 0;
       background: var(--almost-white);
       border: 1px solid rgba(235, 49, 49, 0.18);
-      border-radius: 8px;
+      border-radius: 6px;
       padding: 0;
       margin-bottom: 16px;
     }
@@ -256,7 +256,7 @@ function socialLinks(p) {
       appearance: none;
       background: none;
       border: 1.5px solid transparent;
-      border-radius: 8px;       /* sits just inside the container's 12px */
+      border-radius: 6px;       /* sits just inside the container's 12px */
       padding: 9px 8px;
       font-family: 'Roboto', sans-serif;
       font-size: 16px;
@@ -275,7 +275,7 @@ function socialLinks(p) {
     /* White container the cards sit inside, so the cards pop. */
     .cards-container {
       background: var(--almost-white);
-      border-radius: 12px;
+      border-radius: 6px;
       padding: 10px;
     }
     .cards-grid {
@@ -286,7 +286,7 @@ function socialLinks(p) {
 
     .card {
       background: var(--bg);
-      border-radius: 9px;
+      border-radius: 6px;
       padding: 14px 22px;     /* tighter top/bottom than sides */
       display: flex;
       flex-direction: column;
@@ -338,7 +338,7 @@ function socialLinks(p) {
       border-radius: 2px;
     }
     .card-name {
-      font-family: 'Playfair Display', serif;
+      font-family: 'Copperplate', serif;
       font-weight: 500;
       color: var(--text);
       font-size: 23px;
@@ -391,20 +391,21 @@ function socialLinks(p) {
       .wi-header { display: flex; margin-top: 20px; margin-bottom: 15px; }   /* match Writing's spacing above the banner */
       .wi-heading { font-size: 25px; padding: 18px 35px; }
 
-      .about-row {min-height: 400px; background-color: var(--almost-white); margin-bottom: 14px; padding-top: 12px;}
+      .about-row {min-height: 400px; background-color: var(--almost-white); margin-top: 36px; margin-bottom: 24px; padding-top: 34px; padding-bottom: 10px; }
       
       .about-hero { display: none; }
       .about-copy {padding: 0 20px; }
-      .section-heading { text-align: left; font-size: 26px; margin-bottom: 10px;}
+      .section-heading { text-align: left; font-size: 22px; margin-bottom: 10px;}
       .section-body { text-align: left; }
       .about-copy .section-body {
         font-size: 16px;
         line-height: 1.4;
-        margin: 0 0 12px;
+        margin: 0 0 18px;
         max-width: 560px;
+        font-size: 15px; 
       }
 
-      .people { padding: 0 20px; }
+      .people { margin-top: 24px; padding: 0 20px 60px; }
       .people-title { font-size: 22px; margin-bottom: 8px; }
       
       .tabs {border-radius: 2px; }
@@ -412,9 +413,9 @@ function socialLinks(p) {
       .hidden { display: none; }
       .unhidden {display: inline; }
 
-      .cards-container { padding: 5px; border-radius: 8px; }
-      .card { padding:10px; border-radius: 8px; position: relative; }
-      .cards-grid { grid-template-columns: 1fr; border-radius: 8px; gap: 6px; }
+      .cards-container { padding: 5px; border-radius: 6px; }
+      .card { padding:10px; border-radius: 6px; position: relative; }
+      .cards-grid { grid-template-columns: 1fr; border-radius: 6px; gap: 6px; }
       .card-photo { width: 100px; height: 130px; }
       /* leave room on the right for the vertically-stacked social icons */
       .card-headinfo { height: 135px; padding-right: 28px; }

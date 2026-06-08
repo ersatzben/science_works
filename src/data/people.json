@@ -3,7 +3,7 @@
     {
       "name": "Ben Johnson",
       "role": "Co-Director",
-      "bio": "Ben is Co-Director of Science Works. He is a former senior UK government adviser on science and R&D, having advised multiple administrations, and co-author of national-level science policies including the UK R&D Roadmap and UK Innovation Strategy. He was previously associate director at UKRI, has contributed to G7 open science frameworks, and builds data tools for research strategy. Ben is also Professor of Research and Innovation Policy at the University of Strathclyde.",
+      "bio": "Ben is Co-Director of Science Works. He is a former senior UK government adviser on science and R&D, having advised multiple administrations, and co-author of national-level science policies including the UK R&D Roadmap and UK Innovation Strategy. He was previously associate director at UK Research and Innovation. Ben is also Professor of Research and Innovation Policy at the University of Strathclyde.",
       "photo": "ben-johnson.jpg",
       "x": "ersatzben",
       "bluesky": "ersatzben.com",
@@ -43,7 +43,7 @@
     {
       "name": "Will Stone",
       "role": "Researcher",
-      "bio": "Will is a Researcher at Science Works, working on science and innovation funding reform. He was previously Senior Policy Advisor for Science and Innovation at HM Treasury, where he led a team driving innovation-led growth policy across Whitehall and allocated more than £20bn in annual budgets. His focus is on funding reform, government-institutional architecture, and strategy.",
+      "bio": "Will is Researcher at Science Works, working on science and innovation funding reform. He was previously Senior Policy Advisor for Science and Innovation at HM Treasury, where he led a team driving innovation-led growth policy across Whitehall and allocated more than £20bn in annual budgets. His focus is on funding reform, government-institutional architecture, and strategy.",
       "photo": "will-stone.jpg",
       "x": "willecstone",
       "bluesky": "",
@@ -53,7 +53,7 @@
     {
       "name": "Rory Byrne",
       "role": "Researcher",
-      "bio": "Rory is a Researcher at Science Works, working on software toolbuilding. He is an engineer and two-time founder, currently completing a PhD in computational neuroscience at Cambridge. He was previously a senior software engineer and is co-organiser of the CompMotifs ARIA Innovator Circle.",
+      "bio": "Rory is a software engineer and two-time founder, and is currently completing a PhD in computational neuroscience at Cambridge. He was previously a senior software engineer and is co-organiser of the CompMotifs ARIA Innovator Circle.",
       "photo": "rory-byrne.jpg",
       "x": "ryrobyrne",
       "bluesky": "rory.bio",
@@ -63,7 +63,7 @@
     {
       "name": "Will Bolton",
       "role": "Researcher",
-      "bio": "WWill supports Science Works’ research and software toolbuilding. As an Encode: AI for Science Fellow with Pillar VC and Oxford University, he has spent the last year researching multi-agent AI scientist systems. Previously, he obtained his PhD in artificial intelligence from Imperial College London, where he built and evaluated antibiotic decision-support software for clinicians. He also holds an MPhil in Bioscience Enterprise from the University of Cambridge.",
+      "bio": "Will is an AI scientist and software engineer. As an Encode: AI for Science Fellow with Pillar VC and Oxford University, he has spent the last year researching multi-agent AI scientist systems. Previously, he obtained his PhD in artificial intelligence from Imperial College London, where he built and evaluated antibiotic decision-support software for clinicians. He also holds an MPhil in Bioscience Enterprise from the University of Cambridge.",
       "photo": "will-bolton.jpg",
       "x": "",
       "bluesky": "",
@@ -95,7 +95,7 @@
     {
       "name": "Anastasia Bektimirova",
       "role": "Contributor",
-      "bio": "Anastasia is a policy expert, researcher, and author specialising in science, technology, and AI governance. She was previously Head of Science and Technology at the UK think tank The Entrepreneurs Network, and has since worked at the Royal Academy of Engineering in a policy delivery role.",
+      "bio": "Anastasia is a science and technology policy researcher and author specialising in emerging technologies, AI and public data infrastructure. She is a Senior Policy Advisor at the Royal Academy of Engineering, where she focuses on using AI to improve outcomes for the public. She is also an Adviser to The Entrepreneurs Network, where she was previously Head of Science and Technology.",
       "photo": "anastasia-bektimirova.jpg",
       "x": "anastasiabekt",
       "bluesky": "anastasiabekt.bsky.social",
@@ -122,20 +122,10 @@
       "linkedin": "",
       "glyph": [[6, 2, 11, 7, 5], [8, 8, null, null, 11], [null, 11, 8, null, 10], [9, 10, null, null, 8], [3, null, 1, null, 2]]
     },
-    {
-      "name": "Lydia Farnham",
-      "role": "Contributor",
-      "bio": "Lydia is Chief Technology Officer at Asothia, a startup building a platform matching researchers to funding and automating grant writing. She is also social and events curator at the Pharos Foundation, building community and connecting people across disciplines. Her background is in atmospheric chemistry and climate technology, and her interests lie at the intersection of scientific research, technology, and the systems that help researchers do their best work.",
-      "photo": "lydia-farnham.jpg",
-      "x": "",
-      "bluesky": "",
-      "linkedin": "https://www.linkedin.com/in/lydia-farnham/",
-      "glyph": [[0, 10, 0, 4, 0], [7, 1, null, null, null], [8, 2, 3, null, 2], [9, 9, 4, 0, 6], [8, 1, 8, null, 0]]
-    },
-    {
+   {
       "name": "Eric Gilliam",
       "role": "Contributor",
-      "bio": "Eric runs FreakTakes, a Substack focused on the organisational infrastructure of scientific progress, producing ‘administrative histories’ of historically exceptional R&D organisations such as Bell Labs, early MIT, the Rockefeller Foundation, and DARPA. His work explores what made these labs unusually effective and what it would take to build their modern equivalents. Eric is a Fellow at the Good Science Project and works with ARIA UK and Renaissance Philanthropy on new R&D models. He has a degree in political science from Stanford and previously worked with economist Steve Levitt at the University of Chicago, where he developed his interest in the empirical literature on the economics of science and innovation.",
+      "bio": "Eric runs FreakTakes, a Substack focused on the organisational infrastructure of scientific progress, producing ‘administrative histories’ of historically exceptional R&D organisations such as Bell Labs, early MIT, the Rockefeller Foundation, and DARPA – and what it would take to build their modern equivalents. Eric is a Fellow at the Good Science Project and works with ARIA and Renaissance Philanthropy on new R&D models. He has a degree in political science from Stanford University.",
       "photo": "eric-gilliam.jpg",
       "x": "eric_is_weird",
       "bluesky": "",
@@ -145,7 +135,7 @@
     {
       "name": "Hope Bretscher",
       "role": "Contributor",
-      "bio": "Hope is a physicist and researcher specialising in experimental condensed matter, low-energy physics, and ultrafast optoelectronics. She is a postdoctoral researcher at the Max Planck Institute for the Structure and Dynamics of Matter in Germany, and is establishing the Integrated Quantum Materials lab at Boston College.",
+      "bio": "Hope is Assistant Professor of Physics at Boston College, where she leads the Integrated Quantum Materials Lab. She is a Marshall Scholar and Cambridge PhD. Her research focuses on understanding and controlling the properties of quantum materials, with a parallel interest in research norms, dark data, and the use of AI in science.",
       "photo": "hope-bretscher.jpg",
       "x": "HopeLouiseB",
       "bluesky": "hope-ful.bsky.social",
@@ -155,7 +145,7 @@
     {
       "name": "Jennie Palmer",
       "role": "Contributor",
-      "bio": "Jennie is a PhD student at the Cambridge Institute for Medical Research (CIMR) and the UK Dementia Research Institute (UK DRI). Her research investigates the interplay between autophagy and neurodegeneration, combining cell biology, molecular biology and biochemistry to explore the molecular mechanisms of neurodegenerative diseases and potential therapeutic avenues. She also contributes to widening participation in science through public engagement and outreach activities.",
+      "bio": "Jennie is a PhD student at the Cambridge Institute for Medical Research (CIMR) and the UK Dementia Research Institute (UK DRI).",
       "photo": "jennie-palmer.jpg",
       "x": "",
       "bluesky": "jenniferepalmer.bsky.social",
@@ -165,8 +155,8 @@
     {
       "name": "Sehaj Pasricha",
       "role": "Contributor",
-      "bio": "Sehaj works with Not Boring, the media and venture studio founded by Packy McCormick, where he helped build Boring News, a Polymarket-sponsored project that turns prediction-market data into daily news analysis. His own work sits at the intersection of machine intelligence and computer systems, with a long-term interest in hardware. He is also building Wayfarers Space, a community for autodidacts learning across disciplines.",
-      "photo": "",
+      "bio": "Sehaj works with Not Boring, the media and venture studio founded by Packy McCormick, where he helped build Boring News, a Polymarket-sponsored project that turns prediction-market data into daily news analysis.",
+      "photo": "sehaj-pasricha.jpg",
       "x": "",
       "bluesky": "",
       "linkedin": "",
@@ -219,7 +209,7 @@
     {
       "name": "Rob Miller",
       "role": "Director, Whittle Laboratory, Cambridge",
-      "bio": "Rob is Professor of Aerothermal Technology and Director of the Whittle Laboratory at the University of Cambridge, and Director of the Rolls-Royce University Technology Centre. His research targets emissions in aviation and power generation. His pioneering work on Rapid Technology Development has cut R&D timelines from years to months, and he is leading a new Whittle Laboratory to accelerate the journey from research to engineering application. Rob founded the Aviation Impact Accelerator, which develops evidence-based tools for net zero aviation. He is a Fellow of the Royal Academy of Engineering and serves on the Department for Transport’s Science Advisory Council.",
+      "bio": "Rob is Professor of Aerothermal Technology and Director of the Whittle Laboratory at the University of Cambridge, and Director of the Rolls-Royce University Technology Centre. His research targets emissions in aviation and power generation. Rob is a Fellow of the Royal Academy of Engineering and serves on the Department for Transport’s Science Advisory Council.",
       "photo": "rob-miller.jpg",
       "x": "",
       "bluesky": "",
@@ -229,7 +219,7 @@
     {
       "name": "Tom Kalil",
       "role": "CEO, Renaissance Philanthropy",
-      "bio": "Tom is CEO of Renaissance Philanthropy. He previously led innovation at Schmidt Futures. Tom served in the White House under Presidents Obama and Clinton, helping design and launch major science and technology initiatives, including the National Nanotechnology Initiative, the BRAIN Initiative, the Next Generation Internet, and programmes in data science, robotics, commercial space, and advanced materials. His team worked with the Senate to give every federal agency authority to support incentive prizes of up to $50 million. From 2001 to 2008, he was Special Assistant to the Chancellor for Science and Technology at UC Berkeley, where he launched Big Ideas@Berkeley.",
+      "bio": "Tom is CEO of Renaissance Philanthropy. He served in the White House under Presidents Obama and Clinton, helping design and launch major science and technology initiatives, including the National Nanotechnology Initiative, the BRAIN Initiative, the Next Generation Internet, and programmes in data science, robotics, commercial space, and advanced materials. From 2001 to 2008, he was Special Assistant to the Chancellor for Science and Technology at UC Berkeley, where he launched Big Ideas@Berkeley.",
       "photo": "tom-kalil.jpg",
       "x": "tkalil2050",
       "bluesky": "",
@@ -239,7 +229,7 @@
     {
       "name": "David Willetts",
       "role": "Chair, Resolution Foundation",
-      "bio": "Bio coming soon.",
+      "bio": "The Rt Hon Lord Willetts FRS is the President of the Resolution Foundation, and Chair of the UK Government's Regulatory Innovation Office. He is a visiting Professor at King’s College London and Chair of the Foundation for Science and Technology. He served as the Member of Parliament for Havant (1992-2015), as Minister for Universities and Science (2010-2014) and previously worked at HM Treasury and the No. 10 Policy Unit. Lord Willetts has written widely on economic and social policy.",
       "photo": "david-willetts.jpg",
       "x": "",
       "bluesky": "",
@@ -259,7 +249,7 @@
     {
       "name": "James Wilsdon",
       "role": "Director, Research on Research Institute",
-      "bio": "James is Executive Director of the Research on Research Institute (RoRI), and Professor of Research Policy at UCL’s Department of Science, Technology, Engineering and Public Policy (STEaPP). RoRI’s consortium spans 15 countries and includes funders investing over $25 billion in R&D each year. A transdisciplinary social scientist, James has been active in UK and international science policy since the late 1990s, with academic posts at Sheffield, Sussex and Lancaster, and roles including Director of Science Policy at the Royal Society. He chaired the 2015 review of research metrics published as The Metric Tide.",
+      "bio": "James is Executive Director of the Research on Research Institute (RoRI), and Professor of Research Policy at UCL’s Department of Science, Technology, Engineering and Public Policy (STEaPP). A transdisciplinary social scientist, James has been active in UK and international science policy since the late 1990s, with academic posts at Sheffield, Sussex and Lancaster, and roles including Director of Science Policy at the Royal Society. He chaired the 2015 review of research metrics published as The Metric Tide.",
       "photo": "james-wilsdon.jpg",
       "x": "",
       "bluesky": "jameswilsdon.bsky.social",
@@ -289,7 +279,7 @@
     {
       "name": "Stuart Buck",
       "role": "Executive Director, Good Science Project",
-      "bio": "Stuart is Executive Director of the Good Science Project, a non-profit think tank dedicated to making federal science funding more innovative and streamlined. He has spearheaded over $60 million in grants to improve scientific reproducibility and transparency, and previously served as Vice President of Research at Arnold Ventures.",
+      "bio": "Stuart is Executive Director of the Good Science Project, a non-profit think tank dedicated to making federal science funding more innovative and streamlined. He previously served as Vice President of Research at Arnold Ventures.",
       "photo": "stuart-buck.jpg",
       "x": "stuartbuck1",
       "bluesky": "stuartbuck.bsky.social",
@@ -299,7 +289,7 @@
     {
       "name": "Benedict Macon-Cooney",
       "role": "Chief AI & Innovation Officer, TBI",
-      "bio": "Benedict is Chief AI & Innovation Officer at the Tony Blair Institute for Global Change, where he leads policy work across technology, the economy, climate, health, and geopolitics. His focus is on AI policy and how governments adapt to fast-moving technology. He began his career as an economist at HM Treasury during the financial crisis, before working in finance, in a Prime Minister’s Office in Southeast Asia and in President Kagame’s Office in Rwanda. Benedict led the influential New National Purpose report series, co-authored with Tony Blair and Lord Hague, and writes extensively on artificial intelligence, biotechnology and clean technology.",
+      "bio": "Benedict is Chief AI & Innovation Officer at the Tony Blair Institute for Global Change, where he leads policy work across technology, the economy, climate, health, and geopolitics. He is an expert in economic and technology policy, with a special emphasis on artificial intelligence, biotech and clean tech. Prior to joining TBI in 2013, Ben worked for HM Treasury on its response to the 2008 global financial crisis.",
       "photo": "benedict-macon-cooney.jpg",
       "x": "benedictcooney",
       "bluesky": "",
@@ -339,7 +329,7 @@
     {
       "name": "Jacqueline Campbell",
       "role": "Co-Founder, Asterisk Labs",
-      "bio": "Jacqueline is a Schmidt Science Fellow and interdisciplinary scientist with an unconventional career path. After years as a tube driver and social care worker, she took evening classes in astrophysics and earned a First-Class BSc in Earth and Ocean Science from Brighton. Her UCL PhD in Space and Climate Physics searched for life on Mars. As a Schmidt Fellow at Oxford, she investigated ocean acidification using remote sensing satellites, then worked in drug discovery and science entrepreneurship startups. She co-founded Asterisk Labs, the UK’s first worker-owned co-operative research laboratory, combining deep learning, Earth observation and climate science with open-source outputs.",
+      "bio": "Jacqueline is co-founder and partner at Asterisk Labs, the UK’s first worker-owned co-operative research laboratory, combining deep learning, Earth observation and climate science with open-source outputs.",
       "photo": "jacqueline-campbell.jpg",
       "x": "",
       "bluesky": "",
