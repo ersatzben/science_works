@@ -1,0 +1,47 @@
+---
+// Highlighted summary box for essays. Distinct background (matches the
+// collapsible box), grey border, rounded corners. Contents are authored in
+// markdown — keep a blank line above and below so MDX parses the children:
+//
+//   import Summary from '../../components/Summary.astro';
+//
+//   <Summary>
+//
+//   ...markdown...
+//
+//   </Summary>
+//
+// Tune the look in the <style is:global> block below.
+---
+<div class="summary"><slot /></div>
+
+<style is:global>
+  .summary {
+    background: #fcf7f3;                    /* matches the collapsible box (--panel-bg) */
+    border: 1px solid var(--border-grey);
+    border-radius: 4px;
+    padding: 18px 22px;
+    margin: 28px 0 60px;
+    /* −2px on all text in the box. Body copy (p, li, blockquote, inline) has no
+       explicit size, so it inherits this reduced base — and `1em` tracks the
+       responsive prose base (17px desktop / 16px mobile → 15 / 14). The two
+       heading sizes are set absolutely by .prose, so they're reduced below. */
+    font-size: calc(1em - 2px);
+  }
+  /* Headings: prose sets these absolutely, so re-state them −2px. The `.prose`
+     prefix lifts specificity above the base `.prose h2/h3` rules. */
+  .prose .summary h2 { font-size: 25px; }   /* 27 − 2 */
+  .prose .summary h3 { font-size: 17px; }   /* 19 − 2 */
+  @media (max-width: 1080px) {
+    .prose .summary h2 { font-size: 22px; } /* 24 − 2 (h3 is 19 → 17 on both) */
+  }
+  /* Compact unordered lists in a summary: tighter item spacing + a very much
+     reduced indent (the `.prose` prefix beats the essay-wide mobile rule). */
+  .prose .summary ul { padding-left: 14px; }
+  .summary ul li { line-height: 1.5; margin-bottom: 2px; }   /* was prose 1.72 */
+  .summary ul li > p { margin-bottom: 12px; }                 /* loose-list items */
+
+  /* Trim the inner copy's outer margins so the padding reads evenly. */
+  .summary > :first-child { margin-top: 0; }
+  .summary > :last-child { margin-bottom: 0; }
+</style>

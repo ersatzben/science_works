@@ -1,7 +1,16 @@
 ---
 const { src, caption, alt } = Astro.props;
+// Captions may contain inline HTML (e.g. a source <a>…</a>), rendered via
+// set:html. Author inner attributes with single quotes, e.g.
+// caption="… <a href='…'>NIH</a>". Links get target/rel added below so they
+// match the article's "external links open in a new tab" behaviour (the rehype
+// plugin only sees markdown, not these raw-HTML captions). alt strips all tags.
+const captionText = typeof caption === 'string' ? caption.replace(/<[^>]*>/g, '') : caption;
+const captionHtml = typeof caption === 'string'
+  ? caption.replace(/<a (?![^>]*\btarget=)/g, '<a target="_blank" rel="noopener noreferrer" ')
+  : caption;
 ---
 <figure class="essay-figure">
-  <img src={src} alt={alt ?? caption ?? ''} loading="lazy" />
-  {caption && <figcaption>{caption}</figcaption>}
+  <img src={src} alt={alt ?? captionText ?? ''} loading="lazy" />
+  {caption && <figcaption set:html={captionHtml}></figcaption>}
 </figure>

@@ -1,0 +1,13 @@
+---
+// One reading path inside a <PathSplit>. `heading` + `sub` label both the
+// tab button (built client-side) and the inline header shown for print / no-JS.
+// Children are full MDX — headings, images, footnotes, <details> boxes, etc.
+const { heading, sub } = Astro.props;
+---
+<section class="path-panel" data-path-panel data-heading={heading} data-sub={sub}>
+  <header class="path-panel-head">
+    <span class="path-panel-heading">{heading}</span>
+    {sub && <span class="path-panel-sub">{sub}</span>}
+  </header>
+  <div class="path-panel-body"><slot /></div>
+</section>

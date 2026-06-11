@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import remarkTocAlias from './src/plugins/remark-toc-alias.mjs';
+import rehypeExternalLinks from './src/plugins/rehype-external-links.mjs';
 
 import sitemap from '@astrojs/sitemap';
 
@@ -22,6 +23,7 @@ export default defineConfig({
     '/aria': '/',
   },
   markdown: {
-    remarkPlugins: [remarkTocAlias],   // [[TOC: Short]] heading aliases (also inherited by MDX)
+    remarkPlugins: [remarkTocAlias],            // [[TOC: Short]] heading aliases (also inherited by MDX)
+    rehypePlugins: [rehypeExternalLinks],       // external links open in a new tab (inherited by MDX)
   },
 });

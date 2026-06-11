@@ -216,23 +216,43 @@ const jsonLd = {
 
     /* Collapsible aside (banked pattern — not currently used in the markup):
        header bar with +/- toggle, --bg-secondary panel. */
-    .collapsible { margin: 28px 0; }
+    /* Breakout callout. It bleeds `--pad` past the prose on each side (negative
+       horizontal margins) while its inner padding is the same `--pad`, so the
+       CONTENT lines back up exactly with the prose column — raise --pad to widen
+       the box and the text stays put. The +1px offsets the head/body border so
+       the alignment is pixel-exact. Vertical margins (28px) still collapse with
+       the neighbouring paragraph/heading margins; that's expected. Left bleed
+       lives in the 44px column gap (keep --pad ≲ ~40px before it reaches the
+       rail); right bleed lives in the 240px sidenote gutter. */
+    .collapsible {
+      --pad: 14px;
+      --panel-bg: #fcf7f3;   /* midpoint of --bg-secondary (#f9f3ee) and --almost-white (#fffbf7) */
+      margin: 28px calc(-1 * (var(--pad) + 1px));
+    }
     .collapsible-head {
+      box-sizing: border-box;
+      min-height: 50px;            /* 50px bar for short titles; grows when one wraps */
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      background: var(--bg-secondary);
+      background: var(--panel-bg);
       border: 1px solid var(--border-grey);
       border-radius: 6px;
-      padding: 12px 18px;
+      padding: 9px var(--pad);     /* vertical padding gives wrapped titles room */
       cursor: pointer;
       list-style: none;
       font-family: 'Antique Olive', sans-serif;
       font-weight: 700;
       font-size: 15px;
+      line-height: 1.3;            /* tighter than prose, for multi-line titles */
       color: var(--text);
     }
+    /* Head text authored as a paragraph inherits `.prose p`'s 24px bottom
+       margin. The `.prose` prefix lifts specificity above `.prose p` (equal
+       otherwise, and it loses on source order) so the reset actually wins —
+       without it the bottom margin pushes the text up off the bar's centre. */
+    .prose .collapsible-head p { margin: 0; }
     .collapsible-head::-webkit-details-marker { display: none; }
     .collapsible-icon {
       flex: 0 0 auto;
@@ -251,8 +271,8 @@ const jsonLd = {
       border: 1px solid var(--border-grey);
       border-top: none;
       border-radius: 0 0 6px 6px;
-      background: var(--bg-secondary);   /* marks the expanded region */
-      padding: 20px 22px;
+      background: var(--panel-bg);   /* marks the expanded region */
+      padding: 20px calc(var(--pad) + 10px) 20px var(--pad);   /* +10px right so text breathes before the border */
     }
     .collapsible-body > p:last-child { margin-bottom: 0; }
 
@@ -669,6 +689,9 @@ const jsonLd = {
         margin-right: calc(50% - 50vw);
       }
       .reading-main { padding-right: 0; margin-bottom: 40px; }
+      /* No gutter/rail to bleed into here — keep the callout inside the column
+         (text is then inset by --pad, as a normal mobile callout). */
+      .collapsible { margin-left: 0; margin-right: 0; }
       .article-head { max-width: 720px; }
       .title-block { padding-left: 0; }
       /* Footnotes become tap-to-expand: marker is a chip, note hidden until tapped */
@@ -713,6 +736,7 @@ const jsonLd = {
       .prose { font-size: 16px; }
       .prose h2 { font-size: 24px; }
       .prose h3 { font-size: 19px; }
+      .prose ul { padding-left: 20px; }   /* much-reduced indent on mobile (UA default ~40px) */
 
       .essay-foot { padding: 0 0px 96px; }
       .writer {
@@ -804,27 +828,38 @@ const jsonLd = {
         return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
           .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
       };
-      const items = Array.prototype.slice.call(prose.querySelectorAll('h2')).map(function (h, i) {
-        if (!h.id) h.id = 'sec-' + (slug(h.textContent) || i);
-        const label = h.getAttribute('data-toc') || h.textContent;  // short alias if given
-        const a = document.createElement('a');
-        a.href = '#' + h.id;
-        a.textContent = label;
-        a.className = 'toc-link';
-        toc.appendChild(a);
-        let m = null;
-        if (mlist) {
-          m = document.createElement('a');
-          m.href = '#' + h.id;
-          m.className = 'mtoc-item';
-          const dot = document.createElement('span'); dot.className = 'mtoc-dot';
-          const lab = document.createElement('span'); lab.className = 'mtoc-label'; lab.textContent = label;
-          m.appendChild(dot); m.appendChild(lab);
-          m.addEventListener('click', closeMtoc);
-          mlist.appendChild(m);
-        }
-        return { a: a, h: h, m: m, label: label };
-      });
+      // Rebuildable so a <PathSplit> can refresh the rail when the reader
+      // switches paths: headings inside a hidden panel have no client rects, so
+      // the filter keeps the TOC faithful to whichever section is showing.
+      let items = [];
+      function buildToc() {
+        toc.innerHTML = '';
+        if (mlist) mlist.innerHTML = '';
+        items = Array.prototype.slice.call(prose.querySelectorAll('h2'))
+          .filter(function (h) { return h.getClientRects().length > 0; })
+          .map(function (h, i) {
+            if (!h.id) h.id = 'sec-' + (slug(h.textContent) || i);
+            const label = h.getAttribute('data-toc') || h.textContent;  // short alias if given
+            const a = document.createElement('a');
+            a.href = '#' + h.id;
+            a.textContent = label;
+            a.className = 'toc-link';
+            toc.appendChild(a);
+            let m = null;
+            if (mlist) {
+              m = document.createElement('a');
+              m.href = '#' + h.id;
+              m.className = 'mtoc-item';
+              const dot = document.createElement('span'); dot.className = 'mtoc-dot';
+              const lab = document.createElement('span'); lab.className = 'mtoc-label'; lab.textContent = label;
+              m.appendChild(dot); m.appendChild(lab);
+              m.addEventListener('click', closeMtoc);
+              mlist.appendChild(m);
+            }
+            return { a: a, h: h, m: m, label: label };
+          });
+      }
+      buildToc();
 
       // Progress cells: enough tightly-packed cells to span the TOC height,
       // recomputed on resize / once webfonts settle so they always line up.
@@ -871,6 +906,12 @@ const jsonLd = {
         document.fonts.ready.then(function () { buildCells(); update(); });
       }
       update();
+
+      // A <PathSplit> switching paths changes which headings are visible —
+      // rebuild the rail (and its progress cells) so it follows the section.
+      document.addEventListener('pathsplit:change', function () {
+        buildToc(); buildCells(); update();
+      });
     })();
 
     (function () {
@@ -901,6 +942,29 @@ const jsonLd = {
           track.scrollBy({ left: dir * track.clientWidth, behavior: 'smooth' });
         });
       });
+    })();
+
+    // Expand every collapsible while printing (a closed <details> hides its
+    // body, which CSS can't reliably force open), then restore screen state.
+    (function () {
+      let opened = [];
+      function expand() {
+        opened = [];
+        document.querySelectorAll('details.collapsible:not([open])').forEach(function (d) {
+          d.open = true;
+          opened.push(d);
+        });
+      }
+      function restore() {
+        opened.forEach(function (d) { d.open = false; });
+        opened = [];
+      }
+      window.addEventListener('beforeprint', expand);
+      window.addEventListener('afterprint', restore);
+      const mq = window.matchMedia && window.matchMedia('print');
+      if (mq && mq.addEventListener) {
+        mq.addEventListener('change', function (e) { e.matches ? expand() : restore(); });
+      }
     })();
   </script>
 </BaseLayout>

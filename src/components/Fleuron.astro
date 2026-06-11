@@ -1,0 +1,52 @@
+---
+// Decorative fleuron — a small colour mosaic glyph dropped between essay
+// sections. Same art system as the About-page glyphs: each file in
+// src/data/fleurons/*.json is a {cols, rows, palette, grid} mosaic, rendered as
+// a centred grid of coloured cells. Purely decorative (aria-hidden).
+//
+// Usage (in MDX):
+//   import Fleuron from '../../components/Fleuron.astro';
+//   <Fleuron />                  → the default ornament
+//   <Fleuron variant="leaf" />   → src/data/fleurons/leaf.json
+//   <Fleuron size={8} />         → larger cells (px); default 3.75
+import { paletteGridToBitmap } from '../lib/bitmap.js';
+
+const modules = import.meta.glob('../data/fleurons/*.json', { eager: true });
+const fleurons = {};
+for (const [path, mod] of Object.entries(modules)) {
+  const slug = path.split('/').pop().replace(/\.json$/, '');
+  const data = mod.default ?? mod;
+  fleurons[slug] = (data.grid && data.palette) ? paletteGridToBitmap(data) : data;
+}
+
+const { variant = 'default', size = 3.75 } = Astro.props;
+const bmp = fleurons[variant] ?? fleurons['default'] ?? Object.values(fleurons)[0];
+---
+{bmp && (
+  <div class="fleuron" aria-hidden="true">
+    <div class="fleuron-grid" style={`--fl-cols:${bmp.cols}; --fl-cell:${size}px;`}>
+      {bmp.cells.map((hex) => (
+        <span class="fleuron-cell" style={hex ? `background:${hex}` : undefined}></span>
+      ))}
+    </div>
+  </div>
+)}
+
+<style>
+  .fleuron {
+    display: flex;
+    justify-content: center;
+    margin: 60px 0;
+  }
+  .fleuron-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--fl-cols), var(--fl-cell));
+    grid-auto-rows: var(--fl-cell);
+    gap: calc(var(--fl-cell) * 0.15);   /* proportional to cell size */
+  }
+  .fleuron-cell {
+    width: var(--fl-cell);
+    height: var(--fl-cell);
+    border-radius: 1px;
+  }
+</style>

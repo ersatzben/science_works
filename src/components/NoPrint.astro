@@ -1,0 +1,20 @@
+---
+// Essay content that shows normally on screen but is omitted from the printed
+// page. Contents are authored in markdown — keep a blank line above and below
+// so MDX parses the children as markdown:
+//
+//   import NoPrint from '../../components/NoPrint.astro';
+//
+//   <NoPrint>
+//
+//   This paragraph appears on screen but not in print. **Markdown** works.
+//
+//   </NoPrint>
+---
+<div class="no-print"><slot /></div>
+
+<style is:global>
+  @media print {
+    .no-print { display: none !important; }
+  }
+</style>

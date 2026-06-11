@@ -91,10 +91,7 @@ const orgJsonLd = {
           <div class="matrix-bg" aria-hidden="true"></div>
           <div id="matrix" class="matrix" role="img" aria-label="Science Works dot-matrix field"></div>
           <div class="hero-backing" aria-hidden="true"></div>
-          <div class="hero-box">
-            <div class="line-1">Reshaping the British</div>
-            <div class="line-2">Research System</div>
-          </div>
+          <div class="hero-box-pic"></div>
         </div>
       </div>
     </div>
@@ -511,47 +508,18 @@ const orgJsonLd = {
       mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='9'%3E%3Crect width='8' height='8' rx='1' fill='%23fff'/%3E%3C/svg%3E") 1px 0 / 9px 9px repeat;
     }
 
-      .hero-box {
+    .hero-box-pic {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      /* Extend beyond the four-block gap it sits in; still centred via the
-         top/left 50% + translate(-50%, -50%) above. 16px smaller on every side
-         than the .hero-backing panel, so the backing shows as a frame around it. */
-      width: calc(var(--hero-w) - 77px);   /* 56px narrower than the grid span, as before; framing refined in the background pass */
+      width: calc(var(--hero-w) - 77px);
       height: calc(var(--hero-h) - 2px);
-      background-color: var(--almost-white);  /* shows through the 1px gaps between tiles */
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 0 50px;
-      box-sizing: border-box;
-      font-family: 'Copperplate', serif;
-      font-weight: 700;
-      font-size: 42px;
-      line-height: 1.25;
-      letter-spacing: 0;
-      text-align: center;
       z-index: 10;
       pointer-events: none;
+      /* cover: keep proportions, crop the slight overflow (no stretch). */
+      background: url('/assets/images/hero-box-pic.jpg') center / cover no-repeat;
     }
-    /* Tiled hero-box background: 8px #faf3f0 squares (1px gap, 1px radius) over
-       the --almost-white base. Same masked-::before trick as .stage; the box's
-       z-index:10 already makes a stacking context, so z-index:-1 sits above this
-       background but behind the heading/buttons. */
-    .hero-box::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: -1;
-      pointer-events: none;
-      background-color: #faf3f0;
-      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='9'%3E%3Crect width='8' height='8' rx='1' fill='%23fff'/%3E%3C/svg%3E") top left / 9px 9px repeat;
-      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='9'%3E%3Crect width='8' height='8' rx='1' fill='%23fff'/%3E%3C/svg%3E") top left / 9px 9px repeat;
-    }
-    /* .hero-box .line-2 { font-size: 0.9em; } */
 
     /* Hero buttons, side by side under the text. */
     .hero-actions {

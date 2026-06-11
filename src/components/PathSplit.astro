@@ -1,0 +1,233 @@
+---
+// Non-linear reading split. Wraps two (or more) <Path> children; renders a
+// guidance caption + a tablist, and shows one path at a time. Both paths are
+// always server-rendered — hidden paths are only display:none'd once JS
+// enhances the region — so print and no-JS see the whole essay, stacked.
+//
+// Authoring (in MDX):
+//   import PathSplit from '../../components/PathSplit.astro';
+//   import Path from '../../components/Path.astro';
+//   <PathSplit caption="…choose your path">
+//     <Path heading="Section A" sub="Non-linear Invention"> …markdown… </Path>
+//     <Path heading="Section B" sub="Non-linear Economy">  …markdown… </Path>
+//   </PathSplit>
+const { caption } = Astro.props;
+---
+<div class="path-split" data-path-split>
+  {caption && <p class="path-caption">{caption}</p>}
+  <div class="path-tabs" role="tablist" aria-label="Choose a reading path" hidden></div>
+  <div class="path-panels"><slot /></div>
+
+  <script is:inline>
+    // Per-instance, runs at parse time (so the inactive panel is hidden before
+    // paint — no flash). Builds the tablist + "continue" buttons from the
+    // panels' data-heading/sub, then shows path 1. Without JS none of this
+    // runs and every panel stays visible (see the print/no-JS CSS below).
+    (function () {
+      var script = document.currentScript;
+      var root = script.closest('[data-path-split]');
+      if (!root || root.hasAttribute('data-enhanced')) return;
+      var panels = Array.prototype.slice.call(root.querySelectorAll('[data-path-panel]'));
+      if (panels.length < 2) return;
+      var tablist = root.querySelector('.path-tabs');
+      var base = 'ps' + document.querySelectorAll('[data-path-split]').length;
+
+      var tabs = panels.map(function (panel, i) {
+        if (!panel.id) panel.id = base + '-panel-' + i;
+        panel.setAttribute('role', 'tabpanel');
+        panel.setAttribute('tabindex', '0');
+
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'path-tab';
+        btn.id = base + '-tab-' + i;
+        btn.setAttribute('role', 'tab');
+        btn.setAttribute('aria-controls', panel.id);
+        panel.setAttribute('aria-labelledby', btn.id);
+
+        var h = document.createElement('span');
+        h.className = 'path-tab-heading';
+        h.textContent = panel.getAttribute('data-heading') || '';
+        var s = document.createElement('span');
+        s.className = 'path-tab-sub';
+        s.textContent = panel.getAttribute('data-sub') || '';
+        btn.appendChild(h);
+        btn.appendChild(s);
+
+        btn.addEventListener('click', function () { activate(i, true); });
+        btn.addEventListener('keydown', function (e) {
+          var n = null;
+          if (e.key === 'ArrowRight' || e.key === 'ArrowDown') n = (i + 1) % panels.length;
+          else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') n = (i - 1 + panels.length) % panels.length;
+          else if (e.key === 'Home') n = 0;
+          else if (e.key === 'End') n = panels.length - 1;
+          if (n !== null) { e.preventDefault(); activate(n, true); }
+        });
+        tablist.appendChild(btn);
+        return btn;
+      });
+
+      // "Continue reading <next> →" at the foot of every panel; the last loops
+      // back to the first (so a two-section split cross-links A↔B).
+      panels.forEach(function (panel, i) {
+        var nextIdx = (i + 1) % panels.length;
+        var next = panels[nextIdx];
+        var cont = document.createElement('button');
+        cont.type = 'button';
+        cont.className = 'path-continue';
+        cont.textContent = 'Continue reading ' + (next.getAttribute('data-heading') || 'the next section') + ' →';
+        cont.addEventListener('click', function () {
+          activate(nextIdx, true);
+          try { root.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+          catch (_) { root.scrollIntoView(); }
+        });
+        (panel.querySelector('.path-panel-body') || panel).appendChild(cont);
+      });
+
+      function activate(idx, focusTab) {
+        panels.forEach(function (panel, i) {
+          var on = i === idx;
+          panel.hidden = !on;
+          tabs[i].classList.toggle('is-active', on);
+          tabs[i].setAttribute('aria-selected', on ? 'true' : 'false');
+          tabs[i].setAttribute('tabindex', on ? '0' : '-1');
+        });
+        if (focusTab && tabs[idx]) tabs[idx].focus({ preventScroll: true });
+        // Let the reading rail rebuild its TOC for the now-visible section.
+        document.dispatchEvent(new CustomEvent('pathsplit:change'));
+      }
+
+      tablist.hidden = false;
+      root.setAttribute('data-enhanced', '');
+      activate(0, false);   // first path shown by default
+    })();
+  </script>
+</div>
+
+<style is:global>
+  .path-split { margin: 44px 0; scroll-margin-top: 72px; }
+
+  .path-caption {
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text);
+    opacity: 0.72;
+    text-align: center;
+    max-width: 560px;
+    margin: 0 auto 40px;
+  }
+
+  /* Tablist — built client-side, hidden until enhanced. */
+  .path-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 50px;
+    margin: 0 0 30px;
+  }
+  .path-tabs[hidden] { display: none; }
+  .path-tab {
+    position: relative;            /* anchor for the inner-side bracket pseudo */
+    isolation: isolate;            /* stacking context so the bracket's z-index:-1
+                                      sits above the tab bg but below the text */
+    overflow: visible;             /* let the bracket extend into the gap */
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: left;
+    padding: 14px 0;
+    border: none;
+    border-bottom: 2px solid var(--border-grey);
+    border-radius: 0px;
+    background: var(--bg-secondary);
+    color: var(--text);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  }
+  .path-tab:hover { border-color: var(--theme); }
+  .path-tab.is-active {
+    border-color: var(--theme);
+    background: var(--bg);
+    /* box-shadow: inset 0 0 0 1px var(--theme); */
+  }
+  .path-tab-heading {
+    font-family: 'Copperplate', serif;
+    font-size: 17px;
+    letter-spacing: 0.02em;
+    color: var(--text);
+  }
+  .path-tab-sub {
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    color: var(--theme);
+  }
+  /* Unselected tab: subtitle drops to --text (active keeps --theme). */
+  .path-tab:not(.is-active) .path-tab-sub { color: var(--text); }
+
+  /* Inner-side bracket on the UNSELECTED tab: its bottom border curves up — with
+     a rounded corner — into a vertical border on the side facing the central
+     gap, sitting out in the gap so the text stays put. The selected tab keeps
+     its straight bottom underline (drawn by the element's own border-bottom).
+     The unselected element's own bottom border is made transparent so the
+     pseudo owns the line and there's no double-stroke. */
+  .path-tab:not(.is-active) { border-bottom-color: transparent; }
+  .path-tab:not(.is-active)::after {
+    content: '';
+    position: absolute;
+    top: 0;                        /* full height → continuous fill, no step at the top */
+    bottom: -2px;                  /* drop to the element's border-box bottom */
+    background: var(--bg-secondary);   /* fill the extension to match the tab */
+    z-index: -1;                       /* behind the text, above the tab bg */
+    border-bottom: 2px solid var(--border-grey);
+    pointer-events: none;
+  }
+  /* Left tab unselected → bracket on its right (inner) side. */
+  .path-tab:first-child:not(.is-active)::after {
+    left: 0;
+    right: -24px;
+    border-right: 2px solid var(--border-grey);
+    border-bottom-right-radius: 14px;
+  }
+  /* Right tab unselected → bracket on its left (inner) side. */
+  .path-tab:last-child:not(.is-active)::after {
+    left: -24px;
+    right: 0;
+    border-left: 2px solid var(--border-grey);
+    border-bottom-left-radius: 14px;
+  }
+
+  /* Inline header inside each panel — the print / no-JS label, hidden once the
+     tablist takes over. */
+  .path-panel-head { display: flex; flex-direction: column; gap: 4px; margin: 0 0 18px; }
+  .path-panel-heading { font-family: 'Copperplate', serif; font-size: 22px; letter-spacing: 0.02em; color: var(--text); }
+  .path-panel-sub { font-family: 'Roboto', sans-serif; font-size: 15px; color: var(--theme); }
+  [data-path-split][data-enhanced] .path-panel-head { display: none; }
+
+  .path-panel[hidden] { display: none; }
+
+  /* "Continue reading …" CTA at the foot of a path. */
+  .path-continue {
+    display: flex;
+    width: fit-content;        /* shrink-wrap, then auto margins centre it */
+    align-items: center;
+    gap: 8px;
+    margin: 18px auto 0;       /* centred in the reading column */
+    padding: 12px 22px;
+    border: 1px solid var(--theme);
+    border-radius: 6px;
+    background: var(--theme);
+    color: #fff;
+    font-family: 'Roboto', sans-serif;
+    font-size: 15px;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+  }
+  .path-continue:hover { opacity: 0.88; }
+
+  /* Print + no-JS: show the whole essay (A then B), drop all the chrome. */
+  @media print {
+    .path-caption, .path-tabs, .path-continue { display: none !important; }
+    .path-panel[hidden] { display: block !important; }
+    [data-path-split][data-enhanced] .path-panel-head { display: flex !important; }
+  }
+</style>
