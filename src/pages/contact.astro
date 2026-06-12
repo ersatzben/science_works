@@ -459,7 +459,7 @@ const cartCell = (ch, m) => {
         }
       }
       function repaintMosaic() { for (let i = 0; i < N; i++) cells[i].style.background = PAL[data[i]] || PAL[0]; }
-      if (location.hash.length > 1 && /^[0-9a-f]+$/i.test(location.hash.slice(1))) load(location.hash.slice(1));
+      if (location.hash.length > 1 && /^[0-9a-z]+$/i.test(location.hash.slice(1))) load(location.hash.slice(1));   // base-36 alphabet
 
       const form = document.getElementById('mk-form');
       const statusEl = document.getElementById('mk-status');
