@@ -252,8 +252,14 @@ const cartCell = (ch, m) => {
     /* Snake: start/over overlay + score readout */
     .mk-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 10px; background: rgba(250,248,246,0.86); color: var(--text); font-family: 'Roboto', sans-serif; font-size: 13px; line-height: 1.45; pointer-events: none; }
     .mk-overlay[hidden] { display: none; }
-    .mk-overlay b { color: var(--theme); }
-    .mk-scores { display: flex; gap: 18px; }
+    /* These are injected via innerHTML, so they never get the scope attribute —
+       :global() opts them out of Astro's style scoping so the rules apply. */
+    :global(.mk-ov-msg) { line-height: 1.45; }
+    :global(.mk-ov-title) { display: block; font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+    :global(.mk-ov-sub) { display: block; font-size: 13px; color: var(--text); margin-bottom: 5px; }
+    :global(.mk-ov-sub b) { color: var(--theme); }
+    :global(.mk-ov-hint) { display: block; font-size: 12px; color: var(--text); opacity: 0.75; }
+    .mk-scores { display: flex; gap: 18px; margin-bottom: 16px; }
     .mk-score { font-family: 'Roboto', sans-serif; font-size: 13px; color: var(--text); }
     .mk-score span { font-weight: 700; color: var(--theme); }
     .mk-form[hidden] { display: none; }   /* beats .cform display:flex when hidden in snake mode */
@@ -479,6 +485,7 @@ const cartCell = (ch, m) => {
       const bestEl = document.getElementById('mk-best');
       const ix = function (x, y) { return y * GRID + x; };
       let snake, dir, nextDir, food, score = 0, running = false, over = false, timer = 0;
+      let canRestart = false, overTimer = 0;   // 1s grace after death before input restarts
       let best = parseInt(localStorage.getItem('sw_snake_best') || '0', 10) || 0;
 
       function setScore() { scoreEl.textContent = score; bestEl.textContent = best; }
@@ -494,7 +501,7 @@ const cartCell = (ch, m) => {
         food = { x: i % GRID, y: (i / GRID) | 0 };
       }
       function resetSnake() {
-        clearInterval(timer); running = false; over = false;
+        clearInterval(timer); clearTimeout(overTimer); running = false; over = false; canRestart = false;
         snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
         dir = { x: 1, y: 0 }; nextDir = dir; score = 0; setScore();
         placeFood(); paintSnake();
@@ -502,9 +509,16 @@ const cartCell = (ch, m) => {
       }
       function startSnake() { if (running || over) return; running = true; overlay.hidden = true; timer = setInterval(tick, SPEED); }
       function endSnake() {
-        running = false; over = true; clearInterval(timer);
+        running = false; over = true; canRestart = false; clearInterval(timer);
         if (score > best) { best = score; try { localStorage.setItem('sw_snake_best', String(best)); } catch (_) {} setScore(); }
-        showOverlay('Game over &middot; <b>' + score + '</b><br>Press an arrow to play again');
+        // Render the hint up front but invisible (so it reserves its space and
+        // nothing shifts), then reveal it — and accept input — after 1s.
+        showOverlay('<strong class="mk-ov-title">Game Over</strong><span class="mk-ov-sub">Score: <b>' + score + '</b></span><span class="mk-ov-hint" style="visibility:hidden">Press an arrow to play again</span>');
+        overTimer = setTimeout(function () {
+          canRestart = true;
+          const h = overlay.querySelector('.mk-ov-hint');
+          if (h) h.style.visibility = 'visible';
+        }, 1000);
       }
       function tick() {
         dir = nextDir;
@@ -523,14 +537,14 @@ const cartCell = (ch, m) => {
         const v = KEYS[e.key] || KEYS[(e.key || '').toLowerCase()];
         if (!v) return;
         e.preventDefault();
-        if (over) resetSnake();
+        if (over) { if (!canRestart) return; resetSnake(); }   // ignore input during the 1s grace
         const nd = { x: v[0], y: v[1] };
         if (!(snake.length > 1 && nd.x === -dir.x && nd.y === -dir.y)) nextDir = nd;   // no 180° turns
         if (!running) startSnake();
       }
       document.getElementById('mk-restart').addEventListener('click', resetSnake);
       document.addEventListener('visibilitychange', function () {
-        if (document.hidden && mode === 'snake' && running) { running = false; clearInterval(timer); showOverlay('Paused<br>Press an arrow to resume'); }
+        if (document.hidden && mode === 'snake' && running) { running = false; clearInterval(timer); showOverlay('<strong class="mk-ov-title">Paused</strong><span class="mk-ov-hint">Press an arrow to resume</span>'); }
       });
 
       // ---- Mode controller ----
@@ -550,7 +564,7 @@ const cartCell = (ch, m) => {
           document.addEventListener('keydown', onKey);
           resetSnake();
         } else {
-          clearInterval(timer); running = false; over = false;
+          clearInterval(timer); clearTimeout(overTimer); running = false; over = false; canRestart = false;
           document.removeEventListener('keydown', onKey);
           overlay.hidden = true;
           canvas.classList.remove('mk-canvas--snake');
