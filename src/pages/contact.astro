@@ -122,28 +122,48 @@ const cartCell = (ch, m) => {
       </div><!-- /.contact-left -->
 
       <div class="contact-right">
-        <h2 class="mk-title">Design a mosaic for us</h2>
+        <div class="mk-head">
+          <h2 class="mk-title" id="mk-title">Design a mosaic for us</h2>
+          <div class="mk-modes" role="tablist" aria-label="Maker mode">
+            <button type="button" class="mk-mode is-active" data-mode="mosaic" role="tab" aria-selected="true" title="Mosaic" aria-label="Mosaic">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+            </button>
+            <button type="button" class="mk-mode" data-mode="snake" role="tab" aria-selected="false" title="Snake" aria-label="Snake">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="4" height="4" rx="1"/><rect x="1" y="6" width="4" height="4" rx="1"/><rect x="6" y="6" width="4" height="4" rx="1"/><rect x="6" y="11" width="4" height="4" rx="1"/><rect x="11" y="11" width="4" height="4" rx="1"/></svg>
+            </button>
+          </div>
+        </div>
 
 
         <div class="mk-stage">
-          <div class="mk-canvas" id="mk-canvas" role="group" aria-label="20 by 20 mosaic grid"></div>
+          <div class="mk-canvas" id="mk-canvas" role="group" aria-label="20 by 20 grid"><div class="mk-overlay" id="mk-overlay" hidden></div></div>
           <div class="mk-side">
-            <div class="mk-intro">Paint a mosaic by clicking or dragging in the grid. If you send it to us, we might use it on our website.</div>
-            <div class="mk-tools">
-            <div class="mk-palette" id="mk-palette">
-              {PALETTE.map((p, i) => (
-                <button
-                  type="button"
-                  class:list={["mk-swatch", { "mk-swatch--erase": i === 0 }]}
-                  data-idx={i}
-                  data-hex={p.hex}
-                  style={`background:${p.hex}`}
-                  title={p.name}
-                  aria-label={p.name}
-                ></button>
-              ))}
+            <div class="mk-mosaic-side">
+              <div class="mk-intro">Paint a mosaic by clicking or dragging in the grid. If you send it to us, we might use it on our website.</div>
+              <div class="mk-tools">
+              <div class="mk-palette" id="mk-palette">
+                {PALETTE.map((p, i) => (
+                  <button
+                    type="button"
+                    class:list={["mk-swatch", { "mk-swatch--erase": i === 0 }]}
+                    data-idx={i}
+                    data-hex={p.hex}
+                    style={`background:${p.hex}`}
+                    title={p.name}
+                    aria-label={p.name}
+                  ></button>
+                ))}
+              </div>
+              <button type="button" class="mk-clear" id="mk-clear">Clear</button>
+              </div>
             </div>
-            <button type="button" class="mk-clear" id="mk-clear">Clear</button>
+            <div class="mk-snake-side" hidden>
+              <div class="mk-intro">Eat the dots. Arrow keys or WASD to steer — don't hit the walls or yourself.</div>
+              <div class="mk-scores">
+                <div class="mk-score">Score <span id="mk-score">0</span></div>
+                <div class="mk-score">Best <span id="mk-best">0</span></div>
+              </div>
+              <button type="button" class="mk-clear" id="mk-restart">Restart</button>
             </div>
           </div>
         </div>
@@ -199,11 +219,13 @@ const cartCell = (ch, m) => {
     .mk-stage { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; margin: 0 0 22px; }
     .mk-side { flex: 1 1 130px; min-width: 0; display: flex; flex-direction: column; gap: 14px; }   /* right column: intro on top, palette/clear beneath */
     .mk-canvas {
+      position: relative;            /* anchor for the snake overlay */
       flex: 1 1 300px; max-width: 320px; aspect-ratio: 1; display: grid;
       grid-template-columns: repeat(20, 1fr); gap: 2px; padding: 2px;
       background: var(--almost-white); border-radius: 0px;
       touch-action: none; user-select: none; -webkit-user-select: none;
     }
+    .mk-canvas--snake .mk-cell { cursor: default; }
     .mk-cell { aspect-ratio: 1; border-radius: 2px; cursor: crosshair; }
     .mk-form { max-width: 405px; gap: 10px; }
     .mk-submit-row { display: flex; align-items: flex-end; gap: 12px; }
@@ -217,6 +239,24 @@ const cartCell = (ch, m) => {
     .mk-swatch--erase::after { content: ''; position: absolute; inset: 3px; background: linear-gradient(45deg, transparent 44%, var(--theme) 44%, var(--theme) 56%, transparent 56%); border-radius: 3px; }
     .mk-clear { font-family: var(--button-text); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--theme); background: var(--almost-white); border: 1px solid var(--border-grey); border-radius: 4px; padding: 7px 14px; cursor: pointer; }
     .mk-clear:hover { border-color: var(--theme); }
+
+    /* Mode toggle (mosaic / snake) */
+    .mk-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 10px; }
+    .mk-head .mk-title { margin: 0; }
+    .mk-modes { display: inline-flex; gap: 2px; padding: 2px; background: var(--bg-secondary); border: 1px solid var(--border-grey); border-radius: 999px; flex: 0 0 auto; }
+    .mk-mode { width: 26px; height: 22px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: none; border-radius: 999px; background: transparent; color: var(--border-grey); cursor: pointer; transition: background 0.15s ease, color 0.15s ease; }
+    .mk-mode svg { width: 13px; height: 13px; fill: currentColor; }
+    .mk-mode:hover { color: var(--text); }
+    .mk-mode.is-active { background: var(--almost-white); color: var(--theme); box-shadow: 0 1px 2px rgba(68,2,20,0.08); }
+
+    /* Snake: start/over overlay + score readout */
+    .mk-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 10px; background: rgba(250,248,246,0.86); color: var(--text); font-family: 'Roboto', sans-serif; font-size: 13px; line-height: 1.45; pointer-events: none; }
+    .mk-overlay[hidden] { display: none; }
+    .mk-overlay b { color: var(--theme); }
+    .mk-scores { display: flex; gap: 18px; }
+    .mk-score { font-family: 'Roboto', sans-serif; font-size: 13px; color: var(--text); }
+    .mk-score span { font-weight: 700; color: var(--theme); }
+    .mk-form[hidden] { display: none; }   /* beats .cform display:flex when hidden in snake mode */
     .contact-title {
       font-family: 'Copperplate', serif; font-weight: normal; font-size: 34px;
       letter-spacing: -0.02em; color: var(--text); margin: 20px 0 14px;
@@ -343,7 +383,7 @@ const cartCell = (ch, m) => {
       });
     })();
 
-    // ----- Mosaic maker -------------------------------------------------
+    // ----- Maker: mosaic + snake (shared 20x20 grid) --------------------
     (function () {
       const GRID = 20, N = GRID * GRID;
       const canvas = document.getElementById('mk-canvas');
@@ -351,6 +391,8 @@ const cartCell = (ch, m) => {
       const swatches = Array.prototype.slice.call(document.querySelectorAll('.mk-swatch'));
       const PAL = swatches.map(function (s) { return s.dataset.hex; });
 
+      // Shared grid. The mosaic lives in `data[]`; snake only repaints cell
+      // backgrounds, so it never touches the mosaic.
       const cells = [];
       const data = new Array(N).fill(0);
       const frag = document.createDocumentFragment();
@@ -361,6 +403,9 @@ const cartCell = (ch, m) => {
       }
       canvas.appendChild(frag);
 
+      let mode = 'mosaic';
+
+      // ---- Mosaic ----
       let current = 2;
       function selectColour(i) { current = i; swatches.forEach(function (s, k) { s.classList.toggle('is-selected', k === i); }); }
       swatches.forEach(function (s, i) { s.addEventListener('click', function () { selectColour(i); }); });
@@ -374,8 +419,8 @@ const cartCell = (ch, m) => {
         if (data[i] === drawColour) return;
         data[i] = drawColour; el.style.background = PAL[drawColour];
       }
-      canvas.addEventListener('pointerdown', function (e) { drawing = true; drawColour = current; canvas.setPointerCapture(e.pointerId); paintAt(e.clientX, e.clientY); e.preventDefault(); });
-      canvas.addEventListener('pointermove', function (e) { if (drawing) paintAt(e.clientX, e.clientY); });
+      canvas.addEventListener('pointerdown', function (e) { if (mode !== 'mosaic') return; drawing = true; drawColour = current; canvas.setPointerCapture(e.pointerId); paintAt(e.clientX, e.clientY); e.preventDefault(); });
+      canvas.addEventListener('pointermove', function (e) { if (mode === 'mosaic' && drawing) paintAt(e.clientX, e.clientY); });
       const stop = function () { drawing = false; };
       canvas.addEventListener('pointerup', stop);
       canvas.addEventListener('pointercancel', stop);
@@ -391,7 +436,8 @@ const cartCell = (ch, m) => {
           data[i] = v; cells[i].style.background = PAL[v];
         }
       }
-      if (location.hash.length > 1) load(location.hash.slice(1));
+      function repaintMosaic() { for (let i = 0; i < N; i++) cells[i].style.background = PAL[data[i]] || PAL[0]; }
+      if (location.hash.length > 1 && /^[0-9a-f]+$/i.test(location.hash.slice(1))) load(location.hash.slice(1));
 
       const form = document.getElementById('mk-form');
       const statusEl = document.getElementById('mk-status');
@@ -424,6 +470,98 @@ const cartCell = (ch, m) => {
           btn.disabled = false; btn.textContent = label;
         }
       });
+
+      // ---- Snake ----
+      const S_BG = PAL[0], S_BODY = PAL[1], S_HEAD = PAL[2], S_FOOD = PAL[3];  // erase / text / theme / sage
+      const SPEED = 130;
+      const overlay = document.getElementById('mk-overlay');
+      const scoreEl = document.getElementById('mk-score');
+      const bestEl = document.getElementById('mk-best');
+      const ix = function (x, y) { return y * GRID + x; };
+      let snake, dir, nextDir, food, score = 0, running = false, over = false, timer = 0;
+      let best = parseInt(localStorage.getItem('sw_snake_best') || '0', 10) || 0;
+
+      function setScore() { scoreEl.textContent = score; bestEl.textContent = best; }
+      function showOverlay(html) { overlay.innerHTML = '<div class="mk-ov-msg">' + html + '</div>'; overlay.hidden = false; }
+      function paintSnake() {
+        for (let i = 0; i < N; i++) cells[i].style.background = S_BG;
+        cells[ix(food.x, food.y)].style.background = S_FOOD;
+        for (let k = 0; k < snake.length; k++) cells[ix(snake[k].x, snake[k].y)].style.background = (k === 0) ? S_HEAD : S_BODY;
+      }
+      function placeFood() {
+        const occ = {}; snake.forEach(function (s) { occ[ix(s.x, s.y)] = 1; });
+        let i; do { i = (Math.random() * N) | 0; } while (occ[i]);
+        food = { x: i % GRID, y: (i / GRID) | 0 };
+      }
+      function resetSnake() {
+        clearInterval(timer); running = false; over = false;
+        snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
+        dir = { x: 1, y: 0 }; nextDir = dir; score = 0; setScore();
+        placeFood(); paintSnake();
+        showOverlay('<span class="mk-ov-hint">Press an arrow to start</span>');
+      }
+      function startSnake() { if (running || over) return; running = true; overlay.hidden = true; timer = setInterval(tick, SPEED); }
+      function endSnake() {
+        running = false; over = true; clearInterval(timer);
+        if (score > best) { best = score; try { localStorage.setItem('sw_snake_best', String(best)); } catch (_) {} setScore(); }
+        showOverlay('Game over &middot; <b>' + score + '</b><br>Press an arrow to play again');
+      }
+      function tick() {
+        dir = nextDir;
+        const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+        if (head.x < 0 || head.x >= GRID || head.y < 0 || head.y >= GRID) return endSnake();   // die on wall
+        for (let k = 0; k < snake.length; k++) if (snake[k].x === head.x && snake[k].y === head.y) return endSnake();
+        snake.unshift(head);
+        if (head.x === food.x && head.y === food.y) { score++; setScore(); placeFood(); }
+        else snake.pop();
+        paintSnake();
+      }
+      const KEYS = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0], w: [0, -1], s: [0, 1], a: [-1, 0], d: [1, 0] };
+      function onKey(e) {
+        const t = e.target;   // don't hijack keys while typing in the contact form
+        if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+        const v = KEYS[e.key] || KEYS[(e.key || '').toLowerCase()];
+        if (!v) return;
+        e.preventDefault();
+        if (over) resetSnake();
+        const nd = { x: v[0], y: v[1] };
+        if (!(snake.length > 1 && nd.x === -dir.x && nd.y === -dir.y)) nextDir = nd;   // no 180° turns
+        if (!running) startSnake();
+      }
+      document.getElementById('mk-restart').addEventListener('click', resetSnake);
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden && mode === 'snake' && running) { running = false; clearInterval(timer); showOverlay('Paused<br>Press an arrow to resume'); }
+      });
+
+      // ---- Mode controller ----
+      const titleEl = document.getElementById('mk-title');
+      const mosaicSide = document.querySelector('.mk-mosaic-side');
+      const snakeSide = document.querySelector('.mk-snake-side');
+      const modeBtns = Array.prototype.slice.call(document.querySelectorAll('.mk-mode'));
+      function setMode(m) {
+        if (m === mode) return;
+        mode = m;
+        modeBtns.forEach(function (b) { const on = b.dataset.mode === m; b.classList.toggle('is-active', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
+        if (m === 'snake') {
+          mosaicSide.hidden = true; snakeSide.hidden = false;
+          if (form) form.hidden = true;
+          titleEl.textContent = 'Snake';
+          canvas.classList.add('mk-canvas--snake');
+          document.addEventListener('keydown', onKey);
+          resetSnake();
+        } else {
+          clearInterval(timer); running = false; over = false;
+          document.removeEventListener('keydown', onKey);
+          overlay.hidden = true;
+          canvas.classList.remove('mk-canvas--snake');
+          titleEl.textContent = 'Design a mosaic for us';
+          snakeSide.hidden = true; mosaicSide.hidden = false;
+          if (form) form.hidden = false;
+          repaintMosaic();
+        }
+      }
+      modeBtns.forEach(function (b) { b.addEventListener('click', function () { setMode(b.dataset.mode); }); });
+      setScore();
     })();
   </script>
 </BaseLayout>
