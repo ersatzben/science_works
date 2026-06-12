@@ -259,7 +259,7 @@ const cartCell = (ch, m) => {
     :global(.mk-ov-sub) { display: block; font-size: 13px; color: var(--text); margin-bottom: 5px; }
     :global(.mk-ov-sub b) { color: var(--theme); }
     :global(.mk-ov-hint) { display: block; font-size: 12px; color: var(--text); opacity: 0.75; }
-    .mk-scores { display: flex; gap: 18px; margin-bottom: 16px; }
+    .mk-scores { display: flex; gap: 18px; }
     .mk-score { font-family: 'Roboto', sans-serif; font-size: 13px; color: var(--text); }
     .mk-score span { font-weight: 700; color: var(--theme); }
     .mk-form[hidden] { display: none; }   /* beats .cform display:flex when hidden in snake mode */
@@ -521,7 +521,7 @@ const cartCell = (ch, m) => {
         }, 1000);
       }
       function tick() {
-        dir = nextDir;
+        dir = nextDir;I
         const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
         if (head.x < 0 || head.x >= GRID || head.y < 0 || head.y >= GRID) return endSnake();   // die on wall
         for (let k = 0; k < snake.length; k++) if (snake[k].x === head.x && snake[k].y === head.y) return endSnake();
