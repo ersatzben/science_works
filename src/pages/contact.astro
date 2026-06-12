@@ -24,6 +24,17 @@ const PALETTE = [
   { name: 'Darkest brown', hex: '#440214' },
   { name: 'Indigo', hex: '#3a3c7c' },
   { name: 'Mauve', hex: '#72679b' },
+  // Appended 2026 — APPEND ONLY (indices are baked into shared mosaic codes).
+  { name: 'Pale teal', hex: '#bfe3e1' },
+  { name: 'Powder blue', hex: '#c8dbf5' },
+  { name: 'Jade', hex: '#58bfa0' },
+  { name: 'Periwinkle', hex: '#828edf' },
+  { name: 'Mist', hex: '#c4d1d1' },
+  { name: 'Sage grey', hex: '#a9baac' },
+  { name: 'Pale yellow', hex: '#fff5a6' },
+  { name: 'Coral red', hex: '#ef5e4b' },
+  { name: 'Blush', hex: '#ff9aa3' },
+  { name: 'Crimson', hex: '#b61b4c' },
 ];
 
 // Decorative pixel-art motifs scattered around the contact content. Each motif is
@@ -232,7 +243,9 @@ const cartCell = (ch, m) => {
     .mk-submit-row .cform-field { flex: 1 1 auto; min-width: 0; }   /* name field shortens to make room */
     .mk-submit-row .cform-submit { flex: 0 0 auto; margin-bottom: 5px; }                /* submit sits to its right, bottom-aligned */
     .mk-tools { flex: 0 0 auto; display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
-    .mk-palette { display: flex; flex-wrap: wrap; gap: 6px; width: 72px; }
+    /* 5 rows, fills top-to-bottom then rightward → 25 swatches = 5 columns
+       (existing 15 fill the left 3, the 10 new ones form the right 2). */
+    .mk-palette { display: grid; grid-template-rows: repeat(5, 20px); grid-auto-flow: column; grid-auto-columns: 20px; gap: 6px; }
     .mk-swatch { width: 20px; height: 20px; border-radius: 4px; border: 2px solid transparent; box-shadow: inset 0 0 0 1px rgba(68,2,20,0.12); cursor: pointer; padding: 0; position: relative; }
     .mk-swatch:hover { box-shadow: inset 0 0 0 1px var(--theme); }
     .mk-swatch.is-selected { border-color: var(--text); box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--theme); }
@@ -433,12 +446,15 @@ const cartCell = (ch, m) => {
 
       document.getElementById('mk-clear').addEventListener('click', function () { for (let i = 0; i < N; i++) { data[i] = 0; cells[i].style.background = PAL[0]; } });
 
-      function encode() { return data.map(function (v) { return v.toString(16); }).join(''); }
+      // Base-36, one char per cell. Backward-compatible with the old base-16
+      // codes: digits 0-15 encode/decode identically in both bases, so existing
+      // share links still render. Lifts the palette ceiling from 16 to 36.
+      function encode() { return data.map(function (v) { return v.toString(36); }).join(''); }
       function load(code) {
         if (!code || code.length !== N) return;
         for (let i = 0; i < N; i++) {
-          const v = parseInt(code[i], 16);
-          if (isNaN(v) || v < 0 || v > 14) continue;
+          const v = parseInt(code[i], 36);
+          if (isNaN(v) || v < 0 || v >= PAL.length) continue;   // skip indices this palette doesn't have
           data[i] = v; cells[i].style.background = PAL[v];
         }
       }

@@ -19,6 +19,11 @@ const {
 // share URLs are derived from it so previews and dedup work across staging/prod.
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const imageURL = image ? new URL(image, Astro.site) : null;
+const logoURL = new URL('/icon-512.png', Astro.site);
+// All share cards are produced at a fixed 1200×630 PNG (see public/og*). Declaring
+// the dimensions/type lets crawlers (WhatsApp/Facebook especially) render the
+// preview without first downloading the file to measure it.
+const imageType = imageURL && String(image).endsWith('.jpg') ? 'image/jpeg' : 'image/png';
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -36,7 +41,11 @@ const imageURL = image ? new URL(image, Astro.site) : null;
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
   <meta property="og:url" content={canonicalURL} />
+  <meta property="og:logo" content={logoURL} />
   {imageURL && <meta property="og:image" content={imageURL} />}
+  {imageURL && <meta property="og:image:type" content={imageType} />}
+  {imageURL && <meta property="og:image:width" content="1200" />}
+  {imageURL && <meta property="og:image:height" content="630" />}
   {imageURL && <meta property="og:image:alt" content={title} />}
 
   <!-- Twitter / X -->
