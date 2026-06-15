@@ -1,0 +1,198 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// ── Editable bits ───────────────────────────────────────────────────────────
+// Call-for-Evidence form (opens in a new tab). TODO: paste the real Google Form URL.
+const CFE_FORM_URL = '#';
+// Essay-prize submissions go to this inbox.
+const PRIZE_EMAIL = 'essay@science.works';
+// Lifecycle note: there's no automatic "closed" state — edit/remove a box on
+// deadline expiry (per the plan).
+---
+<BaseLayout
+  title="Reorganising Research — Science Works"
+  description="Reorganising Research, a workstream within the Institutional Dynamism project at Science Works. A call for evidence and an essay-writing prize.">
+  <main class="rr">
+
+    <!-- 1) Banner — title left, picture right (placeholder grey card for now). -->
+    <header class="rr-banner">
+      <div class="rr-banner-text">
+        <h1 class="rr-title">Reorganising</h1>
+        <h1 class="rr-title-2">Research</h1>
+        <a class="rr-kicker" href="/projects#institutional-dynamism">Part of Institutional Dynamism &rarr;</a>
+      </div>
+      <div class="rr-banner-pic" role="img" aria-label="Banner artwork (to come)"></div>
+    </header>
+
+    <!-- 2) Intro blurb. -->
+    <section class="rr-intro">
+      <p>The UK is unusually dependent on a single dominant model of research: the academic lab, funded by external grants, organised around a principal investigator, assessed primarily on papers, and built around a standardised career pathway.</p>
+      <p>There have been some experiments on how we organise research – look at <a href="https://www.convergentresearch.org/about-fros" target="_blank" rel="noopener noreferrer">Focused Research Organizations</a> (FROs), <a href="https://www.rebuilding.tech/posts/launching-x-labs-for-transformative-science-funding" target="_blank" rel="noopener noreferrer">X-Labs</a>, or the <a href="https://arcinstitute.org/" target="_blank" rel="noopener noreferrer">Arc Institute</a> – and how we fund it – see <a href="https://aria.org.uk/" target="_blank" rel="noopener noreferrer">ARIA</a> (ARIA) and <a href="https://future.com/what-we-learned-doing-fast-grants/" target="_blank" rel="noopener noreferrer">Fast Grants</a>.</p>
+      <p>We want to understand where this experimentation is happening in the UK. Who is doing things differently? Who is running unusual team structures, bespoke funding models, or alternative governance? Who is rejecting the default answer?</p>
+      <p>And we want to scale what works, so the whole system learns from the evidence this experimentation generates.</p>
+    </section>
+
+    <!-- 3 + 4) Two boxes: Call for Evidence (left) + Essay Prize (right). -->
+    <section class="rr-grid">
+      <article class="rr-box">
+        <h2 class="rr-box-title">Call for Evidence</h2>
+        <div class="rr-box-body">
+          <p>We are running a call for evidence to identify people doing things differently in the UK. If your group, programme, or institution is experimenting institutionally, we would like to hear from you.</p>
+          <p>The most useful responses will be from people who can explain what their group is doing that would not be obvious from its website. You can use the form below to describe your own work or to nominate someone else, and to express interest in attending a 2-day residential retreat to discuss diversification of the institutions of science in the UK.</p>
+        </div>
+        <a class="rr-btn" href={CFE_FORM_URL} target="_blank" rel="noopener noreferrer">Respond to the call &rarr;</a>
+      </article>
+
+      <article class="rr-box">
+        <h2 class="rr-box-title">Essay Prize</h2>
+        <div class="rr-box-body">
+          <p>We are also opening up an essay prize competition to find new ideas about reorganising research.</p>
+          <p>We want provocations, reimaginings, and new data. We would rather read a new argument that we disagree with than a familiar platitude. We are particularly interested in how to put [TODO: this sentence was cut off in the supplied copy — please complete]. You don't need to be a researcher or work in policy to apply, just someone who cares about using organisational design to do the best research possible. Essays will be judged by the Science Works team. <em>By submitting your essay, you agree that Science Works may publish it with full attribution and with all your rights reserved.</em></p>
+          <div class="rr-details">
+            <p><strong>Prize:</strong> £[amount]</p>
+            <p><strong>Runners up:</strong> £[amount]</p>
+            <p><strong>Length:</strong> no minimum; maximum 3,000 words.</p>
+            <p><strong>Closing date:</strong> [nth June / July]</p>
+            <p class="rr-details-note">Winners and runners up will be informed by the [nth] of July.</p>
+          </div>
+        </div>
+        <a class="rr-btn" href={`mailto:${PRIZE_EMAIL}`}>Email {PRIZE_EMAIL} &rarr;</a>
+      </article>
+    </section>
+
+  </main>
+
+  <style>
+    .rr { max-width: 1200px; margin: 0 auto; padding: 56px 40px 96px; }
+
+    /* ── Banner ── */
+    .rr-banner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+      margin-bottom: 52px;
+    }
+    .rr-kicker {
+      display: inline-block;
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      letter-spacing: 0.03em;
+      color: var(--text);
+      text-decoration: none;
+      opacity: 0.7;
+      margin-bottom: 18px;
+      transition: opacity 0.15s ease, color 0.15s ease;
+    }
+    .rr-kicker:hover { opacity: 1; color: var(--theme); }
+    .rr-title {
+      font-family: 'Antique Olive', sans-serif;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: var(--theme);
+      font-size: 70px;
+      line-height: 1.04;
+      letter-spacing: 0.01em;
+      margin: 0;
+    } 
+
+    .rr-title-2 {
+      font-family: 'Antique Olive', sans-serif;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: var(--theme);
+      font-size: 100.2px;
+      line-height: 1.04;
+      letter-spacing: 0.01em;
+      margin: 0 -3px;
+
+    }
+    .rr-banner-pic {
+      background: var(--border-grey);   /* placeholder — swap for the real artwork */
+      border-radius: 6px;
+      min-height: 240px;
+      height: 100%;
+    }
+
+    /* ── Intro ── */
+    /* full content width → right edge lines up with the banner picture */
+    .rr-intro { margin: 0 0 56px; text-align: left; }
+    .rr-intro p {
+      font-family: 'Antique Olive', sans-serif;
+      font-weight: 300;
+      font-size: 17px;
+      line-height: 1.7;
+      color: var(--text);
+      margin: 0 0 18px;
+    }
+    .rr-intro p:last-child { margin-bottom: 0; }
+    .rr-intro a { color: var(--theme); text-decoration: none; }
+    .rr-intro a:hover { text-decoration: underline; text-underline-offset: 2px; }
+
+    /* ── Two-up boxes ── */
+    .rr-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      align-items: stretch;   /* equal height */
+    }
+    .rr-box {
+      display: flex;
+      flex-direction: column;
+      background: var(--almost-white);
+      border: 1px solid var(--border-grey);
+      border-radius: 6px;
+      padding: 28px 30px;
+    }
+    
+    .rr-box-title {
+      font-family: 'Copperplate', serif;
+      font-weight: normal;
+      font-size: 22px;
+      letter-spacing: 0.02em;
+      color: var(--text);
+      margin: 0 0 14px;
+    }
+    .rr-box-body { flex: 1 1 auto; }   /* grows so the button pins to the bottom */
+    .rr-box-body > p {
+      font-family: 'Antique Olive', sans-serif;
+      font-weight: 300;
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--text);
+      margin: 0 0 14px;
+    }
+    /* Key facts block (essay prize) */
+    .rr-details { margin: 8px 0 0; }
+    .rr-details p { font-family: 'Roboto', sans-serif; font-size: 14px; line-height: 1.5; color: var(--text); margin: 0 0 4px; }
+    .rr-details strong { color: var(--theme); font-weight: 700; }
+    .rr-details .rr-details-note { margin: 10px 0 0; opacity: 0.75; font-size: 13px; }
+    .rr-btn {
+      align-self: flex-start;
+      margin-top: 20px;
+      font-family: var(--button-text);
+      font-weight: 500;
+      font-size: 14px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: #fff;
+      background: var(--theme);
+      border: 1.5px solid var(--theme);
+      border-radius: 5px;
+      padding: 9px 18px;
+      text-decoration: none;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+    .rr-btn:hover { background: #fff; color: var(--theme); }
+
+    /* ── Mobile: stack banner (title above picture) and the two boxes ── */
+    @media (max-width: 820px) {
+      .rr { padding: 40px 22px 72px; }
+      .rr-banner { grid-template-columns: 1fr; gap: 24px; margin-bottom: 40px; }
+      .rr-title { font-size: 42px; }
+      .rr-banner-pic { min-height: 170px; }
+      .rr-intro { margin-bottom: 40px; }
+      .rr-grid { grid-template-columns: 1fr; gap: 20px; }
+    }
+  </style>
+</BaseLayout>
