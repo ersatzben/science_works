@@ -232,7 +232,7 @@ const cartCell = (ch, m) => {
     .mk-canvas {
       position: relative;            /* anchor for the snake overlay */
       flex: 1 1 300px; max-width: 320px; aspect-ratio: 1; display: grid;
-      grid-template-columns: repeat(20, 1fr); gap: 2px; padding: 2px;
+      grid-template-columns: repeat(20, 1fr); grid-template-rows: repeat(20, 1fr); gap: 2px; padding: 2px;
       background: var(--almost-white); border-radius: 0px;
       touch-action: none; user-select: none; -webkit-user-select: none;
     }
@@ -421,6 +421,15 @@ const cartCell = (ch, m) => {
         frag.appendChild(c); cells.push(c);
       }
       canvas.appendChild(frag);
+
+      // Fallback for browsers without CSS aspect-ratio (Safari < 15): the canvas
+      // otherwise collapses to 0 height and renders blank. Size the square in JS
+      // (grid-template-rows then divides that height into equal cells).
+      if (!(window.CSS && CSS.supports && CSS.supports('aspect-ratio', '1'))) {
+        const sizeCanvas = function () { canvas.style.height = canvas.clientWidth + 'px'; };
+        sizeCanvas();
+        window.addEventListener('resize', sizeCanvas);
+      }
 
       let mode = 'mosaic';
 
