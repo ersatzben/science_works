@@ -8,14 +8,10 @@ import bannerData from '../data/decor/reorganising-research-banner.json';
 // Banner pixel art (180×47 index-grid → bitmap; same path as the essay covers).
 const bannerArt = paletteGridToBitmap(bannerData, { size: 12, gap: 1, radius: 2 });
 
-// ── Editable bits ───────────────────────────────────────────────────────────
-// Call-for-Evidence form (opens in a new tab). TODO: paste the real Google Form URL.
-const CFE_FORM_URL = '#';
 // Essay-prize submissions go to this inbox.
 const PRIZE_EMAIL = 'essay@science.works';
-// Lifecycle note: there's no automatic "closed" state — edit/remove a box on
-// deadline expiry (per the plan).
 ---
+
 <BaseLayout
   title="Reorganising Research — Science Works"
   description="Reorganising Research, a workstream within the Institutional Dynamism project at Science Works. A call for evidence and an essay-writing prize.">
@@ -35,11 +31,12 @@ const PRIZE_EMAIL = 'essay@science.works';
 
     <!-- 2) Intro blurb. -->
     <section class="rr-intro">
-      <p>The UK is unusually dependent on a single dominant model of research: the academic lab, funded by external grants, organised around a principal investigator, assessed primarily on papers, and built around a standardised career pathway.</p>
-      <p>There have been some experiments on how we might organise research differently – look at <a href="https://www.convergentresearch.org/about-fros" target="_blank" rel="noopener noreferrer">Focused Research Organizations</a> (FROs), <a href="https://www.rebuilding.tech/posts/launching-x-labs-for-transformative-science-funding" target="_blank" rel="noopener noreferrer">X-Labs</a>, or the <a href="https://arcinstitute.org/" target="_blank" rel="noopener noreferrer">Arc Institute</a> – and how we fund it – see <a href="https://aria.org.uk/" target="_blank" rel="noopener noreferrer">ARIA</a> and <a href="https://future.com/what-we-learned-doing-fast-grants/" target="_blank" rel="noopener noreferrer">Fast Grants</a>.</p>
-      <p>We want to understand where this experimentation is happening in the UK. Who is doing things differently? Who is running unusual team structures, bespoke funding models, or alternative governance? Who is rejecting the default answer?</p>
-      <p>And we want to scale what works, so the whole system learns from the evidence this experimentation generates.</p>
-      
+      <p class="p-vshort">Every era of scientific progress has rested on the invention of new ways to organise our efforts. The research university, the national laboratory, the corporate lab, the funding council, the mission agency – each was an institutional innovation with its own design choices, affordances, and limits, well-suited to some kinds of work and less to others.</p>
+      <p class="p-short">How labs and funding are organised, what incentives and timescales are hardwired into the system — these choices promote certain types of research and make others very difficult to pursue.</p>
+      <p class="p-short">The UK is unusually dependent on a single dominant model of research: the academic lab, funded by a patchwork of external grants, organised around a principal investigator, assessed primarily on papers, and built around a standardised career pathway. This model has supported much of what British science is rightly known for, and it will remain central.</p>
+      <p>But no single template serves every kind of research project. Recent initiatives and proposals – <a href="https://www.convergentresearch.org/about-fros" target="_blank" rel="noopener noreferrer">Focused Research Organizations</a> (FROs), the <a href="https://aria.org.uk/" target="_blank" rel="noopener noreferrer">Advanced Research and Invention Agency</a> (ARIA), <a href="https://institute.global/insights/tech-and-digitalisation/a-new-national-purpose-reimagining-uk-science-and-technology-through-lovelace-disruptive-invention-laboratories" target="_blank" rel="noopener noreferrer">Lovelace Disruptive Invention Labs</a> – reflect the growing recognition that Britain would benefit from a broader institutional repertoire. Where variation is limited, there is also less to learn from, and the system as a whole becomes harder to evolve, and less resilient.</p>
+      <p>The questions of whether our research base should diversify, and how, are only becoming more pressing: the existing system is under significant strain, while AI is transforming what research teams can achieve.</p>
+      <p class="p-short"><strong>Reorganising Research</strong> is a Science Works initiative to chart what mix of research institutions Britain now needs, and how to get there. We’re kicking things off with a <strong>call for evidence</strong>, and an <strong>essay prize</strong>.</p>      
     </section>
 
     <!-- 3 + 4) Two boxes: Call for Evidence (left) + Essay Prize (right). -->
@@ -47,26 +44,41 @@ const PRIZE_EMAIL = 'essay@science.works';
       <article class="rr-box">
         <h2 class="rr-box-title">Call for Evidence</h2>
         <div class="rr-box-body">
-          <p>We are running a call for evidence to identify people doing things differently in the UK. If your group, programme, or institution is experimenting institutionally, we would like to hear from you.</p>
-          <p>The most useful responses will be from people who can explain what their group is doing that would not be obvious from its website or other public materials. You can use the form below to describe your own work or to nominate someone else, and to express interest in attending a 2-day residential retreat to discuss diversification of the institutions of science in the UK.</p>
-          <p>With your permission, we may be in touch about future collaboration, use of your response to inform case-studies, or events on this topic.</p>
+          <p>Run jointly with the Wellcome Trust, this call for evidence will map the labs, departments, institutes, programmes, and funding architectures across the UK that are doing things differently to the mainstream academic model.</p>
+          <p>We are looking for labs, departments, institutes, programmes, and funding architectures that have stepped outside one or more of the mainstream assumptions about how research gets organised.</p>
+          <p>This could include unusual team structures, financial models, governance arrangements, career trajectories, connections with other types of research organisation, or approaches to infrastructure.</p>
+          <p><strong>We want to know how diverse our existing landscape really is, and what's already being trialled.</strong></p>
+          <p>The most useful responses will come from people who can describe what their group or initiative is doing that wouldn't be obvious from its website.</p>
+          <p>You can use the form to describe your own work, or to point us elsewhere. It takes around ten minutes to complete.</p>
+          <!-- <p><a href="" target="_blank" rel="noopener noreferrer">Find the form here.</a></p>  -->
+          <p>This scoping exercise is part of a broader programme of work on institutional dynamism in UK R&D.</p>
+          <p><em>With your permission, we may be in touch about future collaboration, use of your response to inform case studies, or events on this topic.</em></p>
         </div>
-        <a class="rr-btn" href={CFE_FORM_URL} target="_blank" rel="noopener noreferrer">Respond to the call &rarr;</a>
+        <a class="rr-btn" href="#">Fill out the form &rarr;</a>
       </article>
 
       <article class="rr-box">
         <h2 class="rr-box-title">Essay Prize</h2>
         <div class="rr-box-body">
-          <p>We are opening up an essay prize competition to find new ideas about reorganising research.</p>
-          <p>We want provocations, reimaginings, and new data. We would rather read a new argument that we disagree with than a familiar platitude. We are particularly interested in how to put <strong>[SENTENCE NEEDS COMPLETING].</strong> You don't need to be a researcher or work in policy to apply, just someone who cares about using organisational design to do the best research possible. Essays will be judged by the Science Works team.</p>
-          <p><strong>By submitting your essay, you agree that Science Works may publish it with full attribution and with all your rights reserved.</strong></p>
-          <p>To get you thinking, here are three prompts for essays that we’d be interested in reading:
+          <p>We are launching an <strong>essay prize</strong> to uncover new thinking about how to reorganise research.</p>
+
+          <p>We want provocations, reimaginings, and new data. We would much rather read a new argument that we disagree with than a familiar one we don’t.</p>
+
+          <p></p>
+          
+          
+          <p>Your entry can take any form you wish, <strong>but below are three prompts that we’d be interested in reading:</strong>
             <ol class="prompt-list">
               <li>Write a piece of speculative fiction exploring how the UK develops more diverse types of research institution diversification over the coming 5-10 years.</li>
               <li>Is the UK’s mix of research institutions right after all? How would we know if it weren’t?</li>
               <li>Identify a type of scientific or technological problem that cannot be adequately tackled inside existing research institutions. Explain why and identify a potential solution.</li>
             </ol>
           </p>
+
+          <p>You don't need to be a researcher or to work in policy to enter — only to care about how organisational design shapes what science can do.</p>
+
+          <p>Essays will be judged by the Science Works team. <strong>By submitting your essay, you agree that Science Works may publish it with full attribution and with all your rights reserved.</strong></p>
+
           <div class="rr-details">
             <p><strong>Prize:</strong> £3,000</p>
             <p><strong>Runners up:</strong> £500</p>
@@ -75,7 +87,7 @@ const PRIZE_EMAIL = 'essay@science.works';
             <p class="rr-details-note">Winners and runners up will be informed by the 31st July 2026.</p>
           </div>
         </div>
-        <a class="rr-btn" href={`mailto:${PRIZE_EMAIL}`}>Email {PRIZE_EMAIL} &rarr;</a>
+        <a class="rr-btn" href={`mailto:${PRIZE_EMAIL}`}>To submit an essay, email {PRIZE_EMAIL} &rarr;</a>
       </article>
     </section>
 
@@ -140,8 +152,12 @@ const PRIZE_EMAIL = 'essay@science.works';
       font-size: 15px;
       line-height: 1.7;
       color: var(--text);
-      margin: 0 0 18px;
+      margin: 0 50px 18px 0;
     }
+
+    .rr-intro .p-short { margin-right: 150px; }
+    .rr-intro .p-vshort { margin-right: 250px; }
+
     .rr-intro p:last-child { margin-bottom: 0; }
     .rr-intro a { color: var(--theme); text-decoration: none; }
     .rr-intro a:hover { text-decoration: underline; text-underline-offset: 2px; }
@@ -158,7 +174,7 @@ const PRIZE_EMAIL = 'essay@science.works';
       flex-direction: column;
       background: var(--almost-white);
       border: 1px solid var(--border-grey);
-      border-radius: 6px;
+      border-radius: 4px;
       padding: 28px 30px;
     }
     
@@ -192,26 +208,39 @@ const PRIZE_EMAIL = 'essay@science.works';
     /* Key facts block (essay prize) */
     .rr-details { margin: 8px 0 0; }
     .rr-details p { font-family: 'Roboto', sans-serif; font-size: 16px; line-height: 1.5; color: var(--text); margin: 0 0 4px; }
-    .rr-details strong { color: var(--theme); font-weight: 700; }
+    .rr-details strong { font-weight: 700; }
+    /* Key-fact items get a 10px --theme square bullet (the closing note doesn't). */
+    .rr-details p:not(.rr-details-note) { position: relative; padding-left: 20px; }
+    .rr-details p:not(.rr-details-note)::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.42em;
+      width: 10px;
+      height: 10px;
+      background: var(--theme);
+    }
     .rr-details .rr-details-note { margin: 10px 0 0; opacity: 0.75; font-size: 13px; }
 
+    /* Full-bleed red bar pinned to the bottom of the box. The negative margins
+       (= the box's border + padding: 1+30 sides, 1+28 bottom) take it to the box
+       edges; the matching 6px bottom radius nests into the card corners. */
     .rr-btn {
-      align-self: flex-start;
-      margin-top: 20px;
-      font-family: var(--button-text);
-      font-weight: 500;
-      font-size: 14px;
-      letter-spacing: 0.02em;
-      text-transform: uppercase;
-      color: #fff;
+      display: block;
+      margin: 24px -31px -29px;
+      padding: 24px 30px;
       background: var(--theme);
-      border: 1.5px solid var(--theme);
-      border-radius: 5px;
-      padding: 9px 18px;
+      color: #fff;
+      font-family: 'Antique Olive', sans-serif;
+      font-weight: 300;
+      font-size: 16px;
+      text-transform: none;
+      text-align: left;
       text-decoration: none;
-      transition: background-color 0.15s ease, color 0.15s ease;
+      border-radius: 0 0 4px 4px;
+      transition: background-color 0.15s ease;
     }
-    .rr-btn:hover { background: #fff; color: var(--theme); }
+    .rr-btn:hover { background: #d4282a; }
 
     /* Smaller viewports - adjust params to avoid squash */
 
