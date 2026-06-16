@@ -94,10 +94,14 @@ const PRIZE_EMAIL = 'essay@science.works';
 
     </section>
 
+    <section class="email-footer">
+        <p class="email-footer-text">For more information, please email <a href="mailto:laura@science.works">laura@science.works</a></p>
+
+    </section>
   </main>
 
   <style>
-    .rr { max-width: 1000px; margin: 0 auto; padding: 40px 40px 96px; }
+    .rr { max-width: 1000px; margin: 0 auto; padding: 40px 40px 146px; }
 
     /* ── Banner ── */
     .rr-banner {
@@ -144,7 +148,7 @@ const PRIZE_EMAIL = 'essay@science.works';
     }
     /* Transform the wrapper, not the svg: the svg lives inside the GridArt
        component, so the page's scoped .rr-banner-art rule can't reach it. */
-    .rr-banner-pic { display: block; transform: translateX(-55px) translateY(-7px) translateX(+15px) scale(1.35); }   /* raised 60px, 20% larger */
+    .rr-banner-pic { display: block; transform: translateX(-55px) translateY(-12px) translateX(+15px) scale(1.35); }   /* raised 60px, 20% larger */
 
     /* ── Intro ── */
     /* full content width → right edge lines up with the banner picture */
@@ -223,7 +227,7 @@ const PRIZE_EMAIL = 'essay@science.works';
       counter-increment: prompt;
       position: relative;
       padding-left: 22px;        /* gap between number and text */
-      margin-bottom: 6px;
+      margin-bottom: 12px;
     }
     .prompt-list li::before {
       content: counter(prompt) ".";
@@ -262,7 +266,7 @@ const PRIZE_EMAIL = 'essay@science.works';
       padding: 24px 30px;
       background: var(--theme);
       color: #fff;
-      font-family: 'Antique Olive', sans-serif;
+      font-family: 'Roboto', sans-serif;
       font-weight: 300;
       font-size: 16px;
       text-transform: none;
@@ -285,6 +289,10 @@ const PRIZE_EMAIL = 'essay@science.works';
       mask: url('/assets/brand/arrow-right-1_5x-solid.svg') center / contain no-repeat;
     }
     .rr-btn:hover { background: #d4282a; }
+
+    .email-footer { margin-top: 28px; font-family: 'Roboto', sans-serif; }
+    .email-footer-text a { color: var(--theme); text-decoration: none;}
+    .email-footer-text a:hover { text-decoration: underline; } 
 
     /* Smaller viewports - adjust params to avoid squash */
 
