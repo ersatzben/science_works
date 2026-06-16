@@ -5,6 +5,7 @@ import GridArt from '../components/GridArt.astro';
 import { coverFor } from '../lib/covers.js';
 import quotes from '../data/quotes.json';
 import introPic from '../data/decor/home-intro.json';   // mobile intro illustration (30×22)
+import rrPromoData from '../data/decor/reorganising-research-banner.json';   // promo band art (180×47)
 // Featured-project grid art (18×37), one per card.
 import instDynArt from '../data/projects/institutional-dynamism.json';
 import aiSciSrc from '../data/projects/ai-and-science.json';
@@ -17,6 +18,7 @@ const aiSciArt = paletteGridToBitmap(aiSciSrc);
 const resEconArt = paletteGridToBitmap(resEconSrc);
 const softSciArt = paletteGridToBitmap(softSciSrc);
 const britSciArt = paletteGridToBitmap(britSciSrc);
+const rrPromoArt = paletteGridToBitmap(rrPromoData, { size: 12, gap: 1, radius: 2 });   // promo band
 // Mobile strips show the leftmost 8 columns of the same source art.
 const instDynArtM = cropCols(instDynArt, 8);
 const aiSciArtM = cropCols(aiSciArt, 8);
@@ -107,6 +109,54 @@ const orgJsonLd = {
       </div>
     </div>
   </section>
+
+  <!-- Promo band → /reorganising-research (full-bleed band; recreated card) -->
+  <a class="rr-promo" href="/reorganising-research" aria-label="Reorganising Research — essay prize and call for evidence">
+    <div class="rr-promo-card">
+
+      <!-- Left: red title panel -->
+      <div class="rr-promo-title">
+        <p class="rr-eyebrow">Special call for participation<span class="rr-pix"><i></i><i class="m"></i><i class="o"></i></span></p>
+        <div class="rr-heading-block">
+          <span class="rr-promo-l1">Reorganising</span>
+          <span class="rr-promo-l2">Research</span>
+          <span class="rr-rule"></span>
+        </div>
+        <p class="rr-footline">Two open calls – for a limited time<span class="rr-footpix"><i></i><i class="o"></i><i></i><i class="o"></i><i class="o"></i><i></i><i class="o"></i><i></i></span></p>
+      </div>
+
+      <!-- Right: two cards (the closing strip belongs to the essay card only) -->
+      <div class="rr-promo-cards">
+        <div class="rr-promo-col rr-promo-essay">
+          <div class="rr-col-content">
+            <img class="rr-card-icon" src="/assets/images/icons/essay-icon.png" alt="" />
+            <h3 class="rr-promo-h">Essay Prize</h3>
+            <p class="rr-promo-p">We&rsquo;re launching an essay prize to uncover new thinking about how to reorganise research.</p>
+            <ul class="rr-bullets">
+              <li><strong>Prize:</strong> £3,000</li>
+              <li><strong>Runners up:</strong> £500</li>
+            </ul>
+          </div>
+          <!-- Closing date — applies to the essay prize only -->
+          <div class="rr-promo-strip">
+            <span class="rr-strip-left">
+              <svg class="rr-strip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>
+              Open until 15 July 2026
+            </span>
+          </div>
+        </div>
+        <div class="rr-promo-col rr-promo-cfe">
+          <div class="rr-col-content">
+            <img class="rr-card-icon" src="/assets/images/icons/cfe-icon.png" alt="" />
+            <h3 class="rr-promo-h">Call for Evidence</h3>
+            <p class="rr-promo-p">Jointly with the <strong>Wellcome Trust</strong>, we want to uncover examples of the labs, departments, institutes, programmes, &amp; funding architectures doing things differently.</p>
+          </div>
+          <!-- Find out more — bottom-right of the rightmost card -->
+          <div class="rr-promo-more"><span class="rr-strip-right">Find out more <span class="rr-strip-arrow">&rarr;</span></span></div>
+        </div>
+      </div>
+    </div>
+  </a>
 
   <!-- 2. Spotlight: pinned intro (left) + scrolling featured projects (right) -->
   <section class="spotlight" id="projects">
@@ -601,6 +651,160 @@ const orgJsonLd = {
       margin: 0 auto;
       padding: 0 50px;
       box-sizing: border-box;
+    }
+
+    /* ── Promo band → /reorganising-research (full-bleed --bg band; recreated card) ── */
+    .rr-promo {
+      display: block;
+      background: var(--bg);
+      padding: 40px 50px;
+      text-decoration: none;
+      color: inherit;
+    }
+    .rr-promo-card {
+      position: relative;
+      overflow: hidden;            /* clips the red panel to the rounded corners */
+      max-width: 1110px;
+      min-height: 250px;           /* a bit taller (room for the icons-above-title later) */
+      margin: 0 auto;
+      background: var(--almost-white);
+      border: 1px solid var(--border-grey);
+      border-radius: 4px;
+      display: grid;
+      grid-template-columns: 1fr 1.85fr;   /* title | right region */
+    }
+
+    /* Left red panel */
+    .rr-promo-title {
+      background: var(--theme);
+      color: var(--almost-white);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 36px 30px 22px;
+      
+    }
+    .rr-eyebrow, .rr-footline {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 500;
+      font-size: 12px;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+    .rr-footline {font-size: 12px; letter-spacing: -0.01em; margin-bottom: 6px; margin-top: -10px; }
+
+    .rr-heading-block { line-height: 1.0; }
+    .rr-promo-l1, .rr-promo-l2 {
+      display: block;
+      font-family: 'Antique Olive', sans-serif;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.01em;
+      margin-left: -3px;
+    }
+    .rr-promo-l1 { font-size: 42.5px; }
+    .rr-promo-l2 { font-size: 60px; }
+    .rr-rule { display: block; height: 2px; background: rgba(255,255,255,0.5); margin-top: 16px; }
+    /* pixel-square motifs */
+    .rr-pix { display: inline-flex; gap: 12px; margin-left: 27px; }
+    .rr-pix i { width: 10px; height: 10px; background: var(--almost-white); }
+    .rr-pix i.m { background: rgb(255, 255, 255, 0.75); }
+    .rr-pix i.o { background: rgb(255, 255, 255, 0.5); }
+    .rr-footpix { display: inline-grid; grid-template-columns: repeat(4, 8px); gap: 5px; margin-left: 50px; margin-top: 10px;  }
+    .rr-footpix i { width: 9px; height: 9px; background:  rgb(255, 255, 255, 0.75); }
+    .rr-footpix i.o { background:  rgb(255, 255, 255, 0.5); }
+
+    /* Right cards */
+    .rr-promo-cards { display: grid; grid-template-columns: 1fr 1fr; }
+    .rr-promo-col { display: flex; flex-direction: column; }   /* content grows; essay's strip pins to the bottom */
+    .rr-col-content { flex: 1 1 auto; padding: 20px 28px; }
+    .rr-card-icon { display: block; height: 18px; width: auto; margin-bottom: 18px; margin-left: 2px; }   /* pixel motif above the heading */
+    .rr-promo-cfe { border-left: 1px solid var(--border-grey); }
+    .rr-promo-h {
+      margin: 10px 0;
+      font-family: 'Copperplate', serif;
+      font-weight: normal;
+      font-size: 20px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+    .rr-promo-p {
+      margin: 0;
+      font-family: 'Antique Olive', sans-serif;
+      font-weight: 300;
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--text);
+    }
+    .rr-promo-p strong { font-weight: 700; }
+    .rr-bullets { list-style: none; margin: 14px 0 0; padding: 0; }
+    .rr-bullets li {
+      position: relative;
+      padding-left: 20px;
+      margin-bottom: 5px;
+      font-family: 'Antique Olive', sans-serif;
+      font-weight: 300;
+      font-size: 14px;
+      color: var(--text);
+    }
+    .rr-bullets li::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0.18em;
+      width: 9px; height: 9px;
+      background: var(--theme);
+    }
+    .rr-bullets strong { font-weight: 700; }
+
+    /* Bottom strip */
+    .rr-promo-strip {
+      border-top: 1px solid var(--border-grey);
+      padding: 12px 28px;
+      display: flex;
+      align-items: center;
+    }
+    /* "Find out more" — bottom-right footer of the Call-for-Evidence card */
+    .rr-promo-more {
+      padding: 12px 28px;
+      text-align: right;
+    }
+    .rr-strip-left {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 500; font-size: 12px;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--text);
+    }
+    .rr-strip-icon { width: 15px; height: 15px; flex: 0 0 auto; color: var(--text); }
+    .rr-strip-right {
+      font-family: 'Roboto', sans-serif;
+      font-weight: 600; font-size: 12px;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--theme);
+    }
+    .rr-promo:hover .rr-strip-right { text-decoration: underline; text-underline-offset: 3px; }
+
+    /* Tablet/mobile: red panel goes full-width on top, then cards, then strip */
+    @media (max-width: 1080px) {
+      .rr-promo-card {
+        grid-template-columns: 1fr;   /* title on top, right region (cards) below */
+        min-height: 0;
+      }
+      .rr-promo-l1 { font-size: 36px; }
+      .rr-promo-l2 { font-size: 48px; }
+    }
+    @media (max-width: 600px) {
+      .rr-promo { padding: 24px 18px; }
+      .rr-promo-cards { grid-template-columns: 1fr; }
+      .rr-promo-cfe { border-left: none; border-top: 1px solid var(--border-grey); }
+      .rr-promo-strip { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .rr-promo-l1 { font-size: 30px; }
+      .rr-promo-l2 { font-size: 42px; }
     }
     .section-label {
       font-family: 'Copperplate', serif;
