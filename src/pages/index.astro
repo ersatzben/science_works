@@ -111,8 +111,8 @@ const orgJsonLd = {
   </section>
 
   <!-- Promo band → /reorganising-research (full-bleed band; recreated card) -->
-  <a class="rr-promo" href="/reorganising-research" aria-label="Reorganising Research — essay prize and call for evidence">
-    <div class="rr-promo-card">
+  <div class="rr-promo">
+    <a class="rr-promo-card" href="/reorganising-research" aria-label="Reorganising Research — essay prize and call for evidence">
 
       <!-- Left: red title panel -->
       <div class="rr-promo-title">
@@ -155,8 +155,8 @@ const orgJsonLd = {
           <div class="rr-promo-more"><span class="rr-strip-right">Find out more <span class="rr-strip-arrow">&rarr;</span></span></div>
         </div>
       </div>
-    </div>
-  </a>
+    </a>
+  </div>
 
   <!-- 2. Spotlight: pinned intro (left) + scrolling featured projects (right) -->
   <section class="spotlight" id="projects">
@@ -654,12 +654,11 @@ const orgJsonLd = {
     }
 
     /* ── Promo band → /reorganising-research (full-bleed --bg band; recreated card) ── */
+    /* Band: full-bleed --bg backdrop. NOT a link — only the inner card is. */
     .rr-promo {
       display: block;
       background: var(--bg);
       padding: 40px 50px;
-      text-decoration: none;
-      color: inherit;
     }
     .rr-promo-card {
       position: relative;
@@ -674,9 +673,11 @@ const orgJsonLd = {
       grid-template-columns: 1fr 1.85fr;   /* title | right region */
       box-shadow: 0 3px 20px rgba(0, 0, 0, 0.06);   /* subtle grey glow so it pops a little */
       transition: box-shadow 0.15s ease, border-color 0.15s ease;
+      text-decoration: none;
+      color: inherit;
     }
     /* Red edge on hover, like the essay cards lower down (inset ring → reads as a 2px red border); the grey glow is kept. */
-    .rr-promo:hover .rr-promo-card {
+    .rr-promo-card:hover {
       border-color: var(--theme);
       box-shadow: inset 0 0 0 0.5px var(--theme), 0 3px 20px rgba(0, 0, 0, 0.06);
     }
@@ -794,7 +795,7 @@ const orgJsonLd = {
       letter-spacing: 0.06em; text-transform: uppercase;
       color: var(--theme);
     }
-    .rr-promo:hover .rr-strip-right { text-decoration: underline; text-underline-offset: 3px; }
+    .rr-promo-card:hover .rr-strip-right { text-decoration: underline; text-underline-offset: 3px; }
 
     /* Tablet/mobile: red panel goes full-width on top, then cards, then strip */
     @media (max-width: 1080px) {
