@@ -55,7 +55,7 @@ const PRIZE_EMAIL = 'essay@science.works';
           
           <p>Your entry can take any form you wish, <strong>but below are three prompts that we’d be interested in reading:</strong>
             <ol class="prompt-list">
-              <li>Write a piece of speculative fiction exploring how the UK develops more diverse types of research institution diversification over the coming 5-10 years.</li>
+              <li>Write a piece of speculative fiction exploring how the UK develops more diverse types of research institution diversification over the coming 5–10 years.</li>
               <li>Is the UK’s mix of research institutions right after all? How would we know if it weren’t?</li>
               <li>Identify a type of scientific or technological problem that cannot be adequately tackled inside existing research institutions. Explain why and identify a potential solution.</li>
             </ol>
@@ -63,14 +63,14 @@ const PRIZE_EMAIL = 'essay@science.works';
 
           <p>You don't need to be a researcher or to work in policy to enter — only to care about how organisational design shapes what science can do.</p>
 
-          <p>Essays will be judged by the Science Works team. <strong>By submitting your essay, you agree that Science Works may publish it with full attribution and with all your rights reserved.</strong></p>
+          
 
           <div class="rr-details">
             <p><strong>Prize:</strong> £3,000</p>
             <p><strong>Runners up:</strong> £500</p>
             <p><strong>Length:</strong> Maximum 3,000 words (no minimum)</p>
             <p><strong>Closing date:</strong> 15th July 2026</p>
-            <p class="rr-details-note">Winners and runners up will be informed by the 31st July 2026.</p>
+            <p class="rr-details-note">Winners and runners up will be informed by the 31st July 2026. Essays will be judged by the Science Works team. By submitting your essay, you agree that Science Works may publish it with full attribution. You retain copyright in your essay.</p>
           </div>
         </div>
         <a class="rr-btn" href={`mailto:${PRIZE_EMAIL}`}>To submit an essay, email {PRIZE_EMAIL}</a>
@@ -87,7 +87,7 @@ const PRIZE_EMAIL = 'essay@science.works';
           <p>You can use the form to describe your own work, or to point us elsewhere. It takes around ten minutes to complete.</p>
           <!-- <p><a href="" target="_blank" rel="noopener noreferrer">Find the form here.</a></p>  -->
           <p>This scoping exercise is part of a broader programme of work on institutional dynamism in UK R&D.</p>
-          <p><em>With your permission, we may be in touch about future collaboration, use of your response to inform case studies, or events on this topic.</em></p>
+          <p class="disclaimer"><em>With your permission, we may be in touch about future collaboration, use of your response to inform case studies, or events on this topic.</em></p>
         </div>
         <a class="rr-btn" href="https://docs.google.com/forms/d/e/1FAIpQLSflSbNqPm-C4Muu0ZN0Ujoe9sbpEMUX8JQKbxke0PTrzwBRTQ/viewform" target="_blank" rel="noopener noreferrer">Fill out the form</a>
       </article>
@@ -168,7 +168,7 @@ const PRIZE_EMAIL = 'essay@science.works';
     .rr-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 28px;
+      gap: 14px;
       align-items: stretch;   /* equal height */
       /* pull the boxes out 31px (1px border + 30px padding) each side so the box
          text lines up with the intro's left & right edges */
@@ -187,12 +187,14 @@ const PRIZE_EMAIL = 'essay@science.works';
     .rr-box-title {
       font-family: 'Copperplate', serif;
       font-weight: normal;
-      font-size: 22px;
+      font-size: 24px;
       letter-spacing: 0.02em;
       color: var(--text);
-      margin: 0 0 14px;
+      margin: 0 0 18px;
     }
     .rr-box-body { flex: 1 1 auto; }   /* grows so the button pins to the bottom */
+    /* p.disclaimer beats `.rr-box-body > p` (specificity); tune this margin to taste. */
+    .rr-box-body > p.disclaimer { margin-top: 28px; }
     .rr-box-body > p {
       font-family: 'Antique Olive', sans-serif;
       font-weight: 300;
@@ -202,21 +204,43 @@ const PRIZE_EMAIL = 'essay@science.works';
       margin: 0 0 14px;
     }
 
-     .prompt-list  {
+    /* Custom counter so the number's position and its gap to the text are
+       independently controllable (native ::marker can't be spaced reliably).
+       Tune the ol `padding-left` for the number column, and the li `padding-left`
+       for the gap between number and text. */
+    .prompt-list {
+      list-style: none;
+      counter-reset: prompt;
+      padding-left: 16px;        /* number column position (lower = numbers further left) */
+      margin: 0 0 14px;
       font-family: 'Antique Olive', sans-serif;
       font-weight: 300;
       font-size: 14.5px;
       line-height: 1.5;
       color: var(--text);
-      margin: 0 0 14px;
+    }
+    .prompt-list li {
+      counter-increment: prompt;
+      position: relative;
+      padding-left: 22px;        /* gap between number and text */
+      margin-bottom: 6px;
+    }
+    .prompt-list li::before {
+      content: counter(prompt) ".";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--text);
     }
 
     /* Key facts block (essay prize) */
-    .rr-details { margin: 8px 0 0; }
+    /* padding-left 16px puts the block on the same columns as .prompt-list:
+       square bullets line up with the list numbers, item text with the list text. */
+    .rr-details { margin: 8px 0 0; padding-left: 16px; }
     .rr-details p { font-family: 'Roboto', sans-serif; font-size: 16px; line-height: 1.5; color: var(--text); margin: 0 0 4px; }
     .rr-details strong { font-weight: 700; }
     /* Key-fact items get a 10px --theme square bullet (the closing note doesn't). */
-    .rr-details p:not(.rr-details-note) { position: relative; padding-left: 20px; }
+    .rr-details p:not(.rr-details-note) { position: relative; padding-left: 22px; }   /* text → 16 + 22 = 38px, matching the list text */
     .rr-details p:not(.rr-details-note)::before {
       content: '';
       position: absolute;
@@ -226,7 +250,8 @@ const PRIZE_EMAIL = 'essay@science.works';
       height: 10px;
       background: var(--theme);
     }
-    .rr-details .rr-details-note { margin: 10px 0 0; opacity: 0.75; font-size: 13px; }
+    /* -16px cancels the block's padding-left so the note returns to the body-left edge. */
+    .rr-details .rr-details-note { margin: 20px 0 0 -16px; opacity: 0.75; font-size: 13px; }
 
     /* Full-bleed red bar pinned to the bottom of the box. The negative margins
        (= the box's border + padding: 1+30 sides, 1+28 bottom) take it to the box
