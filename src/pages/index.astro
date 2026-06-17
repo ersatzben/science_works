@@ -112,6 +112,8 @@ const orgJsonLd = {
 
   <!-- Promo band → /reorganising-research (full-bleed band; recreated card) -->
   <div class="rr-promo">
+    <!-- Decorative surround: tiled texture framing the card (desktop only). -->
+    <div class="rr-promo-surround" aria-hidden="true"></div>
     <a class="rr-promo-card" href="/reorganising-research" aria-label="Reorganising Research — essay prize and call for evidence">
 
       <!-- Left: red title panel -->
@@ -654,14 +656,39 @@ const orgJsonLd = {
     }
 
     /* ── Promo band → /reorganising-research (full-bleed --bg band; recreated card) ── */
-    /* Band: full-bleed --bg backdrop. NOT a link — only the inner card is. */
+    /* Band: full-bleed --bg backdrop. NOT a link — only the inner card is.
+       Taller padding (100px) leaves a 70px reveal around the card once the
+       surround is inset 30px on every side. */
     .rr-promo {
+      position: relative;          /* positioning context for the surround */
       display: block;
       background: var(--bg);
-      padding: 40px 50px;
+      padding: 100px 50px;
+    }
+    /* Decorative tiled frame: 30px in from the band edges (so 30px from the
+       viewport sides), sitting above the --bg fill but behind the card. */
+    .rr-promo-surround {
+      position: absolute;
+      top: 30px;
+      bottom: 30px;
+      left: 30px;
+      right: 30px;
+      z-index: 1;
+      border: 1px solid var(--border-grey);
+      border-radius: 2px;
+      background: url('/assets/images/decor/rr-promo-surround-tile.png') top left repeat;
+      background-size: 90px auto;   /* 0.75× the crisp 1× tile */
+      /* Inset shadow → the surround reads as a recessed well sunk beneath the
+         page, so the card appears to float above it. Lit from the top-left:
+         strong on the top & left rims, only a faint trace on bottom & right. */
+      box-shadow: inset 0 8px 15px rgba(0, 0, 0, 0.08),   /* top */
+                  inset 8px 0 20px rgba(0, 0, 0, 0.05),   /* left */
+                  inset 0 0 6px rgba(0, 0, 0, 0.03);      /* faint all-round (bottom/right) */
+      pointer-events: none;
     }
     .rr-promo-card {
       position: relative;
+      z-index: 2;                  /* above the surround */
       overflow: hidden;            /* clips the red panel to the rounded corners */
       max-width: 1110px;
       min-height: 250px;           /* a bit taller (room for the icons-above-title later) */
@@ -671,7 +698,10 @@ const orgJsonLd = {
       border-radius: 4px;
       display: grid;
       grid-template-columns: 1fr 1.85fr;   /* title | right region */
-      box-shadow: 0 3px 20px rgba(0, 0, 0, 0.06);   /* subtle grey glow so it pops a little */
+      /* Float shadow: a tight contact shadow + a broad soft drop, stronger than
+         before so the card clearly lifts out of the recessed well behind it. */
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.10),
+                  0 10px 30px rgba(0, 0, 0, 0.16);
       transition: transform 0.15s ease, box-shadow 0.15s ease;
       text-decoration: none;
       color: inherit;
@@ -680,7 +710,8 @@ const orgJsonLd = {
        glow deepened a touch so the displacement reads. */
     .rr-promo-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 7px 24px rgba(0, 0, 0, 0.09);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12),
+                  0 16px 38px rgba(0, 0, 0, 0.20);
     }
 
     /* Left red panel */
@@ -734,10 +765,10 @@ const orgJsonLd = {
     .rr-card-icon { display: block; height: 18px; width: auto; margin-bottom: 18px; margin-left: 2px; }   /* pixel motif above the heading */
     .rr-promo-cfe { border-left: 1px solid var(--border-grey); }
     .rr-promo-h {
-      margin: 10px 0 20px;
+      margin: 10px 0 14px;
       font-family: 'Copperplate', serif;
       font-weight: normal;
-      font-size: 20px;
+      font-size: 22px;
       letter-spacing: 0.04em;
       text-transform: uppercase;
       color: var(--text);
@@ -796,8 +827,12 @@ const orgJsonLd = {
     }
     .rr-promo-card:hover .rr-strip-right { text-decoration: underline; text-underline-offset: 3px; }
 
-    /* Tablet/mobile: red panel goes full-width on top, then cards, then strip */
+    /* Tablet/mobile: red panel goes full-width on top, then cards, then strip.
+       The decorative surround is desktop-only, so drop it (and the extra band
+       padding it needed) here. */
     @media (max-width: 1080px) {
+      .rr-promo { padding: 40px 50px; }
+      .rr-promo-surround { display: none; }
       .rr-promo-card {
         grid-template-columns: 1fr;   /* title on top, right region (cards) below */
         min-height: 0;
@@ -811,7 +846,7 @@ const orgJsonLd = {
       .rr-promo-cfe { border-left: none; border-top: 1px solid var(--border-grey); }
       .rr-promo-strip { flex-direction: column; align-items: flex-start; gap: 8px; }
       .rr-promo-l1 { font-size: 30px; }
-      .rr-promo-l2 { font-size: 42px; }
+      .rr-promo-l2 { font-size: 43px; }
     }
     .section-label {
       font-family: 'Copperplate', serif;

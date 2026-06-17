@@ -44,6 +44,7 @@ const PRIZE_EMAIL = 'essay@science.works';
     <section class="rr-grid">
       
       <article class="rr-box">
+        <img class="rr-card-icon" src="/assets/images/icons/essay-icon.png" alt="" />
         <h2 class="rr-box-title">Essay Prize</h2>
         <div class="rr-box-body">
           <p>We are launching an <strong>essay prize</strong> to uncover new thinking about how to reorganise research.</p>
@@ -55,7 +56,7 @@ const PRIZE_EMAIL = 'essay@science.works';
           
           <p>Your entry can take any form you wish, <strong>but below are three prompts that we’d be interested in reading:</strong>
             <ol class="prompt-list">
-              <li>Write a piece of speculative fiction exploring how the UK develops more diverse types of research institution diversification over the coming 5–10 years.</li>
+              <li>Write a piece of speculative fiction exploring how the UK develops more diverse types of research institution over the coming 5–10 years.</li>
               <li>Is the UK’s mix of research institutions right after all? How would we know if it weren’t?</li>
               <li>Identify a type of scientific or technological problem that cannot be adequately tackled inside existing research institutions. Explain why and identify a potential solution.</li>
             </ol>
@@ -77,6 +78,7 @@ const PRIZE_EMAIL = 'essay@science.works';
       </article>
 
       <article class="rr-box">
+        <img class="rr-card-icon" src="/assets/images/icons/cfe-icon.png" alt="" />
         <h2 class="rr-box-title">Call for Evidence</h2>
         <div class="rr-box-body">
           <p>Run jointly with the Wellcome Trust, this call for evidence will uncover examples of the labs, departments, institutes, programmes, and funding architectures across the UK that are doing things differently to the mainstream academic model.</p>
@@ -188,6 +190,9 @@ const PRIZE_EMAIL = 'essay@science.works';
       padding: 28px 30px;
     }
     
+    /* Pixel motif above each box heading (same assets as the homepage promo).
+       align-self stops the flex-column .rr-box from stretching it full-width. */
+    .rr-card-icon { display: block; align-self: flex-start; height: 22px; width: auto; margin: 0 0 16px 1px; }
     .rr-box-title {
       font-family: 'Copperplate', serif;
       font-weight: normal;
