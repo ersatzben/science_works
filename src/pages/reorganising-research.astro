@@ -31,7 +31,7 @@ const PRIZE_EMAIL = 'essay@science.works';
 
     <!-- 2) Intro blurb. -->
     <section class="rr-intro">
-      <p class="bigger">Every era of scientific progress has rested on the invention of new ways to organise our efforts.</p>
+      <p>Every era of scientific progress has rested on the invention of new ways to organise our efforts.</p>
       <p>The research university, the national laboratory, the corporate lab, the funding council, the mission agency – each was an institutional innovation with its own design choices, affordances, and limits, well-suited to some kinds of work and less to others.</p>
       <p>How labs and funding are organised, what incentives and timescales are hardwired into the system — these choices promote certain types of research and make others very difficult to pursue.</p>
       <p>The UK is unusually dependent on a single dominant model of research: the academic lab, funded by a patchwork of external grants, organised around a principal investigator, assessed primarily on papers, and built around a standardised career pathway. This model has supported much of what British science is rightly known for, and it will remain central.</p>
@@ -47,14 +47,14 @@ const PRIZE_EMAIL = 'essay@science.works';
         <img class="rr-card-icon" src="/assets/images/icons/essay-icon.png" alt="" />
         <h2 class="rr-box-title">Essay Prize</h2>
         <div class="rr-box-body">
-          <p>We are launching an <strong>essay prize</strong> to uncover new thinking about how to reorganise research.</p>
+          <p>We are launching an essay prize to uncover new thinking about how to reorganise research.</p>
 
           <p>We want provocations, reimaginings, and new data. We would much rather read a new argument that we disagree with than a familiar one we don’t.</p>
 
           <p></p>
           
           
-          <p>Your entry can take any form you wish, <strong>but below are three prompts that we’d be interested in reading:</strong>
+          <p>Your entry can take any form you wish, but below are three prompts for essays that we’d be interested in reading:
             <ol class="prompt-list">
               <li>Write a piece of speculative fiction exploring how the UK develops more diverse types of research institution over the coming 5–10 years.</li>
               <li>Is the UK’s mix of research institutions right after all? How would we know if it weren’t?</li>
@@ -62,15 +62,28 @@ const PRIZE_EMAIL = 'essay@science.works';
             </ol>
           </p>
 
-          <p>You don't need to be a researcher or to work in policy to enter — only to care about how organisational design shapes what science can do.</p>
+          <p>You don't need to be a researcher or to work in policy to enter – only to care about how organisational design shapes what science can do.</p>
 
           
 
           <div class="rr-details">
-            <p><strong>Prize:</strong> £3,000</p>
-            <p><strong>Runners up:</strong> £500</p>
-            <p><strong>Length:</strong> Maximum 3,000 words (no minimum)</p>
-            <p><strong>Closing date:</strong> 15th July 2026</p>
+            <div class="rr-details-box">
+              <div class="rr-details-aside">
+                <p class="rr-details-eyebrow">Details</p>
+                <span class="rr-details-glyph" aria-hidden="true">
+                  <i class="on"></i><i></i><i class="on"></i><i class="f"></i>
+                  <i></i><i class="b"></i><i class="on"></i><i></i>
+                  <i class="on"></i><i class="on"></i><i></i><i class="f"></i>
+                  <i class="b"></i><i></i><i class="f"></i><i></i>
+                </span>
+              </div>
+              <ul class="rr-facts">
+                <li><strong>Prize:</strong> £3,000</li>
+                <li><strong>Runners up:</strong> £500</li>
+                <li><strong>Length:</strong> Maximum 3,000 words (no minimum)</li>
+                <li><strong>Closing date:</strong> 15th July 2026</li>
+              </ul>
+            </div>
             <p class="rr-details-note">Winners and runners up will be informed by the 31st July 2026. Essays will be judged by the Science Works team. By submitting your essay, you agree that Science Works may publish it with full attribution. You retain copyright in your essay. Full terms <a href="/reorganising-research/essay-terms" target="_blank" rel="noopener noreferrer">here</a>.</p>
           </div>
         </div>
@@ -84,7 +97,17 @@ const PRIZE_EMAIL = 'essay@science.works';
           <p>Run jointly with the Wellcome Trust, this call for evidence will uncover examples of the labs, departments, institutes, programmes, and funding architectures across the UK that are doing things differently to the mainstream academic model.</p>
           <p>We are looking for organisations and initiatives that have stepped outside one or more of the mainstream assumptions about how research gets organised.</p>
           <p>This could include unusual team structures, financial models, governance arrangements, career trajectories, connections with other types of research organisation, or approaches to infrastructure.</p>
-          <p><strong>We want to know how diverse our existing landscape really is, and what's already being trialled.</strong></p>
+          <div class="rr-keyq">
+            <span class="rr-keyq-glyph" aria-hidden="true">
+              <i class="on"></i><i></i><i class="on"></i>
+              <i></i><i class="on"></i><i></i>
+              <i class="on"></i><i></i><i class="on"></i>
+            </span>
+            <div class="rr-keyq-text">
+              <p class="rr-keyq-eyebrow">Key Question</p>
+              <p class="rr-keyq-q">How diverse is the UK&rsquo;s research landscape, and what&rsquo;s already being trialled?</p>
+            </div>
+          </div>
           <p>The most useful responses will come from people who can describe what their group or initiative is doing that wouldn't be obvious from its website.</p>
           <p>You can use the form to describe your own work, or to point us elsewhere. It takes around ten minutes to complete.</p>
           <!-- <p><a href="" target="_blank" rel="noopener noreferrer">Find the form here.</a></p>  -->
@@ -196,7 +219,7 @@ const PRIZE_EMAIL = 'essay@science.works';
     .rr-box-title {
       font-family: 'Copperplate', serif;
       font-weight: normal;
-      font-size: 24px;
+      font-size: 26px;
       letter-spacing: 0.02em;
       color: var(--text);
       margin: 0 0 18px;
@@ -213,25 +236,66 @@ const PRIZE_EMAIL = 'essay@science.works';
       margin: 0 0 14px;
     }
 
+    /* "Key question" callout: Copperplate question framed by --theme rules, with
+       a small pixel glyph on the left. (Glyph pattern is a placeholder for now.) */
+    .rr-keyq {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 22px 0;
+      padding: 16px 0;
+      border-top: 1px solid var(--theme);
+      border-bottom: 1px solid var(--theme);
+    }
+    .rr-keyq-glyph {
+      flex: 0 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 7px);
+      grid-auto-rows: 7px;
+      gap: 3px;
+    }
+    .rr-keyq-glyph i { background: transparent; }
+    .rr-keyq-glyph i.on { background: var(--theme); }
+    .rr-keyq-text { min-width: 0; }
+    .rr-keyq-eyebrow {
+      margin: 0 0 7px;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--theme);
+    }
+    .rr-keyq-q {
+      margin: 0;
+      font-family: 'Copperplate', serif;
+      font-weight: normal;
+      font-size: 17px;
+      line-height: 1.3;
+      letter-spacing: 0.02em;
+      color: var(--text);
+    }
+
     /* Custom counter so the number's position and its gap to the text are
        independently controllable (native ::marker can't be spaced reliably).
        Tune the ol `padding-left` for the number column, and the li `padding-left`
        for the gap between number and text. */
     .prompt-list {
+      position: relative;        /* anchor for the vertical divider line */
       list-style: none;
       counter-reset: prompt;
-      padding-left: 16px;        /* number column position (lower = numbers further left) */
-      margin: 0 0 14px;
+      padding-left: 12px;        /* number column position (lower = numbers further left) */
+      margin: 24px 0 24px;
       font-family: 'Antique Olive', sans-serif;
       font-weight: 300;
-      font-size: 14.5px;
+      font-size: 13.5px;
       line-height: 1.5;
       color: var(--text);
     }
     .prompt-list li {
       counter-increment: prompt;
       position: relative;
-      padding-left: 22px;        /* gap between number and text */
+      padding-left: 32px;        /* gap between number and text */
       margin-bottom: 12px;
     }
     .prompt-list li::before {
@@ -239,28 +303,85 @@ const PRIZE_EMAIL = 'essay@science.works';
       position: absolute;
       left: 0;
       top: 0;
-      color: var(--text);
+      color: var(--theme);
+      font-weight: bold;
     }
-
-    /* Key facts block (essay prize) */
-    /* padding-left 16px puts the block on the same columns as .prompt-list:
-       square bullets line up with the list numbers, item text with the list text. */
-    .rr-details { margin: 8px 0 0; padding-left: 16px; }
-    .rr-details p { font-family: 'Roboto', sans-serif; font-size: 16px; line-height: 1.5; color: var(--text); margin: 0 0 4px; }
-    .rr-details strong { font-weight: 700; }
-    /* Key-fact items get a 10px --theme square bullet (the closing note doesn't). */
-    .rr-details p:not(.rr-details-note) { position: relative; padding-left: 22px; }   /* text → 16 + 22 = 38px, matching the list text */
-    .rr-details p:not(.rr-details-note)::before {
+    /* Thin grey divider running down between the number column and the text. */
+    .prompt-list::after {
       content: '';
       position: absolute;
-      left: 0;
-      top: 0.42em;
-      width: 10px;
-      height: 10px;
+      top: 0.15em;
+      bottom: 6px;              /* stop at the last item's text, not its trailing margin */
+      left: 32px;                /* between the numbers (~28px) and the text (38px) */
+      width: 1px;
+      background: var(--border-grey);
+    }
+
+    /* Key facts block (essay prize): a --bg-secondary box with a "Details"
+       aside (eyebrow + 4×4 pixel glyph) on the left, a dashed vertical divide,
+       then the facts list (red square bullets, dashed row separators). */
+    .rr-details { margin: 20px 0 0; }
+    .rr-details-box {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-grey);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    /* Left aside */
+    .rr-details-aside {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 14px 18px;
+      border-right: 1px dashed rgba(235, 49, 49, 0.35);   /* vertical divide */
+    }
+    .rr-details-eyebrow {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--theme);
+    }
+    /* 4×4 pixel glyph (placeholder pattern — tweak the cell classes to taste). */
+    .rr-details-glyph { display: grid; grid-template-columns: repeat(4, 9px); grid-auto-rows: 9px; gap: 3px; }
+    .rr-details-glyph i { background: transparent; }
+    .rr-details-glyph i.on { background: var(--theme); }
+    .rr-details-glyph i.b  { background: #6aa9d9; }                  /* blue accent */
+    .rr-details-glyph i.f  { background: rgba(235, 49, 49, 0.25); }  /* faded */
+    /* Facts list */
+    .rr-facts { list-style: none; margin: 0; padding: 0; }
+    .rr-facts li {
+      position: relative;
+      padding: 12px 22px 12px 40px;     /* left room for the square bullet */
+      font-family: 'Roboto', sans-serif;
+      font-size: 15px;
+      line-height: 1.4;
+      color: var(--text);
+      border-bottom: 1px dashed rgba(235, 49, 49, 0.22);
+    }
+    .rr-facts li:last-child { border-bottom: none; }
+    .rr-facts strong { font-weight: 700; }
+    .rr-facts li::before {
+      content: '';
+      position: absolute;
+      left: 18px;
+      top: 1.05em;
+      width: 10px; height: 10px;
       background: var(--theme);
     }
-    /* -16px cancels the block's padding-left so the note returns to the body-left edge. */
-    .rr-details .rr-details-note { margin: 20px 0 0 -16px; opacity: 0.75; font-size: 13px; }
+    /* Closing note sits below the box, at the body-left edge. */
+    .rr-details-note {
+      margin: 28px 0 0;
+      font-family: 'Roboto', sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text);
+      opacity: 0.75;
+    }
     .rr-details-note a {
       color: var(--theme);
       text-decoration: underline;
