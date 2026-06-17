@@ -116,13 +116,13 @@ const orgJsonLd = {
 
       <!-- Left: red title panel -->
       <div class="rr-promo-title">
-        <p class="rr-eyebrow">Special call for participation<span class="rr-pix"><i></i><i class="m"></i><i class="o"></i></span></p>
+        <p class="rr-eyebrow">Call for participation<span class="rr-pix"><i></i><i class="m"></i><i class="o"></i></span></p>
         <div class="rr-heading-block">
           <span class="rr-promo-l1">Reorganising</span>
           <span class="rr-promo-l2">Research</span>
           <span class="rr-rule"></span>
         </div>
-        <p class="rr-footline">Two open calls – for a limited time<span class="rr-footpix"><i></i><i class="o"></i><i></i><i class="o"></i><i class="o"></i><i></i><i class="o"></i><i></i></span></p>
+        <p class="rr-footline">Institutional dynamism<span class="rr-footpix"><i></i><i class="o"></i><i></i><i class="o"></i><i class="o"></i><i></i><i class="o"></i><i></i></span></p>
       </div>
 
       <!-- Right: two cards (the closing strip belongs to the essay card only) -->
@@ -151,8 +151,8 @@ const orgJsonLd = {
             <h3 class="rr-promo-h">Call for Evidence</h3>
             <p class="rr-promo-p">Jointly with the <strong>Wellcome Trust</strong>, we want to uncover examples of the labs, departments, institutes, programmes, &amp; funding architectures doing things differently.</p>
           </div>
-          <!-- Find out more — bottom-right of the rightmost card -->
-          <div class="rr-promo-more"><span class="rr-strip-right">Find out more <span class="rr-strip-arrow">&rarr;</span></span></div>
+          <!-- Find out more — same strip as the essay card, pinned bottom-right -->
+          <div class="rr-promo-strip rr-strip-cfe"><span class="rr-strip-right">Find out more <span class="rr-strip-arrow">&rarr;</span></span></div>
         </div>
       </div>
     </a>
@@ -667,19 +667,20 @@ const orgJsonLd = {
       min-height: 250px;           /* a bit taller (room for the icons-above-title later) */
       margin: 0 auto;
       background: var(--almost-white);
-      border: 1px solid var(--border-grey);
+      border: 1px solid var(--theme);   /* red edge at all times */
       border-radius: 4px;
       display: grid;
       grid-template-columns: 1fr 1.85fr;   /* title | right region */
       box-shadow: 0 3px 20px rgba(0, 0, 0, 0.06);   /* subtle grey glow so it pops a little */
-      transition: box-shadow 0.15s ease, border-color 0.15s ease;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
       text-decoration: none;
       color: inherit;
     }
-    /* Red edge on hover, like the essay cards lower down (inset ring → reads as a 2px red border); the grey glow is kept. */
+    /* Hover: a very subtle lift (the red border is permanent now), with the
+       glow deepened a touch so the displacement reads. */
     .rr-promo-card:hover {
-      border-color: var(--theme);
-      box-shadow: inset 0 0 0 0.5px var(--theme), 0 3px 20px rgba(0, 0, 0, 0.06);
+      transform: translateY(-2px);
+      box-shadow: 0 7px 24px rgba(0, 0, 0, 0.09);
     }
 
     /* Left red panel */
@@ -715,14 +716,14 @@ const orgJsonLd = {
       margin-left: -3px;
     }
     .rr-promo-l1 { font-size: 42.5px; }
-    .rr-promo-l2 { font-size: 60px; }
+    .rr-promo-l2 { font-size: 60.9px; margin-left: -5px; }
     .rr-rule { display: block; height: 2px; background: rgba(255,255,255,0.5); margin-top: 16px; }
     /* pixel-square motifs */
-    .rr-pix { display: inline-flex; gap: 12px; margin-left: 27px; }
+    .rr-pix { display: inline-flex; gap: 12px; margin-left: auto; }   /* push to the right edge (lines up with .rr-rule) */
     .rr-pix i { width: 10px; height: 10px; background: var(--almost-white); }
     .rr-pix i.m { background: rgb(255, 255, 255, 0.75); }
     .rr-pix i.o { background: rgb(255, 255, 255, 0.5); }
-    .rr-footpix { display: inline-grid; grid-template-columns: repeat(4, 8px); gap: 5px; margin-left: 50px; margin-top: 10px;  }
+    .rr-footpix { display: inline-grid; grid-template-columns: repeat(4, 8px); gap: 5px; margin-left: auto; margin-top: 10px;  }   /* right-aligned, like .rr-pix */
     .rr-footpix i { width: 9px; height: 9px; background:  rgb(255, 255, 255, 0.75); }
     .rr-footpix i.o { background:  rgb(255, 255, 255, 0.5); }
 
@@ -733,7 +734,7 @@ const orgJsonLd = {
     .rr-card-icon { display: block; height: 18px; width: auto; margin-bottom: 18px; margin-left: 2px; }   /* pixel motif above the heading */
     .rr-promo-cfe { border-left: 1px solid var(--border-grey); }
     .rr-promo-h {
-      margin: 10px 0;
+      margin: 10px 0 20px;
       font-family: 'Copperplate', serif;
       font-weight: normal;
       font-size: 20px;
@@ -769,26 +770,24 @@ const orgJsonLd = {
     }
     .rr-bullets strong { font-weight: 700; }
 
-    /* Bottom strip */
+    /* Bottom strip (essay closing date + CfE "find out more") */
     .rr-promo-strip {
       border-top: 1px solid var(--border-grey);
+      background: #fbeaea;   /* very light tint of --theme */
       padding: 12px 28px;
       display: flex;
       align-items: center;
     }
-    /* "Find out more" — bottom-right footer of the Call-for-Evidence card */
-    .rr-promo-more {
-      padding: 12px 28px;
-      text-align: right;
-    }
+    /* CfE strip keeps "find out more" pinned to the right corner. */
+    .rr-strip-cfe { justify-content: flex-end; }
     .rr-strip-left {
       display: inline-flex; align-items: center; gap: 8px;
       font-family: 'Roboto', sans-serif;
       font-weight: 500; font-size: 12px;
       letter-spacing: 0.06em; text-transform: uppercase;
-      color: var(--text);
+      color: var(--theme);
     }
-    .rr-strip-icon { width: 15px; height: 15px; flex: 0 0 auto; color: var(--text); }
+    .rr-strip-icon { width: 15px; height: 15px; flex: 0 0 auto; color: var(--theme); }
     .rr-strip-right {
       font-family: 'Roboto', sans-serif;
       font-weight: 600; font-size: 12px;

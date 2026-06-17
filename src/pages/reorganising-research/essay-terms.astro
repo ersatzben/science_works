@@ -1,0 +1,62 @@
+---
+import PolicyLayout from '../../layouts/PolicyLayout.astro';
+
+// Essay-prize submissions go to this inbox (kept in sync with the main page).
+const PRIZE_EMAIL = 'essay@science.works';
+---
+<PolicyLayout title="Essay Prize Terms" noindex={false}>
+
+  <h2>Eligibility</h2>
+  <p>The prize is open to entrants anywhere in the world. You must be 18 or over to enter.</p>
+  <p>Members of the Science Works team and board are not eligible to enter.</p>
+
+  <h2>Entries</h2>
+  <p>You may submit more than one essay, but no individual may win more than one prize.</p>
+  <p>Essays may be co-authored. Where an essay is co-authored, all authors must be eligible and must agree to these terms. Any prize will be shared, with the split determined by the corresponding author, who should be nominated on submission and will be our point of contact. By entering, you confirm that the essay is your own, original work, and that it does not infringe anyone else's rights, and that it is not defamatory.</p>
+  <p>You may use AI tools, but be aware that we can usually tell when an essay has been substantially AI-generated, and we are likely to mark such entries down accordingly.</p>
+
+  <h2>Publication and rights</h2>
+  <p>We publish the winning and runner-up essays only. By submitting your essay, you grant Science Works a non-exclusive, royalty-free licence to publish and republish it, in any format, with full attribution. You retain copyright in your work.</p>
+
+  <h2>Judging</h2>
+  <p>Essays are judged by the Science Works team together with invited readers.</p>
+  <p>We judge on originality, rigour, and quality of argument, with bonus credit for entries that bring original data.</p>
+  <p>We reserve discretion over the number of runners-up. The panel's decision is final and we will not enter into correspondence about it.</p>
+
+  <h2>Prizes</h2>
+  <p>Winner: <strong>£3,000</strong>. Runners-up: <strong>£500</strong> each.</p>
+  <p>Prizes are paid by BACS transfer to a nominated bank account. Overseas winners are responsible for any transfer fees or charges.</p>
+
+  <h2>How to enter</h2>
+  <p>Send your essay in any format to <a href={`mailto:${PRIZE_EMAIL}`}>{PRIZE_EMAIL}</a>.</p>
+  <p>Maximum 3,000 words (no minimum).</p>
+  <p>Closing date: <strong>23:59 BST on 15 July 2026</strong>. Winners and runners-up will be informed by 31 July 2026.</p>
+
+  <h2>Data</h2>
+  <p>We handle your personal data in line with the Science Works <a href="/privacy">privacy notice</a>.</p>
+
+  <h2>Contact</h2>
+  <p>Any further questions, please contact us on <a href={`mailto:${PRIZE_EMAIL}`}>{PRIZE_EMAIL}</a>.</p>
+
+  <a class="terms-back" href="/reorganising-research">&larr; Back to Reorganising Research</a>
+
+</PolicyLayout>
+
+<style>
+  /* Back link sits above the policy prose; styled like the kicker on the main
+     page (Roboto, muted, theme on hover) rather than the underlined prose links.
+     The scoped [data-astro-cid] attribute lifts it above .policy-prose a. */
+  .terms-back {
+    display: inline-block;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 400;
+    opacity: 0.7;
+    margin: 28px 0;
+    transition: opacity 0.15s ease, color 0.15s ease;
+  }
+  .terms-back:hover { opacity: 1; color: var(--theme); }
+</style>

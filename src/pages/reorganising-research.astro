@@ -70,7 +70,7 @@ const PRIZE_EMAIL = 'essay@science.works';
             <p><strong>Runners up:</strong> £500</p>
             <p><strong>Length:</strong> Maximum 3,000 words (no minimum)</p>
             <p><strong>Closing date:</strong> 15th July 2026</p>
-            <p class="rr-details-note">Winners and runners up will be informed by the 31st July 2026. Essays will be judged by the Science Works team. By submitting your essay, you agree that Science Works may publish it with full attribution. You retain copyright in your essay.</p>
+            <p class="rr-details-note">Winners and runners up will be informed by the 31st July 2026. Essays will be judged by the Science Works team. By submitting your essay, you agree that Science Works may publish it with full attribution. You retain copyright in your essay. Full terms <a href="/reorganising-research/essay-terms" target="_blank" rel="noopener noreferrer">here</a>.</p>
           </div>
         </div>
         <a class="rr-btn" href={`mailto:${PRIZE_EMAIL}`}>To submit an essay, email {PRIZE_EMAIL}</a>
@@ -256,6 +256,14 @@ const PRIZE_EMAIL = 'essay@science.works';
     }
     /* -16px cancels the block's padding-left so the note returns to the body-left edge. */
     .rr-details .rr-details-note { margin: 20px 0 0 -16px; opacity: 0.75; font-size: 13px; }
+    .rr-details-note a {
+      color: var(--theme);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      text-decoration-color: rgba(235, 49, 49, 0.4);   /* faint underline at rest */
+      transition: text-decoration-color 0.15s ease;
+    }
+    .rr-details-note a:hover { text-decoration-color: var(--theme); }   /* full-strength on hover */
 
     /* Full-bleed red bar pinned to the bottom of the box. The negative margins
        (= the box's border + padding: 1+30 sides, 1+28 bottom) take it to the box

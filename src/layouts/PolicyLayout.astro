@@ -2,12 +2,12 @@
 // Shared chrome for the policy pages (Terms, Privacy, Cookies). Pass a `title`;
 // put the real copy in the default slot — until then a "coming soon" stub shows.
 import BaseLayout from './BaseLayout.astro';
-const { title } = Astro.props;
+const { title, noindex = true } = Astro.props;
 ---
 <BaseLayout
   title={`${title} — Science Works`}
   description={`${title} for Science Works.`}
-  noindex={true}
+  noindex={noindex}
 >
   <main class="policy">
     <div class="policy-inner">
