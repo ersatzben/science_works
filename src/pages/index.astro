@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import GridArt from '../components/GridArt.astro';
 import { coverFor } from '../lib/covers.js';
+import { team } from '../lib/people.js';
 import quotes from '../data/quotes.json';
 import introPic from '../data/decor/home-intro.json';   // mobile intro illustration (30×22)
 import rrPromoData from '../data/decor/reorganising-research-banner.json';   // promo band art (180×47)
@@ -71,9 +72,12 @@ const sifItems = [
 ];
 
 // Organization structured data (schema.org) — feeds Google's knowledge panel.
+// `@id` is stable (/#organization) so Person `worksFor` on profile pages binds
+// to this same entity. `member` links the org to each team member's profile.
 const orgJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
+  '@id': new URL('/#organization', Astro.site).href,
   name: 'Science Works',
   url: new URL('/', Astro.site).href,
   logo: new URL('/icon-512.png', Astro.site).href,
@@ -82,9 +86,16 @@ const orgJsonLd = {
     'https://x.com/sci_works',
     'https://bsky.app/profile/science.works',
   ],
+  member: team.map((p) => ({
+    '@type': 'Person',
+    '@id': `${new URL(p.path, Astro.site).href}#person`,
+    name: p.name,
+    jobTitle: p.role,
+    url: new URL(p.path, Astro.site).href,
+  })),
 };
 ---
-<BaseLayout title="Science Works">
+<BaseLayout title="Science Works — Reshaping the British Research System">
   <script type="application/ld+json" slot="head" set:html={JSON.stringify(orgJsonLd)} />
   <section id="splash">
     <div class="stage">

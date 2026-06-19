@@ -1,0 +1,203 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { team } from '../../lib/people.js';
+import { glyphFor } from '../../lib/glyphs.js';
+
+// One profile page per core team member. These are the canonical, indexable
+// URLs for "<name> Science Works" queries: the slug, <title>, <h1>, body copy,
+// and Person JSON-LD all name the person and bind them to the Organization.
+export async function getStaticPaths() {
+  const all = await getCollection('writing');
+  return team.map((p) => {
+    const writing = all
+      .filter((e) => !e.data.draft && !e.data.hidden && (e.data.authors ?? []).includes(p.name))
+      .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+    return { params: { slug: p.slug }, props: { person: p, writing } };
+  });
+}
+
+const { person: p, writing } = Astro.props;
+
+const ICONS = {
+  x: '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M18.24 2.25h3.31l-7.23 8.26L23 21.75h-6.66l-5.21-6.82-5.97 6.82H1.85l7.73-8.84L1.25 2.25h6.83l4.71 6.23 5.45-6.23zm-1.16 17.52h1.83L7.08 4.13H5.12L17.08 19.77z"/></svg>',
+  bluesky: '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 10.8C10.91 8.69 7.95 4.75 5.2 2.8 2.57.94 1.56 1.27.9 1.57.14 1.91 0 3.08 0 3.77c0 .69.38 5.65.62 6.48.82 2.73 3.71 3.66 6.38 3.36-3.91.58-7.38 2.01-2.83 7.08 5.01 5.19 6.87-1.11 7.82-4.31.95 3.2 2.05 9.27 7.73 4.31 4.27-4.31 1.17-6.5-2.74-7.08 2.67.3 5.57-.63 6.38-3.36.25-.83.62-5.79.62-6.48 0-.69-.14-1.86-.9-2.21-.66-.3-1.66-.62-4.3 1.24C16.05 4.75 13.09 8.69 12 10.8z"/></svg>',
+  linkedin: '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43A2.06 2.06 0 1 1 5.34 3.3a2.06 2.06 0 0 1 0 4.13zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>',
+};
+
+function initials(name) {
+  const parts = name.trim().split(/\s+/);
+  return ((parts[0][0] || '') + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
+}
+
+// X/Bluesky store handles; LinkedIn stores a full URL.
+const social = [];
+if (p.x)        social.push({ key: 'x',        label: 'X',        href: `https://x.com/${p.x.replace(/^@/, '')}` });
+if (p.bluesky)  social.push({ key: 'bluesky',  label: 'Bluesky',  href: `https://bsky.app/profile/${p.bluesky.replace(/^@/, '')}` });
+if (p.linkedin) social.push({ key: 'linkedin', label: 'LinkedIn', href: p.linkedin });
+
+const glyph = glyphFor(p.name)?.cells ?? [];
+
+const canonical = new URL(`/people/${p.slug}`, Astro.site).href;
+const orgId = new URL('/#organization', Astro.site).href;
+const imageURL = p.photo ? new URL(p.photo, Astro.site).href : undefined;
+
+// Person structured data. `@id` is stable so essays can reference the same
+// entity as author; `worksFor` binds the person to the Science Works org.
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  '@id': `${canonical}#person`,
+  name: p.name,
+  jobTitle: p.role,
+  description: p.bio,
+  url: canonical,
+  ...(imageURL ? { image: imageURL } : {}),
+  worksFor: { '@type': 'Organization', '@id': orgId, name: 'Science Works', url: new URL('/', Astro.site).href },
+  ...(social.length ? { sameAs: social.map((s) => s.href) } : {}),
+};
+
+const fmt = (d) => d.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
+const title = `${p.name} — ${p.role}, Science Works`;
+const description = `${p.name} is ${p.role} at Science Works, an independent research and policy studio for UK science and technology. ${p.bio}`.slice(0, 300);
+---
+<BaseLayout title={title} description={description} image={p.photo ?? '/og-default.png'}>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(jsonLd)} />
+  <main class="profile">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/about">About</a><span class="crumb-sep" aria-hidden="true">/</span><span>{p.name}</span>
+    </nav>
+
+    <article class="profile-card">
+      <div class="profile-top">
+        {p.photo
+          ? <img class="profile-photo" src={p.photo} alt={`${p.name}, ${p.role} at Science Works`} data-initials={initials(p.name)} />
+          : <div class="profile-photo is-placeholder" aria-label={p.name}>{initials(p.name)}</div>}
+        <div class="profile-id">
+          <div class="profile-glyph" aria-hidden="true">
+            {glyph.map((hex) => (<span class="glyph-cell" style={hex ? `background:${hex}` : undefined}></span>))}
+          </div>
+          <h1 class="profile-name">{p.name}</h1>
+          <div class="profile-role">{p.role} · Science Works</div>
+          {social.length > 0 && (
+            <div class="profile-socials">
+              {social.map((s) => (
+                <a href={s.href} aria-label={`${p.name} on ${s.label}`} title={s.label} target="_blank" rel="me noopener" set:html={ICONS[s.key]}></a>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <p class="profile-bio">{p.bio}</p>
+
+      {writing.length > 0 && (
+        <section class="profile-writing">
+          <h2 class="profile-writing-title">Writing by {p.name}</h2>
+          <ul class="profile-writing-list">
+            {writing.map((e) => (
+              <li>
+                <a href={`/writing/${e.id}`}>{e.data.title}</a>
+                <span class="profile-writing-date">{fmt(e.data.date)}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <p class="profile-back"><a href="/about">← Back to the Science Works team</a></p>
+    </article>
+  </main>
+
+<style is:global>
+  .profile { max-width: 760px; margin: 0 auto; padding: 40px 24px 80px; }
+  .crumbs { font-family: 'Roboto', sans-serif; font-size: 13px; color: var(--text); opacity: 0.7; margin-bottom: 22px; }
+  .crumbs a { color: var(--theme); text-decoration: none; }
+  .crumbs a:hover { text-decoration: underline; }
+  .crumb-sep { margin: 0 8px; }
+
+  .profile-card {
+    background: var(--almost-white);
+    border: 0.5px solid var(--border-grey);
+    border-radius: 6px;
+    padding: 30px 32px 34px;
+  }
+  .profile-top { display: flex; gap: 26px; }
+  .profile-photo {
+    flex: 0 0 auto; width: 180px; height: 204px;
+    border-radius: 3px; object-fit: cover; display: block;
+  }
+  .profile-photo.is-placeholder {
+    background: var(--beige); display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif; font-size: 54px; color: var(--text); opacity: 0.85;
+  }
+  .profile-id { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .profile-glyph {
+    display: grid; grid-template-columns: repeat(9, 10px); grid-template-rows: repeat(6, 10px);
+    gap: 1.5px; margin-bottom: 14px; align-self: flex-start;
+  }
+  .glyph-cell { width: 10px; height: 10px; border-radius: 1px; }
+  .profile-name {
+    font-family: 'Copperplate', serif; font-weight: 500; color: var(--text);
+    font-size: 30px; line-height: 1.08; letter-spacing: 0.02em; margin: 0 0 6px;
+  }
+  .profile-role {
+    font-family: 'Roboto', sans-serif; color: var(--theme); font-size: 14px;
+    text-transform: uppercase; letter-spacing: 0.02em; margin: 0 0 16px;
+  }
+  .profile-socials { display: flex; gap: 16px; margin-top: auto; }
+  .profile-socials a { display: inline-flex; width: 22px; height: 22px; color: var(--theme); opacity: 0.75; transition: opacity 0.15s ease; }
+  .profile-socials a:hover { opacity: 1; }
+  .profile-socials svg { width: 20px; height: 20px; fill: currentColor; display: block; }
+
+  .profile-bio {
+    font-family: 'Antique Olive', sans-serif; font-weight: 300; color: var(--text);
+    font-size: 16px; line-height: 1.65; margin: 28px 0 0;
+  }
+
+  .profile-writing { margin-top: 34px; padding-top: 26px; border-top: 0.5px solid var(--border-grey); }
+  .profile-writing-title {
+    font-family: 'Copperplate', serif; font-weight: normal; color: var(--text);
+    font-size: 18px; letter-spacing: 0.02em; margin: 0 0 14px;
+  }
+  .profile-writing-list { list-style: none; margin: 0; padding: 0; }
+  .profile-writing-list li {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
+    padding: 8px 0; border-bottom: 0.5px solid var(--border-grey);
+  }
+  .profile-writing-list li:last-child { border-bottom: 0; }
+  .profile-writing-list a {
+    font-family: 'Antique Olive', sans-serif; color: var(--text); text-decoration: none; font-size: 15px;
+  }
+  .profile-writing-list a:hover { color: var(--theme); text-decoration: underline; }
+  .profile-writing-date { font-family: 'Roboto', sans-serif; font-size: 12px; color: var(--text); opacity: 0.6; white-space: nowrap; }
+
+  .profile-back { margin: 30px 0 0; }
+  .profile-back a { font-family: 'Roboto', sans-serif; font-size: 14px; color: var(--theme); text-decoration: none; }
+  .profile-back a:hover { text-decoration: underline; }
+
+  @media (max-width: 640px) {
+    .profile { padding: 28px 18px 60px; }
+    .profile-card { padding: 22px 20px 26px; }
+    .profile-top { gap: 18px; }
+    .profile-photo { width: 116px; height: 140px; }
+    .profile-name { font-size: 23px; }
+    .profile-glyph { grid-template-columns: repeat(9, 8px); grid-template-rows: repeat(6, 8px); gap: 2px; }
+    .glyph-cell { width: 8px; height: 8px; }
+    .profile-bio { font-size: 15px; }
+  }
+</style>
+
+<script is:inline>
+  // Swap a missing photo for the initials placeholder (mirrors /about).
+  document.querySelectorAll('img.profile-photo').forEach(function (img) {
+    img.addEventListener('error', function () {
+      const ph = document.createElement('div');
+      ph.className = 'profile-photo is-placeholder';
+      ph.textContent = img.dataset.initials || '';
+      ph.setAttribute('aria-label', img.alt);
+      img.replaceWith(ph);
+    });
+  });
+</script>
+</BaseLayout>

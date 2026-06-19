@@ -2,7 +2,7 @@
 import BaseLayout from './BaseLayout.astro';
 import GridArt from '../components/GridArt.astro';
 import { coverFor } from '../lib/covers.js';
-import { getPerson } from '../lib/people.js';
+import { getPerson, profilePath } from '../lib/people.js';
 import { projectHref } from '../lib/projects.js';
 const { entry, related = [] } = Astro.props;
 const d = entry.data;
@@ -41,7 +41,14 @@ const jsonLd = {
   ...(metaDescription ? { description: metaDescription } : {}),
   image: new URL(ogImage ?? '/og-default.png', Astro.site).href,
   datePublished: d.date.toISOString(),
-  author: d.authors.map((name) => ({ '@type': 'Person', name })),
+  // Authors with a profile page reference the same Person `@id` as that page,
+  // so essays reinforce the person entity (and vice versa).
+  author: d.authors.map((name) => {
+    const path = profilePath(name);
+    return path
+      ? { '@type': 'Person', '@id': `${new URL(path, Astro.site).href}#person`, name, url: new URL(path, Astro.site).href }
+      : { '@type': 'Person', name };
+  }),
   publisher: {
     '@type': 'Organization',
     name: 'Science Works',
@@ -76,7 +83,7 @@ const jsonLd = {
             </div>
             <div class="title-bottom">
               <div class="byline">
-                <p class="byline-authors"><span class="authors-line">{d.authors.map((a, i) => (<Fragment>{i > 0 && <span class="comma">,</span>}{i > 0 ? ' ' : ''}<a class="author" href="#writers">{a}</a></Fragment>))}</span></p>
+                <p class="byline-authors"><span class="authors-line">{d.authors.map((a, i) => (<Fragment>{i > 0 && <span class="comma">,</span>}{i > 0 ? ' ' : ''}<a class="author" href={profilePath(a) ?? '#writers'}>{a}</a></Fragment>))}</span></p>
                 <span class="pub-date">{fmt(d.date)}</span>
               </div>
               {d.contributors && d.contributors.length > 0 && <p class="contributors"><strong>Contributors:</strong> {d.contributors.join(', ')}</p>}

@@ -4,6 +4,7 @@ import people from '../data/people.json';
 import banner from '../data/decor/about-banner.json';
 import footerBand from '../data/decor/footer-band.json';
 import { glyphFor } from '../lib/glyphs.js';
+import { profilePath } from '../lib/people.js';
 
 // Eyebrow decoration: footer-band cluster #2 (rows 0-1, cols 110-119) — a 10×2
 // mosaic. Sliced from the band data so it stays in sync. Flanks the heading on
@@ -105,7 +106,9 @@ function socialLinks(p) {
                         ))}
                       </div>
                       <div class="card-id">
-                        <h3 class="card-name">{p.name}</h3>
+                        <h3 class="card-name">{profilePath(p.name)
+                          ? <a class="card-name-link" href={profilePath(p.name)}>{p.name}</a>
+                          : p.name}</h3>
                         <div class="card-role">{p.role}</div>
                       </div>
                     </div>
@@ -352,6 +355,8 @@ function socialLinks(p) {
       letter-spacing: 0.02em;
       margin: 0 0 2px;
     }
+    .card-name-link { color: inherit; text-decoration: none; }
+    .card-name-link:hover { color: var(--theme); text-decoration: underline; }
     .card-role {
       font-family: 'Roboto', sans-serif;
       color: var(--theme);
