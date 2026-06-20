@@ -40,7 +40,22 @@ const glyph = glyphFor(p.name)?.cells ?? [];
 
 const canonical = new URL(`/people/${p.slug}`, Astro.site).href;
 const orgId = new URL('/#organization', Astro.site).href;
-const imageURL = p.photo ? new URL(p.photo, Astro.site).href : undefined;
+// Two distinct images: the headshot represents the person in the Person schema
+// (knowledge panels); the brand 1200×630 mosaic card (scripts/gen_people_og.mjs)
+// is the social share image — the headshot's aspect ratio is wrong for OG.
+const photoURL = p.photo ? new URL(p.photo, Astro.site).href : undefined;
+const ogCard = `/og/people/${p.slug}.png`;
+
+// Breadcrumb structured data → eligible for breadcrumb rich results.
+const breadcrumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', Astro.site).href },
+    { '@type': 'ListItem', position: 2, name: 'About', item: new URL('/about', Astro.site).href },
+    { '@type': 'ListItem', position: 3, name: p.name, item: canonical },
+  ],
+};
 
 // Person structured data. `@id` is stable so essays can reference the same
 // entity as author; `worksFor` binds the person to the Science Works org.
@@ -52,7 +67,7 @@ const jsonLd = {
   jobTitle: p.role,
   description: p.bio,
   url: canonical,
-  ...(imageURL ? { image: imageURL } : {}),
+  ...(photoURL ? { image: photoURL } : {}),
   worksFor: { '@type': 'Organization', '@id': orgId, name: 'Science Works', url: new URL('/', Astro.site).href },
   ...(social.length ? { sameAs: social.map((s) => s.href) } : {}),
 };
@@ -61,8 +76,9 @@ const fmt = (d) => d.toLocaleDateString('en-GB', { year: 'numeric', month: 'long
 const title = `${p.name} — ${p.role}, Science Works`;
 const description = `${p.name} is ${p.role} at Science Works, an independent research and policy studio for UK science and technology. ${p.bio}`.slice(0, 300);
 ---
-<BaseLayout title={title} description={description} image={p.photo ?? '/og-default.png'}>
+<BaseLayout title={title} description={description} image={ogCard}>
   <script type="application/ld+json" slot="head" set:html={JSON.stringify(jsonLd)} />
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(breadcrumbLd)} />
   <main class="profile">
     <nav class="crumbs" aria-label="Breadcrumb">
       <a href="/about">About</a><span class="crumb-sep" aria-hidden="true">/</span><span>{p.name}</span>

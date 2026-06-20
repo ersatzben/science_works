@@ -56,9 +56,21 @@ const jsonLd = {
   },
   mainEntityOfPage: { '@type': 'WebPage', '@id': pageUrl },
 };
+
+// Breadcrumb structured data → eligible for breadcrumb rich results.
+const breadcrumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', Astro.site).href },
+    { '@type': 'ListItem', position: 2, name: 'Writing', item: new URL('/writing', Astro.site).href },
+    { '@type': 'ListItem', position: 3, name: d.title, item: pageUrl },
+  ],
+};
 ---
 <BaseLayout title={`${d.title} — Science Works`} description={metaDescription} type="article" image={ogImage}>
   <script type="application/ld+json" slot="head" set:html={JSON.stringify(jsonLd)} />
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(breadcrumbLd)} />
   <main>
     <article class="article">
       <div class="article-head">
