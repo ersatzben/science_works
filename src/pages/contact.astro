@@ -509,7 +509,8 @@ const cartCell = (ch, m) => {
       const scoreEl = document.getElementById('mk-score');
       const bestEl = document.getElementById('mk-best');
       const ix = function (x, y) { return y * GRID + x; };
-      let snake, dir, nextDir, food, score = 0, running = false, over = false, timer = 0;
+      let snake, dir, food, score = 0, running = false, over = false, timer = 0;
+      const dirQueue = [];   // buffered turns; one is consumed per tick so rapid successive presses all register
       let canRestart = false, overTimer = 0;   // 1s grace after death before input restarts
       let best = parseInt(localStorage.getItem('sw_snake_best') || '0', 10) || 0;
 
@@ -528,7 +529,7 @@ const cartCell = (ch, m) => {
       function resetSnake() {
         clearInterval(timer); clearTimeout(overTimer); running = false; over = false; canRestart = false;
         snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
-        dir = { x: 1, y: 0 }; nextDir = dir; score = 0; setScore();
+        dir = { x: 1, y: 0 }; dirQueue.length = 0; score = 0; setScore();
         placeFood(); paintSnake();
         showOverlay('<span class="mk-ov-hint">Press an arrow to start</span>');
       }
@@ -546,7 +547,7 @@ const cartCell = (ch, m) => {
         }, 1000);
       }
       function tick() {
-        dir = nextDir;
+        if (dirQueue.length) dir = dirQueue.shift();
         const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
         if (head.x < 0 || head.x >= GRID || head.y < 0 || head.y >= GRID) return endSnake();   // die on wall
         for (let k = 0; k < snake.length; k++) if (snake[k].x === head.x && snake[k].y === head.y) return endSnake();
@@ -564,7 +565,14 @@ const cartCell = (ch, m) => {
         e.preventDefault();
         if (over) { if (!canRestart) return; resetSnake(); }   // ignore input during the 1s grace
         const nd = { x: v[0], y: v[1] };
-        if (!(snake.length > 1 && nd.x === -dir.x && nd.y === -dir.y)) nextDir = nd;   // no 180° turns
+        // Validate against the last *queued* turn (or current dir if none pending),
+        // so a fast two-key corner — e.g. up then right while moving right —
+        // buffers both moves instead of the second overwriting the first. Skip
+        // 180° reversals and no-op repeats; cap depth so input can't run too far ahead.
+        const ref = dirQueue.length ? dirQueue[dirQueue.length - 1] : dir;
+        const reverse = nd.x === -ref.x && nd.y === -ref.y;
+        const same = nd.x === ref.x && nd.y === ref.y;
+        if (!reverse && !same && dirQueue.length < 2) dirQueue.push(nd);
         if (!running) startSnake();
       }
       document.getElementById('mk-restart').addEventListener('click', resetSnake);
