@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "postbuild": "node scripts/generate-pdfs.mjs",
+    "pdf": "node scripts/generate-pdfs.mjs",
     "preview": "astro preview"
   },
   "dependencies": {
@@ -14,5 +16,8 @@
     "@astrojs/sitemap": "^3.7.3",
     "astro": "^5.0.0",
     "unist-util-visit": "^5.1.0"
+  },
+  "devDependencies": {
+    "playwright": "^1.61.0"
   }
 }

@@ -27,6 +27,13 @@ const mailShareUrl = `mailto:?subject=${encodeURIComponent(d.title)}&body=${enco
 // Meta description: prefer an explicit summary, else the subtitle.
 const metaDescription = d.summary ?? d.shortSubtitle ?? d.subtitle ?? undefined;
 
+// Download-PDF target. The build-time generator (scripts/generate-pdfs.mjs)
+// writes /writing/<slug>.pdf for every article during `postbuild`, so the
+// button points there by default; an explicit frontmatter `pdf` overrides it
+// (e.g. a hand-made or externally hosted file). Note: the generated file only
+// exists after a production build, not during `astro dev`.
+const pdfHref = d.pdf ?? `/writing/${entry.id}.pdf`;
+
 // Per-article share card at /public/og/<slug>.png; pieces without one fall
 // back to the BaseLayout default (handled by leaving `image` undefined).
 import { existsSync } from 'node:fs';
@@ -80,12 +87,8 @@ const breadcrumbLd = {
           <a class="bar-item" href={projectHref(d.project)}>{d.project}</a>
           <a class="bar-icon bar-push" href={xShareUrl} target="_blank" rel="noopener noreferrer" aria-label="Share on X" title="Share on X"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M18.24 2.25h3.31l-7.23 8.26L23 21.75h-6.66l-5.21-6.82-5.97 6.82H1.85l7.73-8.84L1.25 2.25h6.83l4.71 6.23 5.45-6.23zm-1.16 17.52h1.83L7.08 4.13H5.12L17.08 19.77z"/></svg></a>
           <a class="bar-icon" href={mailShareUrl} aria-label="Share by email" title="Share by email"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm9 7.5 8-5.5H4l8 5.5zM4 8.2V18h16V8.2l-8 5.5-8-5.5z"/></svg></a>
-          {d.pdf && (
-            <Fragment>
-              <span class="bar-sep" aria-hidden="true"></span>
-              <a class="bar-item bar-download" href={d.pdf} download aria-label="Download PDF" title="Download PDF"><span class="bar-dl-text">Download PDF</span><svg class="bar-dl-icon" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M12 3v10m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-            </Fragment>
-          )}
+          <span class="bar-sep" aria-hidden="true"></span>
+          <a class="bar-item bar-download" href={pdfHref} download aria-label="Download PDF" title="Download PDF"><span class="bar-dl-text">Download PDF</span><svg class="bar-dl-icon" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M12 3v10m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
         </div>
         <div class="title-block">
           <div class="title-col">
@@ -781,6 +784,74 @@ const breadcrumbLd = {
       .related-track::-webkit-scrollbar { display: none; }
       .rel-card { flex: 0 0 100%; scroll-snap-align: center; }
       .related-nav { display: flex; justify-content: center; gap: 16px; margin-top: 16px; }
+    }
+
+    /* ============================================================
+       PRINT / PDF
+       Used both by the browser "Save as PDF" and by the build-time
+       Playwright generator (scripts/generate-pdfs.mjs), which renders
+       these pages with print media emulation. Goal: a clean single-
+       column document — strip site chrome and reading-UI, keep the
+       title block, prose, sidenotes (reflowed inline), and credits.
+       Page margins are set by the PDF generator; keep @page out of it
+       so the two don't fight. ============================================================ */
+    @media print {
+      html, body { background: #fff !important; }
+
+      /* Site chrome + screen-only reading aids: gone on paper. */
+      header.nav,
+      .site-footer,
+      .cc,
+      .mobile-toc,
+      .reading-rail,
+      .related-nav,
+      .no-print,
+      .meta-bar .bar-icon,
+      .meta-bar .bar-push,
+      .bar-download { display: none !important; }
+
+      /* Collapse the article shell to one full-width column. */
+      .article { padding: 0 !important; }
+      .article-head { max-width: none !important; margin: 0 0 22px !important; }
+      .article-body {
+        display: block !important;
+        max-width: none !important;
+        margin: 0 !important;
+      }
+      .reading-main { padding-right: 0 !important; margin: 0 !important; }
+
+      /* Title block: keep it, just tame the spacing/cover height. */
+      .meta-bar { border-bottom: 0 !important; margin-bottom: 14px !important; }
+      .title-pic { min-height: 0 !important; }
+      .title-pic-art { max-height: 220px; }
+
+      /* Sidenotes can't float into a margin that no longer exists —
+         reflow them inline as compact, framed notes near their mark. */
+      .sidenote {
+        float: none !important;
+        clear: both !important;
+        width: auto !important;
+        margin: 10px 0 16px !important;
+        padding: 8px 12px;
+        border-left: 2px solid var(--theme);
+        background: #faf8f6;
+        break-inside: avoid;
+      }
+
+      /* Paper typography + sensible pagination. */
+      .prose { font-size: 10.5pt; line-height: 1.5; }
+      .prose h2, .prose h3 { break-after: avoid; }
+      .prose p, .prose li, .prose blockquote { orphans: 2; widows: 2; }
+      .prose figure, .prose img, .prose blockquote, .prose table,
+      .collapsible, .rel-card, .writer { break-inside: avoid; }
+
+      /* Links: keep them readable as black text (no underlines on paper). */
+      .prose a, .bar-item { color: var(--text) !important; text-decoration: none !important; }
+
+      /* Credits: drop the carousel behaviour, stack related items. */
+      .essay-foot { break-before: auto; }
+      .related-track { display: block !important; overflow: visible !important; }
+      .rel-card { flex: none !important; }
     }
 
   </style>
