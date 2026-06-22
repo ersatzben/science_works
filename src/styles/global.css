@@ -1,35 +1,43 @@
 /* Shared foundation: fonts, tokens, base. Ported from index.html. */
+    /* WOFF2 first (≈45% smaller), original ttf/otf as a fallback for any browser
+       that lacks WOFF2. Regenerate the .woff2 with `woff2_compress <file>` if the
+       source font ever changes. */
     @font-face {
       font-family: 'Antique Olive';
-      src: url('/assets/fonts/antique-olive-std/Antique-Olive-Std-Roman_3869.ttf') format('truetype');
+      src: url('/assets/fonts/antique-olive-std/Antique-Olive-Std-Roman_3869.woff2') format('woff2'),
+           url('/assets/fonts/antique-olive-std/Antique-Olive-Std-Roman_3869.ttf') format('truetype');
       font-weight: normal;
       font-style: normal;
       font-display: swap;
     }
     @font-face {
       font-family: 'Antique Olive';
-      src: url('/assets/fonts/antique-olive-std/Antique-Olive-Std-Bold_3863.ttf') format('truetype');
+      src: url('/assets/fonts/antique-olive-std/Antique-Olive-Std-Bold_3863.woff2') format('woff2'),
+           url('/assets/fonts/antique-olive-std/Antique-Olive-Std-Bold_3863.ttf') format('truetype');
       font-weight: bold;
       font-style: normal;
       font-display: swap;
     }
     @font-face {
       font-family: 'Antique Olive';
-      src: url('/assets/fonts/antique-olive-std/Antique-Olive-Std-Light_3866.ttf') format('truetype');
+      src: url('/assets/fonts/antique-olive-std/Antique-Olive-Std-Light_3866.woff2') format('woff2'),
+           url('/assets/fonts/antique-olive-std/Antique-Olive-Std-Light_3866.ttf') format('truetype');
       font-weight: 300;
       font-style: normal;
       font-display: swap;
     }
     @font-face {
       font-family: 'Copperplate';
-      src: url('/assets/fonts/Copperplate30.otf') format('opentype');
+      src: url('/assets/fonts/Copperplate30.woff2') format('woff2'),
+           url('/assets/fonts/Copperplate30.otf') format('opentype');
       font-weight: normal;
       font-style: normal;
       font-display: swap;
     }
     @font-face {
       font-family: 'Copperplate';
-      src: url('/assets/fonts/Copperplate30.otf') format('opentype');
+      src: url('/assets/fonts/Copperplate30.woff2') format('woff2'),
+           url('/assets/fonts/Copperplate30.otf') format('opentype');
       font-weight: bold;
       font-style: normal;
       font-display: swap;

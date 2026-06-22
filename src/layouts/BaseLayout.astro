@@ -60,6 +60,12 @@ const imageType = imageURL && String(image).endsWith('.jpg') ? 'image/jpeg' : 'i
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="manifest" href="/site.webmanifest" />
   <meta name="theme-color" content="#eb3131" />
+  <!-- Preload the two self-hosted faces that paint above the fold on every page:
+       Antique Olive Bold (the "SCIENCE WORKS" logo) and Copperplate (hero headings).
+       Starts their download immediately instead of waiting for global.css to parse.
+       `crossorigin` is required even same-origin, or the font is fetched twice. -->
+  <link rel="preload" href="/assets/fonts/antique-olive-std/Antique-Olive-Std-Bold_3863.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/Copperplate30.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
