@@ -6,22 +6,35 @@
 // emulate print media to pick up the @media print rules in WritingLayout, and
 // write a paper-clean PDF next to the page at dist/writing/<slug>.pdf.
 //
-// The "Download PDF" button in WritingLayout links to that same path.
+// Running header (every page): the Science Works logo-mark + wordmark, top-right.
+// On pages 2+ the essay title is added top-left. Because headless Chromium can't
+// (a) render custom fonts inside page.pdf header/footer templates, nor (b) vary a
+// running header by page number, we:
+//   1. render the header strip to a PNG using the real brand fonts (isolated page),
+//      once with the title (pages 2+) and once logo-only (page 1);
+//   2. produce TWO full PDFs — one with each header image;
+//   3. stitch page 1 from the logo-only PDF onto pages 2..n of the titled PDF.
+// (See git history / the prototype for why fixed-position DOM headers don't work:
+// Chromium clips them to the content box, so they can't live in the page margin.)
 //
-// Env knobs (for local iteration only):
+// The "Download PDF" button in WritingLayout links to /writing/<slug>.pdf.
+//
+// Env knobs (local iteration only):
 //   PDF_ONLY_SLUG=<slug>   generate just one article
-//   PDF_SCREENSHOT=1       also dump a print-emulated PNG to the OS temp dir,
-//                          a quick visual proxy for the printed layout
 import { chromium } from 'playwright';
+import { PDFDocument } from 'pdf-lib';
 import { createServer } from 'node:http';
-import { readFile, readdir, stat } from 'node:fs/promises';
+import { readFile, writeFile, readdir, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, extname } from 'node:path';
-import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 
 const DIST = fileURLToPath(new URL('../dist', import.meta.url));
 const WRITING = join(DIST, 'writing');
+
+// A4 content width (210mm − 2×16mm side margins) in CSS px at 96dpi. Drives the
+// header strip width so it lines up edge-to-edge with the article body.
+const CONTENT_W = 673;
 
 const MIME = {
   '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript',
@@ -65,6 +78,76 @@ async function articleSlugs() {
   return slugs.sort();
 }
 
+// Render the running-header strip to a PNG data URI, using the real brand fonts.
+// Done in an isolated page so the article's own nav can't bleed into the capture.
+// `title` empty → logo-only (page 1); non-empty → title left + logo right.
+function makeStrip(stripPage, base) {
+  return async (title) => {
+    const html = `<!doctype html><html><head><meta charset="utf-8"><style>
+      @font-face{font-family:'AO';src:url('${base}/assets/fonts/antique-olive-std/Antique-Olive-Std-Bold_3863.woff2') format('woff2');font-weight:700;font-display:block;}
+      @font-face{font-family:'CP';src:url('${base}/assets/fonts/Copperplate30.woff2') format('woff2');font-display:block;}
+      html,body{margin:0;padding:0;background:#fff;}
+      .strip{width:${CONTENT_W}px;box-sizing:border-box;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;border-bottom:1px solid #ddcac9;padding:0 0 6px;}
+      .t{font-family:'CP',serif;font-size:11px;color:#66223b;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:64%;}
+      .lg{display:flex;align-items:center;gap:6px;flex:0 0 auto;}
+      .lg img{height:15px;width:auto;display:block;}
+      .wm{font-family:'AO',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:-0.06em;font-size:15px;line-height:1;color:#eb3131;white-space:nowrap;transform:translateY(1px);}
+    </style></head><body><div class="strip">
+      <span class="t">${escapeHtml(title || '')}</span>
+      <span class="lg"><img src="${base}/assets/images/FINAL4.svg" alt=""><span class="wm">Science Works</span></span>
+    </div></body></html>`;
+    await stripPage.setContent(html, { waitUntil: 'networkidle' });
+    await stripPage.evaluate(() => document.fonts.ready);
+    const buf = await stripPage.locator('.strip').screenshot();
+    return 'data:image/png;base64,' + buf.toString('base64');
+  };
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+}
+
+// page.pdf() never scrolls, so figures with loading="lazy" below the fold would
+// come out blank. Make every image eager, scroll through once to trip any
+// observer-based loaders, then wait for them all to settle (with a safety cap).
+async function forceLoadImages(page) {
+  await page.evaluate(async () => {
+    const imgs = Array.from(document.querySelectorAll('img'));
+    imgs.forEach((img) => { try { img.loading = 'eager'; img.removeAttribute('loading'); } catch (_) {} });
+    const step = window.innerHeight || 800;
+    for (let y = 0; y <= document.body.scrollHeight; y += step) window.scrollTo(0, y);
+    window.scrollTo(0, 0);
+    await Promise.all(imgs.map((img) => {
+      if (img.complete && img.naturalWidth > 0) return null;
+      return Promise.race([
+        new Promise((res) => {
+          img.addEventListener('load', res, { once: true });
+          img.addEventListener('error', res, { once: true });
+        }),
+        new Promise((res) => setTimeout(res, 8000)),   // never hang the build on one stuck image
+      ]);
+    }));
+  });
+  await page.waitForLoadState('networkidle');
+}
+
+const FOOTER =
+  '<div style="width:100%;font-family:Roboto,Arial,sans-serif;font-size:8px;color:#9a8a90;text-align:center;">' +
+  '<span class="pageNumber"></span> / <span class="totalPages"></span></div>';
+const headerHtml = (src) =>
+  `<div style="width:100%;margin:0;padding:0;-webkit-print-color-adjust:exact;">` +
+  `<img src="${src}" style="display:block;width:178mm;margin:0 auto;"/></div>`;
+const pdfOptions = (headerSrc) => ({
+  format: 'A4',
+  printBackground: true,
+  margin: { top: '22mm', bottom: '18mm', left: '16mm', right: '16mm' },
+  displayHeaderFooter: true,
+  headerTemplate: headerHtml(headerSrc),
+  footerTemplate: FOOTER,
+});
+
 async function main() {
   if (!existsSync(WRITING)) {
     console.error('[pdf] dist/writing not found — run `astro build` first.');
@@ -72,48 +155,51 @@ async function main() {
   }
 
   const only = process.env.PDF_ONLY_SLUG;
-  const wantShot = !!process.env.PDF_SCREENSHOT;
-
   const server = await serveDist(DIST);
-  const { port } = server.address();
-  const base = `http://localhost:${port}`;
+  const base = `http://localhost:${server.address().port}`;
 
   let slugs = await articleSlugs();
   if (only) slugs = slugs.filter((s) => s === only);
   if (slugs.length === 0) { console.warn('[pdf] no articles to render.'); server.close(); return; }
 
   const browser = await chromium.launch();
+  const stripPage = await browser.newPage({ deviceScaleFactor: 2 });   // crisp logo/text
+  const strip = makeStrip(stripPage, base);
   const page = await browser.newPage();
   console.log(`[pdf] rendering ${slugs.length} article(s)…`);
 
   for (const slug of slugs) {
-    const url = `${base}/writing/${slug}/`;
-    await page.goto(url, { waitUntil: 'networkidle' });
-    // Print rules + collapsible-expand listeners key off print media.
-    await page.emulateMedia({ media: 'print' });
-    // Don't shoot/print before webfonts have swapped in.
-    await page.evaluate(() => (document.fonts ? document.fonts.ready : null));
-
-    const out = join(WRITING, `${slug}.pdf`);
-    await page.pdf({
-      path: out,
-      format: 'A4',
-      printBackground: true,
-      margin: { top: '16mm', bottom: '18mm', left: '16mm', right: '16mm' },
-      displayHeaderFooter: true,
-      // Slim footer: page number centred, muted. (Header left empty.)
-      headerTemplate: '<span></span>',
-      footerTemplate:
-        '<div style="width:100%;font-family:Roboto,Arial,sans-serif;font-size:8px;color:#9a8a90;text-align:center;">' +
-        '<span class="pageNumber"></span> / <span class="totalPages"></span></div>',
+    await page.emulateMedia({ media: 'screen' });   // reset so the print-change handlers re-fire
+    await page.goto(`${base}/writing/${slug}/`, { waitUntil: 'networkidle' });
+    await forceLoadImages(page);
+    const title = await page.evaluate(() => {
+      const h = document.querySelector('.article-title');
+      return h ? h.textContent.trim() : document.title.replace(/\s+—\s+Science Works$/, '');
     });
 
-    if (wantShot) {
-      const shot = join(tmpdir(), `pdf-preview-${slug}.png`);
-      await page.screenshot({ path: shot, fullPage: true });
-      console.log(`  · preview → ${shot}`);
-    }
-    console.log(`  ✓ /writing/${slug}.pdf`);
+    // Header images: logo-only for page 1, title+logo for the rest.
+    const imgLogo = await strip('');
+    const imgFull = await strip(title);
+
+    await page.emulateMedia({ media: 'print' });
+    // Belt-and-braces: make sure collapsibles are open for print.
+    await page.evaluate(() => document.querySelectorAll('details.collapsible').forEach((d) => { d.open = true; }));
+    await page.evaluate(() => (document.fonts ? document.fonts.ready : null));
+
+    const bufLogo = await page.pdf(pdfOptions(imgLogo));
+    const bufFull = await page.pdf(pdfOptions(imgFull));
+
+    // Stitch: page 1 (logo-only) + pages 2..n (titled).
+    const out = await PDFDocument.create();
+    const docLogo = await PDFDocument.load(bufLogo);
+    const docFull = await PDFDocument.load(bufFull);
+    const [first] = await out.copyPages(docLogo, [0]);
+    out.addPage(first);
+    const restIdx = docFull.getPageIndices().slice(1);
+    if (restIdx.length) (await out.copyPages(docFull, restIdx)).forEach((p) => out.addPage(p));
+    await writeFile(join(WRITING, `${slug}.pdf`), await out.save());
+
+    console.log(`  ✓ /writing/${slug}.pdf  (${out.getPageCount()}pp)`);
   }
 
   await browser.close();

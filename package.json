@@ -18,6 +18,7 @@
     "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
+    "pdf-lib": "^1.17.1",
     "playwright": "^1.61.0"
   }
 }

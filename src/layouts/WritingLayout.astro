@@ -235,6 +235,9 @@ const breadcrumbLd = {
       color: var(--text);
     }
     .sn-num { font-family: 'Antique Olive', sans-serif; color: var(--theme); font-weight: 700; margin-right: 4px; font-size: 12px; }
+    /* Endnotes list (built by the print script) — paper only; never on screen,
+       where notes live in the margin as Tufte sidenotes. */
+    .pdf-endnotes { display: none; }
 
     /* Collapsible aside (banked pattern — not currently used in the markup):
        header bar with +/- toggle, --bg-secondary panel. */
@@ -804,11 +807,11 @@ const breadcrumbLd = {
       .cc,
       .mobile-toc,
       .reading-rail,
-      .related-nav,
+      .related,
       .no-print,
       .meta-bar .bar-icon,
       .meta-bar .bar-push,
-      .bar-download { display: none !important; }
+      .bar-download { display: none !important; }   /* .related: "Related work" carousel is screen-only */
 
       /* Collapse the article shell to one full-width column. */
       .article { padding: 0 !important; }
@@ -825,18 +828,28 @@ const breadcrumbLd = {
       .title-pic { min-height: 0 !important; }
       .title-pic-art { max-height: 220px; }
 
-      /* Sidenotes can't float into a margin that no longer exists —
-         reflow them inline as compact, framed notes near their mark. */
-      .sidenote {
-        float: none !important;
-        clear: both !important;
-        width: auto !important;
-        margin: 10px 0 16px !important;
-        padding: 8px 12px;
-        border-left: 2px solid var(--theme);
-        background: #faf8f6;
-        break-inside: avoid;
+      /* Margin sidenotes have no gutter to float into on paper, so we drop them
+         and collect the notes into an endnotes list instead (built by the print
+         script below). The inline superscript marker (.sn-ref) stays so readers
+         can find each note in the list. */
+      .sidenote { display: none !important; }
+      .pdf-endnotes {
+        display: block !important;
+        margin: 34px 0 0; padding-top: 16px;
+        border-top: 1px solid var(--border-grey);
+        break-inside: auto;
       }
+      .pdf-endnotes h2 {
+        font-family: 'Copperplate', serif; font-weight: normal; font-size: 13pt;
+        color: var(--text); margin: 0 0 10px; break-after: avoid;
+      }
+      .pdf-endnotes ol { margin: 0; padding-left: 1.5em; }
+      .pdf-endnotes li {
+        font-size: 9.5pt; line-height: 1.45; color: var(--text);
+        margin: 0 0 8px; break-inside: avoid;
+      }
+      .pdf-endnotes li::marker { color: var(--theme); font-weight: 700; }
+      .pdf-endnotes a { color: var(--text) !important; text-decoration: none !important; }
 
       /* Paper typography + sensible pagination. */
       .prose { font-size: 10.5pt; line-height: 1.5; }
@@ -848,10 +861,6 @@ const breadcrumbLd = {
       /* Links: keep them readable as black text (no underlines on paper). */
       .prose a, .bar-item { color: var(--text) !important; text-decoration: none !important; }
 
-      /* Credits: drop the carousel behaviour, stack related items. */
-      .essay-foot { break-before: auto; }
-      .related-track { display: block !important; overflow: visible !important; }
-      .rel-card { flex: none !important; }
     }
 
   </style>
@@ -873,10 +882,13 @@ const breadcrumbLd = {
             : clone.innerHTML.trim();
         });
       }
+      const endNotes = [];
+      const seenNote = {};
       prose.querySelectorAll('a[data-footnote-ref]').forEach(function (a) {
         const sup = a.closest('sup') || a;
         const num = a.textContent.trim();
-        const note = defs[(a.getAttribute('href') || '').replace(/^#/, '')];
+        const id = (a.getAttribute('href') || '').replace(/^#/, '');
+        const note = defs[id];
         if (note == null) return;
         const ref = document.createElement('sup');
         ref.className = 'sn-ref';
@@ -885,8 +897,25 @@ const breadcrumbLd = {
         side.className = 'sidenote';
         side.innerHTML = '<span class="sn-num">' + num + '</span>' + note;
         sup.replaceWith(ref, side);
+        if (!seenNote[id]) { seenNote[id] = true; endNotes.push({ num: num, html: note }); }
       });
       if (section) section.remove();
+
+      // Print/PDF only: collect the notes into an endnotes list at the end of the
+      // article — margin sidenotes have no gutter to float into on paper. The
+      // section is hidden on screen (CSS) and revealed by the @media print rules;
+      // the inline .sn-ref markers stay put so each note can be found by number.
+      if (endNotes.length) {
+        const en = document.createElement('section');
+        en.className = 'pdf-endnotes';
+        en.setAttribute('aria-label', 'Notes');
+        let html = '<h2>Notes</h2><ol>';
+        endNotes.forEach(function (n) { html += '<li value="' + n.num + '">' + n.html + '</li>'; });
+        en.innerHTML = html + '</ol>';
+        const body = document.querySelector('.article-body');
+        if (body && body.parentNode) body.parentNode.insertBefore(en, body.nextSibling);
+        else prose.appendChild(en);
+      }
     })();
 
     (function () {
