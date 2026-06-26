@@ -71,28 +71,47 @@ const sifItems = [
   { label: 'Community',    art: ['0070', '0470', '0XE4', 'E87E'] },
 ];
 
-// Organization structured data (schema.org) — feeds Google's knowledge panel.
-// `@id` is stable (/#organization) so Person `worksFor` on profile pages binds
-// to this same entity. `member` links the org to each team member's profile.
+// Homepage structured data (schema.org), emitted as a @graph so the nodes are
+// cross-linked by @id:
+//   • WebSite  — tells Google the site name is "Science Works" (not the bare
+//                "science.works" domain) for the site-name feature in SERPs.
+//   • Organization — feeds Google's knowledge panel. `@id` is stable
+//                (/#organization) so Person `worksFor` on profile pages binds to
+//                this same entity; `member` links the org to each team profile.
+const homeURL = new URL('/', Astro.site).href;
+const orgId = new URL('/#organization', Astro.site).href;
+const siteId = new URL('/#website', Astro.site).href;
 const orgJsonLd = {
   '@context': 'https://schema.org',
-  '@type': 'Organization',
-  '@id': new URL('/#organization', Astro.site).href,
-  name: 'Science Works',
-  url: new URL('/', Astro.site).href,
-  logo: new URL('/icon-512.png', Astro.site).href,
-  description: 'Science Works is an independent research and policy studio tackling the biggest problems facing UK science and technology.',
-  sameAs: [
-    'https://x.com/sci_works',
-    'https://bsky.app/profile/science.works',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': siteId,
+      url: homeURL,
+      name: 'Science Works',
+      alternateName: 'science.works',
+      publisher: { '@id': orgId },
+    },
+    {
+      '@type': 'Organization',
+      '@id': orgId,
+      name: 'Science Works',
+      url: homeURL,
+      logo: new URL('/icon-512.png', Astro.site).href,
+      description: 'Science Works is an independent research and policy studio tackling the biggest problems facing UK science and technology.',
+      sameAs: [
+        'https://x.com/sci_works',
+        'https://bsky.app/profile/science.works',
+      ],
+      member: team.map((p) => ({
+        '@type': 'Person',
+        '@id': `${new URL(p.path, Astro.site).href}#person`,
+        name: p.name,
+        jobTitle: p.role,
+        url: new URL(p.path, Astro.site).href,
+      })),
+    },
   ],
-  member: team.map((p) => ({
-    '@type': 'Person',
-    '@id': `${new URL(p.path, Astro.site).href}#person`,
-    name: p.name,
-    jobTitle: p.role,
-    url: new URL(p.path, Astro.site).href,
-  })),
 };
 ---
 <BaseLayout title="Science Works — Reshaping the British Research System">

@@ -1,5 +1,11 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+// Curated mosaic submissions for the Gallery mode. Each entry is { code, name }
+// where `code` is a 400-char base-36 string (one char per cell of the 20x20
+// grid — the same format the maker's encode()/share-link uses) and `name` is
+// the optional artist credit. To feature a submission: copy the `mosaic_code`
+// from its email into a new entry here, add the name, and rebuild.
+import mosaics from '../data/mosaics.json';
 
 // Web3Forms access key — generate one at https://web3forms.com using
 // contact@science.works as the destination, then paste it here. The key is
@@ -139,6 +145,10 @@ const cartCell = (ch, m) => {
             <button type="button" class="mk-mode is-active" data-mode="mosaic" role="tab" aria-selected="true" title="Mosaic" aria-label="Mosaic">
               <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
             </button>
+            <!-- Gallery hidden while we refine it — remove `hidden` to re-enable. -->
+            <button type="button" class="mk-mode" data-mode="gallery" role="tab" aria-selected="false" title="Gallery" aria-label="Gallery" hidden>
+              <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2" width="10" height="10" rx="1.5"/><rect x="5" y="6" width="10" height="8" rx="1.5"/></svg>
+            </button>
             <button type="button" class="mk-mode" data-mode="snake" role="tab" aria-selected="false" title="Snake" aria-label="Snake">
               <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="4" height="4" rx="1"/><rect x="1" y="6" width="4" height="4" rx="1"/><rect x="6" y="6" width="4" height="4" rx="1"/><rect x="6" y="11" width="4" height="4" rx="1"/><rect x="11" y="11" width="4" height="4" rx="1"/></svg>
             </button>
@@ -176,8 +186,18 @@ const cartCell = (ch, m) => {
               </div>
               <button type="button" class="mk-clear" id="mk-restart">Restart</button>
             </div>
+            <div class="mk-gallery-side" hidden>
+              <div class="mk-intro">Mosaics people have sent us. Use the arrows to browse.</div>
+              <div class="mk-gallery-nav">
+                <button type="button" class="mk-gnav" id="mk-prev" aria-label="Previous mosaic">&#8249;</button>
+                <span class="mk-gcount" id="mk-gcount" aria-live="polite">0 / 0</span>
+                <button type="button" class="mk-gnav" id="mk-next" aria-label="Next mosaic">&#8250;</button>
+              </div>
+              <div class="mk-gcaption" id="mk-gcaption"></div>
+            </div>
           </div>
         </div>
+        <script type="application/json" id="mk-gallery-data" set:html={JSON.stringify(mosaics)}></script>
 
         <form id="mk-form" class="cform mk-form" method="POST" action="https://api.web3forms.com/submit" novalidate>
           <input type="hidden" name="access_key" value={WEB3FORMS_KEY} />
@@ -261,6 +281,7 @@ const cartCell = (ch, m) => {
     .mk-mode svg { width: 13px; height: 13px; fill: currentColor; }
     .mk-mode:hover { color: var(--text); }
     .mk-mode.is-active { background: var(--almost-white); color: var(--theme); box-shadow: 0 1px 2px rgba(68,2,20,0.08); }
+    .mk-mode[hidden] { display: none; }   /* beats .mk-mode display:inline-flex */
 
     /* Snake: start/over overlay + score readout */
     .mk-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 10px; background: rgba(250,248,246,0.86); color: var(--text); font-family: 'Roboto', sans-serif; font-size: 13px; line-height: 1.45; pointer-events: none; }
@@ -275,7 +296,22 @@ const cartCell = (ch, m) => {
     .mk-scores { display: flex; gap: 18px; margin-bottom: 16px; }
     .mk-score { font-family: 'Roboto', sans-serif; font-size: 13px; color: var(--text); }
     .mk-score span { font-weight: 700; color: var(--theme); }
-    .mk-form[hidden] { display: none; }   /* beats .cform display:flex when hidden in snake mode */
+    .mk-form[hidden] { display: none; }   /* beats .cform display:flex when hidden in snake/gallery mode */
+
+    /* Gallery: prev/next browser for curated submissions */
+    .mk-gallery-nav { display: flex; align-items: center; gap: 14px; }
+    .mk-gnav {
+      width: 34px; height: 34px; flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+      font-family: 'Antique Olive', sans-serif; font-size: 20px; line-height: 1; color: var(--theme);
+      background: var(--almost-white); border: 1px solid var(--border-grey); border-radius: 4px; cursor: pointer;
+      transition: border-color 0.15s ease, color 0.15s ease;
+    }
+    .mk-gnav:hover { border-color: var(--theme); }
+    .mk-gnav:disabled { opacity: 0.4; cursor: default; border-color: var(--border-grey); }
+    .mk-gcount { font-family: 'Roboto', sans-serif; font-size: 13px; color: var(--text); min-width: 46px; text-align: center; }
+    .mk-gcount span { font-weight: 700; color: var(--theme); }
+    .mk-gcaption { font-family: 'Antique Olive', sans-serif; font-weight: 300; font-size: 13px; color: var(--text); min-height: 18px; margin-top: 14px; }
+    .mk-gcaption b { font-weight: 500; }
     .contact-title {
       font-family: 'Copperplate', serif; font-weight: normal; font-size: 34px;
       letter-spacing: -0.02em; color: var(--text); margin: 20px 0 14px;
@@ -580,30 +616,85 @@ const cartCell = (ch, m) => {
         if (document.hidden && mode === 'snake' && running) { running = false; clearInterval(timer); showOverlay('<strong class="mk-ov-title">Paused</strong><span class="mk-ov-hint">Press an arrow to resume</span>'); }
       });
 
+      // ---- Gallery ----
+      // Curated submissions, embedded as JSON. Each is { code, name }; `code`
+      // is a 400-char base-36 string in the same format as encode()/load().
+      let gallery = [];
+      try { gallery = JSON.parse(document.getElementById('mk-gallery-data').textContent) || []; } catch (_) {}
+      gallery = gallery.filter(function (g) { return g && typeof g.code === 'string' && g.code.length === N; });
+      let gIndex = 0;
+      const gPrev = document.getElementById('mk-prev');
+      const gNext = document.getElementById('mk-next');
+      const gCount = document.getElementById('mk-gcount');
+      const gCaption = document.getElementById('mk-gcaption');
+
+      // Paint the grid from a code without touching the mosaic's data[] — same
+      // non-destructive repaint the snake uses, so the in-progress mosaic survives.
+      function paintCode(code) {
+        for (let i = 0; i < N; i++) {
+          const v = parseInt(code[i], 36);
+          cells[i].style.background = (!isNaN(v) && PAL[v]) ? PAL[v] : PAL[0];
+        }
+      }
+      function showGallery(i) {
+        if (!gallery.length) {
+          gCount.textContent = '0 / 0';
+          gCaption.textContent = 'No mosaics yet — be the first to send one!';
+          return;
+        }
+        gIndex = (i % gallery.length + gallery.length) % gallery.length;   // wrap both ways
+        const g = gallery[gIndex];
+        paintCode(g.code);
+        gCount.innerHTML = '<span>' + (gIndex + 1) + '</span> / ' + gallery.length;
+        gCaption.innerHTML = g.name ? 'by <b>' + escapeHtml(g.name) + '</b>' : '';
+      }
+      function escapeHtml(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+      gPrev.addEventListener('click', function () { showGallery(gIndex - 1); });
+      gNext.addEventListener('click', function () { showGallery(gIndex + 1); });
+      function onGalleryKey(e) {
+        const t = e.target;
+        if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+        if (e.key === 'ArrowLeft') { e.preventDefault(); showGallery(gIndex - 1); }
+        else if (e.key === 'ArrowRight') { e.preventDefault(); showGallery(gIndex + 1); }
+      }
+
       // ---- Mode controller ----
       const titleEl = document.getElementById('mk-title');
       const mosaicSide = document.querySelector('.mk-mosaic-side');
       const snakeSide = document.querySelector('.mk-snake-side');
+      const gallerySide = document.querySelector('.mk-gallery-side');
       const modeBtns = Array.prototype.slice.call(document.querySelectorAll('.mk-mode'));
       function setMode(m) {
         if (m === mode) return;
-        mode = m;
-        modeBtns.forEach(function (b) { const on = b.dataset.mode === m; b.classList.toggle('is-active', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
-        if (m === 'snake') {
-          mosaicSide.hidden = true; snakeSide.hidden = false;
-          if (form) form.hidden = true;
-          titleEl.textContent = 'Snake';
-          canvas.classList.add('mk-canvas--snake');
-          document.addEventListener('keydown', onKey);
-          resetSnake();
-        } else {
+        // ---- tear down the mode we're leaving ----
+        if (mode === 'snake') {
           clearInterval(timer); clearTimeout(overTimer); running = false; over = false; canRestart = false;
           document.removeEventListener('keydown', onKey);
           overlay.hidden = true;
           canvas.classList.remove('mk-canvas--snake');
+        } else if (mode === 'gallery') {
+          document.removeEventListener('keydown', onGalleryKey);
+        }
+        mode = m;
+        modeBtns.forEach(function (b) { const on = b.dataset.mode === m; b.classList.toggle('is-active', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
+        // Default everything off, then enable the active mode's panel.
+        mosaicSide.hidden = true; snakeSide.hidden = true; gallerySide.hidden = true;
+        if (form) form.hidden = (m !== 'mosaic');
+        // ---- set up the mode we're entering ----
+        if (m === 'snake') {
+          snakeSide.hidden = false;
+          titleEl.textContent = 'Snake';
+          canvas.classList.add('mk-canvas--snake');
+          document.addEventListener('keydown', onKey);
+          resetSnake();
+        } else if (m === 'gallery') {
+          gallerySide.hidden = false;
+          titleEl.textContent = 'Mosaic gallery';
+          document.addEventListener('keydown', onGalleryKey);
+          showGallery(gIndex);
+        } else {
+          mosaicSide.hidden = false;
           titleEl.textContent = 'Design a mosaic for us';
-          snakeSide.hidden = true; mosaicSide.hidden = false;
-          if (form) form.hidden = false;
           repaintMosaic();
         }
       }
