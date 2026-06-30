@@ -18,12 +18,26 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
-# Per-repo environment. Set the SITE_URL repo variable
+# Per-repo environment. Set these as repo variables
 # (Settings → Secrets and variables → Actions → Variables):
-#   production repo: https://science.works
-#   staging repo:    https://staging.science.works   (or leave unset → falls back below)
+#
+#   SITE_URL
+#     production repo: https://science.works
+#     staging repo:    https://staging.science.works   (or leave unset → falls back below)
+#
+#   PRODUCTION
+#     production repo: true        ← set ONLY here
+#     staging repo:    (unset)
+#   This is the second lock on FAIR Signposting / cite-as / DOI / Link-header
+#   identity claims (see src/lib/production.js): they emit only when the env flag
+#   is "true" AND SITE_URL's host is science.works. Leaving PRODUCTION unset on
+#   staging means a staging deploy physically cannot assert the production
+#   identity, even if SITE_URL were misconfigured. (It does NOT affect indexing —
+#   robots.txt still gates on host alone, so the live site can't be deindexed by
+#   a missing flag.)
 env:
   SITE_URL: ${{ vars.SITE_URL || 'https://staging.science.works' }}
+  PRODUCTION: ${{ vars.PRODUCTION || '' }}
 
 jobs:
   build:

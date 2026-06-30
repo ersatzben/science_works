@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "postbuild": "node scripts/generate-pdfs.mjs",
+    "postbuild": "node scripts/generate-headers.mjs && node scripts/generate-pdfs.mjs",
     "pdf": "node scripts/generate-pdfs.mjs",
+    "headers": "node scripts/generate-headers.mjs",
     "preview": "astro preview"
   },
   "dependencies": {

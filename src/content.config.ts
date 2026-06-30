@@ -17,6 +17,15 @@ const writing = defineCollection({
     cover: z.string().optional(),            // cover json name in src/data/covers (no extension); defaults to the slug
     contributors: z.array(z.string()).optional(),
     pdf: z.string().optional(),
+    // Per-piece reuse license — a code from src/lib/licensing.js (e.g.
+    // "CC-BY-4.0", "CC-BY-NC-4.0", "all-rights-reserved"). Omitted → site default
+    // (CC BY 4.0). Drives rel="license", the JSON-LD license, and the CSL record.
+    license: z.string().optional(),
+    // Persistent identifier for citation/preservation. INERT until one is minted:
+    // unset, cite-as falls back to the canonical URL. A bare DOI ("10.xxxx/yyyy")
+    // or a full URL both work — kept provider-agnostic (Zenodo first, Crossref
+    // later is just a different string here, no code change).
+    doi: z.string().optional(),
     draft: z.boolean().default(false),
     hidden: z.boolean().default(false),     // exclude from the site entirely: no page is built and it appears in no listing
     featured: z.boolean().default(false),

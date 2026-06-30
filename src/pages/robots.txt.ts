@@ -1,8 +1,15 @@
 import type { APIRoute } from 'astro';
+import { PROD_HOST } from '../lib/production.js';
 
 // robots.txt is generated per-environment from the configured `site` (driven by
 // SITE_URL in the deploy workflow). Non-production hosts stay fully blocked so
 // staging never lands in an index; production opens up with the policy below.
+//
+// NB: indexing is gated on the host alone (not the full isProduction() identity
+// gate), deliberately. Coupling it to the PRODUCTION env flag would deindex the
+// live site if that var were ever unset — too sharp an edge for the indexing
+// switch. The signposting/identity claims use the stricter two-lock gate; this
+// only decides "is this the public host", which the host match answers.
 //
 // Policy (production): open to search engines and social/link-preview crawlers,
 // and to AI *citation/search* bots (OAI-SearchBot, PerplexityBot) — these surface
@@ -24,7 +31,7 @@ const BLOCKED_AI_BOTS = [
 ];
 
 export const GET: APIRoute = ({ site }) => {
-  const isProd = site?.host === 'science.works';
+  const isProd = site?.host === PROD_HOST;
 
   const lines = isProd
     ? [

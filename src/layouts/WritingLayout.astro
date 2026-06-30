@@ -4,6 +4,9 @@ import GridArt from '../components/GridArt.astro';
 import { coverFor } from '../lib/covers.js';
 import { getPerson, profilePath } from '../lib/people.js';
 import { projectHref } from '../lib/projects.js';
+import { isProduction } from '../lib/production.js';
+import { resolveLicense } from '../lib/licensing.js';
+import { pieceSignposting } from '../lib/signposting.js';
 const { entry, related = [] } = Astro.props;
 const d = entry.data;
 const cover = coverFor(entry);
@@ -40,6 +43,10 @@ import { existsSync } from 'node:fs';
 const ogCandidate = `/og/${entry.id}.png`;
 const ogImage = existsSync(`public${ogCandidate}`) ? ogCandidate : undefined;
 
+// Per-piece license (frontmatter `license`, else site default). Used in the
+// JSON-LD below, the visible credit line, and the FAIR signposting.
+const license = resolveLicense(d.license);
+
 // Article structured data (schema.org) for richer search results.
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -47,6 +54,7 @@ const jsonLd = {
   headline: d.title,
   ...(metaDescription ? { description: metaDescription } : {}),
   image: new URL(ogImage ?? '/og-default.png', Astro.site).href,
+  ...(license.url ? { license: license.url } : {}),
   datePublished: d.date.toISOString(),
   // Authors with a profile page reference the same Person `@id` as that page,
   // so essays reinforce the person entity (and vice versa).
@@ -74,10 +82,19 @@ const breadcrumbLd = {
     { '@type': 'ListItem', position: 3, name: d.title, item: pageUrl },
   ],
 };
+
+// FAIR Signposting (https://signposting.org). Emitted ONLY in production — these
+// rel="cite-as"/license/describedby/item links are production-identity claims, so
+// the two-lock gate (host match + PRODUCTION env flag) keeps staging and local
+// builds physically unable to assert them. The HTTP Link-header equivalent is
+// generated from the same relation set in scripts/generate-headers.mjs.
+const prod = isProduction(Astro.site);
+const signposts = prod ? pieceSignposting(entry, Astro.site) : [];
 ---
 <BaseLayout title={`${d.title} — Science Works`} description={metaDescription} type="article" image={ogImage}>
   <script type="application/ld+json" slot="head" set:html={JSON.stringify(jsonLd)} />
   <script type="application/ld+json" slot="head" set:html={JSON.stringify(breadcrumbLd)} />
+  {signposts.map((l) => <link slot="head" rel={l.rel} href={l.href} type={l.type} />)}
   <main>
     <article class="article">
       <div class="article-head">
