@@ -16,11 +16,13 @@
 // change doesn't alter current structured data; revisit `schemaType` alongside
 // the taxonomy work.
 export const SCHOLARLY_TYPES = {
-  essay:  { schemaType: 'Article', signpost: 'https://schema.org/ScholarlyArticle', csl: 'article-magazine', label: 'Essay' },
-  report: { schemaType: 'Report',  signpost: 'https://schema.org/Report',           csl: 'report',           label: 'Report' },
-  // Placeholders for the forthcoming taxonomy — uncomment + enum-widen when ready:
+  essay:    { schemaType: 'Article', signpost: 'https://schema.org/ScholarlyArticle', csl: 'article-magazine', label: 'Essay' },
+  report:   { schemaType: 'Report',  signpost: 'https://schema.org/Report',           csl: 'report',           label: 'Report' },
+  // A Long Read is an Essay editorially — longer-form — but structurally identical
+  // (same schema.org/CSL vocab); only the human label differs.
+  longread: { schemaType: 'Article', signpost: 'https://schema.org/ScholarlyArticle', csl: 'article-magazine', label: 'Long Read' },
+  // Placeholder for the forthcoming taxonomy — uncomment + enum-widen when ready:
   // note:     { schemaType: 'Article', signpost: 'https://schema.org/ScholarlyArticle', csl: 'article-magazine', label: 'Note' },
-  // longread: { schemaType: 'Article', signpost: 'https://schema.org/ScholarlyArticle', csl: 'article-magazine', label: 'Long Read' },
 };
 
 export function scholarlyType(type) {

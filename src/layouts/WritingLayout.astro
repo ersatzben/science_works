@@ -7,9 +7,20 @@ import { projectHref } from '../lib/projects.js';
 import { isProduction } from '../lib/production.js';
 import { resolveLicense } from '../lib/licensing.js';
 import { pieceSignposting } from '../lib/signposting.js';
+import { scholarlyType } from '../lib/scholarly.js';
 const { entry, related = [] } = Astro.props;
 const d = entry.data;
 const cover = coverFor(entry);
+const hasContributors = Array.isArray(d.contributors) && d.contributors.length > 0;
+// The date rides the contributors line only when the two comfortably share one
+// line; once the contributors are long enough to wrap, the date reads better up
+// on the byline row (e.g. How Not to Waste). We can't measure pixels at build
+// time, so we approximate "fits on one line" with a character-length cutoff on
+// the rendered "Contributors: …" string. Below the cutoff (e.g. Linear
+// Regression, 24 chars) the date drops down; above it (74 chars) it stays up.
+const CONTRIB_DATE_MAXLEN = 45;
+const dateOnContribRow = hasContributors &&
+  ('Contributors: ' + d.contributors.join(', ')).length <= CONTRIB_DATE_MAXLEN;
 
 // Resolve author bio cards from the byline names: pull role/bio/photo from
 // people.json for anyone on /about, and fall back to a frontmatter `writers`
@@ -19,7 +30,7 @@ const writers = d.authors
   .map((name) => ({ name, ...(getPerson(name) ?? {}), ...(writerOverrides[name] ?? {}) }))
   .filter((w) => w.bio || w.role || w.photo);   // only show a card when we have something to show
 const fmt = (dt) => dt.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
-const typeLabel = d.type === 'report' ? 'Report' : 'Essay';
+const typeLabel = scholarlyType(d.type).label;
 
 // Share links — absolute URL from the configured `site`.
 const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
@@ -50,7 +61,7 @@ const license = resolveLicense(d.license);
 // Article structured data (schema.org) for richer search results.
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@type': d.type === 'report' ? 'Report' : 'Article',
+  '@type': scholarlyType(d.type).schemaType,
   headline: d.title,
   ...(metaDescription ? { description: metaDescription } : {}),
   image: new URL(ogImage ?? '/og-default.png', Astro.site).href,
@@ -116,9 +127,9 @@ const signposts = prod ? pieceSignposting(entry, Astro.site) : [];
             <div class="title-bottom">
               <div class="byline">
                 <p class="byline-authors"><span class="authors-line">{d.authors.map((a, i) => (<Fragment>{i > 0 && <span class="comma">,</span>}{i > 0 ? ' ' : ''}<a class="author" href={profilePath(a) ?? '#writers'}>{a}</a></Fragment>))}</span></p>
-                <span class="pub-date">{fmt(d.date)}</span>
+                {!dateOnContribRow && <span class="pub-date">{fmt(d.date)}</span>}
               </div>
-              {d.contributors && d.contributors.length > 0 && <p class="contributors"><strong>Contributors:</strong> {d.contributors.join(', ')}</p>}
+              {hasContributors && <p class:list={["contributors", { "has-date": dateOnContribRow }]}><span class="contrib-names"><strong>Contributors:</strong>{' '}{d.contributors.map((c, i) => (<Fragment>{i > 0 && ', '}<span class="contrib-name">{c}</span></Fragment>))}</span>{dateOnContribRow && <span class="pub-date">{fmt(d.date)}</span>}</p>}
             </div>
           </div>
           {cover && <div class="title-pic"><GridArt bitmap={cover} fit="contain" class="title-pic-art" label="Essay illustration" /></div>}
@@ -426,7 +437,18 @@ const signposts = prod ? pieceSignposting(entry, Astro.site) : [];
       color: var(--text);
       margin: 16px 0 0;
     }
+    /* Only when the date shares this line: flex it out to the subtitle edge. */
+    .contributors.has-date {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 16px;
+      padding-right: 25%;            /* date right-aligns to the subtitle edge, matching the no-contributor byline date */
+    }
+    .contrib-names { min-width: 0; }  /* names take the remaining width and wrap; date stays pinned right */
+    .contrib-name { white-space: nowrap; }   /* a full name wraps as a unit, never mid-name */
     .contributors strong { font-weight: 700; }
+    .contributors.has-date .pub-date { margin-bottom: 0; }   /* baseline-align with the contributors text, not nudged up like on the byline */
 
     /* Grid-art cover: fills the full height of the block, aspect ratio locked, flush right. */
     .title-pic { display: flex; align-items: stretch; justify-content: flex-end; min-height: 260px; padding-bottom: 8px; }
@@ -769,6 +791,7 @@ const signposts = prod ? pieceSignposting(entry, Astro.site) : [];
       .bar-sep { margin: -8px 0; }
       .byline { padding-right: 0; margin-top: 5px; }   /* date to the right of the title on mobile */
       .contributors { margin-top: 6px; }
+      .contributors.has-date { padding-right: 0; }   /* date to the full-width edge on mobile */
     }
     @media (max-width: 640px) {
       .article { padding-top: 24px; }

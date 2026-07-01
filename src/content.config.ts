@@ -11,7 +11,7 @@ const writing = defineCollection({
     shortSubtitle: z.string().optional(),    // compact subtitle for the title block; falls back to subtitle
     authors: z.array(z.string()),
     date: z.coerce.date(),
-    type: z.enum(['essay', 'report']),
+    type: z.enum(['essay', 'report', 'longread']),
     project: z.string(),
     summary: z.string().optional(),          // longer blurb for cards/index; falls back to subtitle
     cover: z.string().optional(),            // cover json name in src/data/covers (no extension); defaults to the slug
