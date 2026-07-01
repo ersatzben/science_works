@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import GridArt from '../components/GridArt.astro';
 import { coverFor } from '../lib/covers.js';
+import { scholarlyType } from '../lib/scholarly.js';
 import { team } from '../lib/people.js';
 import quotes from '../data/quotes.json';
 import introPic from '../data/decor/home-intro.json';   // mobile intro illustration (30×22)
@@ -43,7 +44,7 @@ const all = (await getCollection('writing'))
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 const featured = all.find((e) => e.data.featured) ?? all[0];
 const fmt = (d) => d.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
-const typeLabel = (t) => (t === 'report' ? 'Report' : 'Essay');
+const typeLabel = (t) => scholarlyType(t).label;
 const ifCover = coverFor(featured);
 
 // Spotlight footer: a 4x4 pixel motif above each section title.
