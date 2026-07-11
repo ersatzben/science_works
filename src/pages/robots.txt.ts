@@ -38,6 +38,8 @@ export const GET: APIRoute = ({ site }) => {
         '# Production — open to search, social, and AI citation/search bots.',
         'User-agent: *',
         'Allow: /',
+        '# Internal tools (e.g. the sprite editor) — shareable but not indexable.',
+        'Disallow: /dev/',
         '',
         '# AI training / bulk scrapers — blocked.',
         '# (AI citation bots like OAI-SearchBot and PerplexityBot are allowed above.)',

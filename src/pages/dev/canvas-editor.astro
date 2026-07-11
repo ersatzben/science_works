@@ -1,0 +1,591 @@
+---
+// Whole-canvas editor for the splash hero artwork
+// (src/data/splash/canvas.json). The entire 144×73 cell field is painted
+// freeform — figures, speckle, everything is just cells. Animated
+// elements (DNA, chart lines, train) are runtime overlays configured in
+// src/lib/splashConfig.mjs; the editor shows their regions and static
+// poses as semi-transparent guides so you can paint around them.
+//
+// Saving: on the dev server, “save to site” writes canvas.json directly
+// (Vite reloads the homepage). Anywhere else (deployed / standalone
+// file), use download / copy JSON and send it back to be committed.
+// The built page is fully self-contained and shareable.
+// canvas.json is read via fs, NOT imported: an import would put it in
+// this page's Vite module graph, so every "save to site" would trigger
+// an HMR full-reload of the editor itself (losing undo history). The
+// homepage still imports it normally and hot-reloads on save. Dev
+// renders on demand so each editor load reads the current file; builds
+// bake the data at build time.
+import fs from 'node:fs';
+import { splashConfig, BRAND } from '../../lib/splashConfig.mjs';
+const splashCanvas = JSON.parse(fs.readFileSync('src/data/splash/canvas.json', 'utf8'));
+const payload = JSON.stringify({ canvas: splashCanvas, config: splashConfig, brand: BRAND });
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Splash canvas editor</title>
+  <style is:inline>
+    :root {
+      --bg: #f6f0ed; --text: #66223b; --theme: #eb3131;
+      --panel: #fffbf7; --border: #ddcac9;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font: 13px/1.45 'Roboto', system-ui, sans-serif;
+      height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+    }
+    header {
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+      padding: 8px 14px; border-bottom: 1px solid var(--border);
+      background: var(--panel); flex: 0 0 auto;
+    }
+    header h1 { font-size: 15px; margin: 0 6px 0 0; letter-spacing: 0.04em; }
+    button.small, label.small {
+      font: inherit; font-size: 12px; padding: 4px 9px;
+      border: 1px solid var(--border); border-radius: 4px; background: #fff;
+      color: var(--text); cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+    }
+    button.small:hover { border-color: var(--theme); }
+    button.small.on { border-color: var(--theme); background: #fdeeee; font-weight: 500; }
+    .grow { flex: 1; }
+    .meta { color: #a2707f; font-size: 12px; }
+    .main { display: flex; flex: 1; min-height: 0; }
+    .board-scroll { flex: 1; overflow: auto; background: #efe8e2; position: relative; }
+    canvas#board { display: block; cursor: crosshair; touch-action: none; background: var(--bg); margin: 14px; }
+    .side {
+      width: 300px; flex: 0 0 300px; overflow-y: auto;
+      border-left: 1px solid var(--border); background: var(--panel); padding: 12px;
+    }
+    h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; margin: 14px 0 6px; }
+    h3:first-child { margin-top: 0; }
+    .sub { font-size: 11px; color: #a2707f; margin: -2px 0 8px; }
+    .swgrid { display: flex; flex-wrap: wrap; gap: 3px; }
+    .swgrid .tok {
+      width: 31px; height: 26px; border-radius: 3px; border: 1px solid rgba(0,0,0,0.12);
+      cursor: pointer; font-size: 8px; color: #fff; position: relative;
+      display: flex; align-items: flex-end; justify-content: center;
+      text-shadow: 0 0 2px rgba(0,0,0,0.6);
+    }
+    .swgrid .tok:hover { outline: 2px solid var(--theme); }
+    .swgrid .tok.sel { outline: 2px solid var(--theme); outline-offset: 1px; }
+    .swgrid .tok.sel::after {
+      content: '✓'; position: absolute; top: 0; right: 2px;
+      font-size: 10px; font-weight: 700;
+    }
+    .brushrow { display: flex; align-items: center; gap: 6px; margin: 6px 0 2px; flex-wrap: wrap; }
+    .brushrow .cur {
+      width: 26px; height: 26px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.2);
+    }
+    textarea#io {
+      width: 100%; height: 110px; font: 10px ui-monospace, monospace;
+      border: 1px solid var(--border); border-radius: 4px; background: #fff; color: #333;
+      white-space: pre; padding: 6px;
+    }
+    input[type="color"] { width: 34px; height: 28px; padding: 0; border: 1px solid var(--border); border-radius: 4px; background: #fff; cursor: pointer; }
+    .toast {
+      position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%);
+      background: var(--text); color: #fff; padding: 6px 14px; border-radius: 4px;
+      font-size: 12px; opacity: 0; transition: opacity 0.25s; pointer-events: none;
+      max-width: 80vw; text-align: center; z-index: 10;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Splash canvas editor</h1>
+    <button class="small on" id="tool-draw" title="click/drag to paint">✏ draw</button>
+    <button class="small" id="tool-erase" title="or right-drag anytime">⌫ erase</button>
+    <button class="small" id="tool-fill" title="flood-fill a contiguous area">▨ fill</button>
+    <button class="small" id="tool-pick" title="or alt-click anytime">⌖ pick</button>
+    <span style="width:8px"></span>
+    <button class="small" id="undo">undo</button>
+    <button class="small" id="zoom-out">−</button>
+    <button class="small" id="zoom-in">+</button>
+    <button class="small" id="zoom-fit">fit</button>
+    <label class="small"><input type="checkbox" id="show-anim" checked /> animation guides</label>
+    <span class="grow"></span>
+    <span class="meta" id="meta"></span>
+    <span style="width:8px"></span>
+    <button class="small" id="save">💾 save to site</button>
+    <button class="small" id="download">download JSON</button>
+  </header>
+  <div class="main">
+    <div class="board-scroll" id="scroll">
+      <canvas id="board"></canvas>
+    </div>
+    <div class="side">
+      <h3>Brush</h3>
+      <div class="sub">Click a colour to paint with it. Shift-click more colours to build a blend — the brush then varies cell-by-cell (the mosaic mottle).</div>
+      <div class="brushrow" id="brush-swatches"></div>
+      <div class="brushrow">
+        <input type="color" id="custom-color" value="#eb3131" title="custom colour" />
+        <button class="small" id="add-custom">use custom</button>
+      </div>
+      <h3>Brand palette</h3>
+      <div class="swgrid" id="pal-brand"></div>
+      <h3>Used in artwork</h3>
+      <div class="sub">Every colour currently on the canvas.</div>
+      <div class="swgrid" id="pal-used"></div>
+      <h3>Recent</h3>
+      <div class="swgrid" id="pal-recent"></div>
+      <h3>Import / export</h3>
+      <div class="sub">Full canvas JSON. Paste + import to load; export/copy to share.</div>
+      <button class="small" id="export">export to box</button>
+      <button class="small" id="copy">copy JSON</button>
+      <button class="small" id="import">import from box</button>
+      <textarea id="io" spellcheck="false"></textarea>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+<script type="application/json" id="editor-data" is:inline set:html={payload}></script>
+<script is:inline>
+(function () {
+  const DATA = JSON.parse(document.getElementById('editor-data').textContent || 'null');
+  if (!DATA) return;
+  const CFG = DATA.config, BRAND = DATA.brand;
+  const COLS = DATA.canvas.cols, ROWS = DATA.canvas.rows, N = COLS * ROWS;
+  const idxOf = (x, y) => y * COLS + x;
+  const inG = (x, y) => x >= 0 && x < COLS && y >= 0 && y < ROWS;
+  const HEX2TOK = {};
+  for (const [k, v] of Object.entries(BRAND)) if (!(v in HEX2TOK)) HEX2TOK[v] = k;
+
+  // grid: per-cell hex string or null
+  let grid = new Array(N).fill(null);
+  DATA.canvas.cells.forEach((v, i) => { if (v >= 0) grid[i] = DATA.canvas.palette[v]; });
+
+  let tool = 'draw';                     // draw | erase | fill | pick
+  let brush = ['#eb3131'];               // 1 colour, or a blend set
+  let cell = 9;
+  let showAnim = true;
+  const recents = [];
+  const undoStack = [];
+  const $ = (id) => document.getElementById(id);
+  const board = $('board'), ctx = board.getContext('2d');
+  const scroll = $('scroll');
+
+  function toast(msg) {
+    const t = $('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2400);
+  }
+  function hashStr(s) {
+    let h = 2166136261;
+    for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619);
+    return h >>> 0;
+  }
+
+  // ── rendering ─────────────────────────────────────────────────────────
+  function drawCell(x, y) {
+    const i = idxOf(x, y);
+    // Grout/empty cells use the site's --bg so the artwork previews in
+    // its final context; the whisper-faint checker keeps cell boundaries
+    // findable while painting empty areas.
+    ctx.fillStyle = (x + y) % 2 ? '#f4eee9' : '#f6f0ed';
+    ctx.fillRect(x * cell, y * cell, cell, cell);
+    const c = grid[i];
+    if (!c) return;
+    ctx.fillStyle = c;
+    const pad = Math.max(0.5, cell * 0.1);
+    const r = Math.max(0.5, cell * 0.14);
+    ctx.beginPath();
+    ctx.roundRect
+      ? ctx.roundRect(x * cell + pad / 2, y * cell + pad / 2, cell - pad, cell - pad, r)
+      : ctx.rect(x * cell + pad / 2, y * cell + pad / 2, cell - pad, cell - pad);
+    ctx.fill();
+  }
+  function render() {
+    const dpr = window.devicePixelRatio || 1;
+    board.width = COLS * cell * dpr;
+    board.height = ROWS * cell * dpr;
+    board.style.width = COLS * cell + 'px';
+    board.style.height = ROWS * cell + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) drawCell(x, y);
+    if (showAnim) drawAnimGuides();
+    drawPlaqueGuide();
+    updateMeta();
+  }
+  function repaintCell(x, y) {
+    drawCell(x, y);
+    // guides sit on top; cheap to re-stroke after single-cell edits
+    if (showAnim) drawAnimGuides();
+    drawPlaqueGuide();
+  }
+
+  // static poses of the animated overlays, at reduced alpha
+  function drawAnimGuides() {
+    ctx.save();
+    ctx.globalAlpha = 0.55;
+    const put = (x, y, c) => {
+      if (!inG(x, y)) return;
+      ctx.fillStyle = c;
+      const pad = Math.max(0.5, cell * 0.1);
+      ctx.beginPath();
+      ctx.roundRect
+        ? ctx.roundRect(x * cell + pad / 2, y * cell + pad / 2, cell - pad, cell - pad, Math.max(0.5, cell * 0.14))
+        : ctx.rect(x * cell + pad / 2, y * cell + pad / 2, cell - pad, cell - pad);
+      ctx.fill();
+    };
+    // DNA at rest
+    {
+      const D = CFG.dna;
+      const dcol = (p, r) => p[hashStr('dna' + r) % p.length];
+      const cx = D.x + (D.w - 2) / 2, amp = D.amp - 0.5;
+      for (let r = 0; r < D.h; r++) {
+        const y = D.y + r, t = r * (D.freq || 0.42);
+        const sa = Math.sin(t), sb = Math.sin(t + Math.PI);
+        const xa = Math.round(cx + amp * sa), xb = Math.round(cx + amp * sb);
+        if (r % 3 === 1 && Math.abs(xa - xb) >= 4) {
+          for (let x = Math.min(xa, xb) + 2; x < Math.max(xa, xb); x++) put(x, y, dcol(D.palRung, r * 31 + x));
+        }
+        const strands = sa >= sb ? [[xb, D.palB], [xa, D.palA]] : [[xa, D.palA], [xb, D.palB]];
+        for (const [sx, p] of strands) { put(sx, y, dcol(p, r)); put(sx + 1, y, dcol(p, r * 7 + 3)); }
+      }
+    }
+    // chart sample lines
+    {
+      const CH = CFG.chart;
+      const inner = { x: CH.x + 1, y: CH.y + 1, w: CH.w - 2, h: CH.h - 2 };
+      let va = inner.h - 3, vb = inner.h - 2;
+      for (let k = 0; k < inner.w; k++) {
+        va = Math.max(1, va - (inner.h - 4) / inner.w);
+        vb = Math.max(0.5, vb - (inner.h - 3.2) / inner.w + Math.sin(k * 1.7) * 0.9);
+        put(inner.x + k, inner.y + Math.round(va), CH.colA);
+        put(inner.x + k, inner.y + Math.round(vb), CH.colB);
+      }
+    }
+    // parked train
+    {
+      const T = CFG.train;
+      const f = T.x0 + Math.round((T.x1 - T.x0) * 0.55);
+      for (let k = 0; k < 7; k++) put(f - k, T.row + 2, T.body[k % 2]);
+      for (let k = 0; k < 7; k++) put(f - k, T.row + 1, T.body[(k + 1) % 2]);
+      put(f - 6, T.row, T.body[0]); put(f - 5, T.row, T.body[1]); put(f, T.row, T.body[0]);
+      for (let k = 9; k <= 12; k++) { put(f - k, T.row + 2, T.carriage[k % 2]); put(f - k, T.row + 1, T.carriage[(k + 1) % 2]); }
+      for (let k = 14; k <= 17; k++) { put(f - k, T.row + 2, T.carriage[(k + 1) % 2]); put(f - k, T.row + 1, T.carriage[k % 2]); }
+    }
+    ctx.restore();
+    // dashed region outlines
+    ctx.save();
+    ctx.strokeStyle = '#eb3131';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([5, 4]);
+    const box = (x, y, w, h, label) => {
+      ctx.strokeRect(x * cell - 1, y * cell - 1, w * cell + 2, h * cell + 2);
+      ctx.setLineDash([]);
+      ctx.font = '600 10px Roboto, sans-serif';
+      ctx.fillStyle = '#eb3131';
+      ctx.fillText(label, x * cell + 2, y * cell - 3);
+      ctx.setLineDash([5, 4]);
+    };
+    box(CFG.dna.x, CFG.dna.y, CFG.dna.w, CFG.dna.h, 'DNA (animated)');
+    box(CFG.chart.x + 1, CFG.chart.y + 1, CFG.chart.w - 2, CFG.chart.h - 2, 'chart lines (animated)');
+    const T = CFG.train;
+    box(T.x0, T.row - 2, T.x1 - T.x0 + 1, 5, 'train path (animated)');
+    ctx.restore();
+  }
+  function drawPlaqueGuide() {
+    const P = CFG.plaque;
+    const ix = (P.x + P.border) * cell, iy = (P.y + P.border) * cell;
+    const iw = (P.w - 2 * P.border) * cell, ih = (P.h - 2 * P.border) * cell;
+    ctx.save();
+    ctx.strokeStyle = 'rgba(102,34,59,0.5)';
+    ctx.setLineDash([3, 3]);
+    ctx.strokeRect(ix, iy, iw, ih);
+    ctx.setLineDash([]);
+    // Small functional label only — no preview text inside the box.
+    ctx.fillStyle = 'rgba(102,34,59,0.6)';
+    ctx.font = '600 10px Roboto, sans-serif';
+    ctx.fillText('text box (blanked at runtime)', ix + 3, iy - 4);
+    ctx.restore();
+  }
+  function updateMeta(x, y) {
+    const painted = grid.reduce((n, c) => n + (c ? 1 : 0), 0);
+    $('meta').textContent =
+      (x != null ? `cell ${x},${y} · ` : '') +
+      `${COLS}×${ROWS} · ${painted} painted · brush: ${brush.map((c) => HEX2TOK[c] || c).join(' + ')}`;
+  }
+
+  // ── palette panels ─────────────────────────────────────────────────────
+  function swatch(hex, label) {
+    const d = document.createElement('div');
+    d.className = 'tok';
+    d.style.background = hex;
+    d.title = (HEX2TOK[hex] ? HEX2TOK[hex] + ' ' : '') + hex;
+    d.textContent = label ?? (HEX2TOK[hex] || '');
+    d.dataset.hex = hex;
+    return d;
+  }
+  function pickColor(hex, additive) {
+    if (additive) {
+      const k = brush.indexOf(hex);
+      if (k >= 0 && brush.length > 1) brush.splice(k, 1);
+      else if (k < 0) brush.push(hex);
+    } else {
+      brush = [hex];
+    }
+    if (tool !== 'draw' && tool !== 'fill') setTool('draw');
+    if (!recents.includes(hex)) { recents.unshift(hex); recents.length = Math.min(recents.length, 14); }
+    renderPalettes();
+    updateMeta();
+  }
+  function paletteClick(ev) {
+    const hex = ev.target.dataset && ev.target.dataset.hex;
+    if (hex) pickColor(hex, ev.shiftKey);
+  }
+  function renderPalettes() {
+    const brand = $('pal-brand');
+    brand.innerHTML = '';
+    for (const hex of Object.values(BRAND)) {
+      const d = swatch(hex);
+      if (brush.includes(hex)) d.classList.add('sel');
+      brand.appendChild(d);
+    }
+    const used = $('pal-used');
+    used.innerHTML = '';
+    const seen = new Set();
+    for (const c of grid) if (c && !seen.has(c)) { seen.add(c); }
+    for (const hex of [...seen].sort()) {
+      const d = swatch(hex, HEX2TOK[hex] || '·');
+      if (brush.includes(hex)) d.classList.add('sel');
+      used.appendChild(d);
+    }
+    const rec = $('pal-recent');
+    rec.innerHTML = '';
+    for (const hex of recents) {
+      const d = swatch(hex);
+      if (brush.includes(hex)) d.classList.add('sel');
+      rec.appendChild(d);
+    }
+    const bs = $('brush-swatches');
+    bs.innerHTML = '';
+    for (const hex of brush) {
+      const d = document.createElement('div');
+      d.className = 'cur';
+      d.style.background = hex;
+      d.title = (HEX2TOK[hex] || hex) + ' — click to remove from blend';
+      d.onclick = () => { if (brush.length > 1) { brush = brush.filter((c) => c !== hex); renderPalettes(); updateMeta(); } };
+      bs.appendChild(d);
+    }
+  }
+  $('pal-brand').addEventListener('click', paletteClick);
+  $('pal-used').addEventListener('click', paletteClick);
+  $('pal-recent').addEventListener('click', paletteClick);
+  $('add-custom').onclick = () => pickColor($('custom-color').value.toLowerCase(), false);
+
+  // ── tools & painting ────────────────────────────────────────────────────
+  function setTool(t) {
+    tool = t;
+    for (const id of ['draw', 'erase', 'fill', 'pick']) $('tool-' + id).classList.toggle('on', tool === id);
+  }
+  ['draw', 'erase', 'fill', 'pick'].forEach((t) => { $('tool-' + t).onclick = () => setTool(t); });
+
+  function pushUndo() {
+    undoStack.push(grid.slice());
+    if (undoStack.length > 40) undoStack.shift();
+  }
+  $('undo').onclick = () => {
+    const u = undoStack.pop();
+    if (!u) { toast('nothing to undo'); return; }
+    grid = u;
+    render();
+    renderPalettes();
+  };
+
+  function brushColor() {
+    return brush.length === 1 ? brush[0] : brush[(Math.random() * brush.length) | 0];
+  }
+  function applyCell(x, y, erase) {
+    if (!inG(x, y)) return;
+    const i = idxOf(x, y);
+    const v = erase ? null : brushColor();
+    if (grid[i] === v) return;
+    grid[i] = v;
+    repaintCell(x, y);
+  }
+  function fill(x, y) {
+    const i0 = idxOf(x, y);
+    const target = grid[i0];
+    const repl = brushColor();
+    if (target === repl) return;
+    pushUndo();
+    const stack = [i0];
+    const seen = new Set([i0]);
+    let n = 0;
+    while (stack.length && n < 4000) {
+      const i = stack.pop();
+      if (grid[i] !== target) continue;
+      grid[i] = brush.length === 1 ? repl : brushColor();
+      n++;
+      const cx = i % COLS, cy = (i / COLS) | 0;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nx = cx + dx, ny = cy + dy;
+        if (!inG(nx, ny)) continue;
+        const ni = idxOf(nx, ny);
+        if (!seen.has(ni) && grid[ni] === target) { seen.add(ni); stack.push(ni); }
+      }
+    }
+    render();
+    renderPalettes();
+    toast(`filled ${n} cells`);
+  }
+
+  function evCell(ev) {
+    const r = board.getBoundingClientRect();
+    return [Math.floor((ev.clientX - r.left) / cell), Math.floor((ev.clientY - r.top) / cell)];
+  }
+  let painting = 0;        // 1 draw, 2 erase
+  let last = null;         // for stroke interpolation
+  board.addEventListener('contextmenu', (e) => e.preventDefault());
+  board.addEventListener('pointerdown', (ev) => {
+    const [x, y] = evCell(ev);
+    if (!inG(x, y)) return;
+    if (ev.altKey || tool === 'pick') {
+      const c = grid[idxOf(x, y)];
+      if (c) { pickColor(c, false); toast('picked ' + (HEX2TOK[c] || c)); }
+      return;
+    }
+    if (tool === 'fill' && ev.button !== 2) { fill(x, y); return; }
+    pushUndo();
+    painting = ev.button === 2 || tool === 'erase' ? 2 : 1;
+    last = [x, y];
+    applyCell(x, y, painting === 2);
+    board.setPointerCapture(ev.pointerId);
+  });
+  board.addEventListener('pointermove', (ev) => {
+    const [x, y] = evCell(ev);
+    updateMeta(inG(x, y) ? x : null, y);
+    if (!painting || !last) return;
+    // interpolate the stroke so fast drags leave no gaps
+    const [lx, ly] = last;
+    const steps = Math.max(Math.abs(x - lx), Math.abs(y - ly));
+    for (let s = 1; s <= steps; s++) {
+      applyCell(Math.round(lx + ((x - lx) * s) / steps), Math.round(ly + ((y - ly) * s) / steps), painting === 2);
+    }
+    last = [x, y];
+  });
+  window.addEventListener('pointerup', () => { painting = 0; last = null; });
+
+  // ── zoom ────────────────────────────────────────────────────────────────
+  function fit() {
+    cell = Math.max(6, Math.floor((scroll.clientWidth - 28) / COLS));
+    render();
+  }
+  $('zoom-in').onclick = () => { cell = Math.min(26, cell + 2); render(); };
+  $('zoom-out').onclick = () => { cell = Math.max(4, cell - 2); render(); };
+  $('zoom-fit').onclick = fit;
+  $('show-anim').onchange = (ev) => { showAnim = ev.target.checked; render(); };
+
+  // ── save / import / export ──────────────────────────────────────────────
+  function serialiseGrid(g) {
+    const palette = [];
+    const palIdx = new Map();
+    const cellsOut = new Array(N).fill(-1);
+    for (let i = 0; i < N; i++) {
+      const c = g[i];
+      if (!c) continue;
+      if (!palIdx.has(c)) { palIdx.set(c, palette.length); palette.push(c); }
+      cellsOut[i] = palIdx.get(c);
+    }
+    return { cols: COLS, rows: ROWS, palette, cells: cellsOut };
+  }
+  function unpackGrid(p) {
+    const g = new Array(N).fill(null);
+    p.cells.forEach((v, i) => { if (v >= 0) g[i] = p.palette[v]; });
+    return g;
+  }
+  const serialise = () => serialiseGrid(grid);
+
+  // Saving rewrites canvas.json, and Vite broadcasts a full page reload
+  // to every open tab (the homepage imports that file) — including this
+  // editor. Stash the session right before saving and restore it on
+  // boot, so the reload is invisible: grid, undo history, zoom, scroll.
+  const STASH_KEY = 'sw-canvas-editor-stash';
+  function stashSession() {
+    try {
+      sessionStorage.setItem(STASH_KEY, JSON.stringify({
+        t: Date.now(), cell,
+        sx: scroll.scrollLeft, sy: scroll.scrollTop,
+        grid: serialiseGrid(grid),
+        undo: undoStack.slice(-10).map(serialiseGrid),
+      }));
+    } catch (_) {}
+  }
+  function restoreSession() {
+    let s = null;
+    try {
+      const raw = sessionStorage.getItem(STASH_KEY);
+      sessionStorage.removeItem(STASH_KEY);
+      if (raw) s = JSON.parse(raw);
+    } catch (_) {}
+    if (!s || Date.now() - s.t > 20000) return false;
+    grid = unpackGrid(s.grid);
+    undoStack.length = 0;
+    for (const u of s.undo || []) undoStack.push(unpackGrid(u));
+    cell = s.cell || cell;
+    render();
+    renderPalettes();
+    scroll.scrollLeft = s.sx || 0;
+    scroll.scrollTop = s.sy || 0;
+    return true;
+  }
+
+  $('save').onclick = async () => {
+    try {
+      stashSession();
+      const resp = await fetch('/__splash-save', { method: 'POST', body: JSON.stringify(serialise()) });
+      const j = await resp.json();
+      if (!j.ok) throw new Error(j.error || 'save failed');
+      toast('saved — the homepage picks it up automatically');
+    } catch (e) {
+      try { sessionStorage.removeItem(STASH_KEY); } catch (_) {}
+      toast('no dev-server save here — use download / copy JSON instead');
+    }
+  };
+  $('download').onclick = () => {
+    const blob = new Blob([JSON.stringify(serialise()) + '\n'], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'canvas.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+  $('export').onclick = () => { $('io').value = JSON.stringify(serialise()); };
+  $('copy').onclick = () => {
+    const json = JSON.stringify(serialise());
+    $('io').value = json;
+    navigator.clipboard && navigator.clipboard.writeText(json).then(
+      () => toast('canvas JSON copied'),
+      () => toast('JSON in the box (clipboard blocked)')
+    );
+  };
+  $('import').onclick = () => {
+    try {
+      const d = JSON.parse($('io').value);
+      if (!d || d.cols !== COLS || d.rows !== ROWS || !Array.isArray(d.cells)) throw new Error('expected a ' + COLS + '×' + ROWS + ' canvas JSON');
+      pushUndo();
+      grid = new Array(N).fill(null);
+      d.cells.forEach((v, i) => { if (v >= 0) grid[i] = d.palette[v]; });
+      render();
+      renderPalettes();
+      toast('imported');
+    } catch (e) { toast('import failed: ' + e.message); }
+  };
+
+  window.addEventListener('resize', () => { /* keep zoom; user can hit fit */ });
+  if (!restoreSession()) {
+    fit();
+    renderPalettes();
+  } else {
+    toast('session restored after save');
+  }
+})();
+</script>
+</body>
+</html>

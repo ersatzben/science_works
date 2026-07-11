@@ -1,0 +1,138 @@
+// Generate the splash hero's Great Britain sprite from real boundary
+// data, instead of drawing it by hand.
+//
+//   node scripts/gen-uk-sprite.mjs <path-to-geojson> [height-cells]
+//
+// Takes the largest polygon (the GB mainland) from the GeoJSON, projects
+// it (equirectangular with cos-latitude correction, so shapes keep their
+// aspect), rasterises it onto a cell grid by supersampled point-in-polygon
+// coverage, tints Scotland darker, and stamps major research cities from
+// their true lat/lon. Writes src/data/splash/ukmap-rows.json (consumed by
+// src/lib/splashScene.mjs) and prints the ASCII for eyeballing.
+
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const [, , geojsonPath, heightArg] = process.argv;
+if (!geojsonPath) {
+  console.error('usage: node scripts/gen-uk-sprite.mjs <geojson> [height-cells]');
+  process.exit(1);
+}
+const H = parseInt(heightArg || '26', 10);
+
+// Major research cities: [name, lat, lon]. London gets a second cell.
+const CITIES = [
+  ['Glasgow', 55.861, -4.257],
+  ['Edinburgh', 55.953, -3.189],
+  ['Newcastle', 54.978, -1.618],
+  ['Leeds', 53.801, -1.549],
+  ['Manchester', 53.483, -2.244],
+  ['Birmingham', 52.480, -1.903],
+  ['Cambridge', 52.205, 0.119],
+  ['Oxford', 51.752, -1.258],
+  ['Cardiff', 51.481, -3.179],
+  ['Bristol', 51.454, -2.588],
+  ['London', 51.507, -0.128],
+];
+const SCOTLAND_LAT = 55.3;   // cells north of this tint darker
+
+// ── load largest polygon ─────────────────────────────────────────────
+const gj = JSON.parse(fs.readFileSync(geojsonPath, 'utf8'));
+const geom = gj.features ? gj.features[0].geometry : gj.geometry || gj;
+const polys = geom.type === 'MultiPolygon' ? geom.coordinates : [geom.coordinates];
+function ringArea(ring) {
+  let a = 0;
+  for (let i = 0; i < ring.length - 1; i++) {
+    a += ring[i][0] * ring[i + 1][1] - ring[i + 1][0] * ring[i][1];
+  }
+  return Math.abs(a / 2);
+}
+const mainland = polys
+  .map((p) => p[0])
+  .sort((a, b) => ringArea(b) - ringArea(a))[0];
+console.error(`mainland ring: ${mainland.length} points`);
+
+// ── projection ───────────────────────────────────────────────────────
+let minLon = 99, maxLon = -99, minLat = 99, maxLat = -99;
+for (const [lon, lat] of mainland) {
+  minLon = Math.min(minLon, lon); maxLon = Math.max(maxLon, lon);
+  minLat = Math.min(minLat, lat); maxLat = Math.max(maxLat, lat);
+}
+const latMid = (minLat + maxLat) / 2;
+const kx = Math.cos((latMid * Math.PI) / 180);
+const projW = (maxLon - minLon) * kx;
+const projH = maxLat - minLat;
+const scale = H / projH;                 // cells per degree (vertical)
+const W = Math.ceil(projW * scale);
+// lon/lat → grid coords (row 0 = north)
+const toGrid = (lon, lat) => [(lon - minLon) * kx * scale, (maxLat - lat) * scale];
+
+// ── rasterise: supersampled point-in-polygon coverage ────────────────
+const pts = mainland.map(([lon, lat]) => toGrid(lon, lat));
+function inside(x, y) {
+  let odd = false;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const [xi, yi] = pts[i], [xj, yj] = pts[j];
+    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) odd = !odd;
+  }
+  return odd;
+}
+const SS = 4;                            // 4×4 subsamples per cell
+const COVER = 0.28;                      // land if ≥28% covered
+const grid = [];
+for (let r = 0; r < H; r++) {
+  let row = '';
+  for (let c = 0; c < W; c++) {
+    let hits = 0;
+    for (let sy = 0; sy < SS; sy++) {
+      for (let sx = 0; sx < SS; sx++) {
+        if (inside(c + (sx + 0.5) / SS, r + (sy + 0.5) / SS)) hits++;
+      }
+    }
+    if (hits / (SS * SS) >= COVER) {
+      const lat = maxLat - (r + 0.5) / scale;
+      row += lat > SCOTLAND_LAT ? 'd' : 'g';
+    } else {
+      row += '.';
+    }
+  }
+  grid.push(row.split(''));
+}
+
+// ── stamp cities (snap to nearest land cell if the centre misses) ────
+function nearestLand(c, r) {
+  for (let rad = 0; rad <= 2; rad++) {
+    for (let dy = -rad; dy <= rad; dy++) {
+      for (let dx = -rad; dx <= rad; dx++) {
+        const x = c + dx, y = r + dy;
+        if (x >= 0 && x < W && y >= 0 && y < H && (grid[y][x] === 'g' || grid[y][x] === 'd')) {
+          return [x, y];
+        }
+      }
+    }
+  }
+  return null;
+}
+for (const [name, lat, lon] of CITIES) {
+  const [gx, gy] = toGrid(lon, lat);
+  const spot = nearestLand(Math.floor(gx), Math.floor(gy));
+  if (!spot) { console.error(`  !! ${name} found no land`); continue; }
+  const [x, y] = spot;
+  grid[y][x] = name === 'London' ? 'L' : 'c';
+  if (name === 'London' && x + 1 < W && grid[y][x + 1] !== '.') grid[y][x + 1] = 'L';
+}
+
+// ── emit ─────────────────────────────────────────────────────────────
+const rows = grid.map((r) => r.join(''));
+console.error(rows.map((r) => `'${r}'`).join('\n'));
+const outPath = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../src/data/splash/ukmap-rows.mjs'
+);
+fs.writeFileSync(
+  outPath,
+  '// Generated by scripts/gen-uk-sprite.mjs — do not hand-edit.\n' +
+    'export default ' + JSON.stringify({ w: W, h: H, rows }, null, 2) + ';\n'
+);
+console.error(`\nwrote ${path.relative(process.cwd(), outPath)} (${W}×${H})`);
