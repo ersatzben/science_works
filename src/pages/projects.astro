@@ -4,8 +4,11 @@ import MosaicNetwork from '../components/MosaicNetwork.astro';
 import decor from '../data/decor/projects-corner.json';
 import banner from '../data/decor/projects-banner.json';
 
-// Every JSON in src/data/mosaics/ becomes its own network block (sorted by name).
-const mods = import.meta.glob('../data/mosaics/*.json', { eager: true });
+// Every net-*.json in src/data/mosaics/ becomes its own network block
+// (sorted by name). Scoped to the net-* prefix so other mosaic exports
+// stored in the folder (e.g. people-editor files, a different format)
+// can't break this page.
+const mods = import.meta.glob('../data/mosaics/net-*.json', { eager: true });
 const mosaics = Object.keys(mods).sort().map((k) => mods[k].default ?? mods[k]);
 
 // Decorative corner art. Index 1 (#f7f0ed) is the blank filler → transparent.
