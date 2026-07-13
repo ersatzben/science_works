@@ -178,6 +178,7 @@
       gap: 10px;
       color: var(--theme);
       text-decoration: none;
+      margin-left: 25px;    /* desktop inset; reset to 0 in the mobile block */
     }
     .logo-mark {
       height: 20px;
@@ -203,7 +204,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-right: 22px;
+      margin-right: 47px;   /* 22px + 25px desktop inset */
     }
     .nav-links a {
       font-family: 'Roboto', sans-serif;
@@ -241,6 +242,7 @@
     @media (max-width: 720px) {
       /* Smaller, tighter mobile header. */
       .nav { padding: 0 14px; height: 60px; }
+      .logo { margin-left: 0; }                      /* desktop inset off on mobile */
       .logo-mark { height: 17px; margin-left: 0; }   /* smaller + flush to the left edge */
       .logo-text { font-size: 20px; }
       .nav-toggle { display: flex; gap: 4px; padding: 5px; }   /* smaller hit area, tighter to the right */

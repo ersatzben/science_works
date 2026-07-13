@@ -120,7 +120,7 @@ const orgJsonLd = {
       <div class="hero-box">
         <h1 class="hero-title">Reshaping British Science and&nbsp;Technology</h1>
         <div class="hero-rule" aria-hidden="true"></div>
-        <p class="hero-tag">Better Research. Better Systems. Better Policy</p>
+        <p class="hero-tag">Better policy. Better software. Better research</p>
       </div>
     </div>
     <div class="mobile-hero">
@@ -497,7 +497,7 @@ const orgJsonLd = {
       margin: 1.2% 0 3%;
     }
     .hero-tag {
-      font-family: var(--button-text);
+      font-family: 'DM Sans', sans-serif;
       font-weight: 600;
       font-size: clamp(10px, 1vw, 14.3px);
       letter-spacing: 0.02em;
@@ -1598,7 +1598,6 @@ const orgJsonLd = {
     // painted layer (canvas.json). Runtime layers on top of it:
     //   dyn     — procedural DNA helix + chart data lines
     //   overlay — the steam train
-    //   heat    — cursor ripple
     // Figures are discovered at boot by connected-component analysis of
     // the artwork (no sprite metadata): components ≥ FIGURE_MIN cells get
     // the staggered flood reveal, click-scatter and pointer cursor; tiny
@@ -1675,7 +1674,6 @@ const orgJsonLd = {
       }
       const dyn = new Int32Array(N).fill(-1);        // DNA + chart lines
       const overlay = new Int32Array(N).fill(-1);    // train + steam
-      const heat = new Float32Array(N);              // cursor ripple 0..1
       const shown = new Uint8Array(N);               // reveal gate
       const twinkles = new Map();                    // idx → brightness boost
       const dirty = new Set();
@@ -1805,21 +1803,11 @@ const orgJsonLd = {
           // as a complete mosaic and figures materialise over it.
           c = BASE_TILE;
         }
-        const h = heat[i];
+        if (c < 0) return;
         const [px, py] = cellRect(i);
-        if (c < 0 && h <= 0.02) return;
         ctx.beginPath();
         if (ctx.roundRect) ctx.roundRect(px, py, cs, cs, rad);
         else ctx.rect(px, py, cs, cs);
-        if (c < 0) {
-          // tracer over an empty cell: a crisp red pixel fading out
-          ctx.globalAlpha = Math.min(1, h);
-          ctx.fillStyle = css(THEME);
-          ctx.fill();
-          ctx.globalAlpha = 1;
-          return;
-        }
-        if (h > 0.02) c = mix(c, THEME, Math.min(1, h));
         ctx.fillStyle = css(c);
         ctx.fill();
       }
@@ -2095,7 +2083,7 @@ const orgJsonLd = {
       const trainCar = TRAIN.carriage.map(hex2int);
       const trainSteam = TRAIN.steam.map(hex2int);
       const TRAIN_SPEED = 4.0;           // cells per second
-      const TRAIN_PAUSE_MS = 9000;
+      const TRAIN_PAUSE_MS = 4000;       // rest between crossings
       let trainStart = 0;
       let trainPrev = new Map();
       function trainCells(front) {
@@ -2117,6 +2105,10 @@ const orgJsonLd = {
           put(front - k, rowBot, trainCar[(k + 1) % 2]);
           put(front - k, rowMid, trainCar[k % 2]);
         }
+        for (let k = 19; k <= 22; k++) {
+          put(front - k, rowBot, trainCar[k % 2]);
+          put(front - k, rowMid, trainCar[(k + 1) % 2]);
+        }
         put(front, rowTop - 1, trainSteam[0]);
         put(front - 1, rowTop - 2, trainSteam[1]);
         put(front - 3, rowTop - 2, trainSteam[0]);
@@ -2133,12 +2125,14 @@ const orgJsonLd = {
         trainPrev = cellsIn;
       }
       function trainTick() {
-        const span = (TRAIN.x1 - TRAIN.x0) + 36;
+        // lead-in/out sized to the full train length (front to third
+        // carriage tail at front−22) so it enters and exits cleanly
+        const span = (TRAIN.x1 - TRAIN.x0) + 48;
         const crossMs = (span / TRAIN_SPEED) * 1000;
         const el = vnow - trainStart;
         if (el > crossMs + TRAIN_PAUSE_MS) { trainStart = vnow; return; }
         if (el > crossMs) { if (trainPrev.size) applyTrain(new Map()); return; }
-        const front = Math.round(TRAIN.x0 - 18 + (el / 1000) * TRAIN_SPEED);
+        const front = Math.round(TRAIN.x0 - 24 + (el / 1000) * TRAIN_SPEED);
         applyTrain(trainCells(front));
       }
 
@@ -2164,26 +2158,7 @@ const orgJsonLd = {
         }
       }
 
-      // --- cursor ripple -------------------------------------------------------
-      const hot = new Set();
-      // Cursor tracer: a single full-red cell under the pointer (no glow
-      // radius); the decay below leaves a brief fading trail along the path.
-      function addHeat(cx, cy) {
-        if (!inGrid(cx, cy)) return;
-        const i = idxOf(cx, cy);
-        heat[i] = 1;
-        hot.add(i);
-        dirty.add(i);
-      }
-      function heatTick(dt) {
-        if (!hot.size) return;
-        const decay = Math.exp(-dt / 600);
-        for (const i of hot) {
-          heat[i] *= decay;
-          if (heat[i] < 0.02) { heat[i] = 0; hot.delete(i); }
-          dirty.add(i);
-        }
-      }
+      // --- pointer helpers -------------------------------------------------------
       function cellFromEvent(ev) {
         const r = canvas.getBoundingClientRect();
         const x = Math.floor((ev.clientX - r.left) / pw);
@@ -2199,7 +2174,6 @@ const orgJsonLd = {
       canvas.addEventListener('pointermove', (ev) => {
         const c = cellFromEvent(ev);
         if (!c) return;
-        if (!reduced) addHeat(c[0], c[1]);
         const i = idxOf(c[0], c[1]);
         canvas.style.cursor = (shown[i] && figureAt(i)) ? 'pointer' : 'default';
       });
@@ -2236,7 +2210,6 @@ const orgJsonLd = {
           if (vnow > revealDone + 400) chartTick();
           if (vnow > revealDone + 1500) trainTick();
           if (vnow > revealDone) twinkleTick();
-          heatTick(dt);
         }
         if (dirty.size) {
           for (const i of dirty) paint(i);
@@ -2258,8 +2231,6 @@ const orgJsonLd = {
         applyTrain(trainCells(TRAIN.x0 + Math.round((TRAIN.x1 - TRAIN.x0) * 0.55)));
         for (const tw of activeTwinkles) twinkles.delete(tw.i);
         activeTwinkles.length = 0;
-        heat.fill(0);
-        hot.clear();
         repaintAll();
       }
 
