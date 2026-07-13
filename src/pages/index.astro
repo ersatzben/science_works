@@ -1869,6 +1869,11 @@ const orgJsonLd = {
           }
           return { x0, y0, x1, y1, area: (x1 - x0 + 1) * (y1 - y0 + 1), extra: [] };
         });
+        // Association reaches REACH cells past each bounding box, so art
+        // painted just beside a figure (soft edges, halos, the odd strip
+        // between two figures) reveals with the nearest figure instead of
+        // sweeping in early on its own.
+        const REACH = 4;
         for (let i = 0; i < N; i++) {
           if (inFigure[i] || cells[i] < 0) continue;
           const x = i % COLS, y = (i / COLS) | 0;
@@ -1877,7 +1882,7 @@ const orgJsonLd = {
           if (inPlaqueRect(x, y)) continue;
           let best = null;
           for (const b of boxes) {
-            if (x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1 && (!best || b.area < best.area)) best = b;
+            if (x >= b.x0 - REACH && x <= b.x1 + REACH && y >= b.y0 - REACH && y <= b.y1 + REACH && (!best || b.area < best.area)) best = b;
           }
           if (best) { best.extra.push(i); inFigure[i] = 1; }
         }
