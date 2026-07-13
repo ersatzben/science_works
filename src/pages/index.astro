@@ -118,9 +118,9 @@ const orgJsonLd = {
     <div class="stage">
       <canvas id="splash-canvas" role="img" aria-label="Pixel-mosaic landscape of British science: a DNA helix, microchip, punch card, laboratory glassware, the map of Great Britain, a grand scientific institution, rising charts, a lightbulb, and people standing before a Victorian viaduct crossed by a steam train"></canvas>
       <div class="hero-box">
-        <h1 class="hero-title">Reshaping the British Research&nbsp;System</h1>
+        <h1 class="hero-title">Reshaping British Science and&nbsp;Technology</h1>
         <div class="hero-rule" aria-hidden="true"></div>
-        <p class="hero-tag">Better Science. Better Systems. Better Britain.</p>
+        <p class="hero-tag">Better Research. Better Systems. Better Policy</p>
       </div>
     </div>
     <div class="mobile-hero">
@@ -469,34 +469,38 @@ const orgJsonLd = {
       position: absolute;
       left: 24.3056%;              /* 35 / 144 */
       top: 39.7260%;               /* 29 / 73  */
-      width: 40.9722%;             /* 59 / 144 */
-      height: 26.0274%;            /* 19 / 73  */
+      width: 38.8889%;             /* 56 / 144 */
+      height: 24.6575%;            /* 18 / 73  */
       z-index: 10;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: flex-start;
-      padding: 0 5.5%;
+      padding: 0 3.5%;
     }
     .hero-title {
-      font-family: 'Playfair Display', serif;
-      font-weight: 500;
-      font-size: clamp(20px, 2.35vw, 42px);
-      line-height: 1.12;
+      font-family: 'Copperplate', serif;
+      font-weight: normal;
+      /* clamp(min, preferred, max): tracks the viewport at 2.75vw
+         (2.75% of window width) but never smaller than 20px or larger
+         than 50px. To resize, scale all three values together. */
+      font-size: clamp(18px, 2.475vw, 45px);
+      letter-spacing: 0.02em;
+      line-height: 1.24;
       color: var(--text);
       margin: 0;
     }
     .hero-rule {
-      width: 34%;
-      border-top: 1px solid var(--theme);
-      margin: 2.6% 0 2.2%;
+      width: 83%;
+      border-top: 1px solid var(--beige);
+      margin: 1.2% 0 3%;
     }
     .hero-tag {
       font-family: var(--button-text);
-      font-weight: 500;
-      font-size: clamp(8px, 0.8vw, 13px);
-      letter-spacing: 0.16em;
+      font-weight: 600;
+      font-size: clamp(10px, 1vw, 14.3px);
+      letter-spacing: 0.02em;
       text-transform: uppercase;
       color: var(--text);
       margin: 0;
