@@ -34,13 +34,19 @@ export const splashConfig = {
   cols: 144,
   rows: 73,                        // 144 cols ≈ 10px cell pitch at 1440px
   theme: '#eb3131',
+  // The default background tile (--almost-white). Cells not yet revealed
+  // render as this placeholder, so the page loads as a calm uniform
+  // mosaic and figures materialise over it — no grout-coloured "ghosts".
+  baseTile: '#fffbf7',
 
   // Central plaque: interior is kept blank at runtime; .hero-box (the
   // DOM text) is positioned over it using these same cell fractions.
   plaque: { x: 34, y: 28, w: 58, h: 20, border: 1 },
 
   // DNA double helix — fully procedural within its region. Artwork in
-  // this region acts as a backdrop behind the strands.
+  // this region acts as a backdrop behind the strands. The region may
+  // overlap the plaque: the engine never draws overlays inside the
+  // plaque rect, so the helix simply tucks behind it.
   dna: {
     x: 26, y: 6, w: 12, h: 28,
     amp: 5.5, freq: 0.45,
@@ -61,7 +67,7 @@ export const splashConfig = {
   // Steam train — crosses the painted viaduct. `row` is the loco's top
   // row (it stands on the deck at row+3); x0..x1 is the deck span.
   train: {
-    row: 51, x0: 42, x1: 98,   // deck span of the 6-arch viaduct
+    row: 51, x0: 42, x1: 95,   // deck span of the 6-arch viaduct (stops at the deck end)
     body: ['#440214', '#66223b'],
     carriage: ['#771b28', '#66223b'],
     steam: ['#cdc5be', '#ddd6cf'],

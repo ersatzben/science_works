@@ -112,7 +112,7 @@ const orgJsonLd = {
   ],
 };
 ---
-<BaseLayout title="Science Works — Reshaping the British Research System">
+<BaseLayout title="Science Works — Reshaping British Science and Technology">
   <script type="application/ld+json" slot="head" set:html={JSON.stringify(orgJsonLd)} />
   <section id="splash">
     <div class="stage">
@@ -125,7 +125,7 @@ const orgJsonLd = {
     </div>
     <div class="mobile-hero">
       <div class="mhero-hero">
-        <h1 class="mhero-title">Reshaping<br>the British<br>Research<br>System</h1>
+        <h1 class="mhero-title">Reshaping<br>British<br>Science and<br>Technology</h1>
         <p class="mhero-blurb">Science Works is an independent research and policy studio aiming to tackle the biggest problems facing UK science and technology.</p>
         <div class="mhero-rule"></div>
         <div class="mhero-actions">
@@ -1650,6 +1650,7 @@ const orgJsonLd = {
       }
       const THEME = hex2int(CFG.theme);
       const WHITE = 0xffffff;
+      const BASE_TILE = hex2int(CFG.baseTile || '#fffbf7');
 
       // --- layers ----------------------------------------------------------
       const idxOf = (x, y) => y * COLS + x;
@@ -1678,6 +1679,14 @@ const orgJsonLd = {
       const shown = new Uint8Array(N);               // reveal gate
       const twinkles = new Map();                    // idx → brightness boost
       const dirty = new Set();
+      // Animated layers (DNA, chart lines, train) refuse to draw anywhere
+      // in the plaque rect — including the ring — whatever their configured
+      // regions say. Second line of defence alongside plaqueBlank above.
+      function inPlaqueRect(x, y) {
+        return !!PLAQUE &&
+          x >= PLAQUE.x && x < PLAQUE.x + PLAQUE.w &&
+          y >= PLAQUE.y && y < PLAQUE.y + PLAQUE.h;
+      }
 
       // --- connected components: figures emerge from the artwork ---------
       // Only "solid" cells participate: faint cream texture (near the
@@ -1689,12 +1698,23 @@ const orgJsonLd = {
       // cream texture both sit close to the grout colour. They're excluded
       // from figure components (so texture can't weld figures together) and
       // revealed instantly (so only the colourful bits animate in).
+      function colorDist2(v, ref) {
+        const dr = ((v >> 16) & 255) - ((ref >> 16) & 255);
+        const dg = ((v >> 8) & 255) - ((ref >> 8) & 255);
+        const db = (v & 255) - (ref & 255);
+        return dr * dr + dg * dg + db * db;
+      }
       function nearBg(v) {
         if (v < 0) return true;
-        const dr = ((v >> 16) & 255) - ((BG_INT >> 16) & 255);
-        const dg = ((v >> 8) & 255) - ((BG_INT >> 8) & 255);
-        const db = (v & 255) - (BG_INT & 255);
-        return dr * dr + dg * dg + db * db < 32 * 32;
+        return colorDist2(v, BG_INT) < 32 * 32;
+      }
+      // Stricter test for the load: only the base tile itself (and empty
+      // cells) may appear instantly. Everything with any visible tint —
+      // including the faint cream texture, which reads as grey speckle
+      // against the almost-white field — animates in with the sweep.
+      function isCalm(v) {
+        if (v < 0) return true;
+        return colorDist2(v, BASE_TILE) < 16 * 16;
       }
       function isSolid(i) {
         const v = cells[i];
@@ -1779,6 +1799,11 @@ const orgJsonLd = {
             const tw = twinkles.get(i);
             if (tw) c = mix(c, WHITE, tw);
           }
+        } else if (cells[i] >= 0) {
+          // Not yet revealed (or mid-scatter): show the calm base tile
+          // instead of a grout-coloured hole, so the field always reads
+          // as a complete mosaic and figures materialise over it.
+          c = BASE_TILE;
         }
         const h = heat[i];
         const [px, py] = cellRect(i);
@@ -1787,13 +1812,14 @@ const orgJsonLd = {
         if (ctx.roundRect) ctx.roundRect(px, py, cs, cs, rad);
         else ctx.rect(px, py, cs, cs);
         if (c < 0) {
-          ctx.globalAlpha = Math.min(1, h) * 0.55;
+          // tracer over an empty cell: a crisp red pixel fading out
+          ctx.globalAlpha = Math.min(1, h);
           ctx.fillStyle = css(THEME);
           ctx.fill();
           ctx.globalAlpha = 1;
           return;
         }
-        if (h > 0.02) c = mix(c, THEME, Math.min(1, h) * 0.85);
+        if (h > 0.02) c = mix(c, THEME, Math.min(1, h));
         ctx.fillStyle = css(c);
         ctx.fill();
       }
@@ -1830,14 +1856,30 @@ const orgJsonLd = {
         const list = [];
         const inFigure = new Uint8Array(N);
         for (const f of figures) for (const i of f.cells) inFigure[i] = 1;
-        // DNA region reveals like a figure (its artwork cells may be empty).
-        const dnaCells = [];
-        for (let y = DNA.y; y < DNA.y + DNA.h; y++) {
-          for (let x = DNA.x; x < DNA.x + DNA.w; x++) {
-            if (!inGrid(x, y)) continue;
-            dnaCells.push(idxOf(x, y));
-            inFigure[idxOf(x, y)] = 1;
+        // Pale cells enclosed by a figure (the chart's white interior, the
+        // flask's glass) reveal WITH that figure, not before it — otherwise
+        // they'd float there from t=0. Assign each painted non-figure cell
+        // inside a figure's bounding box to the smallest such box.
+        const boxes = figures.map((f) => {
+          let x0 = COLS, y0 = ROWS, x1 = -1, y1 = -1;
+          for (const i of f.cells) {
+            const x = i % COLS, y = (i / COLS) | 0;
+            if (x < x0) x0 = x; if (x > x1) x1 = x;
+            if (y < y0) y0 = y; if (y > y1) y1 = y;
           }
+          return { x0, y0, x1, y1, area: (x1 - x0 + 1) * (y1 - y0 + 1), extra: [] };
+        });
+        for (let i = 0; i < N; i++) {
+          if (inFigure[i] || cells[i] < 0) continue;
+          const x = i % COLS, y = (i / COLS) | 0;
+          // The plaque (ring included) is page furniture, never part of a
+          // figure's reveal — even when a figure's bounding box overlaps it.
+          if (inPlaqueRect(x, y)) continue;
+          let best = null;
+          for (const b of boxes) {
+            if (x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1 && (!best || b.area < best.area)) best = b;
+          }
+          if (best) { best.extra.push(i); inFigure[i] = 1; }
         }
         // Background: the calm field (empty cells + the almost-white
         // default tile + faint cream texture) is shown instantly so the
@@ -1846,26 +1888,74 @@ const orgJsonLd = {
         // flood on top.
         for (let i = 0; i < N; i++) {
           if (inFigure[i]) continue;
-          if (nearBg(cells[i])) { shown[i] = 1; continue; }
           const x = i % COLS, y = (i / COLS) | 0;
-          list.push({ t: 60 + (x + y) * 4.5 + rng() * 120, i, kind: 0 });
+          // The plaque (ring + interior) is part of the page furniture —
+          // it appears complete on load rather than animating in.
+          if (isCalm(cells[i]) || inPlaqueRect(x, y)) { shown[i] = 1; continue; }
+          list.push({ t: 40 + (x + y) * 2.8 + rng() * 80, i, kind: 0 });
         }
-        // Figures (+ the DNA region) flood in, staggered.
-        const order = figures.map((f) => ({ cells: f.cells, cx: f.cx, cy: f.cy }));
-        order.push({ cells: dnaCells, cx: DNA.x + DNA.w / 2, cy: DNA.y + DNA.h / 2 });
+        // Figures flood in, staggered. Oversized components — figures the
+        // artwork happens to join into one connected blob (e.g. touching
+        // buildings along the ground line) — are split into spatial
+        // clusters via farthest-point seeding, so each part gets its own
+        // quick flood and stagger slot instead of one slow mega-fill.
+        // (Scatter still treats the blob as one component.)
+        function splitForReveal(cellList) {
+          const TARGET = 350;
+          const k = Math.min(6, Math.max(1, Math.round(cellList.length / TARGET)));
+          if (k <= 1) return [cellList];
+          const xs = cellList.map((i) => i % COLS);
+          const ys = cellList.map((i) => (i / COLS) | 0);
+          const seeds = [0];
+          const minD = new Float32Array(cellList.length).fill(Infinity);
+          while (seeds.length < k) {
+            const s = seeds[seeds.length - 1];
+            let far = 0, farD = -1;
+            for (let j = 0; j < cellList.length; j++) {
+              const d = Math.min(minD[j], Math.hypot(xs[j] - xs[s], ys[j] - ys[s]));
+              minD[j] = d;
+              if (d > farD) { farD = d; far = j; }
+            }
+            seeds.push(far);
+          }
+          const clusters = seeds.map(() => []);
+          for (let j = 0; j < cellList.length; j++) {
+            let best = 0, bd = Infinity;
+            for (let s = 0; s < seeds.length; s++) {
+              const d = Math.hypot(xs[j] - xs[seeds[s]], ys[j] - ys[seeds[s]]);
+              if (d < bd) { bd = d; best = s; }
+            }
+            clusters[best].push(cellList[j]);
+          }
+          return clusters.filter((c) => c.length);
+        }
+        // The DNA is procedural, so instead of flooding a rectangle it
+        // draws itself top-to-bottom (see renderDna) starting at its own
+        // slot in the stagger; its backdrop cells follow the normal
+        // background rules above.
+        const order = [];
+        figures.forEach((f, k) => {
+          for (const cl of splitForReveal(f.cells.concat(boxes[k].extra))) {
+            let sx = 0, sy = 0;
+            for (const i of cl) { sx += i % COLS; sy += (i / COLS) | 0; }
+            order.push({ cells: cl, cx: sx / cl.length, cy: sy / cl.length });
+          }
+        });
         for (let k = order.length - 1; k > 0; k--) {
           const j = (rng() * (k + 1)) | 0;
           [order[k], order[j]] = [order[j], order[k]];
         }
         order.forEach((f, k) => {
-          const start = 380 + k * 130;
+          const start = 250 + k * 65;
           const flood = floodOrder(f.cells, f.cx, f.cy, 3);
-          const dur = 450 + flood.length * 1.2;
+          const dur = 300 + flood.length * 0.7;
           flood.forEach((i, r) => list.push({ t: start + (r / flood.length) * dur, i, kind: 1 }));
           revealDone = Math.max(revealDone, start + dur);
         });
+        dnaStart = 250 + ((rng() * (order.length + 1)) | 0) * 65;
+        revealDone = Math.max(revealDone, dnaStart + DNA_DRAW_MS);
         pushEvents(list);
-        revealDone = Math.max(revealDone, 2000);
+        revealDone = Math.max(revealDone, 1400);
       }
       function processEvents() {
         while (evCursor < events.length && events[evCursor].t <= vnow) {
@@ -1880,16 +1970,25 @@ const orgJsonLd = {
       }
 
       // --- DNA double helix (procedural, slow twist; draws into dyn) ------
+      // Entrance: the helix draws itself top-to-bottom over DNA_DRAW_MS,
+      // starting at dnaStart (its slot in the reveal stagger); pass a
+      // maxRow to limit how much of it exists yet.
+      const DNA_DRAW_MS = 600;
+      let dnaStart = 0;
       const dnaPalA = DNA.palA.map(hex2int);
       const dnaPalB = DNA.palB.map(hex2int);
       const dnaPalR = DNA.palRung.map(hex2int);
       let dnaPrev = new Map();
       function dnaColor(p, r) { return p[hashStr('dna' + r) % p.length]; }
-      function renderDna(phase) {
+      function renderDna(phase, maxRow) {
         const next = new Map();
         const cx = DNA.x + (DNA.w - 2) / 2;   // strands are 2 cells wide
         const amp = DNA.amp - 0.5;
-        for (let r = 0; r < DNA.h; r++) {
+        const put = (x, y, c) => {
+          if (inGrid(x, y) && !inPlaqueRect(x, y)) next.set(idxOf(x, y), c);
+        };
+        const rows = Math.min(DNA.h, maxRow);
+        for (let r = 0; r < rows; r++) {
           const y = DNA.y + r;
           const t = r * (DNA.freq || 0.42) + phase;
           const sa = Math.sin(t), sb = Math.sin(t + Math.PI);
@@ -1897,16 +1996,14 @@ const orgJsonLd = {
           const xb = Math.round(cx + amp * sb);
           if (r % 3 === 1 && Math.abs(xa - xb) >= 4) {
             const lo = Math.min(xa, xb), hi = Math.max(xa, xb);
-            for (let x = lo + 2; x < hi; x++) {
-              if (inGrid(x, y)) next.set(idxOf(x, y), dnaColor(dnaPalR, r * 31 + x));
-            }
+            for (let x = lo + 2; x < hi; x++) put(x, y, dnaColor(dnaPalR, r * 31 + x));
           }
           const strands = sa >= sb
             ? [[xb, dnaPalB], [xa, dnaPalA]]
             : [[xa, dnaPalA], [xb, dnaPalB]];
           for (const [sx, p] of strands) {
-            if (inGrid(sx, y)) next.set(idxOf(sx, y), dnaColor(p, r));
-            if (inGrid(sx + 1, y)) next.set(idxOf(sx + 1, y), dnaColor(p, r * 7 + 3));
+            put(sx, y, dnaColor(p, r));
+            put(sx + 1, y, dnaColor(p, r * 7 + 3));
           }
         }
         for (const [i] of dnaPrev) {
@@ -1923,7 +2020,7 @@ const orgJsonLd = {
       const chartColA = hex2int(CHART.colA), chartColB = hex2int(CHART.colB);
       const chartInner = { x: CHART.x + 1, y: CHART.y + 1, w: CHART.w - 2, h: CHART.h - 2 };
       let chartNext = null, chartDrawn = -1, chartCycleStart = 0;
-      const CHART_DRAW_MS = 2600, CHART_HOLD_MS = 8000;
+      const CHART_DRAW_MS = 2000, CHART_HOLD_MS = 8000;
       function genSeries() {
         const wobble = (v, lo, hi, drift, noise) => {
           v += drift + (Math.random() - 0.5) * noise;
@@ -1947,7 +2044,7 @@ const orgJsonLd = {
         const prev = k > 0 ? chartInner.y + series[k - 1] : yv;
         const lo = Math.min(yv, prev), hi = Math.max(yv, prev);
         for (let y = lo; y <= hi; y++) {
-          if (!inGrid(x, y)) continue;
+          if (!inGrid(x, y) || inPlaqueRect(x, y)) continue;
           const i = idxOf(x, y);
           dyn[i] = col;
           dirty.add(i);
@@ -2000,7 +2097,7 @@ const orgJsonLd = {
         const cellsOut = new Map();
         const rowTop = TRAIN.row, rowMid = TRAIN.row + 1, rowBot = TRAIN.row + 2;
         const put = (x, y, c) => {
-          if (x >= TRAIN.x0 && x <= TRAIN.x1 && inGrid(x, y)) cellsOut.set(idxOf(x, y), c);
+          if (x >= TRAIN.x0 && x <= TRAIN.x1 && inGrid(x, y) && !inPlaqueRect(x, y)) cellsOut.set(idxOf(x, y), c);
         };
         for (let k = 0; k < 7; k++) put(front - k, rowBot, trainBody[k % 2]);
         for (let k = 0; k < 7; k++) put(front - k, rowMid, trainBody[(k + 1) % 2]);
@@ -2064,18 +2161,14 @@ const orgJsonLd = {
 
       // --- cursor ripple -------------------------------------------------------
       const hot = new Set();
+      // Cursor tracer: a single full-red cell under the pointer (no glow
+      // radius); the decay below leaves a brief fading trail along the path.
       function addHeat(cx, cy) {
-        for (let dy = -3; dy <= 3; dy++) {
-          for (let dx = -3; dx <= 3; dx++) {
-            const x = cx + dx, y = cy + dy;
-            if (!inGrid(x, y)) continue;
-            const d = Math.hypot(dx, dy);
-            const add = Math.max(0, 1 - d / 2.8);
-            if (add <= 0) continue;
-            const i = idxOf(x, y);
-            if (add > heat[i]) { heat[i] = add; hot.add(i); dirty.add(i); }
-          }
-        }
+        if (!inGrid(cx, cy)) return;
+        const i = idxOf(cx, cy);
+        heat[i] = 1;
+        hot.add(i);
+        dirty.add(i);
       }
       function heatTick(dt) {
         if (!hot.size) return;
@@ -2133,8 +2226,9 @@ const orgJsonLd = {
         vnow += dt;
         processEvents();
         if (!reduced) {
-          renderDna(vnow * 0.00035);
-          if (vnow > revealDone + 600) chartTick();
+          const dnaRows = vnow <= dnaStart ? 0 : Math.ceil(((vnow - dnaStart) / DNA_DRAW_MS) * DNA.h);
+          renderDna(vnow * 0.00035, dnaRows);
+          if (vnow > revealDone + 400) chartTick();
           if (vnow > revealDone + 1500) trainTick();
           if (vnow > revealDone) twinkleTick();
           heatTick(dt);
@@ -2154,7 +2248,7 @@ const orgJsonLd = {
 
       function applyReduced() {
         showEverything();
-        renderDna(0);
+        renderDna(0, DNA.h);
         chartDrawAll();
         applyTrain(trainCells(TRAIN.x0 + Math.round((TRAIN.x1 - TRAIN.x0) * 0.55)));
         for (const tw of activeTwinkles) twinkles.delete(tw.i);
@@ -2173,6 +2267,9 @@ const orgJsonLd = {
           applyReduced();
         } else {
           buildReveal();
+          // Paint the instantly-shown calm field explicitly (previously it
+          // appeared only via the ResizeObserver's initial repaint).
+          repaintAll();
         }
         rafId = requestAnimationFrame(frame);
         if (window.ResizeObserver) new ResizeObserver(() => { if (pw) layout(); }).observe(stage);

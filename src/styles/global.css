@@ -160,8 +160,8 @@
 
     .nav {
       height: 70px;
-      background: var(--bg-secondary);
-      border-bottom: 2px solid var(--border-grey);
+      background: var(--almost-white);
+      border-bottom: 2px solid var(--bg);
       box-sizing: border-box;
       display: flex;
       align-items: center;
@@ -256,8 +256,8 @@
         gap: 0;
         margin: 0;
         padding: 6px 16px 14px;
-        background: var(--bg-secondary);
-        border-bottom: 2px solid var(--border-grey);
+        background: var(--almost-white);
+        border-bottom: 1px solid var(--bg-secondary);
       }
       .nav.is-open .nav-links { display: flex; }
       .nav-links a {
