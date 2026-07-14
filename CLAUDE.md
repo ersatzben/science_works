@@ -10,6 +10,7 @@ in `docs/` over improvising.
 
 - `docs/authoring.md` — adding/editing writing pieces (the most common task)
 - `docs/art-formats.md` — exact JSON formats for all pixel/mosaic art
+- `docs/homepage.md` — map of the homepage containers in `src/pages/index.astro` (hero text is duplicated for desktop/mobile — edit both)
 - `docs/operations.md` — deploys, staging vs production, DNS, access, failure playbook
 - `docs/fair-signposting.md` — scholarly metadata, licensing, DOIs, the production gate
 

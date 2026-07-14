@@ -55,9 +55,32 @@ Open the `.mdx` file in any text editor. The top section between the `---`
 lines is the metadata (frontmatter); everything below is the piece, written in
 [Markdown](https://www.markdownguide.org/basic-syntax/):
 
-- `## Section heading` for headings (start at `##`; `#` is reserved for the title)
+- `## Section heading` for headings — see "Heading levels" below
 - `*italics*`, `**bold**`, `[link text](https://example.com)`
 - Footnotes: `like this.[^1]` then `[^1]: The footnote text.` anywhere below.
+
+### Heading levels
+
+The piece's title is rendered from the frontmatter, so **never use `#` (a
+single hash) in the body**. Sections are `##`, subsections within them are
+`###`. Every existing piece follows this, and the sidebar table of contents is
+built from the `##` headings.
+
+### Drafting in Google Docs
+
+If a piece was drafted in Google Docs, don't copy-paste it — export it as
+Markdown instead: in Docs, **File → Download → Markdown (.md)**, then paste
+that file's contents below the frontmatter of your scaffolded piece. Two
+things to fix up afterwards:
+
+- **Heading levels:** Docs exports its "Heading 1" as `#`. Either use
+  Heading 2/3 styles in the doc from the start, or demote every heading one
+  level after pasting (`#` → `##`, `##` → `###`).
+- **Images don't survive the export** — download them from the doc separately
+  and add them with `<Figure>` as described below.
+
+The easiest route: give Claude Code the exported file and say *"tip this into
+the new piece and fix the headings and images"*.
 
 The metadata fields you must fill in: `title`, `subtitle`, `authors`, `date`,
 `type` (essay / report / longread), `project`. Everything else is optional and
@@ -66,6 +89,9 @@ explained by the comments in the template. Two useful ones:
 - `summary:` — a longer blurb used on cards and the writing index (otherwise
   the subtitle is reused).
 - `related:` — up to a few slugs of other pieces to cross-promote at the end.
+- `featured: true` — puts the piece in the homepage "In Focus" slot (remember
+  to remove the flag from whichever piece held it before; see
+  [homepage.md](homepage.md)).
 
 ### Images
 

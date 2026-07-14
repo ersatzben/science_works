@@ -13,6 +13,7 @@ Any questions, get in touch at contact@science.works
 | --- | --- |
 | **Add or edit an essay/report** | [docs/authoring.md](docs/authoring.md) — the step-by-step runbook |
 | Make cover art, glyphs, or other pixel art | [docs/art-formats.md](docs/art-formats.md) — exact JSON formats |
+| Change something on the homepage (hero, promo band, quote…) | [docs/homepage.md](docs/homepage.md) — map of the homepage containers |
 | Deploy, fix a failed build, DNS, access | [docs/operations.md](docs/operations.md) |
 | Understand the scholarly metadata / DOI layer | [docs/fair-signposting.md](docs/fair-signposting.md) |
 
