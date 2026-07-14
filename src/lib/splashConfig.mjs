@@ -64,6 +64,38 @@ export const splashConfig = {
     colB: '#eb3131',               // volatile series
   },
 
+  // Flask bubbles — animated within this region (the Erlenmeyer flask).
+  // At boot the engine locates the painted liquid (saturated red/maroon
+  // cells) column by column; bubbles spawn near the bottom, drift up
+  // with a little wobble, and pop at the liquid surface. Repainting the
+  // flask Just Works — the liquid is rediscovered from the artwork.
+  bubbles: {
+    x: 11, y: 50, w: 15, h: 17,
+    count: 4,                            // concurrent bubbles
+    pal: ['#f8bdb9', '#fb857e'],         // pale pinks, like the baked ones
+    // Bubbling over: a popped bubble sometimes escapes as a wisp of
+    // vapour that funnels up the neck (centre column x), wobbles free
+    // above the mouth, and dissipates at topY.
+    escape: {
+      x: 18,                             // neck centre column
+      mouthY: 45,                        // flask lip — free air above this
+      topY: 41,                          // wisp dissipates here
+      chance: 0.35,                      // probability a pop escapes
+      pal: ['#eee2dd', '#f3eae6'],       // faint warm vapour
+    },
+  },
+
+  // Skyscraper lights — windows turning on and off in the district.
+  // At boot the engine finds each building as a contiguous column of
+  // solid cells grounded on the district's bottom row (so art floating
+  // above the towers is ignored), then picks interior lattice cells as
+  // windows. A few are lit at any time, each with its own dwell.
+  lights: {
+    x: 95, y: 40, w: 39, h: 28,
+    maxOn: 8,                            // simultaneously lit windows
+    pal: ['#f5dda8', '#fbeccb'],         // warm evening glow
+  },
+
   // Steam train — crosses the painted viaduct. `row` is the loco's top
   // row (it stands on the deck at row+3); x0..x1 is the deck span.
   train: {

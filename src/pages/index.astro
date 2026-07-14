@@ -489,7 +489,7 @@ const orgJsonLd = {
       /* clamp(min, preferred, max): tracks the viewport at 2.475vw
          (2.475% of window width) but never smaller than 18px or larger
          than 45px. To resize, scale all three values together. */
-      font-size: clamp(18px, 2.75vw, 60px);
+      font-size: clamp(18px, 2.75vw, 90px);
       letter-spacing: 0.02em;
       line-height: 1.1;
       color: var(--theme);
@@ -504,7 +504,7 @@ const orgJsonLd = {
     .hero-tag {
       font-family: 'DM Sans', sans-serif;
       font-weight: 600;
-      font-size: clamp(9px, 1.02vw, 17px);
+      font-size: clamp(9px, 1.02vw, 50px);
       letter-spacing: 0.02em;
       text-transform: uppercase;
       color: var(--theme);
@@ -1974,8 +1974,11 @@ const orgJsonLd = {
         const next = new Map();
         const cx = DNA.x + (DNA.w - 2) / 2;   // strands are 2 cells wide
         const amp = DNA.amp - 0.5;
+        // Unlike the chart/train, the helix MAY enter the plaque rect —
+        // the hero box's translucent background sits above the canvas,
+        // so strands passing behind it read as a soft animated backdrop.
         const put = (x, y, c) => {
-          if (inGrid(x, y) && !inPlaqueRect(x, y)) next.set(idxOf(x, y), c);
+          if (inGrid(x, y)) next.set(idxOf(x, y), c);
         };
         const rows = Math.min(DNA.h, maxRow);
         for (let r = 0; r < rows; r++) {
@@ -2155,6 +2158,145 @@ const orgJsonLd = {
         }
       }
 
+      // --- flask bubbles (rise through the painted liquid) --------------------
+      // The liquid is discovered from the artwork at boot: within the
+      // configured region, each column's span of saturated red/maroon
+      // cells is its liquid depth. Bubbles spawn near the bottom, drift
+      // upward (with the odd sideways wobble into a neighbouring column),
+      // and pop when they reach that column's surface.
+      const BUB = CFG.bubbles;
+      const bubPal = BUB ? BUB.pal.map(hex2int) : [];
+      const bubCols = [];                   // {x, top, bot} per liquid column
+      if (BUB) {
+        const isLiquid = (v) => {
+          if (v < 0) return false;
+          const r = (v >> 16) & 255, g = (v >> 8) & 255, b = v & 255;
+          return (r > 150 && g < 110 && b < 110) || (r > 60 && r < 160 && g < 60 && b < 70);
+        };
+        for (let x = BUB.x; x < BUB.x + BUB.w; x++) {
+          let top = -1, bot = -1;
+          for (let y = BUB.y; y < BUB.y + BUB.h; y++) {
+            if (inGrid(x, y) && isLiquid(cells[idxOf(x, y)])) { if (top < 0) top = y; bot = y; }
+          }
+          if (top >= 0 && bot - top >= 2) bubCols.push({ x, top, bot });
+        }
+      }
+      let bubbles = [];
+      let wisps = [];                       // escaped vapour, rising up the neck
+      let bubblePrev = new Map();
+      const ESC = BUB && BUB.escape;
+      const escPal = ESC ? ESC.pal.map(hex2int) : [];
+      function bubbleTick() {
+        if (!bubCols.length) return;
+        while (bubbles.length < (BUB.count || 3)) {
+          const col = bubCols[(Math.random() * bubCols.length) | 0];
+          bubbles.push({
+            x: col.x,
+            y: col.bot - ((Math.random() * 2) | 0),
+            col,
+            colr: bubPal[(Math.random() * bubPal.length) | 0],
+            next: vnow + 500 + Math.random() * 2200,   // staggered first move
+          });
+        }
+        const next = new Map();
+        for (let k = bubbles.length - 1; k >= 0; k--) {
+          const b = bubbles[k];
+          if (vnow >= b.next) {
+            b.y -= 1;
+            if (Math.random() < 0.25) {                // sideways wobble
+              const nx = b.x + (Math.random() < 0.5 ? -1 : 1);
+              const nc = bubCols.find((c) => c.x === nx);
+              if (nc && b.y <= nc.bot && b.y > nc.top) { b.x = nx; b.col = nc; }
+            }
+            b.next = vnow + 260 + Math.random() * 260;
+            if (b.y <= b.col.top) {                    // pop at the surface…
+              if (ESC && wisps.length < 2 && Math.random() < ESC.chance) {
+                wisps.push({                           // …and sometimes escape
+                  x: b.x, y: b.col.top - 1,
+                  colr: escPal[(Math.random() * escPal.length) | 0],
+                  next: vnow + 300 + Math.random() * 300,
+                });
+              }
+              bubbles.splice(k, 1);
+              continue;
+            }
+          }
+          next.set(idxOf(b.x, b.y), b.colr);
+        }
+        // vapour: funnel toward the neck centre while inside the flask,
+        // wobble freely above the mouth, dissipate at topY
+        for (let k = wisps.length - 1; k >= 0; k--) {
+          const w = wisps[k];
+          if (vnow >= w.next) {
+            w.y -= 1;
+            if (w.y > ESC.mouthY) {
+              if (w.x !== ESC.x) w.x += w.x < ESC.x ? 1 : -1;
+            } else if (Math.random() < 0.4) {
+              w.x += Math.random() < 0.5 ? -1 : 1;
+            }
+            w.next = vnow + 380 + Math.random() * 320;
+            if (w.y <= ESC.topY) { wisps.splice(k, 1); continue; }
+          }
+          if (inGrid(w.x, w.y) && !inPlaqueRect(w.x, w.y)) next.set(idxOf(w.x, w.y), w.colr);
+        }
+        for (const [i] of bubblePrev) {
+          if (!next.has(i)) { dyn[i] = -1; dirty.add(i); }
+        }
+        for (const [i, c] of next) {
+          if (dyn[i] !== c) { dyn[i] = c; dirty.add(i); }
+        }
+        bubblePrev = next;
+      }
+
+      // --- skyscraper window lights ----------------------------------------
+      // Buildings are discovered from the artwork: within the district,
+      // each column's contiguous run of solid cells grounded on the
+      // bottom row is a tower (art floating above is ignored). Windows
+      // are interior lattice cells; a handful glow warm at any moment.
+      const LIGHTS = CFG.lights;
+      const lightsPal = LIGHTS ? LIGHTS.pal.map(hex2int) : [];
+      const windows = [];
+      if (LIGHTS) {
+        const solidCell = (x, y) => inGrid(x, y) && cells[idxOf(x, y)] >= 0 && !nearBg(cells[idxOf(x, y)]);
+        const gy = LIGHTS.y + LIGHTS.h - 1;
+        const runs = new Map();
+        for (let x = LIGHTS.x; x < LIGHTS.x + LIGHTS.w; x++) {
+          let bot = -1;
+          for (let y = gy; y >= gy - 2; y--) if (solidCell(x, y)) { bot = y; break; }
+          if (bot < 0) continue;
+          let top = bot;
+          while (top - 1 >= LIGHTS.y && solidCell(x, top - 1)) top--;
+          if (bot - top >= 4) runs.set(x, { top, bot });
+        }
+        for (const [x, run] of runs) {
+          const L = runs.get(x - 1), R = runs.get(x + 1);
+          for (let y = run.top + 1; y < run.bot; y++) {
+            if (!(L && y >= L.top && y <= L.bot && R && y >= R.top && y <= R.bot)) continue;
+            if (x % 2 === 0 || y % 2 === 1) continue;   // sparse window lattice
+            windows.push(idxOf(x, y));
+          }
+        }
+      }
+      const lit = new Map();               // window idx → lights-out time
+      let nextLight = 0;
+      function lightsTick() {
+        if (!windows.length) return;
+        if (vnow >= nextLight) {
+          nextLight = vnow + 3000 + Math.random() * 1000;   // a new light every 3–4s
+          if (lit.size < (LIGHTS.maxOn || 8)) {
+            const i = windows[(Math.random() * windows.length) | 0];
+            if (!lit.has(i) && dyn[i] < 0) {
+              lit.set(i, vnow + 1500 + Math.random() * 4500);
+              dyn[i] = lightsPal[(Math.random() * lightsPal.length) | 0];
+              dirty.add(i);
+            }
+          }
+        }
+        for (const [i, until] of lit) {
+          if (vnow >= until) { lit.delete(i); dyn[i] = -1; dirty.add(i); }
+        }
+      }
+
       // --- pointer helpers -------------------------------------------------------
       function cellFromEvent(ev) {
         const r = canvas.getBoundingClientRect();
@@ -2206,7 +2348,7 @@ const orgJsonLd = {
           renderDna(vnow * 0.00035, dnaRows);
           if (vnow > revealDone + 400) chartTick();
           if (vnow > revealDone + 1500) trainTick();
-          if (vnow > revealDone) twinkleTick();
+          if (vnow > revealDone) { twinkleTick(); bubbleTick(); lightsTick(); }
         }
         if (dirty.size) {
           for (const i of dirty) paint(i);
@@ -2228,6 +2370,12 @@ const orgJsonLd = {
         applyTrain(trainCells(TRAIN.x0 + Math.round((TRAIN.x1 - TRAIN.x0) * 0.55)));
         for (const tw of activeTwinkles) twinkles.delete(tw.i);
         activeTwinkles.length = 0;
+        for (const [i] of bubblePrev) dyn[i] = -1;   // still the liquid, no bubbles
+        bubblePrev = new Map();
+        bubbles = [];
+        wisps = [];
+        for (const [i] of lit) dyn[i] = -1;
+        lit.clear();
         repaintAll();
       }
 

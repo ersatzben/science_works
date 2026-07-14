@@ -6,12 +6,81 @@
   <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav-links">
     <span></span><span></span><span></span>
   </button>
+  <!-- Mobile-only dropdown (hamburger). Desktop uses the Explore drawer below. -->
   <nav class="nav-links" id="nav-links">
     <a href="/about">About</a>
     <a href="/projects">Projects</a>
     <a href="/writing">Writing</a>
     <a href="/contact">Contact</a>
   </nav>
+
+  <!-- Desktop: Explore trigger. The 2x2 tile glyph flies down into the drawer bullets on open. -->
+  <button class="explore-btn" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="explore-drawer">
+    <span class="explore-label">Explore</span>
+    <span class="explore-glyph" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+  </button>
+
+  <div class="explore-scrim" hidden></div>
+  <aside class="explore-drawer" id="explore-drawer" role="dialog" aria-modal="true" aria-label="Site navigation" hidden>
+    <button class="explore-close" type="button" aria-label="Close menu">
+      <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M2 2l12 12M14 2L2 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg>
+    </button>
+    <nav aria-label="Site pages">
+      <ul class="drawer-list">
+        <li class="drawer-item">
+          <a class="drawer-row" href="/about">
+            <span class="drawer-bullet"></span>
+            <span class="drawer-label">About</span>
+            <svg class="drawer-caret" width="8" height="14" viewBox="0 0 8 14" aria-hidden="true">
+              <path d="M1 1l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
+        </li>
+        <li class="drawer-item drawer-item--projects">
+          <div class="drawer-row">
+            <a class="drawer-projects-link" href="/projects">
+              <span class="drawer-bullet"></span>
+              <span class="drawer-label">Projects</span>
+            </a>
+            <button class="drawer-expand" type="button" aria-expanded="false" aria-controls="drawer-projects-sub" aria-label="Show project list">
+              <svg class="drawer-caret" width="8" height="14" viewBox="0 0 8 14" aria-hidden="true">
+                <path d="M1 1l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+          </div>
+          <div class="drawer-sub-wrap" id="drawer-projects-sub">
+            <ul class="drawer-sub">
+              <li><a href="/projects#institutional-dynamism">Institutional Dynamism</a></li>
+              <li><a href="/projects#ai-and-science">AI and Science</a></li>
+              <li><a href="/projects#the-research-economy">The Research Economy</a></li>
+              <li><a href="/projects#software-for-science">Software for Science</a></li>
+              <li><a href="/projects#a-story-of-british-science">A Story of British Science</a></li>
+            </ul>
+          </div>
+        </li>
+        <li class="drawer-item">
+          <a class="drawer-row" href="/writing">
+            <span class="drawer-bullet"></span>
+            <span class="drawer-label">Writing</span>
+            <svg class="drawer-caret" width="8" height="14" viewBox="0 0 8 14" aria-hidden="true">
+              <path d="M1 1l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
+        </li>
+        <li class="drawer-item">
+          <a class="drawer-row" href="/contact">
+            <span class="drawer-bullet"></span>
+            <span class="drawer-label">Contact</span>
+            <svg class="drawer-caret" width="8" height="14" viewBox="0 0 8 14" aria-hidden="true">
+              <path d="M1 1l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </aside>
 </header>
 
 <script is:inline>
@@ -28,6 +97,136 @@
           nav.classList.remove('is-open');
           toggle.setAttribute('aria-expanded', 'false');
         });
+      });
+    })();
+</script>
+
+<script is:inline>
+    // Desktop Explore drawer. On open, the 2x2 glyph tiles fly down (as fixed-
+    // position clones) to become the drawer's square bullets, morphing from
+    // --theme to --theme-soft; closing reverses the flight and recombines them.
+    (function () {
+      const nav = document.querySelector('.nav');
+      if (!nav) return;
+      const btn = nav.querySelector('.explore-btn');
+      const drawer = nav.querySelector('.explore-drawer');
+      const scrim = nav.querySelector('.explore-scrim');
+      if (!btn || !drawer || !scrim) return;
+      const closeBtn = drawer.querySelector('.explore-close');
+      const glyph = btn.querySelector('.explore-glyph');
+      const tiles = glyph.querySelectorAll('i');
+      const bullets = drawer.querySelectorAll('.drawer-bullet');
+      const projItem = drawer.querySelector('.drawer-item--projects');
+      const projToggle = drawer.querySelector('.drawer-expand');
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const rootStyle = getComputedStyle(document.documentElement);
+      const THEME = rootStyle.getPropertyValue('--theme').trim();
+      const SOFT = rootStyle.getPropertyValue('--theme-soft').trim();
+      const FLY_MS = 380;        // matches .explore-fly transition duration
+      const FLY_STAGGER = 45;
+      const SLIDE_MS = 280;      // matches .explore-drawer transition duration
+      let open = false;
+      let busy = false;          // ignore clicks while a flight is in progress
+
+      function rectsOf(els) {
+        return Array.from(els, function (el) { return el.getBoundingClientRect(); });
+      }
+
+      // Animate square clones from one set of rects to another, morphing colour.
+      function fly(from, to, c0, c1, done) {
+        const clones = from.map(function (r) {
+          const d = document.createElement('div');
+          d.className = 'explore-fly';
+          d.style.cssText = 'left:' + r.left + 'px;top:' + r.top + 'px;width:' + r.width + 'px;height:' + r.height + 'px;background:' + c0;
+          document.body.appendChild(d);
+          return d;
+        });
+        requestAnimationFrame(function () { requestAnimationFrame(function () {
+          clones.forEach(function (d, i) {
+            const t = to[i];
+            d.style.transitionDelay = (i * FLY_STAGGER) + 'ms';
+            d.style.left = t.left + 'px';
+            d.style.top = t.top + 'px';
+            d.style.width = t.width + 'px';
+            d.style.height = t.height + 'px';
+            d.style.background = c1;
+          });
+        }); });
+        setTimeout(function () {
+          clones.forEach(function (d) { d.remove(); });
+          done();
+        }, FLY_MS + FLY_STAGGER * (clones.length - 1) + 80);
+      }
+
+      function setExpanded(ex) {
+        projItem.classList.toggle('is-expanded', ex);
+        projToggle.setAttribute('aria-expanded', ex ? 'true' : 'false');
+      }
+
+      function openDrawer() {
+        if (open || busy) return;
+        open = true; busy = true;
+        const from = rectsOf(tiles);   // measure before hiding the glyph
+        glyph.classList.add('is-flying');
+        drawer.classList.add('bullets-hidden');
+        scrim.hidden = false;
+        drawer.hidden = false;
+        btn.setAttribute('aria-expanded', 'true');
+        document.body.style.overflow = 'hidden';
+        // Measure the bullets' landing spots at the drawer's FINAL position by
+        // briefly clearing the transform (no transition), so the flight can run
+        // simultaneously with the slide-in.
+        drawer.style.transition = 'none';
+        drawer.style.transform = 'none';
+        const to = rectsOf(bullets);
+        drawer.style.transform = '';
+        void drawer.offsetWidth;   // commit the slid-out position before re-enabling transitions
+        drawer.style.transition = '';
+        // Double rAF so the hidden->visible flip commits before the slide starts.
+        requestAnimationFrame(function () { requestAnimationFrame(function () {
+          nav.classList.add('explore-open');
+          if (reduced.matches) {
+            drawer.classList.remove('bullets-hidden');
+            busy = false;
+          } else {
+            fly(from, to, THEME, SOFT, function () {
+              drawer.classList.remove('bullets-hidden');
+              busy = false;
+            });
+          }
+          closeBtn.focus();
+        }); });
+      }
+
+      function closeDrawer() {
+        if (!open || busy) return;
+        open = false; busy = true;
+        btn.setAttribute('aria-expanded', 'false');
+        const from = rectsOf(bullets);   // measure before hiding them
+        drawer.classList.add('bullets-hidden');
+        nav.classList.remove('explore-open');   // drawer slides out, scrim fades
+        function finish() {
+          drawer.hidden = true;
+          scrim.hidden = true;
+          glyph.classList.remove('is-flying');
+          document.body.style.overflow = '';
+          setExpanded(false);   // reopen starts collapsed
+          busy = false;
+          btn.focus();
+        }
+        if (reduced.matches) { setTimeout(finish, SLIDE_MS); return; }
+        // Glyph is visibility:hidden, but its layout box is intact — rects are valid.
+        fly(from, rectsOf(tiles), SOFT, THEME, finish);
+      }
+
+      btn.addEventListener('click', openDrawer);
+      closeBtn.addEventListener('click', closeDrawer);
+      scrim.addEventListener('click', closeDrawer);
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && open) closeDrawer();
+      });
+      projToggle.addEventListener('click', function () {
+        setExpanded(!projItem.classList.contains('is-expanded'));
       });
     })();
 </script>

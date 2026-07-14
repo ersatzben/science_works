@@ -288,6 +288,8 @@ const payload = JSON.stringify({ canvas: splashCanvas, config: splashConfig, bra
     box(CFG.chart.x + 1, CFG.chart.y + 1, CFG.chart.w - 2, CFG.chart.h - 2, 'chart lines (animated)');
     const T = CFG.train;
     box(T.x0, T.row - 2, T.x1 - T.x0 + 1, 5, 'train path (animated)');
+    if (CFG.bubbles) box(CFG.bubbles.x, CFG.bubbles.y, CFG.bubbles.w, CFG.bubbles.h, 'bubbles (animated)');
+    if (CFG.lights) box(CFG.lights.x, CFG.lights.y, CFG.lights.w, CFG.lights.h, 'window lights (animated)');
     ctx.restore();
   }
   function drawPlaqueGuide() {

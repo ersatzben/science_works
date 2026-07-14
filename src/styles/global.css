@@ -63,6 +63,7 @@
       --bg: #f6f0ed;
       --text: #66223b;
       --theme: #eb3131;
+      --theme-soft: #f5adad;   /* lighter pink of the --theme hue (drawer bullets at rest) */
 
       /* Secondary */
       --bg-secondary: #f9f3ee;
@@ -216,11 +217,7 @@
     }
 
     .nav-links {
-      margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-right: 47px;   /* 22px + 25px desktop inset */
+      display: none;   /* mobile-only dropdown now; desktop uses the Explore drawer */
     }
     .nav-links a {
       font-family: 'Roboto', sans-serif;
@@ -255,8 +252,189 @@
       background: var(--theme);
       transition: transform 0.2s ease, opacity 0.2s ease;
     }
+
+/* ---- Explore trigger + right-hand drawer (desktop) ---- */
+    .explore-btn {
+      margin-left: auto;
+      margin-right: 47px;   /* 22px + 25px desktop inset (matches old nav-links) */
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: none;
+      border: none;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 17px;
+      line-height: 1;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--theme);
+    }
+    .explore-glyph {
+      display: grid;
+      grid-template-columns: repeat(2, 8px);
+      grid-auto-rows: 8px;
+      gap: 2px;
+    }
+    .explore-glyph i { background: var(--theme); }
+    .explore-glyph.is-flying { visibility: hidden; }   /* tiles are mid-flight as clones */
+
+    .explore-scrim {
+      position: fixed;
+      inset: 0;
+      background: transparent;   /* invisible; kept for click-outside-to-close */
+      z-index: 200;
+    }
+
+    .explore-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: min(360px, 92vw);
+      box-sizing: border-box;
+      padding: 96px 0 24px;
+      background: var(--almost-white);
+      border-left: 2px solid var(--bg);
+      box-shadow: -18px 0 40px rgba(102, 34, 59, 0.18);
+      overflow-y: auto;
+      transform: translateX(103%);   /* 103% so the shadow clears the viewport too */
+      transition: transform 0.28s cubic-bezier(0.32, 0.72, 0.28, 1);
+      z-index: 210;
+    }
+    .nav.explore-open .explore-drawer { transform: translateX(0); }
+
+    .explore-close {
+      position: absolute;
+      top: 20px;
+      right: 12px;   /* centres the 16px X over the caret column (carets: 26px inset, 8px wide) */
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      color: var(--theme);
+      transition: background-color 0.15s ease;
+    }
+    .explore-close:hover { background: rgba(102, 34, 59, 0.07); }
+    .explore-close svg { display: block; }
+
+    .drawer-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .drawer-item:not(:first-child)::before {
+      content: '';
+      display: block;
+      height: 1px;
+      background: var(--bg);
+      margin: 0 26px;   /* inset divider, aligned with the row padding */
+    }
+    .drawer-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 15px 26px;
+      font-family: 'Copperplate', serif;
+      font-size: 19px;
+      letter-spacing: 0.02em;
+      color: var(--text);
+      text-decoration: none;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+    .drawer-row:hover { background: rgba(102, 34, 59, 0.06); }
+    .drawer-label { flex: 1; }
+    .drawer-bullet {
+      flex: none;
+      width: 10px;
+      height: 10px;
+      background: var(--theme-soft);
+      transition: background-color 0.15s ease;
+      /* Optical nudge — Copperplate caps sit high in the line box. */
+      position: relative;
+      top: -2px;
+    }
+    .drawer-row:hover .drawer-bullet { background: var(--theme); }
+    .explore-drawer.bullets-hidden .drawer-bullet { visibility: hidden; }   /* while flying */
+    .drawer-caret {
+      flex: none;
+      color: var(--text);
+      opacity: 0.55;
+      transition: transform 0.2s ease;
+    }
+
+    /* Projects row: the text link navigates, the caret button expands. */
+    .drawer-projects-link {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: inherit;
+      text-decoration: none;
+    }
+    .drawer-expand {
+      flex: none;
+      display: flex;
+      background: none;
+      border: none;
+      border-radius: 4px;
+      padding: 8px;
+      margin: -8px;   /* bigger hit area without shifting layout */
+      cursor: pointer;
+      color: var(--text);
+    }
+    .drawer-item--projects.is-expanded { background: rgba(102, 34, 59, 0.045); }
+    .drawer-item--projects.is-expanded .drawer-caret { transform: rotate(90deg); }
+    .drawer-sub-wrap {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.25s ease;
+    }
+    .drawer-item--projects.is-expanded .drawer-sub-wrap { grid-template-rows: 1fr; }
+    .drawer-sub {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .drawer-sub a {
+      display: block;
+      padding: 9px 26px 9px 49px;   /* left-aligns with the row labels */
+      font-family: 'Copperplate', serif;
+      font-size: 14px;
+      letter-spacing: 0.02em;
+      color: var(--text);
+      text-decoration: none;
+      transition: background-color 0.15s ease;
+    }
+    .drawer-sub a:hover { background: rgba(102, 34, 59, 0.06); }
+    .drawer-sub li:last-child a { padding-bottom: 18px; }
+
+    /* In-flight tile clones (created by Header.astro's script). */
+    .explore-fly {
+      position: fixed;
+      z-index: 300;
+      pointer-events: none;
+      transition:
+        left 0.38s cubic-bezier(0.45, 0.05, 0.25, 1),
+        top 0.38s cubic-bezier(0.45, 0.05, 0.25, 1),
+        width 0.38s ease,
+        height 0.38s ease,
+        background-color 0.38s ease;
+    }
+
     @media (max-width: 720px) {
       /* Smaller, tighter mobile header. */
+      .explore-btn, .explore-scrim, .explore-drawer { display: none; }   /* mobile keeps the hamburger */
       .nav { padding: 0 14px; height: 60px; }
       .logo { margin-left: 0; }                      /* desktop inset off on mobile */
       .logo-mark { height: 17px; margin-left: 0; }   /* smaller + flush to the left edge */
