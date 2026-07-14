@@ -7,6 +7,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "postbuild": "node scripts/generate-headers.mjs && node scripts/generate-pdfs.mjs",
+    "new-post": "node scripts/new-post.mjs",
+    "check": "node scripts/check-content.mjs",
     "pdf": "node scripts/generate-pdfs.mjs",
     "headers": "node scripts/generate-headers.mjs",
     "preview": "astro preview"
@@ -20,6 +22,7 @@
   },
   "devDependencies": {
     "pdf-lib": "^1.17.1",
-    "playwright": "^1.61.0"
+    "playwright": "^1.61.0",
+    "yaml": "^2.9.0"
   }
 }

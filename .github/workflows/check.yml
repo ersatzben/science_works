@@ -1,0 +1,31 @@
+# Safety net for pull requests: content validation + a full Astro build, so a
+# malformed piece can't reach main and stall the deploy. The PDF postbuild step
+# is deliberately skipped here (it needs a Chromium install and adds minutes);
+# the deploy workflow still runs it on main.
+#
+# Pair this with branch protection on main (Settings → Branches → require the
+# "Validate content and build" check to pass) — see docs/operations.md.
+name: Check content and build
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: Validate content and build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Validate content (friendly errors)
+        run: npm run check
+      - name: Build with Astro (no PDFs)
+        run: npx astro build
