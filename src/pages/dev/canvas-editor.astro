@@ -302,7 +302,7 @@ const payload = JSON.stringify({ canvas: splashCanvas, config: splashConfig, bra
     // Small functional label only — no preview text inside the box.
     ctx.fillStyle = 'rgba(102,34,59,0.6)';
     ctx.font = '600 10px Roboto, sans-serif';
-    ctx.fillText('text box (blanked at runtime)', ix + 3, iy - 4);
+    ctx.fillText('text box overlay (art shows through its translucent panel)', ix + 3, iy - 4);
     ctx.restore();
   }
   function updateMeta(x, y) {

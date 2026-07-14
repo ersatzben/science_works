@@ -35,6 +35,22 @@
       font-display: swap;
     }
     @font-face {
+      font-family: 'Recoleta';
+      src: url('/assets/fonts/Recoleta-Regular.woff2') format('woff2'),
+           url('/assets/fonts/Recoleta-Regular.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Recoleta';
+      src: url('/assets/fonts/Recoleta-Light.woff2') format('woff2'),
+           url('/assets/fonts/Recoleta-Light.otf') format('opentype');
+      font-weight: 300;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
       font-family: 'Copperplate';
       src: url('/assets/fonts/Copperplate30.woff2') format('woff2'),
            url('/assets/fonts/Copperplate30.otf') format('opentype');

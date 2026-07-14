@@ -118,7 +118,7 @@ const orgJsonLd = {
     <div class="stage">
       <canvas id="splash-canvas" role="img" aria-label="Pixel-mosaic landscape of British science: a DNA helix, microchip, punch card, laboratory glassware, the map of Great Britain, a grand scientific institution, rising charts, a lightbulb, and people standing before a Victorian viaduct crossed by a steam train"></canvas>
       <div class="hero-box">
-        <h1 class="hero-title">Reshaping British Science and&nbsp;Technology</h1>
+        <h1 class="hero-title">Reshaping British Science & Technology</h1>
         <div class="hero-rule" aria-hidden="true"></div>
         <p class="hero-tag">Better policy. Better software. Better research</p>
       </div>
@@ -461,48 +461,53 @@ const orgJsonLd = {
       z-index: 1;
     }
 
-    /* Central text box. The 1-cell mosaic border around it is painted
-       in the artwork (splashConfig.plaque); this element sits exactly
-       over the blank interior, so its position/size are the interior's
-       cell fractions of the 144×73 grid: cols 35–93, rows 29–47. */
+    /* Central text box: a plain panel (no mosaic ring) carrying its own
+       semi-transparent background. It covers the full plaque rect from
+       splashConfig — cols 34–91, rows 28–47 of the 144×73 grid — where
+       the artwork renders as normal and shows through the veil.
+       Border/shadow treatment TBD. */
     .hero-box {
+      /* 0 = fully see-through, 1 = solid --almost-white. Tune freely. */
+      --hero-box-opacity: 0.82;
       position: absolute;
-      left: 24.3056%;              /* 35 / 144 */
+      left: 23.6111%;              /* 34 / 144 */
       top: 39.7260%;               /* 29 / 73  */
       width: 38.8889%;             /* 56 / 144 */
       height: 24.6575%;            /* 18 / 73  */
+      background: rgba(255, 251, 247, var(--hero-box-opacity));   /* --almost-white + alpha */
       z-index: 10;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: flex-start;
-      padding: 0 3.5%;
+      padding: 0 1.5% 0 2.5%;
     }
     .hero-title {
-      font-family: 'Copperplate', serif;
+      font-family: 'Recoleta', serif;   /* self-hosted; weights: 300 (Light), 400 (Regular) */
       font-weight: normal;
-      /* clamp(min, preferred, max): tracks the viewport at 2.75vw
-         (2.75% of window width) but never smaller than 20px or larger
-         than 50px. To resize, scale all three values together. */
-      font-size: clamp(18px, 2.475vw, 45px);
+      /* clamp(min, preferred, max): tracks the viewport at 2.475vw
+         (2.475% of window width) but never smaller than 18px or larger
+         than 45px. To resize, scale all three values together. */
+      font-size: clamp(18px, 2.75vw, 60px);
       letter-spacing: 0.02em;
       line-height: 1.1;
-      color: var(--text);
+      color: var(--theme);
+      text-transform: uppercase;
       margin: 0;
     }
     .hero-rule {
-      width: 83%;
-      border-top: 1px solid var(--beige);
-      margin: 1.2% 0 3%;
+      width: 80.4%;
+      border-top: 1px solid var(--theme);
+      margin: 1.5% 0 2%;
     }
     .hero-tag {
       font-family: 'DM Sans', sans-serif;
       font-weight: 600;
-      font-size: clamp(10px, 1vw, 14.3px);
+      font-size: clamp(9px, 1.02vw, 17px);
       letter-spacing: 0.02em;
       text-transform: uppercase;
-      color: var(--text);
+      color: var(--theme);
       margin: 0;
     }
 
@@ -1660,26 +1665,19 @@ const orgJsonLd = {
         const v = ART.cells[i];
         if (v >= 0) cells[i] = pal[v];
       }
-      // Plaque interior stays blank no matter what the artwork (or an
-      // overlapping figure / DNA / ripple) says — the DOM text (.hero-box)
-      // sits over it, so it must always paint as clean grout.
+      // The plaque rect renders artwork like anywhere else — the DOM text
+      // (.hero-box) veils it with its own semi-transparent background, so
+      // whatever is painted there shows through softly. The rect is still
+      // excluded from figures, animation overlays and the reveal stagger.
       const PLAQUE = CFG.plaque;
-      const plaqueBlank = new Uint8Array(N);
-      if (PLAQUE) {
-        for (let y = PLAQUE.y + PLAQUE.border; y < PLAQUE.y + PLAQUE.h - PLAQUE.border; y++) {
-          for (let x = PLAQUE.x + PLAQUE.border; x < PLAQUE.x + PLAQUE.w - PLAQUE.border; x++) {
-            if (inGrid(x, y)) { const i = idxOf(x, y); cells[i] = -1; plaqueBlank[i] = 1; }
-          }
-        }
-      }
       const dyn = new Int32Array(N).fill(-1);        // DNA + chart lines
       const overlay = new Int32Array(N).fill(-1);    // train + steam
       const shown = new Uint8Array(N);               // reveal gate
       const twinkles = new Map();                    // idx → brightness boost
       const dirty = new Set();
       // Animated layers (DNA, chart lines, train) refuse to draw anywhere
-      // in the plaque rect — including the ring — whatever their configured
-      // regions say. Second line of defence alongside plaqueBlank above.
+      // in the plaque rect, whatever their configured regions say — the
+      // text must stay legible above its calm backdrop.
       function inPlaqueRect(x, y) {
         return !!PLAQUE &&
           x >= PLAQUE.x && x < PLAQUE.x + PLAQUE.w &&
@@ -1788,7 +1786,6 @@ const orgJsonLd = {
       function paint(i) {
         const x = i % COLS, y = (i / COLS) | 0;
         ctx.clearRect(x * pw, y * ph, pw, ph);
-        if (plaqueBlank[i]) return;   // always clean grout behind the text
         let c = -1;
         if (overlay[i] >= 0) c = overlay[i];
         else if (shown[i]) {
