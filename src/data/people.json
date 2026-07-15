@@ -8,8 +8,7 @@
       "email": "ben@science.works",
       "x": "ersatzben",
       "bluesky": "ersatzben.com",
-      "linkedin": "https://www.linkedin.com/in/ben-johnson-aa9195192/",
-      "glyph": [[2, null, null, 3, null], [4, null, null, 5, 10], [0, 9, null, 1, null], [6, 1, 1, null, null], [8, null, 7, null, 6]]
+      "linkedin": "https://www.linkedin.com/in/ben-johnson-aa9195192/"
     },
     {
       "name": "Laura Ryan",
@@ -19,8 +18,7 @@
       "email": "laura@science.works",
       "x": "Lyan82",
       "bluesky": "",
-      "linkedin": "https://www.linkedin.com/in/laura-ryan-07489a14a/",
-      "glyph": [[5, null, null, 0, 5], [6, 7, null, 6, 3], [11, null, null, 4, null], [4, 1, 9, null, 10], [1, null, null, null, 3]]
+      "linkedin": "https://www.linkedin.com/in/laura-ryan-07489a14a/"
     },
     {
       "name": "Louise Dunsby",
@@ -30,8 +28,7 @@
       "email": "louise@science.works",
       "x": "",
       "bluesky": "",
-      "linkedin": "https://www.linkedin.com/in/ldunsby/",
-      "glyph": [[null, 8, null, null, 10], [null, 1, 3, 10, 10], [9, null, 8, null, 10], [0, 10, 4, null, 9], [5, null, 11, 11, 2]]
+      "linkedin": "https://www.linkedin.com/in/ldunsby/"
     },
     {
       "name": "Alvin Djajadikerta",
@@ -41,8 +38,7 @@
       "email": "alvin@science.works",
       "x": "adjajadikerta",
       "bluesky": "adjajadikerta.bsky.social",
-      "linkedin": "https://www.linkedin.com/in/alvin-djajadikerta/",
-      "glyph": [[0, 7, 7, 4, null], [null, 7, 11, null, 10], [9, 1, 5, 0, 5], [null, null, 11, null, 1], [4, 5, null, 6, 6]]
+      "linkedin": "https://www.linkedin.com/in/alvin-djajadikerta/"
     },
     {
       "name": "Will Stone",
@@ -52,8 +48,7 @@
       "email": "will@science.works",
       "x": "willecstone",
       "bluesky": "",
-      "linkedin": "https://www.linkedin.com/in/will-stone-839064182/",
-      "glyph": [[null, 9, null, 0, 10], [null, 4, 0, 0, 3], [null, null, null, 5, null], [11, 1, 6, null, null], [4, 2, null, 10, 7]]
+      "linkedin": "https://www.linkedin.com/in/will-stone-839064182/"
     },
     {
       "name": "Rory Byrne",
@@ -63,8 +58,7 @@
       "email": "rory@science.works",
       "x": "ryrobyrne",
       "bluesky": "rory.bio",
-      "linkedin": "https://www.linkedin.com/in/rorytbyrne/",
-      "glyph": [[5, 0, 6, null, 4], [10, 11, 0, null, null], [1, 0, 10, 5, null], [null, 3, null, 4, null], [null, 9, 4, 10, null]]
+      "linkedin": "https://www.linkedin.com/in/rorytbyrne/"
     },
     {
       "name": "Beatriz Gietner",
@@ -74,8 +68,7 @@
       "email": "bia@science.works",
       "x": "BeatrizGietner",
       "bluesky": "",
-      "linkedin": "https://www.linkedin.com/in/beatrizgietner/",
-      "glyph": [[6, 6, 4, null, null], [7, 11, 6, null, 8], [null, 5, 4, 12, 8], [10, 5, 3, 2, null], [null, 9, null, null, null]]
+      "linkedin": "https://www.linkedin.com/in/beatrizgietner/"
     },
     {
       "name": "Will Bolton",
@@ -84,8 +77,7 @@
       "photo": "will-bolton.jpg",
       "x": "",
       "bluesky": "",
-      "linkedin": "https://www.linkedin.com/in/william-bolton/",
-      "glyph": [[8, 8, 2, 2, null], [8, 4, 6, null, null], [8, null, 10, 9, 10], [null, 11, 6, 11, 6], [null, 11, null, null, 7]]
+      "linkedin": "https://www.linkedin.com/in/william-bolton/"
     }
   ],
   "contributors": [
@@ -96,8 +88,7 @@
       "photo": "alex-chalmers.jpg",
       "x": "chalmermagne",
       "bluesky": "",
-      "linkedin": "https://www.linkedin.com/in/alex-chalmers-41937912a/",
-      "glyph": [[null, 8, 7, 1, 4], [null, 10, 4, 10, 6], [9, 0, 11, 11, 6], [7, 9, null, null, 2], [7, 11, 0, 2, null]]
+      "linkedin": "https://www.linkedin.com/in/alex-chalmers-41937912a/"
     },
     {
       "name": "Charlie Harris",
@@ -106,8 +97,7 @@
       "photo": "charlie-harris.jpg",
       "x": "",
       "bluesky": "harrisbio.bsky.social",
-      "linkedin": "https://www.linkedin.com/in/charlie-harris-388285156/",
-      "glyph": [[7, null, 1, 1, 6], [6, 2, null, 3, null], [5, 5, 1, 11, 1], [null, 0, null, 8, null], [10, null, 9, null, 11]]
+      "linkedin": "https://www.linkedin.com/in/charlie-harris-388285156/"
     },
     {
       "name": "Anastasia Bektimirova",
@@ -116,28 +106,25 @@
       "photo": "anastasia-bektimirova.jpg",
       "x": "anastasiabekt",
       "bluesky": "anastasiabekt.bsky.social",
-      "linkedin": "https://www.linkedin.com/in/anastasia-bektimirova-711a3a191/",
-      "glyph": [[null, 10, null, 8, null], [7, null, null, null, 9], [null, null, 9, null, 9], [4, null, 11, null, null], [9, 2, 11, 2, 10]]
+      "linkedin": "https://www.linkedin.com/in/anastasia-bektimirova-711a3a191/"
     },
-   {
+    {
       "name": "Eric Gilliam",
       "role": "Contributor",
       "bio": "Eric runs FreakTakes, a Substack focused on the organisational infrastructure of scientific progress, producing ‘administrative histories’ of historically exceptional R&D organisations such as Bell Labs, early MIT, the Rockefeller Foundation, and DARPA – and what it would take to build their modern equivalents. Eric is a Fellow at the Good Science Project and works with ARIA and Renaissance Philanthropy on new R&D models. He has a degree in political science from Stanford University.",
       "photo": "eric-gilliam.jpg",
       "x": "eric_is_weird",
       "bluesky": "",
-      "linkedin": "https://www.linkedin.com/in/eric-gilliam-068b78116/",
-      "glyph": [[3, null, null, null, 2], [4, 6, 2, 3, 0], [7, 5, null, 8, null], [9, null, 2, null, 3], [null, 7, 11, null, null]]
+      "linkedin": "https://www.linkedin.com/in/eric-gilliam-068b78116/"
     },
-   {
+    {
       "name": "Lydia Farnham",
       "role": "Contributor",
       "bio": "Lydia is a technologist interested in how institutions can better support scientific discovery. She is Co-founder and CTO of Asothia, which builds infrastructure for a faster, more intelligent research funding system. Lydia studied Natural Sciences at the University of Cambridge, focusing on computational chemistry. She has worked in neurotech and government AI adoption, and is a fellow at Civic Future, the Machine Learning Institute and Newspeak House.",
       "photo": "lydia-farnham.jpg",
       "x": "",
       "bluesky": "",
-      "linkedin": "https://www.linkedin.com/in/lydia-farnham/",
-      "glyph": [[null, 7, 4, 9, 5], [2, null, null, null, null], [null, 8, 5, null, null], [3, 2, 10, 1, null], [4, 4, 7, null, 2]]
+      "linkedin": "https://www.linkedin.com/in/lydia-farnham/"
     },
     {
       "name": "James Phillips",
@@ -146,8 +133,7 @@
       "photo": "james-phillips.jpg",
       "x": "AnEmergentI",
       "bluesky": "",
-      "linkedin": "https://www.linkedin.com/in/james-phillips-6737591a9/",
-      "glyph": [[11, null, 4, 10, 1], [8, null, 6, null, 3], [null, null, 5, 10, 9], [6, 4, 9, 2, null], [6, 4, 8, 6, 9]]
+      "linkedin": "https://www.linkedin.com/in/james-phillips-6737591a9/"
     },
     {
       "name": "Hope Bretscher",
@@ -156,8 +142,7 @@
       "photo": "hope-bretscher.jpg",
       "x": "HopeLouiseB",
       "bluesky": "hope-ful.bsky.social",
-      "linkedin": "https://www.linkedin.com/in/hope-m-bretscher/",
-      "glyph": [[7, 1, 1, null, 7], [7, 11, 0, 2, 3], [1, 11, 8, null, 10], [4, 6, 9, 0, null], [9, 3, 9, 5, 4]]
+      "linkedin": "https://www.linkedin.com/in/hope-m-bretscher/"
     },
     {
       "name": "David Jordan",
@@ -166,8 +151,7 @@
       "photo": "david-jordan.jpg",
       "x": "",
       "bluesky": "",
-      "linkedin": "",
-      "glyph": [[6, 2, 11, 7, 5], [8, 8, null, null, 11], [null, 11, 8, null, 10], [9, 10, null, null, 8], [3, null, 1, null, 2]]
+      "linkedin": ""
     },
     {
       "name": "Jennie Palmer",
@@ -176,8 +160,7 @@
       "photo": "jennie-palmer.jpg",
       "x": "",
       "bluesky": "jenniferepalmer.bsky.social",
-      "linkedin": "https://www.linkedin.com/in/jenniferepalmer/",
-      "glyph": [[11, null, 2, 7, null], [0, null, 1, 0, 9], [2, 0, 4, 5, null], [11, 3, null, null, 11], [null, 1, 10, 8, 7]]
+      "linkedin": "https://www.linkedin.com/in/jenniferepalmer/"
     },
     {
       "name": "Sehaj Pasricha",
@@ -186,8 +169,25 @@
       "photo": "sehaj-pasricha.jpg",
       "x": "",
       "bluesky": "",
-      "linkedin": "",
-      "glyph": [[null, 1, 10, 2, 8], [2, 8, 5, 4, 5], [10, 10, 6, 10, 6], [null, 4, 6, 0, null], [null, null, 1, null, 1]]
+      "linkedin": ""
+    },
+    {
+      "name": "Wojtek Treyde",
+      "role": "Contributor",
+      "bio": "Wojtek is a PhD student at the University of Oxford, where he applies computational chemistry and machine learning to problems in drug discovery. He is also a co-organiser of the Science through Computation Initiative (CompMotifs).",
+      "photo": "wojtek-treyde.jpg",
+      "x": "",
+      "bluesky": "",
+      "linkedin": "https://www.linkedin.com/in/wojtek-treyde-6b1628252/"
+    },
+    {
+      "name": "Aleksy Kwiatkowsky",
+      "role": "Contributor",
+      "bio": "Aleksy is a computational chemist and software developer working on AI for science and the digital record of research. He is interested in the experiments the wet lab never records, and in using domain knowledge to get more from existing data. He completed his DPhil at Oxford, where he was an Industrial Fellow of the Royal Commission for the Exhibition of 1851, and organises hackathons with the CompMotifs ARIA Innovator Circle.",
+      "photo": "aleksy-kwiatkowsky.jpg",
+      "x": "",
+      "bluesky": "",
+      "linkedin": "https://www.linkedin.com/in/aleksyk/"
     }
   ],
   "igb": [
@@ -198,8 +198,7 @@
       "photo": "ben-southwood.jpg",
       "x": "bswud",
       "bluesky": "bswud.bsky.social",
-      "linkedin": "https://www.linkedin.com/in/ben-southwood-805824b6/",
-      "glyph": [[7, null, 3, null, 8], [null, null, null, null, null], [1, 7, 3, 11, null], [null, 6, 9, 4, null], [null, null, 5, null, 4]]
+      "linkedin": "https://www.linkedin.com/in/ben-southwood-805824b6/"
     },
     {
       "name": "Helen Ewles",
@@ -208,8 +207,7 @@
       "photo": "helen-ewles.jpg",
       "x": "",
       "bluesky": "helvisew.bsky.social",
-      "linkedin": "https://www.linkedin.com/in/helen-ewles-75b6785a/",
-      "glyph": [[3, null, 2, 1, 9], [null, 8, null, null, 1], [null, 4, 6, 9, null], [null, 11, null, 8, null], [null, 7, null, 1, 8]]
+      "linkedin": "https://www.linkedin.com/in/helen-ewles-75b6785a/"
     },
     {
       "name": "Jeegar Kakkad",
@@ -218,8 +216,7 @@
       "photo": "jeegar-kakkad.jpg",
       "x": "jeegarkakkad",
       "bluesky": "jeegarkakkad.bsky.social",
-      "linkedin": "https://www.linkedin.com/in/jeegar-kakkad-8596a91/",
-      "glyph": [[null, 6, 5, 5, 8], [10, null, 8, 0, null], [7, 9, 11, 6, 11], [10, 1, null, null, 10], [1, 2, null, 3, 1]]
+      "linkedin": "https://www.linkedin.com/in/jeegar-kakkad-8596a91/"
     }
   ],
   "sab": [
@@ -230,8 +227,7 @@
       "photo": "anastasia-gamick.jpg",
       "x": "AGamick",
       "bluesky": "",
-      "linkedin": "https://www.linkedin.com/in/anastasiagamick/",
-      "glyph": [[10, null, 1, 7, 5], [0, 0, 5, null, 0], [8, null, null, 6, 2], [null, 8, null, 2, 11], [9, 2, 4, 9, 2]]
+      "linkedin": "https://www.linkedin.com/in/anastasiagamick/"
     },
     {
       "name": "Rob Miller",
@@ -240,8 +236,7 @@
       "photo": "rob-miller.jpg",
       "x": "",
       "bluesky": "",
-      "linkedin": "https://www.linkedin.com/in/rob-miller-7bb014339/",
-      "glyph": [[2, 8, 7, 9, null], [0, 5, 8, null, 3], [null, null, null, 5, null], [6, 8, null, 1, 6], [10, 7, null, null, null]]
+      "linkedin": "https://www.linkedin.com/in/rob-miller-7bb014339/"
     },
     {
       "name": "Tom Kalil",
@@ -250,8 +245,7 @@
       "photo": "tom-kalil.jpg",
       "x": "tkalil2050",
       "bluesky": "",
-      "linkedin": "https://www.linkedin.com/in/tom-kalil-a581/",
-      "glyph": [[9, null, 0, null, null], [7, 9, 11, 10, null], [null, 6, null, 8, null], [null, 5, null, 2, 10], [0, 7, 3, null, 10]]
+      "linkedin": "https://www.linkedin.com/in/tom-kalil-a581/"
     },
     {
       "name": "David Willetts",
@@ -260,8 +254,7 @@
       "photo": "david-willetts.jpg",
       "x": "",
       "bluesky": "",
-      "linkedin": "https://www.linkedin.com/in/david-willetts-428b89281/",
-      "glyph": [[10, 5, 9, null, null], [3, 11, null, 5, 4], [5, 6, null, 10, 9], [1, 2, 7, null, 1], [7, 7, 0, 1, null]]
+      "linkedin": "https://www.linkedin.com/in/david-willetts-428b89281/"
     },
     {
       "name": "Sam Bowman",
@@ -270,8 +263,7 @@
       "photo": "sam-bowman.jpg",
       "x": "s8mb",
       "bluesky": "sambowman.co",
-      "linkedin": "https://www.linkedin.com/in/~samb/",
-      "glyph": [[null, 8, 6, null, 10], [4, null, null, null, 3], [9, 1, null, 8, 4], [null, 10, null, null, null], [3, null, 3, 3, 7]]
+      "linkedin": "https://www.linkedin.com/in/~samb/"
     },
     {
       "name": "James Wilsdon",
@@ -280,8 +272,7 @@
       "photo": "james-wilsdon.jpg",
       "x": "",
       "bluesky": "jameswilsdon.bsky.social",
-      "linkedin": "https://www.linkedin.com/in/james-wilsdon-0112a7/",
-      "glyph": [[9, null, null, 5, null], [9, null, 6, 6, null], [5, 9, 7, 10, null], [null, 6, 2, 5, 6], [null, 11, 4, 5, 6]]
+      "linkedin": "https://www.linkedin.com/in/james-wilsdon-0112a7/"
     },
     {
       "name": "Saloni Dattani",
@@ -290,8 +281,7 @@
       "photo": "saloni-dattani.jpg",
       "x": "salonium",
       "bluesky": "scientificdiscovery.dev",
-      "linkedin": "https://www.linkedin.com/in/saloni-dattani/",
-      "glyph": [[1, 5, null, 7, null], [11, 4, 10, 1, 4], [8, null, null, 6, null], [null, null, null, 4, 1], [0, 0, 1, 6, 5]]
+      "linkedin": "https://www.linkedin.com/in/saloni-dattani/"
     },
     {
       "name": "Ben Reinhardt",
@@ -300,8 +290,7 @@
       "photo": "ben-reinhardt.jpg",
       "x": "Ben_Reinhardt",
       "bluesky": "benjaminreinhardt.com",
-      "linkedin": "https://www.linkedin.com/in/benjaminzreinhardt/",
-      "glyph": [[null, null, 7, 1, null], [null, 9, 6, null, 4], [null, 7, 6, 7, null], [8, null, null, 2, 5], [1, null, 11, 6, 2]]
+      "linkedin": "https://www.linkedin.com/in/benjaminzreinhardt/"
     },
     {
       "name": "Stuart Buck",
@@ -310,8 +299,7 @@
       "photo": "stuart-buck.jpg",
       "x": "stuartbuck1",
       "bluesky": "stuartbuck.bsky.social",
-      "linkedin": "https://www.linkedin.com/in/stuartbuck/",
-      "glyph": [[5, 7, 5, 7, 4], [1, 10, 10, 6, null], [null, 9, 8, 1, 10], [8, 6, 4, 0, null], [5, 10, 4, 3, 5]]
+      "linkedin": "https://www.linkedin.com/in/stuartbuck/"
     },
     {
       "name": "Benedict Macon-Cooney",
@@ -320,8 +308,7 @@
       "photo": "benedict-macon-cooney.jpg",
       "x": "benedictcooney",
       "bluesky": "",
-      "linkedin": "https://www.linkedin.com/in/benedict-macon-cooney-4516ab29/",
-      "glyph": [[0, 1, 11, null, 0], [3, null, null, null, 0], [null, 5, 5, 3, 9], [9, 11, 1, 1, 2], [null, 3, 3, null, null]]
+      "linkedin": "https://www.linkedin.com/in/benedict-macon-cooney-4516ab29/"
     },
     {
       "name": "Sarah Chaytor",
@@ -330,8 +317,7 @@
       "photo": "sarah-chaytor.jpg",
       "x": "",
       "bluesky": "",
-      "linkedin": "https://www.linkedin.com/in/sarah-chaytor-130a3384/",
-      "glyph": [[8, 10, null, null, 8], [5, null, 0, 1, 8], [null, 2, 5, 0, null], [10, null, null, null, 5], [11, 11, null, null, 3]]
+      "linkedin": "https://www.linkedin.com/in/sarah-chaytor-130a3384/"
     },
     {
       "name": "Paul Nightingale",
@@ -340,8 +326,7 @@
       "photo": "paul-nightingale.jpg",
       "x": "Nightingale_P",
       "bluesky": "paulnightingale.bsky.social",
-      "linkedin": "https://www.linkedin.com/in/paul-nightingale-b3b2444/",
-      "glyph": [[null, null, null, null, 7], [7, 8, null, 3, 1], [5, null, null, null, 4], [0, 5, 5, 4, 10], [5, 3, 10, null, 11]]
+      "linkedin": "https://www.linkedin.com/in/paul-nightingale-b3b2444/"
     },
     {
       "name": "Ronit Kanwar",
@@ -350,8 +335,7 @@
       "photo": "ronit-kanwar.jpg",
       "x": "RonitKanwar",
       "bluesky": "",
-      "linkedin": "https://www.linkedin.com/in/ronitkanwar/",
-      "glyph": [[null, 7, 4, 9, 5], [2, null, null, null, null], [null, 8, 5, null, null], [3, 2, 10, 1, null], [4, 4, 7, null, 2]]
+      "linkedin": "https://www.linkedin.com/in/ronitkanwar/"
     },
     {
       "name": "Jacqueline Campbell",
@@ -360,8 +344,7 @@
       "photo": "jacqueline-campbell.jpg",
       "x": "",
       "bluesky": "",
-      "linkedin": "https://www.linkedin.com/in/dr-jacqueline-campbell/",
-      "glyph": [[null, 4, null, 1, null], [5, null, 6, null, null], [11, null, 7, 1, 7], [4, 1, 9, 11, null], [null, null, 6, 5, 0]]
+      "linkedin": "https://www.linkedin.com/in/dr-jacqueline-campbell/"
     }
   ]
 }

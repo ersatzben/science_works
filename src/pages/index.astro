@@ -32,7 +32,51 @@ const britSciArtM = cropCols(britSciArt, 8);
 // Serialised below for the inline canvas engine.
 import splashCanvas from '../data/splash/canvas.json';
 import { splashConfig } from '../lib/splashConfig.mjs';
+// Shared visitor-mosaic palette (append-only) — used by the community band below.
+import { PALETTE } from '../lib/mosaicPalette.js';
 const splashScene = { canvas: splashCanvas, config: splashConfig };
+
+// Community band (below the carousel): the visitor-mosaic gallery plus the
+// join-the-community CTAs. Each gallery mosaic is one { code, name } JSON in
+// src/data/gallery/ — `code` is the 400-char base-36 string the contact-page
+// maker produces (one digit per cell of its 20×20 grid, indexing the shared
+// palette). Filename order is display order; to feature a submission, copy the
+// `mosaic_code` from its email into a new file there.
+const MOSAIC_CELLS = 400;   // the maker's 20×20 grid
+const galleryModules = import.meta.glob('../data/gallery/*.json', { eager: true });
+const gallery = Object.keys(galleryModules).sort()
+  .map((k) => galleryModules[k].default ?? galleryModules[k])
+  .filter((g) => g && typeof g.code === 'string' && g.code.length === MOSAIC_CELLS);
+// The first mosaic is server-rendered so the gallery isn't blank before JS runs.
+const firstMosaic = gallery.length
+  ? gallery[0].code.split('').map((ch) => (PALETTE[parseInt(ch, 36)] ?? PALETTE[0]).hex)
+  : null;
+
+// The Build Club sign-up page on Luma.
+const BUILD_CLUB_URL = 'https://luma.com/scienceworks';
+
+// Pixel icons for the CTA cards, drawn as row-strings ('.' = transparent,
+// digits key into `colors`) and rendered as inline SVG rects — same visual
+// language as the covers/glyphs, just tiny and hand-placed.
+const ctaIcons = {
+  // A diagonal spanner: forked jaw top-right, handle running down-left.
+  wrench: {
+    colors: { '1': 'var(--sage)', '2': 'var(--light-green)' },
+    rows: ['.....2.2', '.....222', '....222.', '...111..', '..111...', '.111....', '111.....', '11......'],
+  },
+  // A megaphone: cone opening rightward, sound pixels down the right edge.
+  megaphone: {
+    colors: { '1': 'var(--purple-blue)', '2': 'var(--theme)' },
+    rows: ['.......2', '....11.2', '..1111..', '111111.2', '..1111..', '....11.2', '.......2'],
+  },
+};
+const ctaIconRects = (icon) => {
+  const rects = [];
+  icon.rows.forEach((row, r) => row.split('').forEach((ch, c) => {
+    if (icon.colors[ch]) rects.push({ x: c * 10, y: r * 10, fill: icon.colors[ch] });
+  }));
+  return rects;
+};
 
 // In Focus + carousel are driven by the writing collection (same source as /writing).
 const all = (await getCollection('writing'))
@@ -378,14 +422,102 @@ const orgJsonLd = {
               ))}
             </div>
           <div class="carousel-arrows">
-            <button class="carousel-arrow" data-dir="-1" type="button" aria-label="Previous reports">&larr;</button>
-            <button class="carousel-arrow" data-dir="1" type="button" aria-label="Next reports">&rarr;</button>
+            <button class="carousel-arrow" data-dir="-1" type="button" aria-label="Previous reports">&#8249;</button>
+            <button class="carousel-arrow" data-dir="1" type="button" aria-label="Next reports">&#8250;</button>
           </div>
         </div>
         </div>
       </div>
     </section>
+
+    <!-- 5. Community band: visitor-mosaic gallery + join-the-community CTAs -->
+    <section class="community">
+      <div class="content-wrap">
+        <div class="community-grid">
+
+          <div class="mg-viewer">
+            <button class="mg-arrow" id="mg-prev" type="button" aria-label="Previous mosaic">&#8249;</button>
+            <div class="mg-stack">
+              <div class="mg-frame">
+                <div class="mg-canvas" id="mg-canvas" role="img" aria-label="Visitor-submitted mosaic">
+                  {firstMosaic && firstMosaic.map((hex) => <span class="mg-cell" style={`background:${hex}`}></span>)}
+                </div>
+              </div>
+              <div class="mg-meta">
+                <span class="mg-caption" id="mg-caption">{gallery[0]?.name && <b>{gallery[0].name}</b>}</span>
+              </div>
+            </div>
+            <button class="mg-arrow" id="mg-next" type="button" aria-label="Next mosaic">&#8250;</button>
+          </div>
+          <script type="application/json" id="mg-data" set:html={JSON.stringify(gallery)}></script>
+
+          <div class="mg-text">
+            <h2 class="community-heading">Mosaic Gallery</h2>
+            <p>Click through to see mosaics submitted by you, our website visitors!</p>
+            <p>We try to post them all, but, while we appreciate some of your zealous appetites for reform &ndash; we may have to save some of the more piquant offerings for our own enjoyment.</p>
+            <p>
+              <span class="mg-submit-desktop">Submit via the <a class="mg-link" href="/contact">contact page</a>.</span>
+              <span class="mg-submit-mobile">Submit on our desktop site.</span>
+            </p>
+          </div>
+
+          <div class="community-join">
+            <h2 class="community-heading">Join the Community</h2>
+            <a class="cta-card" href={BUILD_CLUB_URL} target="_blank" rel="noopener">
+              <span class="cta-icon" aria-hidden="true">
+                <svg viewBox="0 0 80 80">{ctaIconRects(ctaIcons.wrench).map((rc) => <rect x={rc.x} y={rc.y} width="9" height="9" rx="2" fill={rc.fill} />)}</svg>
+              </span>
+              <span class="cta-text">Apply for our <b>Build Club</b></span>
+            </a>
+            <a class="cta-card" href="/reorganising-research">
+              <span class="cta-icon" aria-hidden="true">
+                <svg viewBox="0 0 80 70">{ctaIconRects(ctaIcons.megaphone).map((rc) => <rect x={rc.x} y={rc.y} width="9" height="9" rx="2" fill={rc.fill} />)}</svg>
+              </span>
+              <span class="cta-text">Live calls for essays, evidence, &amp; opportunities to contribute</span>
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </section>
   </div>
+
+  <script define:vars={{ MG_PAL: PALETTE.map((p) => p.hex) }}>
+    // Mosaic-gallery browser: repaints the server-rendered 20×20 grid from the
+    // embedded JSON list (same base-36 code format as the contact-page maker).
+    (function () {
+      var canvas = document.getElementById('mg-canvas');
+      var dataEl = document.getElementById('mg-data');
+      if (!canvas || !dataEl) return;
+      var gallery = [];
+      try { gallery = JSON.parse(dataEl.textContent) || []; } catch (_) {}
+      if (gallery.length < 2) {   // nothing to browse — hide the arrows
+        document.querySelectorAll('.mg-arrow').forEach(function (b) { b.style.visibility = 'hidden'; });
+        return;
+      }
+      var PAL = MG_PAL;
+      var cells = Array.prototype.slice.call(canvas.children);
+      var captionEl = document.getElementById('mg-caption');
+      var idx = 0;
+      function escapeHtml(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+      function show(i) {
+        idx = (i % gallery.length + gallery.length) % gallery.length;   // wrap both ways
+        var g = gallery[idx];
+        for (var k = 0; k < cells.length; k++) {
+          var v = parseInt(g.code[k], 36);
+          cells[k].style.background = (!isNaN(v) && PAL[v]) ? PAL[v] : PAL[0];
+        }
+        captionEl.innerHTML = g.name ? '<b>' + escapeHtml(g.name) + '</b>' : '';
+      }
+      document.getElementById('mg-prev').addEventListener('click', function () { show(idx - 1); });
+      document.getElementById('mg-next').addEventListener('click', function () { show(idx + 1); });
+      // Coin-flip the opening mosaic between two named favourites. The first
+      // starter is the server-rendered file, so landing on it needs no repaint.
+      var STARTERS = ['Claire Halpin', 'Jack Dalton'];
+      var startIdx = gallery.findIndex(function (g) { return g.name === STARTERS[Math.random() < 0.5 ? 0 : 1]; });
+      if (startIdx > 0) show(startIdx);
+    })();
+  </script>
 
 <style is:global>
     /* Homepage scrolls continuously (no snap); the hero stage fills the
@@ -1037,8 +1169,9 @@ const orgJsonLd = {
       border: 1.5px solid var(--theme);
       background: #fff;
       color: var(--theme);
-      font-size: 18px;
+      font-size: 24px;
       line-height: 1;
+      padding-bottom: 3px;   /* optically centre the caret glyph */
       cursor: pointer;
       display: inline-flex;
       align-items: center;
@@ -1319,6 +1452,135 @@ const orgJsonLd = {
       .carousel-track { scroll-snap-type: x mandatory; gap: 14px; padding: 4px 0 4px;}
 
 
+    }
+
+    /* ---------- Community band: mosaic gallery + join CTAs ---------- */
+    .community { padding: 70px 0 90px; }
+    /* Three columns: gallery viewer | gallery blurb | join cards. */
+    .community-grid {
+      display: grid;
+      grid-template-columns: auto 1fr 1fr;
+      /* Tighter gap between the viewer and the blurb; the join column adds
+         its own margin back so text ↔ join keeps the wider spacing. */
+      gap: 36px;
+      /* Top-aligned so the two column headings share the same baseline. */
+      align-items: start;
+      /* Asymmetric padding: the round prev button reads as empty space while
+         the join cards end in a hard border, so the band otherwise looks
+         displaced to the right. Shifting 12px leftward rebalances it. */
+      padding: 0 42px 0 18px;
+    }
+    /* The two text columns sit 30px lower than the mosaic viewer. */
+    .mg-text, .community-join { margin-top: 30px; }
+    .community-join { margin-left: 24px; }
+    .community-heading {
+      font-family: 'Copperplate', sans-serif;
+      font-weight: 300;
+      font-size: 24px;
+      color: var(--darkest-brown);
+      margin: 0 0 18px;
+    }
+
+    /* Gallery viewer: round arrows either side of the framed mosaic.
+       Vertically centred against the text columns, so when narrow viewports
+       wrap the blurb into a tall column the mosaic floats rather than
+       clinging to the top. */
+    .mg-viewer { display: flex; align-items: center; gap: 18px; align-self: center; }
+    .mg-stack { display: flex; flex-direction: column; gap: 8px; }
+    .mg-frame {
+      background: var(--almost-white);
+      border: 1px solid var(--border-grey);
+      border-radius: 4px;
+      padding: 8px;
+    }
+    .mg-canvas {
+      width: 260px; aspect-ratio: 1;
+      display: grid;
+      grid-template-columns: repeat(20, 1fr); grid-template-rows: repeat(20, 1fr);
+      gap: 2px;
+    }
+    .mg-cell { border-radius: 2px; }
+    /* Same look as the reports carousel's .carousel-arrow buttons. */
+    .mg-arrow {
+      width: 42px; height: 42px; flex: 0 0 auto;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 24px; line-height: 1;
+      padding-bottom: 3px;   /* optically centre the caret glyph */
+      color: var(--theme);
+      background: #fff; border: 1.5px solid var(--theme); border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+    .mg-arrow:hover { background: var(--theme); color: #fff; }
+    .mg-meta {
+      display: flex; padding: 0 2px;
+      font-family: 'Antique Olive', sans-serif; font-weight: 300; font-size: 13px; color: var(--text);
+      min-height: 18px;
+    }
+    .mg-caption b { font-weight: 500; }
+
+    .mg-text p {
+      font-family: 'Antique Olive', sans-serif; font-weight: 300;
+      font-size: 15px; line-height: 1.5; color: var(--text);
+      margin: 0 0 16px; max-width: 480px;
+    }
+    .mg-text p:last-child { margin-bottom: 0; }
+    /* Mobile can't use the mosaic maker (it's desktop-only on /contact), so
+       the submit line swaps wording below 600px. */
+    .mg-submit-mobile { display: none; }
+    .mg-link { color: var(--text); font-weight: 500; }
+    .mg-link:hover { color: var(--theme); }
+
+    /* Join cards: pixel icon in a pale box + one line of text, whole card clickable. */
+    .community-join { display: flex; flex-direction: column; }
+    .cta-card {
+      display: flex; align-items: center; gap: 16px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-grey); border-radius: 4px;
+      padding: 12px 16px; margin-bottom: 14px;
+      text-decoration: none;
+      transition: border-color 0.15s ease;
+    }
+    .cta-card:last-child { margin-bottom: 0; }
+    .cta-card:hover { border-color: var(--theme); }
+    .cta-icon {
+      flex: 0 0 auto; width: 56px; height: 56px;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: var(--almost-white); border-radius: 4px;
+    }
+    .cta-icon svg { width: 36px; height: auto; display: block; }
+    .cta-text {
+      font-family: 'Antique Olive', sans-serif; font-weight: 300;
+      font-size: 15px; line-height: 1.4; color: var(--text);
+    }
+    .cta-text b { font-weight: 500; }
+
+    /* Two rows below 1080px: gallery beside its blurb, join cards beneath.
+       (1080, not 1000: between ~1001 and 1050px the three-column layout
+       squeezes the text columns into aggressive wrapping, so the band drops
+       to two rows before that zone is reached.) */
+    @media (max-width: 1080px) {
+      .community-grid { grid-template-columns: auto 1fr; gap: 40px; padding: 0 30px; }
+      .mg-text { margin-top: 0; align-self: center; }
+      /* Join spans the full width, its two cards side by side. */
+      .community-join { margin-left: 0; margin-top: 0; grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; gap: 14px; }
+      .community-join .community-heading { flex: 1 1 100%; margin-bottom: 4px; }
+      .cta-card { flex: 1 1 260px; margin-bottom: 0; }
+    }
+    /* Full stack below 760px: blurb, gallery, join. */
+    @media (max-width: 760px) {
+      .community-grid { grid-template-columns: 1fr; }
+      .mg-text { order: -1; }
+      .mg-viewer { justify-content: center; }
+    }
+    @media (max-width: 600px) {
+      .community { padding: 50px 0 60px; }
+      .community-grid { padding: 0 18px; }
+      .mg-canvas { width: min(260px, calc(100vw - 180px)); }
+      /* The mosaic maker is desktop-only, so point mobile visitors there. */
+      .mg-submit-desktop { display: none; }
+      .mg-submit-mobile { display: inline; }
     }
 
 </style>

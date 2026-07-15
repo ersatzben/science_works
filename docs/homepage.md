@@ -36,10 +36,15 @@ the file and search for the class names below.)
 ├─ <section class="infocus">       "In Focus" + quote
 │  ├─ .infocus-card                one highlighted piece of writing
 │  └─ .quote-box                   a pull quote
-└─ <section class="reports">       writing carousel
-   └─ .reports-box
-      ├─ .carousel-track           the .report-card items
-      └─ .carousel-arrows
+├─ <section class="reports">       writing carousel
+│  └─ .reports-box
+│     ├─ .carousel-track           the .report-card items
+│     └─ .carousel-arrows
+└─ <section class="community">     community band
+   └─ .community-grid
+      ├─ .mg-viewer                visitor-mosaic gallery (arrows + 20×20 grid)
+      ├─ .mg-text                  gallery heading + blurb
+      └─ .community-join           the CTA cards (Build Club, live calls)
 ```
 
 ## Where the content comes from (and how to change it)
@@ -53,6 +58,8 @@ the file and search for the class names below.)
 | "In Focus" piece | The first piece with `featured: true` in its frontmatter (newest piece if none is flagged) | Set `featured: true` on the piece you want; unset the old one |
 | Pull quote | First entry in `src/data/quotes.json` | Edit that file (`text` can be a string or a list of paragraphs; `author` is the attribution) |
 | Writing carousel | All published pieces (not draft/hidden), newest first; covers shown **square** | Nothing to do — it updates itself when pieces publish |
+| Mosaic gallery | One `{ "code": "…", "name": "…" }` JSON per mosaic in `src/data/gallery/` — `code` is the 400-char `mosaic_code` from a submission email, `name` the artist credit | Add a file (filename order = display order); colours come from the shared palette in `src/lib/mosaicPalette.js`, which is **append-only** |
+| Community CTA cards | Hard-coded in `.community-join`; the Build Club URL is the `BUILD_CLUB_URL` constant at the top of the file | Edit in place |
 | Page `<title>` and structured data | The `BaseLayout` line and the `orgJsonLd` block at the top of the file | Edit with care — the JSON-LD feeds Google's understanding of the organisation |
 
 The header and footer are not in this file — they're `src/components/Header.astro`

@@ -74,8 +74,8 @@ either a colour or transparent. Loaders accept either format everywhere
   (accents stripped): `laura-ryan.json`.
 - Shown on /about cards and /people profile pages. Anyone without a file gets
   `_fallback.json` automatically, so a missing glyph never breaks anything.
-- (The `glyph` arrays inside `src/data/people.json` are a legacy leftover —
-  nothing reads them. The files in this folder are what count.)
+- The files in this folder are the only source of glyph art — people.json
+  holds no art data.
 
 ### Project strips — `src/data/projects/<project-slug>.json`
 
