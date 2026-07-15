@@ -1,6 +1,10 @@
 <header class="nav">
   <a class="logo" href="/" aria-label="Science Works home">
-    <img class="logo-mark" src="/assets/images/FINAL4.svg" alt="" />
+    <!-- Two logo variants: the red mark at rest, the white one swapped in on
+         desktop header hover (see .nav:hover rules). Instant swap — only the
+         header background fades. -->
+    <img class="logo-mark logo-mark--red" src="/assets/images/FINAL4.svg" alt="" />
+    <img class="logo-mark logo-mark--white" src="/assets/images/FINAL4-white.svg" alt="" aria-hidden="true" />
     <span class="logo-text">SCIENCE WORKS</span>
   </a>
   <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav-links">
@@ -122,6 +126,20 @@
       const rootStyle = getComputedStyle(document.documentElement);
       const THEME = rootStyle.getPropertyValue('--theme').trim();
       const SOFT = rootStyle.getPropertyValue('--theme-soft').trim();
+      const WHITE = rootStyle.getPropertyValue('--almost-white').trim();
+
+      // The glyph tiles are red at rest but white while the header bar is hovered
+      // (desktop invert). The flying clones must start/end on whichever colour the
+      // real tiles actually show, or the hand-off snaps. We can't read that from
+      // :hover during a flight — the full-viewport scrim poisons it — so track the
+      // pointer and test it against the header's own rect instead.
+      let px = -1, py = -1;
+      document.addEventListener('mousemove', function (e) { px = e.clientX; py = e.clientY; }, { passive: true });
+      function glyphColor() {
+        const r = nav.getBoundingClientRect();
+        const over = px >= r.left && px <= r.right && py >= r.top && py <= r.bottom;
+        return over ? WHITE : THEME;
+      }
       const FLY_MS = 380;        // matches .explore-fly transition duration
       const FLY_STAGGER = 45;
       const SLIDE_MS = 280;      // matches .explore-drawer transition duration
@@ -189,7 +207,7 @@
             drawer.classList.remove('bullets-hidden');
             busy = false;
           } else {
-            fly(from, to, THEME, SOFT, function () {
+            fly(from, to, glyphColor(), SOFT, function () {
               drawer.classList.remove('bullets-hidden');
               busy = false;
             });
@@ -216,7 +234,9 @@
         }
         if (reduced.matches) { setTimeout(finish, SLIDE_MS); return; }
         // Glyph is visibility:hidden, but its layout box is intact — rects are valid.
-        fly(from, rectsOf(tiles), SOFT, THEME, finish);
+        // End colour = whatever the tiles will actually be once shown (red at rest,
+        // or white if the pointer has landed back over the header bar).
+        fly(from, rectsOf(tiles), SOFT, glyphColor(), finish);
       }
 
       btn.addEventListener('click', openDrawer);

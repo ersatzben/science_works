@@ -7,7 +7,6 @@ import { scholarlyType } from '../lib/scholarly.js';
 import { team } from '../lib/people.js';
 import quotes from '../data/quotes.json';
 import introPic from '../data/decor/home-intro.json';   // mobile intro illustration (30×22)
-import rrPromoData from '../data/decor/reorganising-research-banner.json';   // promo band art (180×47)
 // Featured-project grid art (18×37), one per card.
 import instDynArt from '../data/projects/institutional-dynamism.json';
 import aiSciSrc from '../data/projects/ai-and-science.json';
@@ -20,7 +19,6 @@ const aiSciArt = paletteGridToBitmap(aiSciSrc);
 const resEconArt = paletteGridToBitmap(resEconSrc);
 const softSciArt = paletteGridToBitmap(softSciSrc);
 const britSciArt = paletteGridToBitmap(britSciSrc);
-const rrPromoArt = paletteGridToBitmap(rrPromoData, { size: 12, gap: 1, radius: 2 });   // promo band
 // Mobile strips show the leftmost 8 columns of the same source art.
 const instDynArtM = cropCols(instDynArt, 8);
 const aiSciArtM = cropCols(aiSciArt, 8);
@@ -136,55 +134,7 @@ const orgJsonLd = {
     </div>
   </section>
 
-  <!-- Promo band → /reorganising-research (full-bleed band; recreated card) -->
-  <div class="rr-promo">
-    <!-- Decorative surround: tiled texture framing the card (desktop only). -->
-    <div class="rr-promo-surround" aria-hidden="true"></div>
-    <a class="rr-promo-card" href="/reorganising-research" aria-label="Reorganising Research — essay prize and call for evidence">
 
-      <!-- Left: red title panel -->
-      <div class="rr-promo-title">
-        <p class="rr-eyebrow">Call for participation<span class="rr-pix"><i></i><i class="m"></i><i class="o"></i></span></p>
-        <div class="rr-heading-block">
-          <span class="rr-promo-l1">Reorganising</span>
-          <span class="rr-promo-l2">Research</span>
-          <span class="rr-rule"></span>
-        </div>
-        <p class="rr-footline">Institutional dynamism<span class="rr-footpix"><i></i><i class="o"></i><i></i><i class="o"></i><i class="o"></i><i></i><i class="o"></i><i></i></span></p>
-      </div>
-
-      <!-- Right: two cards (the closing strip belongs to the essay card only) -->
-      <div class="rr-promo-cards">
-        <div class="rr-promo-col rr-promo-essay">
-          <div class="rr-col-content">
-            <img class="rr-card-icon" src="/assets/images/icons/essay-icon.png" alt="" />
-            <h3 class="rr-promo-h">Essay Prize</h3>
-            <p class="rr-promo-p">We&rsquo;re launching an essay prize to uncover new thinking about how to reorganise research.</p>
-            <ul class="rr-bullets">
-              <li><strong>Prize:</strong> £3,000</li>
-              <li><strong>Runners up:</strong> £500</li>
-            </ul>
-          </div>
-          <!-- Closing date — applies to the essay prize only -->
-          <div class="rr-promo-strip">
-            <span class="rr-strip-left">
-              <svg class="rr-strip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>
-              Open until 15 July 2026
-            </span>
-          </div>
-        </div>
-        <div class="rr-promo-col rr-promo-cfe">
-          <div class="rr-col-content">
-            <img class="rr-card-icon" src="/assets/images/icons/cfe-icon.png" alt="" />
-            <h3 class="rr-promo-h">Call for Evidence</h3>
-            <p class="rr-promo-p">Jointly with the <strong>Wellcome Trust</strong>, we want to uncover examples of the labs, departments, institutes, programmes, &amp; funding architectures doing things differently.</p>
-          </div>
-          <!-- Find out more — same strip as the essay card, pinned bottom-right -->
-          <div class="rr-promo-strip rr-strip-cfe"><span class="rr-strip-right">Find out more <span class="rr-strip-arrow">&rarr;</span></span></div>
-        </div>
-      </div>
-    </a>
-  </div>
 
   <!-- 2. Spotlight: pinned intro (left) + scrolling featured projects (right) -->
   <section class="spotlight" id="projects">
@@ -591,200 +541,6 @@ const orgJsonLd = {
       margin: 0 auto;
       padding: 0 50px;
       box-sizing: border-box;
-    }
-
-    /* ── Promo band → /reorganising-research (full-bleed --bg band; recreated card) ── */
-    /* Band: full-bleed --bg backdrop. NOT a link — only the inner card is.
-       Taller padding (100px) leaves a 70px reveal around the card once the
-       surround is inset 30px on every side. */
-    .rr-promo {
-      position: relative;          /* positioning context for the surround */
-      display: block;
-      background: var(--bg);
-      padding: 100px 50px;
-    }
-    /* Decorative tiled frame: 30px in from the band edges (so 30px from the
-       viewport sides), sitting above the --bg fill but behind the card. */
-    .rr-promo-surround {
-      position: absolute;
-      top: 30px;
-      bottom: 30px;
-      left: 30px;
-      right: 30px;
-      z-index: 1;
-      border: 1px solid var(--border-grey);
-      border-radius: 2px;
-      background: url('/assets/images/decor/rr-promo-surround-tile.png') top left repeat;
-      background-size: 90px auto;   /* 0.75× the crisp 1× tile */
-      /* Inset shadow → the surround reads as a recessed well sunk beneath the
-         page, so the card appears to float above it. Lit from the top-left:
-         strong on the top & left rims, only a faint trace on bottom & right. */
-      box-shadow: inset 0 8px 15px rgba(0, 0, 0, 0.08),   /* top */
-                  inset 8px 0 20px rgba(0, 0, 0, 0.05),   /* left */
-                  inset 0 0 6px rgba(0, 0, 0, 0.03);      /* faint all-round (bottom/right) */
-      pointer-events: none;
-    }
-    .rr-promo-card {
-      position: relative;
-      z-index: 2;                  /* above the surround */
-      overflow: hidden;            /* clips the red panel to the rounded corners */
-      max-width: 1110px;
-      min-height: 250px;           /* a bit taller (room for the icons-above-title later) */
-      margin: 0 auto;
-      background: var(--almost-white);
-      border: 1px solid var(--theme);   /* red edge at all times */
-      border-radius: 4px;
-      display: grid;
-      grid-template-columns: 1fr 1.85fr;   /* title | right region */
-      /* Float shadow: a tight contact shadow + a broad soft drop, stronger than
-         before so the card clearly lifts out of the recessed well behind it. */
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.10),
-                  0 10px 30px rgba(0, 0, 0, 0.16);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-      text-decoration: none;
-      color: inherit;
-    }
-    /* Hover: a very subtle lift (the red border is permanent now), with the
-       glow deepened a touch so the displacement reads. */
-    .rr-promo-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12),
-                  0 16px 38px rgba(0, 0, 0, 0.20);
-    }
-
-    /* Left red panel */
-    .rr-promo-title {
-      background: var(--theme);
-      color: var(--almost-white);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 36px 30px 22px;
-      
-    }
-    .rr-eyebrow, .rr-footline {
-      margin: 0;
-      display: flex;
-      align-items: center;
-      font-family: 'Roboto', sans-serif;
-      font-weight: 500;
-      font-size: 12px;
-      letter-spacing: 0.13em;
-      text-transform: uppercase;
-    }
-    .rr-footline {font-size: 12px; letter-spacing: -0.01em; margin-bottom: 6px; margin-top: -10px; }
-
-    .rr-heading-block { line-height: 1.0; }
-    .rr-promo-l1, .rr-promo-l2 {
-      display: block;
-      font-family: 'Antique Olive', sans-serif;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 0.01em;
-      margin-left: -3px;
-    }
-    .rr-promo-l1 { font-size: 42.5px; }
-    .rr-promo-l2 { font-size: 60.9px; margin-left: -5px; }
-    .rr-rule { display: block; height: 2px; background: rgba(255,255,255,0.5); margin-top: 16px; }
-    /* pixel-square motifs */
-    .rr-pix { display: inline-flex; gap: 12px; margin-left: auto; }   /* push to the right edge (lines up with .rr-rule) */
-    .rr-pix i { width: 10px; height: 10px; background: var(--almost-white); }
-    .rr-pix i.m { background: rgb(255, 255, 255, 0.75); }
-    .rr-pix i.o { background: rgb(255, 255, 255, 0.5); }
-    .rr-footpix { display: inline-grid; grid-template-columns: repeat(4, 8px); gap: 5px; margin-left: auto; margin-top: 10px;  }   /* right-aligned, like .rr-pix */
-    .rr-footpix i { width: 9px; height: 9px; background:  rgb(255, 255, 255, 0.75); }
-    .rr-footpix i.o { background:  rgb(255, 255, 255, 0.5); }
-
-    /* Right cards */
-    .rr-promo-cards { display: grid; grid-template-columns: 1fr 1fr; }
-    .rr-promo-col { display: flex; flex-direction: column; }   /* content grows; essay's strip pins to the bottom */
-    .rr-col-content { flex: 1 1 auto; padding: 20px 28px; }
-    .rr-card-icon { display: block; height: 18px; width: auto; margin-bottom: 18px; margin-left: 2px; }   /* pixel motif above the heading */
-    .rr-promo-cfe { border-left: 1px solid var(--border-grey); }
-    .rr-promo-h {
-      margin: 10px 0 14px;
-      font-family: 'Copperplate', serif;
-      font-weight: normal;
-      font-size: 22px;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: var(--text);
-    }
-    .rr-promo-p {
-      margin: 0;
-      font-family: 'Antique Olive', sans-serif;
-      font-weight: 300;
-      font-size: 14px;
-      line-height: 1.55;
-      color: var(--text);
-    }
-    .rr-promo-p strong { font-weight: 700; }
-    .rr-bullets { list-style: none; margin: 14px 0 0; padding: 0; }
-    .rr-bullets li {
-      position: relative;
-      padding-left: 20px;
-      margin-bottom: 5px;
-      font-family: 'Antique Olive', sans-serif;
-      font-weight: 300;
-      font-size: 14px;
-      color: var(--text);
-    }
-    .rr-bullets li::before {
-      content: '';
-      position: absolute;
-      left: 0; top: 0.18em;
-      width: 9px; height: 9px;
-      background: var(--theme);
-    }
-    .rr-bullets strong { font-weight: 700; }
-
-    /* Bottom strip (essay closing date + CfE "find out more") */
-    .rr-promo-strip {
-      border-top: 1px solid var(--border-grey);
-      background: #fbeaea;   /* very light tint of --theme */
-      padding: 12px 28px;
-      display: flex;
-      align-items: center;
-    }
-    /* CfE strip keeps "find out more" pinned to the right corner. */
-    .rr-strip-cfe { justify-content: flex-end; padding-top: 12.5px; }
-    .rr-strip-left {
-      display: inline-flex; align-items: center; gap: 8px;
-      font-family: 'Roboto', sans-serif;
-      font-weight: 500; font-size: 12px;
-      letter-spacing: 0.06em; text-transform: uppercase;
-      color: var(--theme);
-    }
-    .rr-strip-icon { width: 15px; height: 15px; flex: 0 0 auto; color: var(--theme); }
-    .rr-strip-right {
-      font-family: 'Roboto', sans-serif;
-      font-weight: 600; font-size: 12px;
-      letter-spacing: 0.06em; text-transform: uppercase;
-      color: var(--theme);
-    }
-    .rr-promo-card:hover .rr-strip-right { text-decoration: underline; text-underline-offset: 3px; }
-
-    /* Tablet/mobile: red panel goes full-width on top, then cards, then strip.
-       The decorative surround is desktop-only, so drop it (and the extra band
-       padding it needed) here. */
-    @media (max-width: 1080px) {
-      .rr-promo { padding: 40px 50px; }
-      .rr-promo-surround { display: none; }
-      .rr-promo-card {
-        grid-template-columns: 1fr;   /* title on top, right region (cards) below */
-        min-height: 0;
-      }
-      .rr-promo-l1 { font-size: 36px; }
-      .rr-promo-l2 { font-size: 48px; }
-    }
-    @media (max-width: 600px) {
-      .rr-promo { padding: 24px 18px; }
-      .rr-promo-cards { grid-template-columns: 1fr; }
-      .rr-promo-cfe { border-left: none; border-top: 1px solid var(--border-grey); }
-      .rr-promo-strip { flex-direction: column; align-items: flex-start; gap: 8px; }
-      .rr-promo-l1 { font-size: 30px; }
-      .rr-promo-l2 { font-size: 43px; }
     }
     .section-label {
       font-family: 'Copperplate', serif;

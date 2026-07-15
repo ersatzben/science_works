@@ -64,6 +64,7 @@
       --text: #66223b;
       --theme: #eb3131;
       --theme-soft: #f5adad;   /* lighter pink of the --theme hue (drawer bullets at rest) */
+      --theme-hover: #fa5952;  /* softer red — desktop header fill when the whole bar is hovered */
 
       /* Secondary */
       --bg-secondary: #f9f3ee;
@@ -176,7 +177,7 @@
     }
 
     .nav {
-      height: 70px;
+      height: 65px;   /* desktop navbar height — tune here (mobile height is set separately below) */
       background: var(--almost-white);
       border-bottom: 2px solid var(--bg);
       box-sizing: border-box;
@@ -186,6 +187,7 @@
       position: sticky;
       top: 0;
       z-index: 100;
+      transition: background-color 0.15s ease;   /* quick fade to --theme-hover on desktop hover */
     }
 
 /* ---- Header (logo, nav links, hamburger + mobile) ---- */
@@ -195,7 +197,7 @@
       gap: 10px;
       color: var(--theme);
       text-decoration: none;
-      margin-left: 25px;    /* desktop inset; reset to 0 in the mobile block */
+      margin-left: 45px;    /* desktop inset — nudge the logo left/right here; reset to 0 in the mobile block */
     }
     .logo-mark {
       height: 20px;
@@ -203,6 +205,7 @@
       width: auto;
       display: block;
     }
+    .logo-mark--white { display: none; }   /* shown only on desktop header hover */
     .logo-text {
       font-family: 'Antique Olive', sans-serif;
       font-weight: bold;
@@ -256,7 +259,7 @@
 /* ---- Explore trigger + right-hand drawer (desktop) ---- */
     .explore-btn {
       margin-left: auto;
-      margin-right: 47px;   /* 22px + 25px desktop inset (matches old nav-links) */
+      margin-right: 67px;   /* nudge the Explore + 2x2 group left (larger) / right (smaller) here */
       display: flex;
       align-items: center;
       gap: 10px;
@@ -274,12 +277,27 @@
     }
     .explore-glyph {
       display: grid;
-      grid-template-columns: repeat(2, 8px);
-      grid-auto-rows: 8px;
+      grid-template-columns: repeat(2, 10px);
+      grid-auto-rows: 10px;
       gap: 2px;
     }
     .explore-glyph i { background: var(--theme); }
     .explore-glyph.is-flying { visibility: hidden; }   /* tiles are mid-flight as clones */
+
+/* ---- Desktop hover: invert the whole bar to white-on-red ---- */
+    /* Guarded to real pointer + desktop widths so touch/mobile never inverts.
+       Only the background fades (see .nav transition); text/logo swap instantly. */
+    /* :not(.explore-open) — while the drawer is open the header sits at rest, not
+       inverted. (The scrim is a descendant of .nav and covers the viewport, so
+       without this the bar would read as hovered the whole time the drawer is open.) */
+    @media (hover: hover) and (min-width: 721px) {
+      .nav:not(.explore-open):hover { background: var(--theme-hover); }
+      .nav:not(.explore-open):hover .logo { color: var(--almost-white); }   /* .logo-text inherits this */
+      .nav:not(.explore-open):hover .explore-btn { color: var(--almost-white); }
+      .nav:not(.explore-open):hover .explore-glyph i { background: var(--almost-white); }
+      .nav:not(.explore-open):hover .logo-mark--red { display: none; }
+      .nav:not(.explore-open):hover .logo-mark--white { display: block; }
+    }
 
     .explore-scrim {
       position: fixed;
@@ -298,7 +316,7 @@
       padding: 96px 0 24px;
       background: var(--almost-white);
       border-left: 2px solid var(--bg);
-      box-shadow: -18px 0 40px rgba(102, 34, 59, 0.18);
+      box-shadow: -18px 0 40px rgba(102, 34, 59, 0.1);
       overflow-y: auto;
       transform: translateX(103%);   /* 103% so the shadow clears the viewport too */
       transition: transform 0.28s cubic-bezier(0.32, 0.72, 0.28, 1);
@@ -341,7 +359,7 @@
       display: flex;
       align-items: center;
       gap: 14px;
-      padding: 15px 26px;
+      padding: 20px 26px;   /* top-level row spacing — tune the vertical value here */
       font-family: 'Copperplate', serif;
       font-size: 19px;
       letter-spacing: 0.02em;
@@ -408,7 +426,7 @@
     }
     .drawer-sub a {
       display: block;
-      padding: 9px 26px 9px 49px;   /* left-aligns with the row labels */
+      padding: 16px 26px 16px 49px;   /* Projects sub-item spacing — tune the vertical value here (left value aligns with the row labels) */
       font-family: 'Copperplate', serif;
       font-size: 14px;
       letter-spacing: 0.02em;
@@ -417,7 +435,7 @@
       transition: background-color 0.15s ease;
     }
     .drawer-sub a:hover { background: rgba(102, 34, 59, 0.06); }
-    .drawer-sub li:last-child a { padding-bottom: 18px; }
+    .drawer-sub li:last-child a { padding-bottom: 22px; }   /* a little extra breathing room at the bottom of the sub-list */
 
     /* In-flight tile clones (created by Header.astro's script). */
     .explore-fly {
