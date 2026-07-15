@@ -324,24 +324,27 @@
     }
     .nav.explore-open .explore-drawer { transform: translateX(0); }
 
+    /* Matches the project modal's close button (see .pp-modal-close in projects.astro):
+       a round × that goes red on a beige disc when hovered. */
     .explore-close {
       position: absolute;
       top: 20px;
-      right: 12px;   /* centres the 16px X over the caret column (carets: 26px inset, 8px wide) */
-      width: 36px;
-      height: 36px;
+      right: 13px;   /* centres the 34px disc over the caret column (carets: 26px inset, 8px wide) */
+      width: 34px;
+      height: 34px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: none;
+      line-height: 1;
+      font-size: 24px;
+      background: var(--almost-white);
       border: none;
-      border-radius: 4px;
+      border-radius: 50%;
       cursor: pointer;
-      color: var(--theme);
-      transition: background-color 0.15s ease;
+      color: var(--text);
+      transition: color 0.15s ease, background-color 0.15s ease;
     }
-    .explore-close:hover { background: rgba(102, 34, 59, 0.07); }
-    .explore-close svg { display: block; }
+    .explore-close:hover { color: var(--theme); background: var(--beige); }
 
     .drawer-list {
       list-style: none;
@@ -384,10 +387,14 @@
     .explore-drawer.bullets-hidden .drawer-bullet { visibility: hidden; }   /* while flying */
     .drawer-caret {
       flex: none;
+      width: 6px;    /* smaller than the SVG's intrinsic 8×14; height keeps the ratio */
+      height: 11px;
       color: var(--text);
       opacity: 0.55;
-      transition: transform 0.2s ease;
+      transition: transform 0.2s ease, color 0.15s ease, opacity 0.15s ease;
     }
+    /* Caret picks up the theme red when its row is hovered. */
+    .drawer-row:hover .drawer-caret { color: var(--theme); opacity: 1; }
 
     /* Projects row: the text link navigates, the caret button expands. */
     .drawer-projects-link {
