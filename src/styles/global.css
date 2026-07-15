@@ -518,49 +518,89 @@
       justify-content: start;      /* left-align: the band art starts at the left edge */
       padding: 18px 0;
     }
-    /* 2) Mailing-list signup — markup supplied later; fills the middle for now. */
+    /* 2) Middle band: info block on the left, mailing-list signup on the right. */
     .footer-signup {
       flex: 1;
       width: 100%;
       box-sizing: border-box;
       padding: 0 40px;
       display: flex;
-      align-items: center;        /* vertical-centre the box in the band */
-      justify-content: flex-end;  /* push the box to the right of the viewport */
-      position: relative;         /* anchor for the sparse art layer behind the box */
+      align-items: center;        /* vertical-centre both groups in the band */
+      justify-content: flex-end;  /* push the signup box to the right of the viewport */
     }
-    /* Sparse pixel art filling the empty space to the left of (and behind) the
-       signup box. Left-aligned, tiled horizontally, vertically centred. */
-    .footer-signup-pix {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      overflow: hidden;
-      display: grid;
-      justify-content: start;     /* tile from the left edge */
-      align-content: center;      /* centre the rows vertically in the band */
-      gap: var(--sp-gap);
-      --sp-cell: 5px;
-      --sp-gap: 1px;
-      --card-pix-radius: 1px;
+    /* Desktop-only info block in the space left of the signup box: the wordmark
+       with a contact line, a short vertical divider, then the project links.
+       The block spans the band's full height so both sections can start near
+       the top rather than sitting vertically centred. */
+    .footer-info {
+      align-self: stretch;
+      padding-top: 10px;
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      margin-right: auto;
+      margin-bottom: 20px;         /* keep the signup box pushed to the right */
     }
-    /* Each coloured pixel pulses very slowly in and out of transparent; a random
-       per-cell delay (set in JS) gives a gentle, organic shimmer. */
-    /* Mostly invisible: the pixels fade into view for ~4s, then stay gone for
-       ~16s before the next reveal. A small per-cell stagger (set in JS) softens
-       the edges so the group materialises rather than hard-blinking. */
-    @keyframes footer-pix-pulse {
-      0%, 7%    { opacity: 0; }
-      13%, 19%  { opacity: 1; }
-      25%, 100% { opacity: 0; }
+    /* Section 1 is a fixed column; the contact sentence wraps to its width. */
+    .footer-brand {
+      width: 170px;
+      flex-shrink: 0;
     }
-    .footer-signup-pix .pix-cell {
-      animation: footer-pix-pulse 22s ease-in-out infinite;
+    /* Wordmark as plain text (no link, no logo image) — same face as the header. */
+    .footer-wordmark {
+      display: block;
+      font-family: 'Antique Olive', sans-serif;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: -0.06em;
+      font-size: 20px;
+      line-height: 1;
+      color: var(--theme);
     }
-    @media (prefers-reduced-motion: reduce) {
-      .footer-signup-pix .pix-cell { animation: none; }
+    .footer-contact {
+      margin: 14px 0 0;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text);
     }
+    /* Links styled like body-copy links elsewhere on the site. */
+    .footer-contact a {
+      color: var(--theme);
+      font-weight: 300;
+      text-decoration: none;
+    }
+    .footer-contact a:hover { text-decoration: underline; text-underline-offset: 2px; }
+    /* Subtle divider between the two sections — deliberately not full height,
+       and kept vertically centred while the sections themselves top-align. */
+    .footer-divider {
+      align-self: center;
+      width: 1px;
+      height: 160px;
+      background: var(--text);
+      opacity: 0.2;
+    }
+    .footer-projects h3 {
+      font-family: 'Copperplate', serif;
+      font-weight: normal;
+      font-size: 18px;
+      color: var(--text);
+      margin: 0 0 10px;
+    }
+    .footer-projects ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .footer-projects a {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .footer-projects a:hover { color: var(--theme); text-decoration: underline; text-underline-offset: 2px; }
     /* 3) Bottom band: solid dark brown, white text. */
     .footer-bottom {
       background: var(--darkest-brown);
@@ -637,8 +677,6 @@
       flex-direction: column;
       align-items: center;
       font-family: 'Roboto', sans-serif;
-      position: relative;   /* sit above the .footer-signup-pix art layer */
-      z-index: 1;
     }
     .sib-form {
       padding: 0 0;
@@ -918,7 +956,7 @@
   #signup h3 { margin-bottom: 0px; }
   #signup .sib-form-block { margin-top: 10px; }
   .signup-pix { display: none; }
-  .footer-signup-pix { display: none; }
+  .footer-info { display: none; }   /* the wordmark/projects block is desktop-only */
   .footer-bottom { padding: 0 8px; }
   .footer-end { font-size: 8px; gap: 16px; }
   .footer-policies { gap: 16px; }
