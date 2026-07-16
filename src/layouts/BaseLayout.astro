@@ -54,9 +54,13 @@ const imageType = imageURL && String(image).endsWith('.jpg') ? 'image/jpeg' : 'i
   <meta name="twitter:description" content={description} />
   {imageURL && <meta name="twitter:image" content={imageURL} />}
 
-  <!-- Favicons (generated from the logo mark, assets/images/FINAL4.svg) -->
+  <!-- Favicons (generated from the logo mark, assets/images/FINAL4.svg).
+       Google picks the site-result favicon from the homepage's declared icons and
+       prefers a crisp square raster that's a multiple of 48px, so we expose the
+       192px PNG directly (not only via the manifest) alongside the .ico and SVG. -->
   <link rel="icon" href="/favicon.ico" sizes="32x32" />
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="manifest" href="/site.webmanifest" />
   <meta name="theme-color" content="#eb3131" />
