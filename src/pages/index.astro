@@ -550,44 +550,50 @@ const orgJsonLd = {
        Border/shadow treatment TBD. */
     .hero-box {
       /* 0 = fully see-through, 1 = solid --almost-white. Tune freely. */
-      --hero-box-opacity: 0.82;
+      --hero-box-opacity: 0.92;
       position: absolute;
-      left: 23.6111%;              /* 34 / 144 */
-      top: 39.7260%;               /* 29 / 73  */
+      left: 24.3056%;              /* 35 / 144 */
+      top: 36.9863%;               /* 27 / 73  */
       width: 38.8889%;             /* 56 / 144 */
-      height: 24.6575%;            /* 18 / 73  */
-      background: rgba(255, 251, 247, var(--hero-box-opacity));   /* --almost-white + alpha */
+      height: 31.5068%;            /* 23 / 73  */
+      background: linear-gradient(
+        to right,
+        rgba(255, 251, 247, var(--hero-box-opacity)) 0%,
+        rgba(255, 251, 247, var(--hero-box-opacity)) 65%,
+        rgba(255, 251, 247, 0) 100%
+      );
       z-index: 10;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: flex-start;
-      padding: 0 1.5% 0 2.5%;
+      padding: 0 1.5% 0 3%;
     }
     .hero-title {
-      font-family: 'Recoleta', serif;   /* self-hosted; weights: 300 (Light), 400 (Regular) */
-      font-weight: normal;
+      font-family: 'Playfair Display', serif;   /* self-hosted; weights: 300 (Light), 400 (Regular) */
+      font-weight: 600;
       /* clamp(min, preferred, max): tracks the viewport at 2.475vw
          (2.475% of window width) but never smaller than 18px or larger
          than 45px. To resize, scale all three values together. */
-      font-size: clamp(18px, 2.75vw, 90px);
+      font-size: clamp(18px, 3vw, 100px);
       letter-spacing: 0.02em;
-      line-height: 1.1;
-      color: var(--theme);
-      text-transform: uppercase;
+      line-height: 1.2;
+      color: var(--text);
+      
       margin: 0;
+      margin-right: 180px;
     }
     .hero-rule {
-      width: 80.4%;
-      border-top: 1px solid var(--theme);
-      margin: 1.5% 0 2%;
+      width: 6%;
+      border-top: 3px solid var(--theme);
+      margin: 3% 0 3%;
     }
     .hero-tag {
       font-family: 'DM Sans', sans-serif;
-      font-weight: 600;
+      font-weight: bold;
       font-size: clamp(9px, 1.02vw, 50px);
-      letter-spacing: 0.02em;
+      letter-spacing: 0.01em;
       text-transform: uppercase;
       color: var(--theme);
       margin: 0;

@@ -537,13 +537,13 @@
       padding-top: 10px;
       display: flex;
       align-items: flex-start;
-      gap: 20px;
+      gap: 40px;
       margin-right: auto;
       margin-bottom: 20px;         /* keep the signup box pushed to the right */
     }
     /* Section 1 is a fixed column; the contact sentence wraps to its width. */
     .footer-brand {
-      width: 170px;
+      width: 260px;
       flex-shrink: 0;
     }
     /* Wordmark as plain text (no link, no logo image) — same face as the header. */
@@ -556,6 +556,7 @@
       font-size: 20px;
       line-height: 1;
       color: var(--theme);
+      margin-top: 20px; 
     }
     .footer-contact {
       margin: 14px 0 0;
@@ -584,7 +585,7 @@
       font-weight: normal;
       font-size: 18px;
       color: var(--text);
-      margin: 0 0 10px;
+      margin: 20px 0 10px;
     }
     .footer-projects ul {
       list-style: none;
@@ -597,10 +598,45 @@
     .footer-projects a {
       color: var(--text);
       text-decoration: none;
-      font-size: 14px;
+      font-size: 16px;
       line-height: 1.4;
     }
     .footer-projects a:hover { color: var(--theme); text-decoration: underline; text-underline-offset: 2px; }
+    /* Red chevron after every Explore/Connect link — the same rounded-stroke
+       glyph as the header drawer's carets, painted --theme via a mask so no
+       extra markup is needed. The email address is excluded: its ::after is
+       the "Copied!" tag below. */
+    .footer-projects a:not(.footer-email)::after {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 11px;
+      background: var(--theme);
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 14'%3E%3Cpath d='M1 1l6 6-6 6' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 14'%3E%3Cpath d='M1 1l6 6-6 6' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
+      margin-left: 8px;
+      transition: transform 0.15s ease;
+    }
+    .footer-projects a:not(.footer-email):hover::after { transform: translateX(2px); }
+    /* Explore is a fixed-width column: wider than its content for breathing
+       room, with each link a flex row so the chevrons right-align with each
+       other rather than trailing labels of different lengths. */
+    .footer-explore { width: 150px; }
+    .footer-explore a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    /* Feedback tag for the copy-to-clipboard email link (toggled by JS). */
+    .footer-email::after {
+      content: 'Copied!';
+      color: var(--theme);
+      font-size: 12px;
+      margin-left: 8px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .footer-email.is-copied::after { opacity: 1; }
     /* 3) Bottom band: solid dark brown, white text. */
     .footer-bottom {
       background: var(--darkest-brown);
@@ -609,7 +645,7 @@
       display: flex;
       align-items: center;
       padding: 0 24px;
-      min-height: 60px;
+      min-height: 80px;
       font-family: 'Antique Olive', sans-serif;
       font-size: 13px;
     }
@@ -621,29 +657,40 @@
     }
     .footer-copy {
       text-align: left;
-      text-transform: uppercase;
       letter-spacing: 0.04em;
       line-height: 1.3;
       opacity: 0.75;
     }
-    /* Right-hand group: policy links + copyright, pushed to the far right. */
+    /* Right-hand group: policy links + copyright on one line, with the
+       registered-office notice tucked underneath, all right-aligned. */
     .footer-end {
       margin-left: auto;          /* the "big space" between socials and this group */
       display: flex;
-      align-items: center;
-      gap: 40px;                  /* spacing between the four right-hand items */
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+      padding: 20px 0;            /* breathing room now the band holds two lines */
     }
-    .footer-policies { display: flex; gap: 40px; }
+    .footer-policies { display: flex; align-items: center; gap: 20px; }
     .footer-link {
       color: #fff;
       text-decoration: none;
       opacity: 0.75;
       display: inline-block;
-      text-transform: uppercase;
       letter-spacing: 0.04em;
       line-height: 1.3;
     }
     .footer-link:hover { opacity: 1; text-decoration: underline; }
+
+    .footer-link-divider { color: var(--border-grey); opacity: 0.5; }
+
+    .footer-registered {
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      line-height: 1.3;
+      opacity: 0.55;
+    }
+
     .footer-socials {
       display: flex;
       align-items: center;
@@ -958,6 +1005,8 @@
   .signup-pix { display: none; }
   .footer-info { display: none; }   /* the wordmark/projects block is desktop-only */
   .footer-bottom { padding: 0 8px; }
-  .footer-end { font-size: 8px; gap: 16px; }
+  .footer-end { font-size: 8px; gap: 3px; padding: 8px 0; }
+  .footer-legal { gap: 16px; }
   .footer-policies { gap: 16px; }
+  .footer-registered { font-size: 7px; }
 }
