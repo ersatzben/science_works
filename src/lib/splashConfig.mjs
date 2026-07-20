@@ -41,7 +41,7 @@ export const splashConfig = {
 
   // Central plaque: interior is kept blank at runtime; .hero-box (the
   // DOM text) is positioned over it using these same cell fractions.
-  plaque: { x: 34, y: 29, w: 56, h: 18, border: 0 },   // borderless: .hero-box carries its own background
+  plaque: { x: 35, y: 27, w: 56, h: 23, border: 0 },   // borderless: .hero-box carries its own background (kept in sync with .hero-box CSS)
 
   // DNA double helix — fully procedural within its region. Artwork in
   // this region acts as a backdrop behind the strands. The region may
