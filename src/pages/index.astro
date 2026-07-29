@@ -550,7 +550,7 @@ const orgJsonLd = {
        Border/shadow treatment TBD. */
     .hero-box {
       /* 0 = fully see-through, 1 = solid --almost-white. Tune freely. */
-      --hero-box-opacity: 0.92;
+      --hero-box-opacity: 0.90;
       position: absolute;
       left: 24.3056%;              /* 35 / 144 */
       top: 36.9863%;               /* 27 / 73  */
@@ -571,18 +571,14 @@ const orgJsonLd = {
       padding: 0 1.5% 0 3%;
     }
     .hero-title {
-      font-family: 'Playfair Display', serif;   /* self-hosted; weights: 300 (Light), 400 (Regular) */
+      font-family: 'Playfair Display', serif;   
       font-weight: 600;
-      /* clamp(min, preferred, max): tracks the viewport at 2.475vw
-         (2.475% of window width) but never smaller than 18px or larger
-         than 45px. To resize, scale all three values together. */
-      font-size: clamp(18px, 3vw, 100px);
+      font-size: 3vw;
       letter-spacing: 0.02em;
       line-height: 1.2;
       color: var(--text);
-      
       margin: 0;
-      margin-right: 180px;
+      margin-right: 10vw;
     }
     .hero-rule {
       width: 6%;
