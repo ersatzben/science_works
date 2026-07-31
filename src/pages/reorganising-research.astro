@@ -7,9 +7,6 @@ import bannerData from '../data/decor/reorganising-research-banner.json';
 
 // Banner pixel art (180×47 index-grid → bitmap; same path as the essay covers).
 const bannerArt = paletteGridToBitmap(bannerData, { size: 12, gap: 1, radius: 2 });
-
-// Essay-prize submissions go to this inbox.
-const PRIZE_EMAIL = 'essay@science.works';
 ---
 
 <BaseLayout
@@ -82,13 +79,13 @@ const PRIZE_EMAIL = 'essay@science.works';
                 <li><strong>Prize:</strong> £3,000</li>
                 <li><strong>Runners up:</strong> £500</li>
                 <li><strong>Length:</strong> Maximum 3,000 words (no minimum)</li>
-                <li><strong>Closing date:</strong> 15th July 2026</li>
+                <li><strong>Closing date:</strong> <span class="rr-closed">Now closed</span></li>
               </ul>
             </div>
             <p class="rr-details-note">Winners and runners up will be informed by the 31st July 2026. Essays will be judged by the Science Works team. By submitting your essay, you agree that Science Works may publish it with full attribution. You retain copyright in your essay. Full terms <a href="/reorganising-research/essay-terms" target="_blank" rel="noopener noreferrer">here</a>.</p>
           </div>
         </div>
-        <a class="rr-btn" href={`mailto:${PRIZE_EMAIL}`}>To submit an essay, email {PRIZE_EMAIL}</a>
+        <p class="rr-btn rr-btn--closed">Submissions for the essay prize are now closed</p>
       </article>
 
       <article class="rr-box">
@@ -366,6 +363,14 @@ const PRIZE_EMAIL = 'essay@science.works';
     }
     .rr-facts li:last-child { border-bottom: none; }
     .rr-facts strong { font-weight: 700; }
+    /* The prize has closed: state it in the theme red so it reads as a status
+       change rather than just another fact in the list. */
+    .rr-closed {
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--theme);
+    }
     .rr-facts li::before {
       content: '';
       position: absolute;
@@ -424,6 +429,15 @@ const PRIZE_EMAIL = 'essay@science.works';
       mask: url('/assets/brand/arrow-right-1_5x-solid.svg') center / contain no-repeat;
     }
     .rr-btn:hover { background: #d4282a; }
+    /* Prize closed: the submit action is no longer a link, so it keeps the
+       button's shape and position but reads as spent — grey rather than theme
+       red, and no arrow, because there is nowhere left to go. */
+    .rr-btn--closed {
+      background: var(--border-grey);
+      color: var(--text);
+      cursor: default;
+    }
+    .rr-btn--closed::after { content: none; }
 
     .email-footer { margin-top: 28px; font-family: 'Roboto', sans-serif; }
     .email-footer-text a { color: var(--theme); text-decoration: none;}
