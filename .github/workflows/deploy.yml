@@ -52,3 +52,9 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          # GitHub's Pages backend sometimes takes well over the action's
+          # 10-minute default to process a deployment (seen 2026-08-06); a
+          # longer timeout lets slow-but-healthy deploys finish instead of
+          # being aborted. Milliseconds: 30 minutes.
+          timeout: 1800000
