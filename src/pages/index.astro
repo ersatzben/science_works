@@ -160,7 +160,7 @@ const orgJsonLd = {
     <div class="stage">
       <canvas id="splash-canvas" role="img" aria-label="Pixel-mosaic landscape of British science: a DNA helix, microchip, punch card, laboratory glassware, the map of Great Britain, a grand scientific institution, rising charts, a lightbulb, and people standing before a Victorian viaduct crossed by a steam train"></canvas>
       <div class="hero-box">
-        <h1 class="hero-title">Reshaping British Science & Technology</h1>
+        <h1 class="hero-title"><strong>Reshaping British</strong> Science & Technology</h1>
         <div class="hero-rule" aria-hidden="true"></div>
         <p class="hero-tag">Better policy. Better software. Better research</p>
       </div>
@@ -543,19 +543,19 @@ const orgJsonLd = {
       z-index: 1;
     }
 
-    /* Central text box: a plain panel (no mosaic ring) carrying its own
-       semi-transparent background. It covers the full plaque rect from
-       splashConfig — cols 34–91, rows 28–47 of the 144×73 grid — where
-       the artwork renders as normal and shows through the veil.
-       Border/shadow treatment TBD. */
+    /* Central text box: fully transparent — the artwork itself leaves
+       space for the text, so the box only positions the type. It covers
+       cols 35–90, rows 32–47 of the 144×73 grid; splashConfig.plaque
+       mirrors these fractions so the canvas editor can show where the
+       text sits. Keep the two in sync if this rect moves. */
     .hero-box {
       /* 0 = fully see-through, 1 = solid --almost-white. Tune freely. */
-      --hero-box-opacity: 0.90;
+      --hero-box-opacity: 0.0;
       position: absolute;
       left: 24.3056%;              /* 35 / 144 */
-      top: 36.9863%;               /* 27 / 73  */
+      top: 43.8356%;               /* 32 / 73  */
       width: 38.8889%;             /* 56 / 144 */
-      height: 31.5068%;            /* 23 / 73  */
+      height: 21.9178%;            /* 16 / 73  */
       background: linear-gradient(
         to right,
         rgba(255, 251, 247, var(--hero-box-opacity)) 0%,
@@ -571,24 +571,33 @@ const orgJsonLd = {
       padding: 0 1.5% 0 3%;
     }
     .hero-title {
-      font-family: 'Playfair Display', serif;   
-      font-weight: 600;
-      font-size: 3vw;
+      font-family: 'Recoleta', serif;   
+      font-weight: 400;
+      font-size: 2.6vw;
       letter-spacing: 0.02em;
-      line-height: 1.2;
-      color: var(--text);
+      line-height: 1.1;
+      color: var(--theme);
       margin: 0;
-      margin-right: 10vw;
+      margin-right: 1vw;
+      text-transform: uppercase;
     }
+
+
+    .hero-title strong { 
+      font-family: 'Recoleta', serif; 
+      font-weight: 700; 
+      font-size: 2.4vw; 
+    }
+
     .hero-rule {
-      width: 6%;
-      border-top: 3px solid var(--theme);
-      margin: 3% 0 3%;
+      width: 90%;
+      border-top: 1px solid var(--theme);
+      margin: 2% 0 2.5%;
     }
     .hero-tag {
       font-family: 'DM Sans', sans-serif;
       font-weight: bold;
-      font-size: clamp(9px, 1.02vw, 50px);
+      font-size: clamp(9px, 1.14vw, 50px);
       letter-spacing: 0.01em;
       text-transform: uppercase;
       color: var(--theme);
@@ -1685,30 +1694,21 @@ const orgJsonLd = {
         const v = ART.cells[i];
         if (v >= 0) cells[i] = pal[v];
       }
-      // The plaque rect renders artwork like anywhere else — the DOM text
-      // (.hero-box) veils it with its own semi-transparent background, so
-      // whatever is painted there shows through softly. The rect is still
-      // excluded from figures, animation overlays and the reveal stagger.
-      const PLAQUE = CFG.plaque;
+      // The hero text (.hero-box) sits over the canvas with a fully
+      // transparent background — space for it is painted into the artwork
+      // itself, so the engine gives it no special treatment. (Its footprint
+      // lives in splashConfig.plaque purely as a guide for the editor.)
       const dyn = new Int32Array(N).fill(-1);        // DNA + chart lines
       const overlay = new Int32Array(N).fill(-1);    // train + steam
       const shown = new Uint8Array(N);               // reveal gate
       const twinkles = new Map();                    // idx → brightness boost
       const dirty = new Set();
-      // Animated layers (DNA, chart lines, train) refuse to draw anywhere
-      // in the plaque rect, whatever their configured regions say — the
-      // text must stay legible above its calm backdrop.
-      function inPlaqueRect(x, y) {
-        return !!PLAQUE &&
-          x >= PLAQUE.x && x < PLAQUE.x + PLAQUE.w &&
-          y >= PLAQUE.y && y < PLAQUE.y + PLAQUE.h;
-      }
 
       // --- connected components: figures emerge from the artwork ---------
       // Only "solid" cells participate: faint cream texture (near the
-      // stage background colour) and the plaque ring are background —
-      // otherwise a chain of texture specks would weld figures together
-      // into one giant component and merge their reveal/scatter.
+      // stage background colour) is background — otherwise a chain of
+      // texture specks would weld figures together into one giant
+      // component and merge their reveal/scatter.
       const BG_INT = 0xf6f0ed;   // the stage/grout colour (--bg)
       // Calm background tones: the almost-white default tile and the faint
       // cream texture both sit close to the grout colour. They're excluded
@@ -1734,12 +1734,7 @@ const orgJsonLd = {
       }
       function isSolid(i) {
         const v = cells[i];
-        if (v < 0 || nearBg(v)) return false;
-        if (PLAQUE) {
-          const x = i % COLS, y = (i / COLS) | 0;
-          if (x >= PLAQUE.x && x < PLAQUE.x + PLAQUE.w && y >= PLAQUE.y && y < PLAQUE.y + PLAQUE.h) return false;
-        }
-        return true;
+        return v >= 0 && !nearBg(v);
       }
       const compId = new Int32Array(N).fill(-1);
       const comps = [];
@@ -1882,9 +1877,6 @@ const orgJsonLd = {
         for (let i = 0; i < N; i++) {
           if (inFigure[i] || cells[i] < 0) continue;
           const x = i % COLS, y = (i / COLS) | 0;
-          // The plaque (ring included) is page furniture, never part of a
-          // figure's reveal — even when a figure's bounding box overlaps it.
-          if (inPlaqueRect(x, y)) continue;
           let best = null;
           for (const b of boxes) {
             if (x >= b.x0 - REACH && x <= b.x1 + REACH && y >= b.y0 - REACH && y <= b.y1 + REACH && (!best || b.area < best.area)) best = b;
@@ -1899,9 +1891,7 @@ const orgJsonLd = {
         for (let i = 0; i < N; i++) {
           if (inFigure[i]) continue;
           const x = i % COLS, y = (i / COLS) | 0;
-          // The plaque (ring + interior) is part of the page furniture —
-          // it appears complete on load rather than animating in.
-          if (isCalm(cells[i]) || inPlaqueRect(x, y)) { shown[i] = 1; continue; }
+          if (isCalm(cells[i])) { shown[i] = 1; continue; }
           list.push({ t: 40 + (x + y) * 2.8 + rng() * 80, i, kind: 0 });
         }
         // Figures flood in, staggered. Oversized components — figures the
@@ -1994,9 +1984,6 @@ const orgJsonLd = {
         const next = new Map();
         const cx = DNA.x + (DNA.w - 2) / 2;   // strands are 2 cells wide
         const amp = DNA.amp - 0.5;
-        // Unlike the chart/train, the helix MAY enter the plaque rect —
-        // the hero box's translucent background sits above the canvas,
-        // so strands passing behind it read as a soft animated backdrop.
         const put = (x, y, c) => {
           if (inGrid(x, y)) next.set(idxOf(x, y), c);
         };
@@ -2057,7 +2044,7 @@ const orgJsonLd = {
         const prev = k > 0 ? chartInner.y + series[k - 1] : yv;
         const lo = Math.min(yv, prev), hi = Math.max(yv, prev);
         for (let y = lo; y <= hi; y++) {
-          if (!inGrid(x, y) || inPlaqueRect(x, y)) continue;
+          if (!inGrid(x, y)) continue;
           const i = idxOf(x, y);
           dyn[i] = col;
           dirty.add(i);
@@ -2110,7 +2097,7 @@ const orgJsonLd = {
         const cellsOut = new Map();
         const rowTop = TRAIN.row, rowMid = TRAIN.row + 1, rowBot = TRAIN.row + 2;
         const put = (x, y, c) => {
-          if (x >= TRAIN.x0 && x <= TRAIN.x1 && inGrid(x, y) && !inPlaqueRect(x, y)) cellsOut.set(idxOf(x, y), c);
+          if (x >= TRAIN.x0 && x <= TRAIN.x1 && inGrid(x, y)) cellsOut.set(idxOf(x, y), c);
         };
         for (let k = 0; k < 7; k++) put(front - k, rowBot, trainBody[k % 2]);
         for (let k = 0; k < 7; k++) put(front - k, rowMid, trainBody[(k + 1) % 2]);
@@ -2257,7 +2244,7 @@ const orgJsonLd = {
             w.next = vnow + 380 + Math.random() * 320;
             if (w.y <= ESC.topY) { wisps.splice(k, 1); continue; }
           }
-          if (inGrid(w.x, w.y) && !inPlaqueRect(w.x, w.y)) next.set(idxOf(w.x, w.y), w.colr);
+          if (inGrid(w.x, w.y)) next.set(idxOf(w.x, w.y), w.colr);
         }
         for (const [i] of bubblePrev) {
           if (!next.has(i)) { dyn[i] = -1; dirty.add(i); }

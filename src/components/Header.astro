@@ -186,7 +186,14 @@
         scrim.hidden = false;
         drawer.hidden = false;
         btn.setAttribute('aria-expanded', 'true');
-        document.body.style.overflow = 'hidden';
+        // Lock background scroll on the viewport scroll container (<html>), NOT
+        // <body>: a non-visible overflow on <body> turns it into its own scroll
+        // container, which re-parents the sticky .nav to the body's scroll-port
+        // (document top) and yanks the header off-screen while scrolled down.
+        // Compensate for the vanishing scrollbar so the page doesn't shift right.
+        const sbw = window.innerWidth - document.documentElement.clientWidth;
+        document.documentElement.style.overflow = 'hidden';
+        if (sbw > 0) document.documentElement.style.paddingRight = sbw + 'px';
         // Measure the bullets' landing spots at the drawer's FINAL position by
         // briefly clearing the transform (no transition), so the flight can run
         // simultaneously with the slide-in.
@@ -223,7 +230,8 @@
           drawer.hidden = true;
           scrim.hidden = true;
           glyph.classList.remove('is-flying');
-          document.body.style.overflow = '';
+          document.documentElement.style.overflow = '';
+          document.documentElement.style.paddingRight = '';
           setExpanded(false);   // reopen starts collapsed
           busy = false;
           btn.focus();

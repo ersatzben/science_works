@@ -37,7 +37,7 @@ const slugs = new Set(pieceFiles.map((f) => f.replace(/\.(md|mdx)$/, '')));
 console.log(bold(`\nChecking ${pieceFiles.length} writing pieces…`));
 
 const REQUIRED = ['title', 'authors', 'date', 'type', 'project'];
-const TYPES = ['essay', 'report', 'longread'];
+const TYPES = ['essay', 'report', 'longread', 'note'];
 
 // Everyone named in people.json (any group) can be an author without a
 // `writers:` entry — their bio resolves automatically.

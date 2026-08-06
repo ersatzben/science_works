@@ -21,8 +21,9 @@ export const SCHOLARLY_TYPES = {
   // A Long Read is an Essay editorially — longer-form — but structurally identical
   // (same schema.org/CSL vocab); only the human label differs.
   longread: { schemaType: 'Article', signpost: 'https://schema.org/ScholarlyArticle', csl: 'article-magazine', label: 'Long Read' },
-  // Placeholder for the forthcoming taxonomy — uncomment + enum-widen when ready:
-  // note:     { schemaType: 'Article', signpost: 'https://schema.org/ScholarlyArticle', csl: 'article-magazine', label: 'Note' },
+  // A Note is a shorter piece; scholarly-metadata-wise it presents the same way
+  // as an Essay (Article/ScholarlyArticle/article-magazine) — only the label differs.
+  note:     { schemaType: 'Article', signpost: 'https://schema.org/ScholarlyArticle', csl: 'article-magazine', label: 'Note' },
 };
 
 export function scholarlyType(type) {

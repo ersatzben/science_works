@@ -4,8 +4,8 @@
 // module holds everything that ISN'T the painted artwork:
 //
 //   • the logical grid dimensions and theme colour
-//   • the plaque rectangle (mosaic border is painted in the artwork;
-//     the interior is force-blanked at runtime so text stays legible)
+//   • the hero-text footprint (editor guide only — the text box is
+//     transparent and the artwork itself makes space for the type)
 //   • parameters for the animated overlays, which are drawn on top of
 //     the artwork at runtime: the DNA helix (region + twist), the chart
 //     data lines (drawn inside the painted panel), and the steam train
@@ -39,9 +39,12 @@ export const splashConfig = {
   // mosaic and figures materialise over it — no grout-coloured "ghosts".
   baseTile: '#fffbf7',
 
-  // Central plaque: interior is kept blank at runtime; .hero-box (the
-  // DOM text) is positioned over it using these same cell fractions.
-  plaque: { x: 35, y: 27, w: 56, h: 23, border: 0 },   // borderless: .hero-box carries its own background (kept in sync with .hero-box CSS)
+  // Hero text footprint — where .hero-box (the DOM text) sits, in cells.
+  // The engine ignores this entirely (the box is fully transparent and
+  // the artwork itself makes space for the text); it exists only so the
+  // canvas editor can show authors where the text will land. Keep in
+  // sync with the .hero-box percentages in src/pages/index.astro.
+  plaque: { x: 35, y: 32, w: 56, h: 16, border: 0 },
 
   // DNA double helix — fully procedural within its region. Artwork in
   // this region acts as a backdrop behind the strands. The region may

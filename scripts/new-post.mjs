@@ -43,8 +43,8 @@ const slugify = (s) =>
 
 const slug = opt('--slug', slugify(title));
 const type = opt('--type', 'essay');
-if (!['essay', 'report', 'longread'].includes(type)) {
-  console.error(`✗ --type must be essay, report, or longread (got "${type}")`);
+if (!['essay', 'report', 'longread', 'note'].includes(type)) {
+  console.error(`✗ --type must be essay, report, longread, or note (got "${type}")`);
   process.exit(1);
 }
 const project = opt('--project', 'TODO — set the project name');
