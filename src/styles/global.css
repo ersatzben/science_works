@@ -1013,21 +1013,12 @@
       background: var(--bg-secondary);   /* opaque panel so the art behind doesn't show through */
       overflow: hidden;             /* clip any message-driven height change; no overflow */
     }
-    /* Image slot: 24x24 micro-pixel grid, filled by the shared JS. */
+    /* Image slot: the footer-mosaic SVG, sized to sit inside the 145px box
+       like the old 24x22 micro-pixel grid it replaced. */
     .signup-pix {
       flex: 0 0 auto;
-      --card-pix-cols: 24;
-      --card-pix-rows: 22;
-      --card-pix-cell: var(--micro-block-size);
-      --card-pix-gap: var(--micro-block-gap);
-      --card-pix-radius: var(--micro-block-radius);
-      --card-pix-color: var(--theme);
-      width: calc(var(--card-pix-cols) * var(--card-pix-cell)
-                  + (var(--card-pix-cols) - 1) * var(--card-pix-gap));
-      display: grid;
-      grid-template-columns: repeat(var(--card-pix-cols), var(--card-pix-cell));
-      grid-auto-rows: var(--card-pix-cell);
-      gap: var(--card-pix-gap);
+      width: auto;
+      height: 118px;
     }
     #signup h3 {
       font-family: 'Copperplate', serif;

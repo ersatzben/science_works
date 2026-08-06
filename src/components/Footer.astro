@@ -84,7 +84,7 @@ import footerBand from '../data/decor/footer-band.json';
         </form>
       </div>
     </div>
-    <div class="signup-pix" aria-hidden="true"></div>
+    <img class="signup-pix" src="/assets/images/decor/footer-mosaic.svg" alt="" aria-hidden="true" />
   </div>
     </div>
     <div class="footer-bottom">
@@ -138,49 +138,6 @@ import footerBand from '../data/decor/footer-band.json';
           try { document.execCommand('copy'); done(); } finally { ta.remove(); }
         }
       });
-    })();
-</script>
-
-<script is:inline>
-    (function () {
-      const grid = document.querySelector('.signup-pix');
-      if (!grid) return;
-      const ART = [
-        '111111111111111111111111',
-        '111111111111100011111111',
-        '111111111110000001111111',
-        '111111111100000000111111',
-        '111111111100000000111111',
-        '111111111110000001111111',
-        '111111111110000011111111',
-        '111111111110001111111111',
-        '111111111111111110011111',
-        '111111111110001110011111',
-        '111111110101000111111111',
-        '111111110100000101111111',
-        '111111100100000111111111',
-        '111000000110001111111111',
-        '110000000011110000111111',
-        '110000000111111000001111',
-        '110000000111011000000111',
-        '110000000111111000000011',
-        '111000001111111000000011',
-        '111110011111111100000111',
-        '111111111111111110001111',
-        '111111111111111111111111'
-      ];
-      const RED = 'var(--theme)', WHITE = 'var(--almost-white)';
-      const frag = document.createDocumentFragment();
-      for (let r = 0; r < ART.length; r++) {
-        const row = ART[r];
-        for (let c = 0; c < row.length; c++) {
-          const cell = document.createElement('div');
-          cell.className = 'pix-cell';
-          cell.style.background = row[c] === '1' ? RED : WHITE;
-          frag.appendChild(cell);
-        }
-      }
-      grid.appendChild(frag);
     })();
 </script>
 
