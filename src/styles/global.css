@@ -583,11 +583,14 @@
       gap: 40px;
       margin-right: auto;
       margin-bottom: 20px;         /* keep the signup box pushed to the right */
+      min-width: 0;                /* allow the block to narrow so the signup box never clips */
     }
-    /* Section 1 is a fixed column; the contact sentence wraps to its width. */
+    /* Section 1 starts at 260px but may narrow on tighter viewports; the
+       contact sentence wraps to whatever width it gets. */
     .footer-brand {
       width: 260px;
-      flex-shrink: 0;
+      flex-shrink: 1;
+      min-width: 0;
     }
     /* Wordmark as plain text (no link, no logo image) — same face as the header. */
     .footer-wordmark {
@@ -1012,6 +1015,9 @@
       border-radius: 4px;
       background: var(--bg-secondary);   /* opaque panel so the art behind doesn't show through */
       overflow: hidden;             /* clip any message-driven height change; no overflow */
+      flex-shrink: 0;               /* never squeeze the box below its content — the row's
+                                       flexbox otherwise clips the title and art on narrower
+                                       desktops; .footer-brand yields instead */
     }
     /* Image slot: the footer-mosaic SVG, sized to sit inside the 145px box
        like the old 24x22 micro-pixel grid it replaced. */
