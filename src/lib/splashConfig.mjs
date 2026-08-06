@@ -138,23 +138,26 @@ export const splashConfig = {
     relightMs: 500,                                   // outward ray sweep
   },
 
-  // Petri dish drip — the pipette above the dish periodically releases a
-  // red droplet: it swells pale at the tip, saturates, falls into the
-  // dish and lands with a brief warm pulse through the red culture. All
-  // geometry is discovered from the artwork at boot: the dish from its
-  // rim tone (bbox), the pipette tip as the lowest red cell above the
-  // rim, and the culture as red-family cells inside the dish. Repainting
-  // the dish Just Works.
+  // Petri dish drip — the small red square painted mid-dish IS the
+  // landed drop, and the animation completes its story: the square soaks
+  // away into the agar, a fresh drop swells at the pipette tip, falls,
+  // and lands exactly where the square was — which flashes bright and
+  // settles back to the painted artwork. The cultures never move. All
+  // geometry is discovered at boot: the dish from its rim tone, the
+  // pipette tip as the lowest red cell above the rim, and the splash
+  // square as the small red blob nearest the tip's column inside the
+  // dish. Repainting the dish Just Works.
   petri: {
     x: 92, y: 27, w: 22, h: 21,
     rim: ['#87adcf'],                                  // dish rim tone → bbox
-    colony: ['#c9252e', '#b51747', '#f45e57', '#eb3131', '#ef423d', '#fb857e', '#f8bdb9'],
+    // The red family: the pipette's charge and the splash square.
+    reds: ['#c9252e', '#b51747', '#f45e57', '#eb3131', '#ef423d', '#fb857e', '#f8bdb9'],
     dropPal: ['#f8bdb9', '#eb3131'],                   // forming → falling drop
-    dropDepth: 5,                                      // rows below rim top where it lands
-    idleMs: 5000, idleJitter: 3000,                    // between drips: 5–8s
+    idleMs: 5000, idleJitter: 3000,                    // splash rests: 5–8s
+    absorbMs: 450,                                     // dish sits empty before the next drop
     swellMs: 500,                                      // drop forming at the tip
     stepMs: 100,                                       // fall speed per cell
-    pulseMs: 600,                                      // culture pulse after landing
+    flashMs: 250,                                      // splash brightens as it lands
   },
 
   // Steam train — crosses the painted viaduct. `row` is the loco's top

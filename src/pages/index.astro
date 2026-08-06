@@ -2452,18 +2452,24 @@ const orgJsonLd = {
         }
       }
 
-      // --- petri dish: pipette drip + culture pulse --------------------------
-      // Overlay-only, like the bulb: the painted dish is the resting
-      // state. Discovery at boot — dish bbox from the rim tone, pipette
-      // tip as the lowest red-family cell above the rim, red culture as
-      // red-family cells inside the dish.
+      // --- petri dish: the painted splash square completes its drip cycle ----
+      // The small red square painted mid-dish is a landed drop. The
+      // animation plays its story on the overlay: the square soaks away,
+      // a fresh drop swells at the pipette tip, falls, lands where the
+      // square was — flash, settle, rest. The cultures never move.
+      // Discovery at boot: dish bbox from the rim tone; tip = lowest
+      // red-family cell above the rim; splash = the small red component
+      // (2–8 cells, 4-connected) nearest the tip's column inside the
+      // dish. Each splash cell learns its "soaked away" colour from its
+      // non-red neighbours — the agar it sits on.
       const PETRI = CFG.petri;
-      const petriColony = [];
+      const petriSplash = [];              // {i, off} the painted landed drop
       let petriSpawn = null;               // [x, y] where drops form
-      let petriLand = 0;                   // row where a falling drop vanishes
+      let petriDropX = 0;                  // column the drop falls down
+      let petriLand = 0;                   // row where the drop merges/vanishes
       if (PETRI) {
         const rimT = new Set(PETRI.rim.map(hex2int));
-        const colT = new Set(PETRI.colony.map(hex2int));
+        const redT = new Set(PETRI.reds.map(hex2int));
         let rx0 = 1e9, rx1 = -1, ry0 = 1e9;
         for (let y = PETRI.y; y < PETRI.y + PETRI.h; y++)
           for (let x = PETRI.x; x < PETRI.x + PETRI.w; x++)
@@ -2472,13 +2478,14 @@ const orgJsonLd = {
               if (y < ry0) ry0 = y;
             }
         if (rx1 >= 0) {
-          petriLand = ry0 + (PETRI.dropDepth || 5);
+          // Pipette tip: the lowest red cells at or above the rim's lip.
           const tipXs = [];
           let tipY = -1;
+          const dishReds = new Map();      // idx → [x, y], reds inside the dish
           for (let y = PETRI.y; y < PETRI.y + PETRI.h; y++) {
             for (let x = rx0 + 1; x < rx1; x++) {
-              if (!inGrid(x, y) || !colT.has(cells[idxOf(x, y)])) continue;
-              if (y > ry0 + 2) petriColony.push(idxOf(x, y));
+              if (!inGrid(x, y) || !redT.has(cells[idxOf(x, y)])) continue;
+              if (y > ry0 + 2) dishReds.set(idxOf(x, y), [x, y]);
               else if (y > tipY) { tipY = y; tipXs.length = 0; tipXs.push(x); }
               else if (y === tipY) tipXs.push(x);
             }
@@ -2486,18 +2493,72 @@ const orgJsonLd = {
           if (tipY >= 0) {
             const tx = Math.round(tipXs.reduce((a, b) => a + b, 0) / tipXs.length);
             petriSpawn = [tx, tipY];
+            petriLand = ry0 + 5;           // fallback if no splash square exists
+            petriDropX = tx;
+            // Group the dish's reds into 4-connected components; the
+            // splash is the small one nearest the tip's column (the big
+            // culture blobs are excluded by size and never touched).
+            const compOf = new Map();
+            const groups = [];
+            for (const [i0, [x0, y0]] of dishReds) {
+              if (compOf.has(i0)) continue;
+              const g = [];
+              const stack = [[i0, x0, y0]];
+              compOf.set(i0, g);
+              while (stack.length) {
+                const [i, x, y] = stack.pop();
+                g.push([i, x, y]);
+                for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+                  const ni = idxOf(x + dx, y + dy);
+                  if (dishReds.has(ni) && !compOf.has(ni)) {
+                    compOf.set(ni, g);
+                    stack.push([ni, x + dx, y + dy]);
+                  }
+                }
+              }
+              groups.push(g);
+            }
+            let bestG = null, bestD = 1e9;
+            for (const g of groups) {
+              if (g.length < 2 || g.length > 8) continue;
+              const cx = g.reduce((a, c) => a + c[1], 0) / g.length;
+              const d = Math.abs(cx - tx);
+              if (d < bestD) { bestD = d; bestG = g; }
+            }
+            if (bestG) {
+              let top = 1e9, sx = 0;
+              for (const [i, x, y] of bestG) {
+                if (y < top) top = y;
+                sx += x;
+                // "Soaked away" tone: the commonest non-red neighbour —
+                // the agar around the square.
+                const tally = new Map();
+                for (let dy = -1; dy <= 1; dy++) {
+                  for (let dx = -1; dx <= 1; dx++) {
+                    if ((!dx && !dy) || !inGrid(x + dx, y + dy)) continue;
+                    const n = cells[idxOf(x + dx, y + dy)];
+                    if (n >= 0 && !redT.has(n)) tally.set(n, (tally.get(n) || 0) + 1);
+                  }
+                }
+                let off = BASE_TILE, best = 0;
+                for (const [c, k] of tally) if (k > best) { best = k; off = c; }
+                petriSplash.push({ i, off });
+              }
+              petriLand = top;
+              petriDropX = Math.round(sx / bestG.length);
+            }
           }
         }
       }
       const petriDropPal = PETRI ? PETRI.dropPal.map(hex2int) : [];
-      let petriPhase = 0;                  // 0 idle · 1 swell · 2 fall · 3 pulse
+      let petriPhase = 0;                  // 0 rest · 1 absorbed · 2 swell · 3 fall · 4 flash
       let petriNext = 0;                   // current phase deadline
       let petriDropI = -1;                 // cell currently holding the drop
       let petriDropY = 0;
-      function petriDropAt(y) {
+      function petriDropAt(x, y) {
         if (petriDropI >= 0) { dyn[petriDropI] = -1; dirty.add(petriDropI); petriDropI = -1; }
         if (y >= 0) {
-          petriDropI = idxOf(petriSpawn[0], y);
+          petriDropI = idxOf(x, y);
           dyn[petriDropI] = petriDropPal[petriDropPal.length - 1];
           dirty.add(petriDropI);
         }
@@ -2506,32 +2567,41 @@ const orgJsonLd = {
         if (!petriSpawn) return;
         if (petriNext === 0) petriNext = vnow + PETRI.idleMs + Math.random() * PETRI.idleJitter;
         if (petriPhase === 0 && vnow >= petriNext) {
-          // a drop forms just under the tip, pale at first
+          // the previous drop soaks away into the agar
+          for (const s of petriSplash) { dyn[s.i] = s.off; dirty.add(s.i); }
+          petriPhase = 1;
+          petriNext = vnow + (petriSplash.length ? PETRI.absorbMs || 450 : 0);
+        } else if (petriPhase === 1 && vnow >= petriNext) {
+          // a new drop forms just under the tip, pale at first
           petriDropI = idxOf(petriSpawn[0], petriSpawn[1] + 1);
           dyn[petriDropI] = petriDropPal[0];
           dirty.add(petriDropI);
-          petriPhase = 1;
+          petriPhase = 2;
           petriNext = vnow + (PETRI.swellMs || 500);
-        } else if (petriPhase === 1 && vnow >= petriNext) {
+        } else if (petriPhase === 2 && vnow >= petriNext) {
           // saturated and heavy — let it fall
           petriDropY = petriSpawn[1] + 1;
-          petriDropAt(petriDropY);
-          petriPhase = 2;
+          petriDropAt(petriSpawn[0], petriDropY);
+          petriPhase = 3;
           petriNext = vnow + (PETRI.stepMs || 100);
-        } else if (petriPhase === 2 && vnow >= petriNext) {
+        } else if (petriPhase === 3 && vnow >= petriNext) {
           petriDropY += 1;
-          if (petriDropY > petriLand) {
-            // landed: the culture drinks it in — a brief warm pulse
-            petriDropAt(-1);
-            for (const i of petriColony) { dyn[i] = mix(cells[i], WHITE, 0.35); dirty.add(i); }
-            petriPhase = 3;
-            petriNext = vnow + (PETRI.pulseMs || 600);
+          // drift a cell sideways toward the splash column as it falls
+          const dx = petriSpawn[0] + Math.sign(petriDropX - petriSpawn[0]) *
+            Math.min(Math.abs(petriDropX - petriSpawn[0]), petriDropY - petriSpawn[1] - 1);
+          if (petriDropY >= petriLand) {
+            // landed: the splash square returns with a bright flash
+            petriDropAt(0, -1);
+            for (const s of petriSplash) { dyn[s.i] = mix(cells[s.i], WHITE, 0.4); dirty.add(s.i); }
+            petriPhase = 4;
+            petriNext = vnow + (PETRI.flashMs || 250);
           } else {
-            petriDropAt(petriDropY);
+            petriDropAt(dx, petriDropY);
             petriNext = vnow + (PETRI.stepMs || 100);
           }
-        } else if (petriPhase === 3 && vnow >= petriNext) {
-          for (const i of petriColony) { dyn[i] = -1; dirty.add(i); }
+        } else if (petriPhase === 4 && vnow >= petriNext) {
+          // settle back to the painted artwork and rest
+          for (const s of petriSplash) { dyn[s.i] = -1; dirty.add(s.i); }
           petriPhase = 0;
           petriNext = vnow + PETRI.idleMs + Math.random() * PETRI.idleJitter;
         }
@@ -2623,9 +2693,9 @@ const orgJsonLd = {
         for (const i of bulbCross) dyn[i] = -1;
         bulbPhase = 0;
         bulbNext = 0;
-        // Petri dish rests as painted: no drop mid-air, culture unpulsed.
+        // Petri dish rests as painted: no drop mid-air, splash square shown.
         if (petriDropI >= 0) { dyn[petriDropI] = -1; petriDropI = -1; }
-        for (const i of petriColony) dyn[i] = -1;
+        for (const s of petriSplash) dyn[s.i] = -1;
         petriPhase = 0;
         petriNext = 0;
         repaintAll();
