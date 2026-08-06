@@ -559,14 +559,14 @@
       grid-auto-rows: var(--small-block-size);
       gap: var(--small-block-gap);
       justify-content: start;      /* left-align: the band art starts at the left edge */
-      padding: 18px 0;
+      padding: 0 0 18px;
     }
     /* 2) Middle band: info block on the left, mailing-list signup on the right. */
     .footer-signup {
       flex: 1;
       width: 100%;
       box-sizing: border-box;
-      padding: 0 40px;
+      padding: 18px 60px 36px;
       display: flex;
       align-items: center;        /* vertical-centre both groups in the band */
       justify-content: flex-end;  /* push the signup box to the right of the viewport */
@@ -599,17 +599,24 @@
       font-weight: bold;
       text-transform: uppercase;
       letter-spacing: -0.06em;
-      font-size: 20px;
+      font-size: 28px;
       line-height: 1;
       color: var(--theme);
-      margin-top: 20px; 
+      margin-top: 20px;
     }
     .footer-contact {
       margin: 14px 0 0;
-      font-size: 13px;
-      line-height: 1.6;
+      font-size: 16px;          /* match the Explore/Connect link size */
+      line-height: 1.8;
       color: var(--text);
     }
+    /* The copy-email link lives here now (moved from Connect) — style it like
+       the other footer links, since it no longer inherits their rules. */
+    .footer-contact a {
+      color: var(--text);
+      text-decoration: none;
+    }
+    .footer-contact a:hover { color: var(--theme); text-decoration: underline; text-underline-offset: 2px; }
     /* Links styled like body-copy links elsewhere on the site. */
     .footer-contact a {
       color: var(--theme);
@@ -617,21 +624,23 @@
       text-decoration: none;
     }
     .footer-contact a:hover { text-decoration: underline; text-underline-offset: 2px; }
-    /* Subtle divider between the two sections — deliberately not full height,
-       and kept vertically centred while the sections themselves top-align. */
+    /* Subtle divider between the sections — pinned to the top so it starts
+       level with the wordmark / section titles (their 20px top margin),
+       rather than floating vertically centred. Tune via height. */
     .footer-divider {
-      align-self: center;
+      align-self: flex-start;
+      margin-top: 20px;
       width: 1px;
-      height: 160px;
+      height: 175px;
       background: var(--text);
       opacity: 0.2;
     }
     .footer-projects h3 {
       font-family: 'Copperplate', serif;
       font-weight: normal;
-      font-size: 18px;
+      font-size: 21px;
       color: var(--text);
-      margin: 20px 0 10px;
+      margin: 20px 0 18px;
     }
     .footer-projects ul {
       list-style: none;
@@ -639,7 +648,7 @@
       padding: 0;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 14px;
     }
     .footer-projects a {
       color: var(--text);
@@ -652,7 +661,7 @@
        glyph as the header drawer's carets, painted --theme via a mask so no
        extra markup is needed. The email address is excluded: its ::after is
        the "Copied!" tag below. */
-    .footer-projects a:not(.footer-email)::after {
+    /* .footer-projects a:not(.footer-email)::after {
       content: '';
       display: inline-block;
       width: 6px;
@@ -662,12 +671,14 @@
       mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 14'%3E%3Cpath d='M1 1l6 6-6 6' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
       margin-left: 8px;
       transition: transform 0.15s ease;
-    }
+    } */
     .footer-projects a:not(.footer-email):hover::after { transform: translateX(2px); }
     /* Explore is a fixed-width column: wider than its content for breathing
        room, with each link a flex row so the chevrons right-align with each
        other rather than trailing labels of different lengths. */
-    .footer-explore { width: 150px; }
+    .footer-explore { width: 150px; padding-left: 64px; box-sizing: content-box; }
+    /* Breathing room after Connect, before the signup box. */
+    .footer-connect { padding-right: 48px; }
     .footer-explore a {
       display: flex;
       align-items: center;
@@ -1015,10 +1026,37 @@
       border-radius: 4px;
       background: var(--bg-secondary);   /* opaque panel so the art behind doesn't show through */
       overflow: hidden;             /* clip any message-driven height change; no overflow */
-      flex-shrink: 0;               /* never squeeze the box below its content — the row's
-                                       flexbox otherwise clips the title and art on narrower
-                                       desktops; .footer-brand yields instead */
     }
+    /* Column wrapping the signup box, with the back-to-top link right-aligned
+       above it. Never squeezed below its content — the row's flexbox otherwise
+       clips the box's title and art on narrower desktops; .footer-brand
+       yields instead. The link's own height plus the gap is what nudges the
+       signup box down relative to the info columns. */
+    .signup-col {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 32px;
+      align-self: flex-start;   /* pin to the row top rather than centring… */
+      padding-top: 20px;        /* …then drop to just above where the
+                                   dividers/headings start (30px would be
+                                   exactly level; 20px sits 10px higher) */
+    }
+    .back-to-top {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--theme);
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.15s ease;
+      margin-right: 20px;       /* the signup box has margin-right: 20px — line
+                                   the arrow's edge up with the box edge, not
+                                   the margin edge */
+    }
+    .back-to-top svg { width: 12px; height: auto; fill: currentColor; }
+    .back-to-top:hover { color: var(--darkest-brown); }
     /* Image slot: the footer-mosaic SVG, sized to sit inside the 145px box
        like the old 24x22 micro-pixel grid it replaced. */
     .signup-pix {
@@ -1039,7 +1077,13 @@
 /* ---- Footer mobile overrides (ported from index.html @media 600) ---- */
 @media (max-width: 600px) {
   .footer-signup { padding: 10px; margin: 0; margin-top: 10px; display: block; }
-  #signup.sib-form { margin: -14px 0 0; }
+  /* The wrapper column goes back to plain block flow so the signup box keeps
+     its full mobile width; the back-to-top link sits right-aligned above it. */
+  .signup-col { display: block; padding-top: 0; }
+  /* The signup box pulls itself up 14px (margin: -14px below), so the link
+     needs a generous margin for any real daylight: 28px here nets ~14px. */
+  .back-to-top { display: flex; justify-content: flex-end; margin-bottom: 28px; margin-right: 0; }
+  #signup.sib-form { margin: -14px 0 24px; }   /* bottom margin = space below the box */
   #signup h3 { margin-bottom: 0px; }
   #signup .sib-form-block { margin-top: 10px; }
   .signup-pix { display: none; }

@@ -10,7 +10,8 @@ import footerBand from '../data/decor/footer-band.json';
       <div class="footer-info">
         <div class="footer-brand">
           <span class="footer-wordmark">SCIENCE WORKS</span>
-          <p class="footer-contact">Science Works is an independent, non-partisan, not-for-profit policy and research studio focused on accelerating British science and technology.</p>
+          <p class="footer-contact">Drop us a line at <br>
+            <a href="#" class="footer-email" title="Copy email address">contact@science.works</a></p>
         </div>
         <div class="footer-divider" aria-hidden="true"></div>
         <nav class="footer-projects footer-explore" aria-label="Explore">
@@ -19,21 +20,26 @@ import footerBand from '../data/decor/footer-band.json';
             <li><a href="/about">About</a></li>
             <li><a href="/projects">Projects</a></li>
             <li><a href="/writing">Writing</a></li>
-            <li><a href="https://surveys.science.works">Surveys</a></li>
-
+          </ul>
+        </nav>
+        <nav class="footer-projects footer-connect" aria-label="Connect">
+          <h3>Connect</h3>
+          <!-- Mirrors the homepage community CTAs (same destinations). -->
+          <ul>
+            <li><a href="https://luma.com/scienceworks" target="_blank" rel="noopener">Build Club</a></li>
+            <li><a href="/reorganising-research">Live Calls</a></li>
+            <li><a href="https://surveys.science.works">Complete a Survey</a></li>
           </ul>
         </nav>
         <div class="footer-divider" aria-hidden="true"></div>
-        <nav class="footer-projects" aria-label="Connect">
-          <h3>Connect</h3>
-          <ul>
-            <li>Drop us a line at <br>
-              <a href="#" class="footer-email" title="Copy email address">contact@science.works</a></li>
-            <li><a href="https://x.com/sci_works">Follow us on X</a></li>
 
-          </ul>
-        </nav>
       </div>
+  <!-- Column holding the back-to-top link right-aligned above the signup box. -->
+  <div class="signup-col">
+    <a class="back-to-top" href="#">back to top
+      <!-- Pixel-stepped up-chevron, echoing the homepage mosaic-gallery arrows. -->
+      <svg viewBox="0 0 68 38" aria-hidden="true"><rect x="0" y="30" width="8" height="8" rx="1.5" /><rect x="10" y="20" width="8" height="8" rx="1.5" /><rect x="20" y="10" width="8" height="8" rx="1.5" /><rect x="30" y="0" width="8" height="8" rx="1.5" /><rect x="40" y="10" width="8" height="8" rx="1.5" /><rect x="50" y="20" width="8" height="8" rx="1.5" /><rect x="60" y="30" width="8" height="8" rx="1.5" /></svg>
+    </a>
   <div id="signup" class="sib-form">
     <div id="sib-form-container" class="sib-form-container">
       <div id="error-message" class="sib-form-message-panel">
@@ -86,6 +92,7 @@ import footerBand from '../data/decor/footer-band.json';
     </div>
     <img class="signup-pix" src="/assets/images/decor/footer-mosaic.svg" alt="" aria-hidden="true" />
   </div>
+  </div>
     </div>
     <div class="footer-bottom">
     <div class="footer-inner">
@@ -109,6 +116,17 @@ import footerBand from '../data/decor/footer-band.json';
     </div>
     </div>
   </footer>
+
+<script is:inline>
+    (function () {
+      // Back to top: smooth-scroll instead of the instant jump href="#" gives.
+      const top = document.querySelector('.back-to-top');
+      if (top) top.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    })();
+</script>
 
 <script is:inline>
     (function () {

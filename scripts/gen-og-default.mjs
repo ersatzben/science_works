@@ -113,8 +113,21 @@ stamp(ART.uk);
     const y = R.y + r, t = r * (D.freq || 0.45);
     const sa = Math.sin(t), sb = Math.sin(t + Math.PI);
     const xa = Math.round(cx + amp * sa), xb = Math.round(cx + amp * sb);
-    if (r % 3 === 1 && Math.abs(xa - xb) >= 4) {
-      for (let x = Math.min(xa, xb) + 2; x < Math.max(xa, xb); x++) put(x, y, dcol(D.palRung, r * 31 + x));
+    // Base pairs: complementary colour pairs with a 1-cell centre gap
+    // and lighter tip cells (mirrors the runtime renderDna in
+    // index.astro).
+    if (r % 2 === 1 && Math.abs(xa - xb) >= 5) {
+      const lo = Math.min(xa, xb), hi = Math.max(xa, xb);
+      const pairHash = hashStr('pair' + r);
+      const pair = D.rungPairs[pairHash % D.rungPairs.length];
+      const flip = (pairHash >> 3) & 1;
+      const [famL, famR] = flip ? [pair.b, pair.a] : [pair.a, pair.b];
+      const x0 = lo + 2, x1 = hi - 1;
+      const gapX = x0 + ((x1 - x0) >> 1);
+      for (let x = x0; x < gapX; x++)
+        put(x, y, x === gapX - 1 ? famL.tip : dcol(famL.main, r * 31 + x));
+      for (let x = gapX + 1; x <= x1; x++)
+        put(x, y, x === gapX + 1 ? famR.tip : dcol(famR.main, r * 31 + x));
     }
     const strands = sa >= sb ? [[xb, D.palB], [xa, D.palA]] : [[xa, D.palA], [xb, D.palB]];
     for (const [sx, pal] of strands) {

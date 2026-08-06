@@ -14,9 +14,10 @@ import resEconSrc from '../data/projects/the-research-economy.json';
 import softSciSrc from '../data/projects/software-for-science.json';
 import britSciSrc from '../data/projects/the-story-of-british-science.json';
 import { cropCols, paletteGridToBitmap } from '../lib/bitmap.js';
-// CTA-card icons: Laura's spanner and megaphone mosaics (Format A JSON).
+// CTA-card icons: Laura's spanner, megaphone, and survey mosaics (Format A JSON).
 import ctaSpanner from '../data/decor/cta-spanner.json';
 import ctaMegaphone from '../data/decor/cta-megaphone.json';
+import ctaSurvey from '../data/decor/cta-survey.json';
 // The newer four come in {cols,rows,palette,grid} format → convert to a bitmap.
 const aiSciArt = paletteGridToBitmap(aiSciSrc);
 const resEconArt = paletteGridToBitmap(resEconSrc);
@@ -74,6 +75,7 @@ const trimGrid = ({ cols, rows, palette, grid }) => {
 };
 const ctaSpannerArt = paletteGridToBitmap(trimGrid(ctaSpanner));
 const ctaMegaphoneArt = paletteGridToBitmap(trimGrid(ctaMegaphone));
+const ctaSurveyArt = paletteGridToBitmap(trimGrid(ctaSurvey));
 
 // In Focus + carousel are driven by the writing collection (same source as /writing).
 const all = (await getCollection('writing'))
@@ -471,6 +473,12 @@ const orgJsonLd = {
               </span>
               <span class="cta-text">Live calls for essays, evidence, &amp; opportunities to contribute</span>
             </a>
+            <a class="cta-card" href="https://surveys.science.works">
+              <span class="cta-icon" aria-hidden="true">
+                <GridArt bitmap={ctaSurveyArt} fit="contain" />
+              </span>
+              <span class="cta-text">Complete a <b>survey</b> to help us prioritise our work</span>
+            </a>
           </div>
 
         </div>
@@ -545,7 +553,7 @@ const orgJsonLd = {
       /* 0 = fully see-through, 1 = solid --almost-white. Tune freely. */
       --hero-box-opacity: 0.0;
       position: absolute;
-      left: 24.3056%;              /* 35 / 144 */
+      left: 25.0000%;              /* 36 / 144 */
       top: 43.8356%;               /* 32 / 73  */
       width: 38.8889%;             /* 56 / 144 */
       height: 21.9178%;            /* 16 / 73  */
@@ -585,7 +593,7 @@ const orgJsonLd = {
     .hero-rule {
       width: 90%;
       border-top: 1px solid var(--theme);
-      margin: 2% 0 2.5%;
+      margin: 1.6% 0 2.3%;
     }
     .hero-tag {
       font-family: 'DM Sans', sans-serif;
@@ -1459,7 +1467,7 @@ const orgJsonLd = {
     }
 
     /* ---------- Community band: mosaic gallery + join CTAs ---------- */
-    .community { padding: 70px 0 90px; background: #fff; }
+    .community { padding: 70px 0 100px; background: #fff; }
     /* Three columns: gallery viewer | gallery blurb | join cards. */
     .community-grid {
       display: grid;
@@ -1482,17 +1490,19 @@ const orgJsonLd = {
        Top-aligned with the text columns (same 30px drop) so the frame sits
        level with the "Mosaic Gallery" heading; the two-row layout below
        1080px reverts to vertical centring against the blurb. */
-    .mg-viewer { display: flex; align-items: center; gap: 14px; align-self: start; margin-top: 30px; }
+    .mg-viewer { display: flex; align-items: center; gap: 14px; align-self: start; margin-top: 32px; }
     .mg-frame {
       background: var(--almost-white);
       border: 1px solid var(--border-grey);
-      border-radius: 4px;
+      border-radius: 3px;
       padding: 8px;
+      
     }
     .mg-canvas {
-      width: 234px; aspect-ratio: 1;   /* 90% of the original 260px */
+      width: 250px; aspect-ratio: 1;   
       display: grid;
-      grid-template-columns: repeat(20, 1fr); grid-template-rows: repeat(20, 1fr);
+      grid-template-columns: repeat(20, 1fr); 
+      grid-template-rows: repeat(20, 1fr);
       gap: 2px;
     }
     .mg-cell { border-radius: 2px; }
@@ -1514,13 +1524,13 @@ const orgJsonLd = {
     .mg-text p {
       font-family: 'Antique Olive', sans-serif; font-weight: 300;
       font-size: 15px; line-height: 1.5; color: var(--text);
-      margin: 0 0 16px; max-width: 480px;
+      margin: 25px 0 16px; max-width: 480px;
     }
     .mg-text p:last-child { margin-bottom: 0; }
     /* Mobile can't use the mosaic maker (it's desktop-only on /contact), so
        the submit line swaps wording below 600px. */
     .mg-submit-mobile { display: none; }
-    .mg-link { color: var(--text); font-weight: 500; }
+    .mg-link { color: var(--text); font-weight: 500; text-decoration: none; }
     .mg-link:hover { color: var(--theme); }
 
     /* Join cards: pixel icon in a pale box + one line of text, whole card clickable.
@@ -1533,12 +1543,13 @@ const orgJsonLd = {
       align-self: stretch;
       border-left: 1px solid var(--border-grey);
       padding-left: 46px;
+      padding-bottom: 20px;
     }
     .cta-card {
       display: flex; align-items: center; gap: 16px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-grey); border-radius: 4px;
-      padding: 12px 16px; margin-bottom: 14px;
+      background: var(--almost-white);
+      border: 1px solid var(--border-grey); border-radius: 3px;
+      padding: 5px 8px; margin-bottom: 8px;
       text-decoration: none;
       transition: border-color 0.15s ease;
     }
@@ -1972,7 +1983,10 @@ const orgJsonLd = {
       let dnaStart = 0;
       const dnaPalA = DNA.palA.map(hex2int);
       const dnaPalB = DNA.palB.map(hex2int);
-      const dnaPalR = DNA.palRung.map(hex2int);
+      const dnaPairs = DNA.rungPairs.map((p) => ({
+        a: { main: p.a.main.map(hex2int), tip: hex2int(p.a.tip) },
+        b: { main: p.b.main.map(hex2int), tip: hex2int(p.b.tip) },
+      }));
       let dnaPrev = new Map();
       function dnaColor(p, r) { return p[hashStr('dna' + r) % p.length]; }
       function renderDna(phase, maxRow) {
@@ -1989,9 +2003,27 @@ const orgJsonLd = {
           const sa = Math.sin(t), sb = Math.sin(t + Math.PI);
           const xa = Math.round(cx + amp * sa);
           const xb = Math.round(cx + amp * sb);
-          if (r % 3 === 1 && Math.abs(xa - xb) >= 4) {
+          // Base pairs: two coloured half-segments meeting at a 1-cell
+          // gap, every 2nd row where there's room for half + gap + half.
+          // Each rung is one of the two complementary pair types
+          // (periwinkle–maroon or green–red, never mixed); which type
+          // and which side each family sits on are stable per row. The
+          // cell touching the gap takes the family's lighter tip shade.
+          if (r % 2 === 1 && Math.abs(xa - xb) >= 5) {
             const lo = Math.min(xa, xb), hi = Math.max(xa, xb);
-            for (let x = lo + 2; x < hi; x++) put(x, y, dnaColor(dnaPalR, r * 31 + x));
+            // One hash per row: low bit picks the pair type, a higher bit
+            // the orientation (the low bits of separate hashes correlate
+            // across neighbouring row numbers).
+            const pairHash = hashStr('pair' + r);
+            const pair = dnaPairs[pairHash % dnaPairs.length];
+            const flip = (pairHash >> 3) & 1;
+            const [famL, famR] = flip ? [pair.b, pair.a] : [pair.a, pair.b];
+            const x0 = lo + 2, x1 = hi - 1;      // interior span, touching each strand
+            const gapX = x0 + ((x1 - x0) >> 1);  // the 1-cell gap between the bases
+            for (let x = x0; x < gapX; x++)
+              put(x, y, x === gapX - 1 ? famL.tip : dnaColor(famL.main, r * 31 + x));
+            for (let x = gapX + 1; x <= x1; x++)
+              put(x, y, x === gapX + 1 ? famR.tip : dnaColor(famR.main, r * 31 + x));
           }
           const strands = sa >= sb
             ? [[xb, dnaPalB], [xa, dnaPalA]]
@@ -2085,8 +2117,13 @@ const orgJsonLd = {
       const trainCar = TRAIN.carriage.map(hex2int);
       const trainSteam = TRAIN.steam.map(hex2int);
       const TRAIN_SPEED = 4.0;           // cells per second
-      const TRAIN_PAUSE_MS = 4000;       // rest between crossings
-      let trainStart = 0;
+      const TRAIN_PAUSE_MS = 3000;       // rest between crossings
+      // null = not started: the first tick backdates the clock so the nose
+      // is already at the deck edge — the first sighting lands right when
+      // the tick gate opens, instead of 6s later after the hidden lead-in.
+      // (null, not a negative number: the backdated value is itself
+      // negative early on, and must not trigger the backdate again.)
+      let trainStart = null;
       let trainPrev = new Map();
       function trainCells(front) {
         const cellsOut = new Map();
@@ -2131,6 +2168,10 @@ const orgJsonLd = {
         // carriage tail at front−22) so it enters and exits cleanly
         const span = (TRAIN.x1 - TRAIN.x0) + 48;
         const crossMs = (span / TRAIN_SPEED) * 1000;
+        // First run: backdate the clock past the 24-cell lead-in so the
+        // nose enters the deck immediately. Later cycles keep the full
+        // lead-in, so repeat crossings ease in from off-stage as before.
+        if (trainStart === null) trainStart = vnow - (24 / TRAIN_SPEED) * 1000;
         const el = vnow - trainStart;
         if (el > crossMs + TRAIN_PAUSE_MS) { trainStart = vnow; return; }
         if (el > crossMs) { if (trainPrev.size) applyTrain(new Map()); return; }
@@ -2258,6 +2299,10 @@ const orgJsonLd = {
       const LIGHTS = CFG.lights;
       const lightsPal = LIGHTS ? LIGHTS.pal.map(hex2int) : [];
       const windows = [];
+      // Painted gold windows (winTone cells inside a tower): permanently
+      // lit in the artwork; the animation occasionally switches one off
+      // by overlaying the tower's own body colour, then lets it relight.
+      const paintedWins = [];              // {i, off}
       if (LIGHTS) {
         const solidCell = (x, y) => inGrid(x, y) && cells[idxOf(x, y)] >= 0 && !nearBg(cells[idxOf(x, y)]);
         const gy = LIGHTS.y + LIGHTS.h - 1;
@@ -2270,20 +2315,45 @@ const orgJsonLd = {
           while (top - 1 >= LIGHTS.y && solidCell(x, top - 1)) top--;
           if (bot - top >= 4) runs.set(x, { top, bot });
         }
+        const winT = LIGHTS.winTone ? hex2int(LIGHTS.winTone) : -2;
         for (const [x, run] of runs) {
           const L = runs.get(x - 1), R = runs.get(x + 1);
           for (let y = run.top + 1; y < run.bot; y++) {
             if (!(L && y >= L.top && y <= L.bot && R && y >= R.top && y <= R.bot)) continue;
             if (x % 2 === 0 || y % 2 === 1) continue;   // sparse window lattice
+            // Painted windows are handled by their own off/on cycle below.
+            if (cells[idxOf(x, y)] === winT) continue;
             windows.push(idxOf(x, y));
+          }
+        }
+        // Collect the painted windows, each with its "off" colour: the
+        // most common non-warm solid tone among its neighbours — i.e.
+        // the tower wall around it.
+        const warmT = new Set([winT, ...lightsPal]);
+        for (const [x, run] of runs) {
+          for (let y = run.top; y <= run.bot; y++) {
+            if (cells[idxOf(x, y)] !== winT) continue;
+            const tally = new Map();
+            for (let dy = -1; dy <= 1; dy++) {
+              for (let dx = -1; dx <= 1; dx++) {
+                if (!dx && !dy || !inGrid(x + dx, y + dy)) continue;
+                const n = cells[idxOf(x + dx, y + dy)];
+                if (n >= 0 && !nearBg(n) && !warmT.has(n)) tally.set(n, (tally.get(n) || 0) + 1);
+              }
+            }
+            let off = -1, best = 0;
+            for (const [c, k] of tally) if (k > best) { best = k; off = c; }
+            if (off >= 0) paintedWins.push({ i: idxOf(x, y), off });
           }
         }
       }
       const lit = new Map();               // window idx → lights-out time
+      const darkWins = new Map();          // painted-window idx → relight time
       let nextLight = 0;
+      let nextDark = 0;
       function lightsTick() {
-        if (!windows.length) return;
-        if (vnow >= nextLight) {
+        if (!windows.length && !paintedWins.length) return;
+        if (windows.length && vnow >= nextLight) {
           nextLight = vnow + 3000 + Math.random() * 1000;   // a new light every 3–4s
           if (lit.size < (LIGHTS.maxOn || 8)) {
             const i = windows[(Math.random() * windows.length) | 0];
@@ -2296,6 +2366,174 @@ const orgJsonLd = {
         }
         for (const [i, until] of lit) {
           if (vnow >= until) { lit.delete(i); dyn[i] = -1; dirty.add(i); }
+        }
+        // Painted windows: the mirror image — same rhythm, but these
+        // start lit (the artwork) and occasionally switch off, showing
+        // the tower wall, before relighting.
+        if (paintedWins.length && vnow >= nextDark) {
+          nextDark = vnow + 3000 + Math.random() * 1000;
+          const w = paintedWins[(Math.random() * paintedWins.length) | 0];
+          if (!darkWins.has(w.i) && dyn[w.i] < 0) {
+            darkWins.set(w.i, vnow + 1500 + Math.random() * 4500);
+            dyn[w.i] = w.off;
+            dirty.add(w.i);
+          }
+        }
+        for (const [i, until] of darkWins) {
+          if (vnow >= until) { darkWins.delete(i); dyn[i] = -1; dirty.add(i); }
+        }
+      }
+
+      // --- lightbulb blink ---------------------------------------------------
+      // The bulb, its filament cross and its rays are all painted art;
+      // this overlay only ever hides or dims them, so repainting the bulb
+      // Just Works. Discovery at boot: the glass bbox comes from the ring
+      // tones, the cross is cross-toned cells inside it, and the rays are
+      // ray-toned cells outside it within maxRay of the bulb's centre.
+      const BULBC = CFG.bulb;
+      const bulbRays = [];                 // {i, d} sorted nearest-first
+      const bulbCross = [];
+      let bulbOffTint = -1;
+      if (BULBC) {
+        const toneSet = (list) => new Set(list.map(hex2int));
+        const glassT = toneSet(BULBC.glass), crossT = toneSet(BULBC.cross), rayT = toneSet(BULBC.rays);
+        bulbOffTint = hex2int(BULBC.offCross);
+        let gx0 = 1e9, gy0 = 1e9, gx1 = -1, gy1 = -1;
+        const scan = (fn) => {
+          for (let y = BULBC.y; y < BULBC.y + BULBC.h; y++)
+            for (let x = BULBC.x; x < BULBC.x + BULBC.w; x++)
+              if (inGrid(x, y)) fn(x, y, cells[idxOf(x, y)]);
+        };
+        scan((x, y, v) => {
+          if (glassT.has(v)) {
+            if (x < gx0) gx0 = x; if (x > gx1) gx1 = x;
+            if (y < gy0) gy0 = y; if (y > gy1) gy1 = y;
+          }
+        });
+        if (gx1 >= 0) {
+          const cx = (gx0 + gx1) / 2, cy = (gy0 + gy1) / 2;
+          scan((x, y, v) => {
+            const inGlass = x >= gx0 && x <= gx1 && y >= gy0 && y <= gy1;
+            if (inGlass && crossT.has(v)) bulbCross.push(idxOf(x, y));
+            else if (!inGlass && rayT.has(v)) {
+              const d = Math.hypot(x - cx, y - cy);
+              if (d <= (BULBC.maxRay || 11)) bulbRays.push({ i: idxOf(x, y), d });
+            }
+          });
+          bulbRays.sort((a, b) => a.d - b.d);
+        }
+      }
+      let bulbPhase = 0;                   // 0 lit · 1 dark · 2 relighting
+      let bulbNext = 0;                    // phase end (or relight start)
+      function bulbSet(i, c) { if (dyn[i] !== c) { dyn[i] = c; dirty.add(i); } }
+      function bulbTick() {
+        if (!bulbRays.length) return;
+        if (bulbNext === 0) bulbNext = vnow + BULBC.onMs + Math.random() * BULBC.onJitter;
+        if (bulbPhase === 0 && vnow >= bulbNext) {
+          // blink off: every ray vanishes at once, the cross dims to blue
+          for (const r of bulbRays) bulbSet(r.i, BASE_TILE);
+          for (const i of bulbCross) bulbSet(i, bulbOffTint);
+          bulbPhase = 1;
+          bulbNext = vnow + BULBC.offMs + Math.random() * BULBC.offJitter;
+        } else if (bulbPhase === 1 && vnow >= bulbNext) {
+          // relight: the cross snaps back beige, rays follow outward
+          for (const i of bulbCross) bulbSet(i, -1);
+          bulbPhase = 2;
+          bulbNext = vnow;                 // relight sweep starts now
+        } else if (bulbPhase === 2) {
+          const frac = Math.min(1, (vnow - bulbNext) / (BULBC.relightMs || 500));
+          const dMin = bulbRays[0].d, dMax = bulbRays[bulbRays.length - 1].d;
+          const reach = dMin + (dMax - dMin) * frac;
+          for (const r of bulbRays) { if (r.d <= reach) bulbSet(r.i, -1); }
+          if (frac >= 1) {
+            bulbPhase = 0;
+            bulbNext = vnow + BULBC.onMs + Math.random() * BULBC.onJitter;
+          }
+        }
+      }
+
+      // --- petri dish: pipette drip + culture pulse --------------------------
+      // Overlay-only, like the bulb: the painted dish is the resting
+      // state. Discovery at boot — dish bbox from the rim tone, pipette
+      // tip as the lowest red-family cell above the rim, red culture as
+      // red-family cells inside the dish.
+      const PETRI = CFG.petri;
+      const petriColony = [];
+      let petriSpawn = null;               // [x, y] where drops form
+      let petriLand = 0;                   // row where a falling drop vanishes
+      if (PETRI) {
+        const rimT = new Set(PETRI.rim.map(hex2int));
+        const colT = new Set(PETRI.colony.map(hex2int));
+        let rx0 = 1e9, rx1 = -1, ry0 = 1e9;
+        for (let y = PETRI.y; y < PETRI.y + PETRI.h; y++)
+          for (let x = PETRI.x; x < PETRI.x + PETRI.w; x++)
+            if (inGrid(x, y) && rimT.has(cells[idxOf(x, y)])) {
+              if (x < rx0) rx0 = x; if (x > rx1) rx1 = x;
+              if (y < ry0) ry0 = y;
+            }
+        if (rx1 >= 0) {
+          petriLand = ry0 + (PETRI.dropDepth || 5);
+          const tipXs = [];
+          let tipY = -1;
+          for (let y = PETRI.y; y < PETRI.y + PETRI.h; y++) {
+            for (let x = rx0 + 1; x < rx1; x++) {
+              if (!inGrid(x, y) || !colT.has(cells[idxOf(x, y)])) continue;
+              if (y > ry0 + 2) petriColony.push(idxOf(x, y));
+              else if (y > tipY) { tipY = y; tipXs.length = 0; tipXs.push(x); }
+              else if (y === tipY) tipXs.push(x);
+            }
+          }
+          if (tipY >= 0) {
+            const tx = Math.round(tipXs.reduce((a, b) => a + b, 0) / tipXs.length);
+            petriSpawn = [tx, tipY];
+          }
+        }
+      }
+      const petriDropPal = PETRI ? PETRI.dropPal.map(hex2int) : [];
+      let petriPhase = 0;                  // 0 idle · 1 swell · 2 fall · 3 pulse
+      let petriNext = 0;                   // current phase deadline
+      let petriDropI = -1;                 // cell currently holding the drop
+      let petriDropY = 0;
+      function petriDropAt(y) {
+        if (petriDropI >= 0) { dyn[petriDropI] = -1; dirty.add(petriDropI); petriDropI = -1; }
+        if (y >= 0) {
+          petriDropI = idxOf(petriSpawn[0], y);
+          dyn[petriDropI] = petriDropPal[petriDropPal.length - 1];
+          dirty.add(petriDropI);
+        }
+      }
+      function petriTick() {
+        if (!petriSpawn) return;
+        if (petriNext === 0) petriNext = vnow + PETRI.idleMs + Math.random() * PETRI.idleJitter;
+        if (petriPhase === 0 && vnow >= petriNext) {
+          // a drop forms just under the tip, pale at first
+          petriDropI = idxOf(petriSpawn[0], petriSpawn[1] + 1);
+          dyn[petriDropI] = petriDropPal[0];
+          dirty.add(petriDropI);
+          petriPhase = 1;
+          petriNext = vnow + (PETRI.swellMs || 500);
+        } else if (petriPhase === 1 && vnow >= petriNext) {
+          // saturated and heavy — let it fall
+          petriDropY = petriSpawn[1] + 1;
+          petriDropAt(petriDropY);
+          petriPhase = 2;
+          petriNext = vnow + (PETRI.stepMs || 100);
+        } else if (petriPhase === 2 && vnow >= petriNext) {
+          petriDropY += 1;
+          if (petriDropY > petriLand) {
+            // landed: the culture drinks it in — a brief warm pulse
+            petriDropAt(-1);
+            for (const i of petriColony) { dyn[i] = mix(cells[i], WHITE, 0.35); dirty.add(i); }
+            petriPhase = 3;
+            petriNext = vnow + (PETRI.pulseMs || 600);
+          } else {
+            petriDropAt(petriDropY);
+            petriNext = vnow + (PETRI.stepMs || 100);
+          }
+        } else if (petriPhase === 3 && vnow >= petriNext) {
+          for (const i of petriColony) { dyn[i] = -1; dirty.add(i); }
+          petriPhase = 0;
+          petriNext = vnow + PETRI.idleMs + Math.random() * PETRI.idleJitter;
         }
       }
 
@@ -2349,8 +2587,8 @@ const orgJsonLd = {
           const dnaRows = vnow <= dnaStart ? 0 : Math.ceil(((vnow - dnaStart) / DNA_DRAW_MS) * DNA.h);
           renderDna(vnow * 0.00035, dnaRows);
           if (vnow > revealDone + 400) chartTick();
-          if (vnow > revealDone + 1500) trainTick();
-          if (vnow > revealDone) { twinkleTick(); bubbleTick(); lightsTick(); }
+          if (vnow > revealDone + 500) trainTick();
+          if (vnow > revealDone) { twinkleTick(); bubbleTick(); lightsTick(); bulbTick(); petriTick(); }
         }
         if (dirty.size) {
           for (const i of dirty) paint(i);
@@ -2378,6 +2616,18 @@ const orgJsonLd = {
         wisps = [];
         for (const [i] of lit) dyn[i] = -1;
         lit.clear();
+        for (const [i] of darkWins) dyn[i] = -1;
+        darkWins.clear();
+        // Bulb rests in its painted "on" state: rays visible, cross beige.
+        for (const r of bulbRays) dyn[r.i] = -1;
+        for (const i of bulbCross) dyn[i] = -1;
+        bulbPhase = 0;
+        bulbNext = 0;
+        // Petri dish rests as painted: no drop mid-air, culture unpulsed.
+        if (petriDropI >= 0) { dyn[petriDropI] = -1; petriDropI = -1; }
+        for (const i of petriColony) dyn[i] = -1;
+        petriPhase = 0;
+        petriNext = 0;
         repaintAll();
       }
 

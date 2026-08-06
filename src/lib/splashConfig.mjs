@@ -55,7 +55,21 @@ export const splashConfig = {
     amp: 5.5, freq: 0.45,
     palA: ['#c9252e', '#eb3131', '#b51747', '#ef423d'],   // strand A — reds
     palB: ['#238583', '#2f9392', '#55be9f', '#0e676a'],   // strand B — teals
-    palRung: ['#ebdfc2'],
+    // Base pairs: each rung is two half-segments meeting at a 1-cell gap.
+    // Strictly complementary like real DNA — a rung is one of these two
+    // pair types, and the two families only ever appear opposite their
+    // partner. `main` shades vary cell to cell; `tip` is the lighter
+    // cell touching the gap, so the pair fades rather than stops hard.
+    rungPairs: [
+      { // A–T: periwinkle ↔ maroon/cherry
+        a: { main: ['#6e7ff2', '#9bb2f8', '#adc3f0'], tip: '#c9d9f8' },
+        b: { main: ['#771b28', '#b51747', '#66223b'], tip: '#d78d9b' },
+      },
+      { // G–C: leaf green ↔ coral red
+        a: { main: ['#64b37b', '#4a9d6e', '#86c1af'], tip: '#a2e2cf' },
+        b: { main: ['#f45e57', '#ef423d', '#fb857e'], tip: '#f8bdb9' },
+      },
+    ],
   },
 
   // Chart data lines — drawn/redrawn inside the painted panel. The
@@ -97,6 +111,50 @@ export const splashConfig = {
     x: 95, y: 40, w: 39, h: 28,
     maxOn: 8,                            // simultaneously lit windows
     pal: ['#f5dda8', '#fbeccb'],         // warm evening glow
+    // Windows painted into the artwork in this tone are permanently lit;
+    // the animation occasionally switches one off (overlaying the
+    // tower's own body colour) and back on, mirroring the random
+    // on/off rhythm of the unlit lattice windows.
+    winTone: '#f6e7bd',
+  },
+
+  // Lightbulb blink — the bulb, its beige filament cross and the little
+  // gold/blue rays around it are all painted art. At boot the engine
+  // finds the glass by its ring tones inside this region, then collects
+  // the cross (cross tones inside the ring's bbox) and the rays (ray
+  // tones outside it, within maxRay of the bulb's centre). Mostly the
+  // bulb rests in its painted "on" state; occasionally it blinks off —
+  // rays gone, cross dimmed to offCross blue — then relights, the rays
+  // sweeping back outward. Repainting the bulb Just Works.
+  bulb: {
+    x: 114, y: 26, w: 18, h: 21,
+    glass: ['#004ee6', '#4b5cce'],                    // ring tones → glass bbox
+    cross: ['#f6e7bd', '#f5dda8'],                    // filament cross tones
+    rays: ['#f5dda8', '#f6e7bd', '#adc3f0', '#9bb2f8', '#6e7ff2'],
+    offCross: '#adc3f0',                              // filament tone while off
+    maxRay: 11,                                       // ray radius from bulb centre
+    onMs: 4000, onJitter: 3000,                       // lit dwell: 4–7s
+    offMs: 900, offJitter: 500,                       // dark dwell: 0.9–1.4s
+    relightMs: 500,                                   // outward ray sweep
+  },
+
+  // Petri dish drip — the pipette above the dish periodically releases a
+  // red droplet: it swells pale at the tip, saturates, falls into the
+  // dish and lands with a brief warm pulse through the red culture. All
+  // geometry is discovered from the artwork at boot: the dish from its
+  // rim tone (bbox), the pipette tip as the lowest red cell above the
+  // rim, and the culture as red-family cells inside the dish. Repainting
+  // the dish Just Works.
+  petri: {
+    x: 92, y: 27, w: 22, h: 21,
+    rim: ['#87adcf'],                                  // dish rim tone → bbox
+    colony: ['#c9252e', '#b51747', '#f45e57', '#eb3131', '#ef423d', '#fb857e', '#f8bdb9'],
+    dropPal: ['#f8bdb9', '#eb3131'],                   // forming → falling drop
+    dropDepth: 5,                                      // rows below rim top where it lands
+    idleMs: 5000, idleJitter: 3000,                    // between drips: 5–8s
+    swellMs: 500,                                      // drop forming at the tip
+    stepMs: 100,                                       // fall speed per cell
+    pulseMs: 600,                                      // culture pulse after landing
   },
 
   // Steam train — crosses the painted viaduct. `row` is the loco's top
