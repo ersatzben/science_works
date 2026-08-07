@@ -702,7 +702,7 @@
       display: flex;
       align-items: center;
       padding: 0 24px;
-      min-height: 80px;
+      min-height: 60px;
       font-family: 'Antique Olive', sans-serif;
       font-size: 13px;
     }
@@ -714,39 +714,29 @@
     }
     .footer-copy {
       text-align: left;
+      text-transform: uppercase;
       letter-spacing: 0.04em;
       line-height: 1.3;
       opacity: 0.75;
     }
-    /* Right-hand group: policy links + copyright on one line, with the
-       registered-office notice tucked underneath, all right-aligned. */
+    /* Right-hand group: policy links + copyright, pushed to the far right. */
     .footer-end {
       margin-left: auto;          /* the "big space" between socials and this group */
       display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 10px;
-      padding: 20px 0;            /* breathing room now the band holds two lines */
+      align-items: center;
+      gap: 40px;                  /* spacing between the four right-hand items */
     }
-    .footer-policies { display: flex; align-items: center; gap: 20px; }
+    .footer-policies { display: flex; gap: 40px; }
     .footer-link {
       color: #fff;
       text-decoration: none;
       opacity: 0.75;
       display: inline-block;
+      text-transform: uppercase;
       letter-spacing: 0.04em;
       line-height: 1.3;
     }
     .footer-link:hover { opacity: 1; text-decoration: underline; }
-
-    .footer-link-divider { color: var(--border-grey); opacity: 0.5; }
-
-    .footer-registered {
-      font-size: 13px;
-      letter-spacing: 0.04em;
-      line-height: 1.3;
-      opacity: 0.55;
-    }
 
     .footer-socials {
       display: flex;
@@ -1089,8 +1079,6 @@
   .signup-pix { display: none; }
   .footer-info { display: none; }   /* the wordmark/projects block is desktop-only */
   .footer-bottom { padding: 0 8px; }
-  .footer-end { font-size: 8px; gap: 3px; padding: 8px 0; }
-  .footer-legal { gap: 16px; }
+  .footer-end { font-size: 8px; gap: 16px; }
   .footer-policies { gap: 16px; }
-  .footer-registered { font-size: 7px; }
 }
