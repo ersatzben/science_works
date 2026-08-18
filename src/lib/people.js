@@ -4,6 +4,7 @@
 // their role/bio/photo. Photos in people.json are bare filenames; we return the
 // full public path so callers can use it directly.
 import people from '../data/people.json';
+import { getOrganisation } from './organisations.js';
 
 const PHOTO_DIR = '/assets/images/people/';
 
@@ -48,4 +49,12 @@ export function getPerson(name) {
 // Used to link About cards and essay bylines to the canonical profile.
 export function profilePath(name) {
   return profileNames.has(name) ? `/people/${slugify(name)}` : null;
+}
+
+// Where a byline name should link. A person with a profile page goes there; the
+// studio itself (an org-authored piece, see organisations.js) goes to /about;
+// anyone else — a guest writer whose only presence is the bio card at the foot
+// of the piece — gets null, and the caller falls back to the #writers anchor.
+export function authorPath(name) {
+  return profilePath(name) ?? getOrganisation(name)?.path ?? null;
 }

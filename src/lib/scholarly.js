@@ -24,7 +24,21 @@ export const SCHOLARLY_TYPES = {
   // A Note is a shorter piece; scholarly-metadata-wise it presents the same way
   // as an Essay (Article/ScholarlyArticle/article-magazine) — only the label differs.
   note:     { schemaType: 'Article', signpost: 'https://schema.org/ScholarlyArticle', csl: 'article-magazine', label: 'Note' },
+  // An open letter. Editorially distinct — addressed to someone, signed, often
+  // with its own laid-out PDF — but presented with the same scholarly vocab as
+  // an Essay, per the note above about not disturbing existing structured data.
+  // If the taxonomy work later wants true fidelity, schema.org/Message and the
+  // CSL `document` type are the closer fits; `personal_communication` is NOT,
+  // as it denotes unpublished correspondence and reference managers treat it
+  // differently. Only the label differs today.
+  letter:   { schemaType: 'Article', signpost: 'https://schema.org/ScholarlyArticle', csl: 'article-magazine', label: 'Letter' },
 };
+
+// The valid `type` values, in the order they should be offered to a reader.
+// Derived here so the content schema, the validator, the scaffolder and the
+// writing-index filter cannot drift from this table — adding a row above is
+// genuinely the only edit a new type needs.
+export const TYPE_KEYS = Object.keys(SCHOLARLY_TYPES);
 
 export function scholarlyType(type) {
   return SCHOLARLY_TYPES[type] ?? SCHOLARLY_TYPES.essay;

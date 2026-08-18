@@ -1,0 +1,45 @@
+---
+// The letterhead footer that closes an open letter — enquiries address and the
+// company registration line. Set small, muted and in Roboto so it reads as
+// institutional small print rather than part of the argument, matching the
+// treatment of figure captions elsewhere in a piece.
+//
+// Each line is its own row (same `pre-line` mechanism as Address), so author it
+// as markdown with one line per row and no blank lines between them:
+//
+//   import LetterFooter from '../../components/LetterFooter.astro';
+//
+//   <LetterFooter>
+//
+//   Enquiries: [contact@science.works](mailto:contact@science.works)
+//   Science Works Limited is a company limited by guarantee…
+//
+//   </LetterFooter>
+---
+<div class="letter-footer"><slot /></div>
+
+<style is:global>
+  .letter-footer {
+    font-family: 'Roboto', sans-serif;
+    font-size: 13px;
+    line-height: 1.55;
+    color: #A2818B;              /* same muted tone as figure captions */
+    margin: 40px 0 0;
+  }
+  /* See Address.astro for why `pre-line` (not trailing double-spaces) does the
+     line breaking, and why the `.prose` prefix is needed to beat `.prose p`. */
+  .prose .letter-footer p {
+    white-space: pre-line;
+    margin: 0;
+  }
+  /* Links in the small print stay muted rather than taking the theme colour,
+     so the footer reads as one quiet block; underline on hover still signals
+     they are clickable. */
+  .prose .letter-footer a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: rgba(162, 129, 139, 0.45);
+  }
+  .prose .letter-footer a:hover { text-decoration-color: currentColor; }
+</style>

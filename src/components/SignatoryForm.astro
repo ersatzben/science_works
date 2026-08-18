@@ -1,0 +1,402 @@
+---
+// "…complete the form here" — an inline trigger that reveals a signatory form
+// in place, used inside the Summary box at the head of an open letter.
+//
+// Submission goes to Web3Forms, the same service (and the same public access
+// key) as the contact page: this is a static site with no server, so a hosted
+// form relay is the only way to receive a submission. The key is public by
+// design — it only ever routes mail to the fixed contact@science.works address.
+//
+// Usage (inside a Summary, or anywhere in an MDX body) — on its OWN line, with
+// blank lines around it, never mid-sentence:
+//
+//   import SignatoryForm from '../../components/SignatoryForm.astro';
+//
+//   <SignatoryForm
+//     lead="To add your support to the letter, individuals and organisations are welcome to"
+//     subject="Open letter on UKRI eligibility"
+//   />
+//
+// The lead-in sentence is a PROP rather than children because the component
+// renders a block-level panel: dropped mid-paragraph in MDX, that panel would
+// be a <div> inside a <p>, which is invalid HTML and gets silently torn apart
+// by the browser's parser. Owning the whole sentence keeps the output valid.
+// The component supplies the closing "complete the form here." itself, so `lead`
+// should stop just before it and carry no full stop.
+const {
+  // The sentence introducing the form, ending just before the trigger phrase.
+  lead = 'To add your support to the letter, individuals and organisations are welcome to',
+  // What the notification email is titled — say which letter was signed, since
+  // one inbox will eventually receive signatories for several.
+  subject = 'New signatory for an open letter',
+  // Overridable so a second letter can reword the trigger if it needs to.
+  label = 'complete the form here',
+  // Heading inside the panel — the sentence the signatory is agreeing to.
+  statement = 'Please add my/our support to the open letter on UKRI eligibility.',
+  // Which letter this submission is for. One sheet can collect for several, so
+  // every row records its origin. Falls back to the notification subject.
+  letter,
+} = Astro.props;
+
+// ── Where submissions go ────────────────────────────────────────────────────
+// Paste the deployed Apps Script web-app URL here — the one ending /exec, from
+// Deploy → New deployment on the collecting spreadsheet. See
+// docs/signatory-form.md for the steps, and docs/signatory-sheet.gs for the
+// script itself.
+//
+// While this is empty the form falls back to Web3Forms (below), so the page
+// keeps working; the moment it is filled in, submissions go to the sheet
+// INSTEAD and no notification email is sent at all. That is the point: a flood
+// of signatories belongs in a review queue, not in an inbox.
+const SHEET_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwA16i7XSv0jx2dRlwo9eQs46RcZehmqbKXOQ3g9rv8bFCwlvD5bL8yV31ZF2GaydBMsA/exec';
+
+// Fallback only, used until SHEET_ENDPOINT is set. Public by design — a
+// Web3Forms key only routes mail to the fixed address it was generated
+// against. NOTE: this is currently the contact page's key, so until the sheet
+// is live every signatory lands in the general enquiries inbox.
+const WEB3FORMS_KEY = 'dab1459e-1f8b-4c4d-b37a-295ef3899413';
+
+const letterName = letter ?? subject;
+
+// Unique-ish ids so two letters could each carry a form on one page without
+// their labels and aria-controls colliding.
+const uid = `sig-${Math.random().toString(36).slice(2, 8)}`;
+---
+<p class="sig-lead">{lead} <button type="button" class="sig-trigger" id={`${uid}-btn`} aria-expanded="false" aria-controls={uid}>{label}</button>.</p>
+
+<div class="sig-panel" id={uid} hidden>
+  <p class="sig-lede">{statement}</p>
+
+  {/* `action` is the no-JavaScript path: a native POST, which Apps Script reads
+      as urlencoded fields (its default enctype) just as happily as the JSON the
+      script below sends. `data-endpoint` tells that script which of the two
+      back ends is live. */}
+  <form class="sig-form" method="POST" action={SHEET_ENDPOINT || 'https://api.web3forms.com/submit'} data-endpoint={SHEET_ENDPOINT} novalidate>
+    <input type="hidden" name="letter" value={letterName} />
+    {!SHEET_ENDPOINT && (
+      <>
+        <input type="hidden" name="access_key" value={WEB3FORMS_KEY} />
+        <input type="hidden" name="subject" value={subject} />
+        <input type="hidden" name="from_name" value="science.works open letter" />
+      </>
+    )}
+    {/* Honeypot: bots fill it, humans never see it. */}
+    <input type="checkbox" name="botcheck" class="sig-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+    {/* Segmented control built from radios rather than buttons, so the choice
+        is keyboard-navigable, announced as a group, and submitted with the
+        form without any JavaScript holding the state. */}
+    <fieldset class="sig-field sig-toggle-set">
+      <legend class="sig-label">Signatory type</legend>
+      <div class="sig-toggle">
+        <input type="radio" id={`${uid}-ind`} name="signatory_type" value="Individual" checked />
+        <label for={`${uid}-ind`}>Individual</label>
+        <input type="radio" id={`${uid}-org`} name="signatory_type" value="Organisation" />
+        <label for={`${uid}-org`}>Organisation</label>
+      </div>
+    </fieldset>
+
+    <div class="sig-field">
+      <label class="sig-label" for={`${uid}-name`}>Signatory name <span class="sig-req">*</span></label>
+      <input id={`${uid}-name`} name="signatory_name" type="text" required />
+    </div>
+
+    <div class="sig-row">
+      <div class="sig-field">
+        <label class="sig-label" for={`${uid}-contact`}>Contact name <span class="sig-req">*</span></label>
+        <input id={`${uid}-contact`} name="contact_name" type="text" autocomplete="name" required />
+      </div>
+      <div class="sig-field">
+        <label class="sig-label" for={`${uid}-email`}>Contact email address <span class="sig-req">*</span></label>
+        <input id={`${uid}-email`} name="contact_email" type="email" autocomplete="email" required />
+      </div>
+    </div>
+
+    <label class="sig-check">
+      <input type="checkbox" name="newsletter" value="Yes" />
+      <span>Sign up to the Science Works newsletter</span>
+    </label>
+
+    <div class="sig-actions">
+      <button type="submit" class="sig-submit">Submit</button>
+      <p class="sig-status" role="status" aria-live="polite"></p>
+    </div>
+  </form>
+</div>
+
+{/* Without JavaScript the trigger cannot toggle anything, so show the form
+    outright and strip the trigger's link styling — the sentence still reads
+    correctly, and the form itself submits by ordinary POST. */}
+<noscript>
+  <style>
+    .sig-trigger { color: inherit; text-decoration: none; cursor: default; }
+    .sig-panel[hidden] { display: block; }
+  </style>
+</noscript>
+
+<style is:global>
+  /* ---- The inline trigger ---------------------------------------------
+     A <button> rather than an <a>, because it performs an action on this page
+     rather than going anywhere — but painted to read as a link so it sits
+     inside the sentence naturally. The full stop lives outside it so the
+     underline stops at the word. */
+  .sig-trigger {
+    font: inherit;
+    color: var(--theme);
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    /* Underline on hover only, matching `.prose a` — the trigger sits in a
+       sentence of body copy, so it should behave like every other link there. */
+    text-decoration: none;
+  }
+  .sig-trigger:hover { text-decoration: underline; text-underline-offset: 2px; }
+  .sig-trigger:focus-visible { outline: 2px solid var(--theme); outline-offset: 2px; border-radius: 2px; }
+
+  /* ---- The revealed panel ---------------------------------------------
+     Sits inside the Summary box, so it takes a rule above it to separate the
+     form from the copy that introduces it. */
+  .sig-panel {
+    margin-top: 22px;
+    padding-top: 22px;
+    border-top: 1px solid var(--border-grey);
+  }
+  /* These three are all <p>, so every margin rule below needs the `.prose`
+     prefix to outrank `.prose p`'s `margin: 0 0 24px` — a single class loses to
+     class+element whatever the source order. Getting this wrong is not just
+     cosmetic on .sig-status: an unwanted bottom margin is part of a flex item's
+     outer box, so `align-items: center` would centre the margin along with the
+     text and leave the message floating above the Submit button. */
+
+  /* No bottom margin: the panel's own top margin sets the gap when it opens,
+     and the Summary box's padding does the job when it is closed. */
+  .prose .sig-lead { margin-bottom: 0; }
+  .sig-lede {
+    font-family: 'Antique Olive', sans-serif;
+    font-weight: 500;
+  }
+  .prose .sig-lede { margin: 0 0 18px; }
+  .sig-form { display: flex; flex-direction: column; gap: 16px; }
+  .sig-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .sig-field { display: flex; flex-direction: column; gap: 6px; border: 0; padding: 0; margin: 0; min-width: 0; }
+
+  /* Matches the contact form's field furniture so the two read as one system. */
+  .sig-label {
+    font-family: 'Antique Olive', sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--text);
+    padding: 0;
+  }
+  .sig-req { color: var(--theme); font-weight: 500; }
+  .sig-field input[type="text"],
+  .sig-field input[type="email"] {
+    font-family: 'Antique Olive', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--text);
+    background: var(--almost-white);
+    border: 1px solid var(--border-grey);
+    border-radius: 4px;
+    padding: 11px 13px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .sig-field input:focus {
+    outline: none;
+    border-color: var(--theme);
+    box-shadow: inset 0 0 0 1px var(--theme);
+  }
+
+  /* ---- Individual / Organisation segmented control ---------------------
+     The radios themselves are visually hidden (not display:none, which would
+     take them out of the focus order) and their labels do the painting. */
+  .sig-toggle { display: inline-flex; border: 1px solid var(--border-grey); border-radius: 5px; overflow: hidden; width: max-content; max-width: 100%; }
+  .sig-toggle input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+  }
+  .sig-toggle label {
+    font-family: var(--button-text);
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    color: var(--text);
+    background: var(--almost-white);
+    padding: 8px 18px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+  .sig-toggle label + input + label { border-left: 1px solid var(--border-grey); }
+  .sig-toggle input:checked + label { background: var(--theme); color: #fff; }
+  /* Focus ring on the label, since the real input is invisible. */
+  .sig-toggle input:focus-visible + label { outline: 2px solid var(--theme); outline-offset: -3px; }
+
+  /* ---- Checkbox, matching the contact form ---------------------------- */
+  .sig-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    cursor: pointer;
+    font-family: 'Antique Olive', sans-serif;
+    font-weight: 300;
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--text);
+  }
+  .sig-check input {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+    margin: 0;
+    border: 1.5px solid var(--border-grey);
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    top: 3px;
+  }
+  .sig-check input:checked { background: var(--theme); border-color: var(--theme); }
+  .sig-check input:checked::after {
+    content: '';
+    position: absolute;
+    left: 5px; top: 1px;
+    width: 5px; height: 10px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  .sig-hp { position: absolute; left: -9999px; opacity: 0; }
+
+  .sig-actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .sig-submit {
+    font-family: var(--button-text);
+    font-weight: 500;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #fff;
+    background: var(--theme);
+    border: 1.5px solid var(--theme);
+    border-radius: 5px;
+    padding: 6px 20px;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+  .sig-submit:hover { background: #fff; color: var(--theme); }
+  .sig-submit:disabled { opacity: 0.6; cursor: default; }
+
+  .sig-status { font-family: 'Antique Olive', sans-serif; font-weight: 300; font-size: 14px; line-height: 1.4; }
+  .prose .sig-status { margin: 0; }
+  .sig-status.is-success { color: var(--sage); }
+  .sig-status.is-error { color: var(--theme); }
+
+  @media (max-width: 600px) {
+    .sig-row { grid-template-columns: 1fr; }
+  }
+
+  /* The form is a page control, not part of the letter — never print it. */
+  @media print {
+    .sig-lead, .sig-panel { display: none !important; }
+  }
+</style>
+
+<script>
+  // Reveal-and-submit for every signatory form on the page. Written to cope
+  // with more than one instance, so a page carrying two letters still works.
+  document.querySelectorAll('.sig-trigger').forEach((trigger) => {
+    const panel = document.getElementById(trigger.getAttribute('aria-controls'));
+    if (!panel) return;
+
+    trigger.addEventListener('click', () => {
+      const open = panel.hasAttribute('hidden');
+      panel.toggleAttribute('hidden', !open);
+      trigger.setAttribute('aria-expanded', String(open));
+      // Move focus to the first control on open, so a keyboard user lands in
+      // the form they just asked for instead of having to tab back to it.
+      if (open) panel.querySelector('input:not([type="hidden"]):not(.sig-hp)')?.focus();
+    });
+  });
+
+  document.querySelectorAll('.sig-form').forEach((form) => {
+    const statusEl = form.querySelector('.sig-status');
+    const btn = form.querySelector('.sig-submit');
+
+    // Best-effort newsletter subscribe via the same Brevo (Sendinblue) hosted
+    // endpoint the footer signup and the contact form post to. Fire-and-forget
+    // (no-cors): it must never block or fail the signatory submission itself.
+    function subscribeToBrevo(email) {
+      const BREVO_SERVE = 'https://02b7cd5d.sibforms.com/serve/MUIFAJZ2eGNQzP0fGOsdltQtijRH1_hQcf_201A1U1qBQOWLgR7qRj244ABWg5NLG5B6Rm1V-_xpC6-BuGPXst4EnyRgaXSpNPTg1A4LsUjNRkKK6WPYxiFAn-4vrviBP6pLhkfhwy9WGTeIp_c4mMpFJ7abXlKWzVWumXm-dGtig8AfnEVxT13RhIw76k1FbHXRB78e0PzuS7F_Sw==';
+      const fd = new FormData();
+      fd.append('EMAIL', email);
+      fd.append('GDPR_ACCEPTED', '1');
+      fd.append('locale', 'en');
+      fd.append('email_address_check', '');   // honeypot — must stay empty
+      fetch(BREVO_SERVE, { method: 'POST', body: fd, mode: 'no-cors' }).catch(() => {});
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      // The form carries `novalidate` so we control when the browser's own
+      // messages appear; this puts them back at the point of submission.
+      if (!form.checkValidity()) { form.reportValidity(); return; }
+
+      // Capture before the reset clears the fields.
+      const wantsUpdates = form.querySelector('input[name="newsletter"]').checked;
+      const emailValue = (form.querySelector('input[name="contact_email"]').value || '').trim();
+
+      statusEl.textContent = '';
+      statusEl.className = 'sig-status';
+      const label = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+
+      try {
+        // Two back ends, one handler. The Apps Script sheet is preferred when
+        // configured; Web3Forms is the fallback until it is.
+        //
+        // The sheet POST sends JSON as text/plain ON PURPOSE. That keeps it a
+        // CORS "simple request" so no preflight is issued — Apps Script exposes
+        // only doPost/doGet, cannot answer an OPTIONS preflight, and the request
+        // would fail outright with application/json. Both back ends happen to
+        // answer with {success, message}, so the handling below is shared.
+        const endpoint = form.dataset.endpoint;
+        const res = endpoint
+          ? await fetch(endpoint, {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify(Object.fromEntries(new FormData(form))),
+            })
+          : await fetch('https://api.web3forms.com/submit', {
+              method: 'POST',
+              headers: { Accept: 'application/json' },
+              body: new FormData(form),
+            });
+        const data = await res.json();
+        if (data.success) {
+          form.reset();
+          statusEl.textContent = 'Thank you — your support has been recorded.';
+          statusEl.classList.add('is-success');
+          if (wantsUpdates && emailValue) subscribeToBrevo(emailValue);
+        } else {
+          statusEl.textContent = (data && data.message) || 'Something went wrong. Please email contact@science.works directly.';
+          statusEl.classList.add('is-error');
+        }
+      } catch (err) {
+        statusEl.textContent = 'Network error — please try again, or email contact@science.works directly.';
+        statusEl.classList.add('is-error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = label;
+      }
+    });
+  });
+</script>

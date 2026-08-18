@@ -13,6 +13,7 @@ in `docs/` over improvising.
 - `docs/homepage.md` — map of the homepage containers in `src/pages/index.astro` (hero text is duplicated for desktop/mobile — edit both)
 - `docs/operations.md` — deploys, staging vs production, DNS, access, failure playbook
 - `docs/fair-signposting.md` — scholarly metadata, licensing, DOIs, the production gate
+- `docs/signatory-form.md` — the open-letter signatory form, its Google Sheet review queue, and how a name gets published
 
 ## Commands
 

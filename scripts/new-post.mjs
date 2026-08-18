@@ -15,6 +15,7 @@
 // New pieces start as draft: true — they build a page you can preview by URL
 // but never appear in listings, feeds, or the homepage until you flip it.
 import { mkdirSync, writeFileSync, existsSync } from 'node:fs';
+import { TYPE_KEYS } from '../src/lib/scholarly.js';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -43,7 +44,7 @@ const slugify = (s) =>
 
 const slug = opt('--slug', slugify(title));
 const type = opt('--type', 'essay');
-if (!['essay', 'report', 'longread', 'note'].includes(type)) {
+if (!TYPE_KEYS.includes(type)) {
   console.error(`✗ --type must be essay, report, longread, or note (got "${type}")`);
   process.exit(1);
 }

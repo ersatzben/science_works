@@ -1,0 +1,35 @@
+---
+// Tight block of line-broken text for the head of a letter — the addressee,
+// their title and organisation — where each line needs its own row but NOT the
+// 24px paragraph gap `.prose p` would put between separate paragraphs.
+//
+// Authored as ordinary markdown, one line per row, with no blank lines between
+// them. MDX parses that as a single paragraph whose source newlines survive
+// into the HTML; `white-space: pre-line` below turns those newlines into line
+// breaks. That means no trailing-double-space markdown trickery, which is
+// invisible in an editor and silently stripped by most formatters.
+//
+//   import Address from '../../components/Address.astro';
+//
+//   <Address>
+//
+//   Professor Sir Ian Chapman FREng FRS FInstP
+//   Chief Executive
+//   UK Research and Innovation
+//
+//   </Address>
+---
+<div class="address"><slot /></div>
+
+<style is:global>
+  /* `pre-line` keeps source newlines as breaks but still collapses runs of
+     spaces and wraps long lines normally — exactly what an address block wants.
+     The `.prose` prefix lifts specificity above `.prose p`, which would
+     otherwise win on source order and restore the paragraph gap. */
+  .prose .address p {
+    white-space: pre-line;
+    margin: 0;
+  }
+  /* Tighter than prose's 1.72: address lines are short and read as a block. */
+  .address { line-height: 1.5; margin: 0 0 24px; }
+</style>

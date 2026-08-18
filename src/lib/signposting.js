@@ -13,7 +13,7 @@
 //
 // Everything here is pure JS (no astro:content) so the node postbuild script can
 // import it too. Production gating lives in the callers, not here.
-import { profilePath } from './people.js';
+import { authorPath } from './people.js';
 import { resolveLicense } from './licensing.js';
 import { scholarlyType } from './scholarly.js';
 
@@ -55,8 +55,11 @@ export function pieceSignposting(entry, site) {
   const canonical = new URL(`/writing/${entry.id}/`, site).href;
   const lic = resolveLicense(d.license);
   const st = scholarlyType(d.type);
+  // rel="author" points at whatever page identifies the author: a person's
+  // profile, or /about when the studio itself is the author. Names with neither
+  // (guest writers, who exist only as a bio card) contribute no link.
   const authors = d.authors
-    .map((name) => profilePath(name))
+    .map((name) => authorPath(name))
     .filter(Boolean)
     .map((p) => new URL(p, site).href);
 

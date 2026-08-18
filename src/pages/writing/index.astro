@@ -4,7 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import GridArt from '../../components/GridArt.astro';
 import { coverFor } from '../../lib/covers.js';
 import banner from '../../data/decor/writing-banner.json';
-import { scholarlyType } from '../../lib/scholarly.js';
+import { scholarlyType, TYPE_KEYS } from '../../lib/scholarly.js';
 
 const all = (await getCollection('writing'))
   .filter((e) => !e.data.draft && !e.data.hidden)
@@ -13,6 +13,10 @@ const latest = all[0];   // newest by date (list is sorted newest-first)
 const fmt = (d) => d.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
 const label = (t) => scholarlyType(t).label;
 const projects = [...new Set(all.map((e) => e.data.project))].sort((a, b) => a.localeCompare(b));
+// Type filters come from the scholarly table rather than a hand-kept list here,
+// so a new content type is offered to readers the moment it exists. Hardcoding
+// them meant a new type was silently unfilterable.
+const types = TYPE_KEYS.map((key) => ({ key, label: scholarlyType(key).label }));
 ---
 <BaseLayout title="Writing — Science Works" description="Essays, research and policy writing from Science Works on reshaping the British research system.">
   <main class="writing-index">
@@ -38,10 +42,9 @@ const projects = [...new Set(all.map((e) => e.data.project))].sort((a, b) => a.l
           </div>
           <div class="wi-filter-group">
             <p class="wi-filter-heading">Type</p>
-            <label class="wi-check"><input type="checkbox" class="wi-f-type" value="essay" /><span>Essay</span></label>
-            <label class="wi-check"><input type="checkbox" class="wi-f-type" value="report" /><span>Report</span></label>
-            <label class="wi-check"><input type="checkbox" class="wi-f-type" value="longread" /><span>Long Read</span></label>
-            <label class="wi-check"><input type="checkbox" class="wi-f-type" value="note" /><span>Note</span></label>
+            {types.map((t) => (
+              <label class="wi-check"><input type="checkbox" class="wi-f-type" value={t.key} /><span>{t.label}</span></label>
+            ))}
           </div>
           <button class="wi-filter-clear" type="button">Clear all</button>
         </div>

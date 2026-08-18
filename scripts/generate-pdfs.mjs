@@ -19,6 +19,12 @@
 //
 // The "Download PDF" button in WritingLayout links to /writing/<slug>.pdf.
 //
+// EXCEPTION: a piece whose frontmatter sets `pdf:` supplies its own file (a
+// hand-laid-out letter, a designed report) and is skipped here entirely. The
+// layout, the download button and the rel="item" signpost all follow that same
+// frontmatter field, so generating a page-scrape alongside it would only burn
+// build time and leave a second, worse PDF sitting at a URL nothing links to.
+//
 // Env knobs (local iteration only):
 //   PDF_ONLY_SLUG=<slug>   generate just one article
 import { chromium } from 'playwright';
@@ -28,9 +34,11 @@ import { readFile, writeFile, readdir, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parse as parseYaml } from 'yaml';
 
 const DIST = fileURLToPath(new URL('../dist', import.meta.url));
 const WRITING = join(DIST, 'writing');
+const CONTENT = fileURLToPath(new URL('../src/content/writing', import.meta.url));
 
 // A4 content width (210mm − 2×16mm side margins) in CSS px at 96dpi. Drives the
 // header strip width so it lines up edge-to-edge with the article body.
@@ -76,6 +84,31 @@ async function articleSlugs() {
     if (e.isDirectory() && existsSync(join(WRITING, e.name, 'index.html'))) slugs.push(e.name);
   }
   return slugs.sort();
+}
+
+// Slugs whose frontmatter declares an explicit `pdf:` — they ship a supplied
+// file, so we must not scrape a replacement. Read straight from the source
+// rather than the build, since dist/ carries no frontmatter. A file we cannot
+// parse is treated as "generate normally": failing to skip is a wasted render,
+// whereas failing to render would silently lose a piece's PDF.
+async function slugsWithSuppliedPdf() {
+  const supplied = new Set();
+  if (!existsSync(CONTENT)) return supplied;
+  for (const name of await readdir(CONTENT)) {
+    if (!/\.mdx?$/.test(name)) continue;
+    try {
+      const raw = await readFile(join(CONTENT, name), 'utf8');
+      const m = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+      if (!m) continue;
+      const fm = parseYaml(m[1]) || {};
+      if (typeof fm.pdf === 'string' && fm.pdf.trim()) {
+        supplied.add(name.replace(/\.mdx?$/, ''));
+      }
+    } catch {
+      // Unparseable frontmatter is the content checker's problem, not ours.
+    }
+  }
+  return supplied;
 }
 
 // Render the running-header strip to a PNG data URI, using the real brand fonts.
@@ -160,6 +193,16 @@ async function main() {
 
   let slugs = await articleSlugs();
   if (only) slugs = slugs.filter((s) => s === only);
+
+  // Say out loud what was skipped and why — a silently missing PDF is the kind
+  // of thing nobody notices until a reader clicks Download.
+  const supplied = await slugsWithSuppliedPdf();
+  const skipped = slugs.filter((s) => supplied.has(s));
+  if (skipped.length) {
+    console.log(`[pdf] skipping ${skipped.length} piece(s) with a supplied pdf: ${skipped.join(', ')}`);
+    slugs = slugs.filter((s) => !supplied.has(s));
+  }
+
   if (slugs.length === 0) { console.warn('[pdf] no articles to render.'); server.close(); return; }
 
   const browser = await chromium.launch();

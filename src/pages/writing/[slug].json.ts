@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import { resolveLicense } from '../../lib/licensing.js';
 import { scholarlyType } from '../../lib/scholarly.js';
 import { doiToURL } from '../../lib/signposting.js';
+import { getOrganisation } from '../../lib/organisations.js';
 
 // Per-piece machine-readable bibliographic record at /writing/<slug>.json, in
 // CSL-JSON (the format Zotero / reference managers ingest). It is the target of
@@ -23,7 +24,13 @@ export async function getStaticPaths() {
 
 // "Given Family" → CSL { family, given }. Single-token names → family only.
 // (Good enough; a per-author override can come with the people/ORCID work.)
+//
+// An organisation standing as author is not a personal name and must not be
+// split: CSL represents a corporate author as a single `literal` field, so
+// reference managers render "Science Works" rather than inventing a surname and
+// citing it as "Works, S.".
 function cslName(name: string) {
+  if (getOrganisation(name)) return { literal: name };
   const parts = name.trim().split(/\s+/);
   if (parts.length === 1) return { family: parts[0] };
   return { family: parts[parts.length - 1], given: parts.slice(0, -1).join(' ') };

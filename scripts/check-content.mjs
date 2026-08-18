@@ -9,6 +9,8 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parse as parseYaml } from 'yaml';
 import { LICENSES } from '../src/lib/licensing.js';
+import { TYPE_KEYS } from '../src/lib/scholarly.js';
+import { getOrganisation } from '../src/lib/organisations.js';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const WRITING = join(ROOT, 'src/content/writing');
@@ -37,7 +39,8 @@ const slugs = new Set(pieceFiles.map((f) => f.replace(/\.(md|mdx)$/, '')));
 console.log(bold(`\nChecking ${pieceFiles.length} writing pieces…`));
 
 const REQUIRED = ['title', 'authors', 'date', 'type', 'project'];
-const TYPES = ['essay', 'report', 'longread', 'note'];
+// Single source of truth: src/lib/scholarly.js. Add a type there, not here.
+const TYPES = TYPE_KEYS;
 
 // Everyone named in people.json (any group) can be an author without a
 // `writers:` entry — their bio resolves automatically.
@@ -112,11 +115,26 @@ for (const file of pieceFiles) {
   }
 
   // Authors should resolve to a bio: either on the /about page (people.json)
-  // or supplied via writers: in this piece's frontmatter.
+  // or supplied via writers: in this piece's frontmatter. An organisation
+  // author (a house piece published under the studio's name) is exempt — it is
+  // meant to have no bio card, and its byline links to /about instead.
   const writerNames = new Set((fm.writers ?? []).map((w) => w?.name).filter(Boolean));
   for (const author of Array.isArray(fm.authors) ? fm.authors : []) {
+    if (getOrganisation(author)) continue;
     if (!knownPeople.has(author) && !writerNames.has(author)) {
       warn(file, `author "${author}" is not in people.json and has no writers: entry — they will appear with no role or bio`);
+    }
+  }
+
+  // A supplied `pdf:` must actually be on disk. Getting this wrong is invisible
+  // until a reader clicks Download and gets a 404 — and because an explicit
+  // pdf: also suppresses generation, there is no fallback file behind it.
+  if (typeof fm.pdf === 'string' && fm.pdf.trim()) {
+    const ref = fm.pdf.trim();
+    if (ref.startsWith('/')) {
+      if (!existsSync(join(PUBLIC, ref.replace(/^\//, '')))) {
+        error(file, `pdf: points at "${ref}" but no such file exists in public/ — the Download button would 404`);
+      }
     }
   }
 
