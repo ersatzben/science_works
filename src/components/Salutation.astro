@@ -1,0 +1,34 @@
+---
+// The salutation line of a letter — "Dear Ian," — and, more importantly, the
+// gap after it.
+//
+// A letter's subject line follows the salutation immediately; the 44px of air
+// `.prose h2` puts above every heading is right for an essay changing section
+// but wrong here, where the two lines belong together. Rather than touch that
+// global rule (which would loosen every other piece on the site) or drop the
+// h2 (which would take the section out of the sidebar TOC, since that is built
+// from `prose.querySelectorAll('h2')`), this closes the gap only where a
+// heading directly follows a salutation.
+//
+// Usage:
+//
+//   import Salutation from '../../components/Salutation.astro';
+//
+//   <Salutation>Dear Ian,</Salutation>
+//
+//   ## Reforming UKRI Eligibility
+---
+<div class="salutation"><slot /></div>
+
+<style is:global>
+  /* `.prose` prefix so these beat `.prose p` / `.prose h2`, which win on
+     specificity otherwise — see Address.astro for the same trap. */
+  .prose .salutation p { margin: 0; }
+
+  /* The heading that follows loses its top margin; the salutation's own 24px
+     bottom margin then sets the whole gap. Scoped to the adjacent sibling, so
+     a heading anywhere else in the piece is untouched. */
+  .prose .salutation + h2 { margin-top: 0; }
+
+  .salutation { margin: 0 0 20px; }
+</style>
