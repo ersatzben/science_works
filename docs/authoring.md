@@ -126,6 +126,30 @@ Every piece has pixel-art cover (the mosaic on its card). **Laura makes these**
 Until it exists, the piece shows a neutral placeholder — publishing without a
 cover is fine; it can be added later.
 
+### Share cards
+
+Every piece also gets a share card — the 1200×630 image that appears when a
+link is posted on social media, Slack, WhatsApp and so on. These are
+**generated, not hand-made**: run
+
+```
+npm run og
+```
+
+and the card appears at `public/og/<your-slug>.png` (commit it with the piece).
+It composes the cover art with the title, standfirst and authors from the
+frontmatter, so run it again after changing any of those — `npm run check`
+will remind you if a card has gone stale. The card prefers the compact
+`shortTitle:` for the title, and for the standfirst it uses the first of
+`ogSubtitle:` → `shortSubtitle:` → `subtitle:` (never `summary:`, which is too
+long for a card). So if the text looks cramped or gets cut off with a … on the
+card, add a `shortTitle:` or a punchy one-to-two-sentence `ogSubtitle:` and
+regenerate.
+
+To keep a hand-designed card for a particular piece instead, save your image
+as `public/og/<slug>.png` and add `ogManual: true` to the frontmatter — the
+generator will leave it alone.
+
 ## Previewing
 
 **Ask Claude Code:** *"show me the piece in the browser"* — or run

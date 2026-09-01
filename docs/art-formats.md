@@ -65,6 +65,12 @@ either a colour or transparent. Loaders accept either format everywhere
   column each side), and the homepage carousel shows them **square** (only the
   central 25 of the 40 columns survive). Keep the key subject inside the
   central square; treat the outer ~7 columns each side as bleed.
+- **Covers also appear on share cards** (the images social media shows — see
+  "Share cards" in [authoring.md](authoring.md)): the card shows the central
+  30 of the 40 columns at full height. After changing a cover, run
+  `npm run og` to refresh the piece's card; `npm run check` will remind you.
+  If the card's crop cuts the motif awkwardly, ask Claude Code to nudge it —
+  there's a per-piece adjustment in the generator script.
 - A piece with no cover file shows a neutral pixel placeholder — publishing
   before the cover exists is fine.
 

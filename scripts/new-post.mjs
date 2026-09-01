@@ -121,4 +121,5 @@ console.log(`  2. Ask Laura for a cover: src/data/covers/${slug}.json (see docs/
 console.log(`     Until it exists the piece shows a neutral pixel placeholder — that's fine.`);
 console.log('  3. Preview locally: npm run dev, then open http://localhost:4321/writing/' + slug);
 console.log('  4. Validate: npm run check');
-console.log('  5. When ready to publish, set draft: false and merge to main.');
+console.log('  5. Generate the share card (the image social media shows): npm run og');
+console.log('  6. When ready to publish, set draft: false and merge to main.');

@@ -8,6 +8,7 @@
     "build": "astro build",
     "postbuild": "node scripts/generate-headers.mjs && node scripts/generate-pdfs.mjs",
     "new-post": "node scripts/new-post.mjs",
+    "og": "node scripts/generate-og-writing.mjs",
     "check": "node scripts/check-content.mjs",
     "pdf": "node scripts/generate-pdfs.mjs",
     "headers": "node scripts/generate-headers.mjs",
@@ -21,8 +22,10 @@
     "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
+    "fontkit": "^2.0.4",
     "pdf-lib": "^1.17.1",
     "playwright": "^1.61.0",
+    "tslib": "^2.8.1",
     "yaml": "^2.9.0"
   }
 }

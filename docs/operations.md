@@ -98,6 +98,11 @@ and nothing updates by itself. Guidance for non-technical maintainers:
 - Routine security bumps: ask Claude Code to run `npm audit` and apply safe fixes.
 - **Never take an Astro major-version upgrade casually** — that's a real
   migration; do it with technical help and test on staging first.
+- Share cards (`public/og/*.png`) are generated locally by `npm run og` and
+  committed, so deploys never depend on card generation working. The generator
+  renders with the site's own font files plus freely-licensed copies of
+  Playfair Display and Roboto vendored in `assets/fonts/` — everything it
+  needs is in the repository, nothing is fetched at build time.
 
 ## Emergency contacts / escalation
 

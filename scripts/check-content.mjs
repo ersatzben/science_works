@@ -11,6 +11,7 @@ import { parse as parseYaml } from 'yaml';
 import { LICENSES } from '../src/lib/licensing.js';
 import { TYPE_KEYS } from '../src/lib/scholarly.js';
 import { getOrganisation } from '../src/lib/organisations.js';
+import { ogContentHash } from './og-hash.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const WRITING = join(ROOT, 'src/content/writing');
@@ -46,6 +47,10 @@ const TYPES = TYPE_KEYS;
 // `writers:` entry — their bio resolves automatically.
 const people = JSON.parse(readFileSync(join(ROOT, 'src/data/people.json'), 'utf8'));
 const knownPeople = new Set(Object.values(people).flat().map((p) => p.name));
+
+// Share-card freshness ledger, written by `npm run og` (see scripts/og-hash.mjs).
+const ogManifestPath = join(PUBLIC, 'og/manifest.json');
+const ogManifest = existsSync(ogManifestPath) ? JSON.parse(readFileSync(ogManifestPath, 'utf8')) : {};
 
 for (const file of pieceFiles) {
   const slug = file.replace(/\.(md|mdx)$/, '');
@@ -135,6 +140,17 @@ for (const file of pieceFiles) {
       if (!existsSync(join(PUBLIC, ref.replace(/^\//, '')))) {
         error(file, `pdf: points at "${ref}" but no such file exists in public/ — the Download button would 404`);
       }
+    }
+  }
+
+  // Share card (public/og/<slug>.png): warn when it is missing or was
+  // generated from older content — `npm run og` refreshes it. Hand-made cards
+  // (ogManual: true) and hidden pieces are exempt.
+  if (!fm.hidden && !fm.ogManual) {
+    if (!existsSync(join(PUBLIC, 'og', `${slug}.png`))) {
+      warn(file, 'no share card yet (public/og/' + slug + '.png) — run `npm run og` to generate it');
+    } else if (ogManifest[slug] !== ogContentHash(fm, slug, COVERS)) {
+      warn(file, 'the share card is out of date with the piece or its cover — run `npm run og` to refresh it');
     }
   }
 
